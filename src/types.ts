@@ -1,4 +1,12 @@
-export type TabId = "file" | "home" | "insert" | "draw" | "history" | "review" | "view" | "help";
+export type TabId =
+  | "file"
+  | "home"
+  | "insert"
+  | "draw"
+  | "history"
+  | "review"
+  | "view"
+  | "help";
 
 export interface RibbonState {
   activeTab: TabId;

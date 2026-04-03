@@ -103,23 +103,20 @@
   display: none !important;
 }
 
-/* Force the editor split to stack vertically so the ribbon sits above the tabs */
-.workspace-split.mod-root {
+/* Full-width ribbon: stack the ribbon above the entire workspace (both sidebars + editor) */
+.horizontal-main-container {
+  display: flex !important;
   flex-direction: column !important;
 }
 
-.workspace-split.mod-root > .workspace-tabs {
+.horizontal-main-container > .workspace {
   flex: 1 1 0 !important;
   min-height: 0 !important;
 }
 
-/* Prevent the resize handle hr from growing in column layout */
-.workspace-split.mod-root > hr.workspace-leaf-resize-handle {
-  flex: 0 0 auto !important;
-  height: 1px;
-}
-
-.workspace-split.mod-root > #onenote-ribbon {
+/* Ribbon sits at top, takes only its content height (Obsidian sets flex-grow:1 on children
+   so we need max-height to prevent it expanding to fill the container) */
+.horizontal-main-container > #onenote-ribbon {
   flex: 0 0 auto !important;
   height: auto !important;
   min-height: 0 !important;

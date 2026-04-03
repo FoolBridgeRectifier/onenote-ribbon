@@ -73,7 +73,7 @@ export class RibbonView {
     // Ribbon body (empty for now — tabs will populate this)
     this.bodyEl = root.createDiv({ cls: "or-body" });
 
-    return root;  // syncDOM() is called by constructor after this.el is set
+    return root; // syncDOM() is called by constructor after this.el is set
   }
 
   private syncDOM() {
@@ -101,7 +101,8 @@ export class RibbonView {
 
   private selectTab(id: TabId) {
     const wasActive = this.state.activeTab === id;
-    const isCollapsed = this.el.classList.contains("is-collapsed") ||
+    const isCollapsed =
+      this.el.classList.contains("is-collapsed") ||
       !this.bodyEl.classList.contains("is-visible");
     this.state.activeTab = id;
 
@@ -149,17 +150,16 @@ export class RibbonView {
     }
   }
 
-  /** Mount the ribbon above the workspace content area */
+  /** Mount the ribbon full-width above the entire workspace (both sidebars + editor) */
   mount() {
-    // .workspace-split.mod-root is the vertical flex column that holds the
-    // editor tab headers and leaf content. Prepending here places the ribbon
-    // above the editor without disturbing the left/right sidebars.
-    const modRoot = document.querySelector(".workspace-split.mod-root") as HTMLElement;
-    if (!modRoot) {
-      console.error("OneNote Ribbon: .workspace-split.mod-root not found");
+    const workspace = document.querySelector(".workspace") as HTMLElement;
+    if (!workspace) {
+      console.error("OneNote Ribbon: .workspace not found");
       return;
     }
-    modRoot.prepend(this.el);
+    // Insert before .workspace inside .horizontal-main-container so the ribbon
+    // spans the full app width above the left nav, editor, and right nav.
+    workspace.insertAdjacentElement("beforebegin", this.el);
   }
 
   /** Remove ribbon from DOM and clean up listeners */
