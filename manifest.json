@@ -1,0 +1,9 @@
+{
+  "id": "onenote-ribbon",
+  "name": "OneNote Ribbon",
+  "version": "0.1.0",
+  "minAppVersion": "1.4.0",
+  "description": "A Microsoft OneNote-style ribbon toolbar for Obsidian.",
+  "author": "local",
+  "isDesktopOnly": true
+}
