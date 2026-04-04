@@ -124,3 +124,124 @@
   overflow: hidden;
   width: 100%;
 }
+
+/* ── Buttons ── */
+#onenote-ribbon .or-btn {
+  display: flex;
+  border-radius: 2px;
+  cursor: pointer;
+  flex-shrink: 0;
+  border: 1px solid transparent;
+}
+#onenote-ribbon .or-btn:hover {
+  background: rgba(114, 24, 165, 0.09);
+  border-color: rgba(114, 24, 165, 0.25);
+}
+#onenote-ribbon .or-btn:active {
+  background: rgba(114, 24, 165, 0.18);
+}
+#onenote-ribbon .or-btn[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+#onenote-ribbon .or-btn[aria-disabled="true"]:hover {
+  background: none;
+  border-color: transparent;
+}
+
+/* Large button */
+#onenote-ribbon .or-btn-lg {
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  padding: 3px 6px 2px;
+  min-width: 44px;
+  height: 68px;
+}
+#onenote-ribbon .or-btn-lg svg {
+  width: 28px; height: 28px;
+  margin-top: auto;
+}
+#onenote-ribbon .or-btn-lg .or-btn-label {
+  font-size: 7.5pt;
+  color: var(--ribbon-text);
+  text-align: center;
+  line-height: 1.2;
+  white-space: nowrap;
+  max-width: 58px;
+}
+
+/* Medium button */
+#onenote-ribbon .or-btn-md {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 3px 5px;
+  min-width: 38px;
+}
+#onenote-ribbon .or-btn-md svg { width: 22px; height: 22px; }
+#onenote-ribbon .or-btn-md .or-btn-label {
+  font-size: 7.5pt;
+  color: var(--ribbon-text-muted);
+  white-space: nowrap;
+}
+
+/* Small button */
+#onenote-ribbon .or-btn-sm {
+  align-items: center;
+  justify-content: center;
+  padding: 2px 3px;
+  min-width: 22px;
+  height: 22px;
+}
+#onenote-ribbon .or-btn-sm svg { width: 16px; height: 16px; }
+
+/* Format button (B/I/U/S text) */
+#onenote-ribbon .or-btn-fmt {
+  align-items: center;
+  justify-content: center;
+  width: 23px;
+  height: 22px;
+  font-size: 11.5px;
+  color: var(--ribbon-text);
+}
+
+/* Groups */
+#onenote-ribbon .or-grp {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+#onenote-ribbon .or-grp + .or-grp {
+  border-left: 1px solid var(--ribbon-border);
+  margin-left: 1px;
+}
+#onenote-ribbon .or-grp-inner {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 1px;
+  padding: 3px 6px 2px;
+}
+#onenote-ribbon .or-grp-label {
+  font-size: 7.5pt;
+  color: var(--ribbon-text-muted);
+  text-align: center;
+  padding: 1px 4px 3px;
+  white-space: nowrap;
+}
+
+/* Spacer */
+#onenote-ribbon .or-spacer { flex: 1; min-width: 4px; }
+#onenote-ribbon .or-sep { width: 1px; background: var(--ribbon-border); margin: 2px 3px; align-self: stretch; }
+#onenote-ribbon .or-col { display: flex; flex-direction: column; gap: 1px; }
+#onenote-ribbon .or-row { display: flex; align-items: center; gap: 1px; }
+
+/* Panel button active state */
+#onenote-ribbon .or-btn.is-panel-active {
+  background: rgba(114, 24, 165, 0.15);
+  border-color: var(--ribbon-accent);
+  outline: 1px solid var(--ribbon-accent);
+}
