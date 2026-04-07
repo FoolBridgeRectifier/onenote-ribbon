@@ -210,16 +210,58 @@ interface StyleDef {
 }
 
 const STYLES_LIST: StyleDef[] = [
-  { label: "Heading 1", style: "font-size:15px;font-weight:700;color:#5B9BD5;letter-spacing:-0.5px", prefix: "# " },
-  { label: "Heading 2", style: "font-size:13px;font-weight:700;color:#5B9BD5", prefix: "## " },
-  { label: "Heading 3", style: "font-size:12px;font-weight:700;color:#5B9BD5", prefix: "### " },
-  { label: "Heading 4", style: "font-size:12px;font-weight:700;font-style:italic;color:#5B9BD5", prefix: "#### " },
-  { label: "Heading 5", style: "font-size:11px;font-weight:700;color:#5B9BD5", prefix: "##### " },
-  { label: "Heading 6", style: "font-size:11px;font-style:italic;color:#5B9BD5", prefix: "###### " },
-  { label: "Page Title", style: "font-size:20px;font-weight:700;color:#fff", prefix: "# " },
-  { label: "Citation", style: "font-size:11px;color:#888;font-style:italic", prefix: "> " },
-  { label: "Quote", style: "font-size:12px;font-style:italic;color:#ccc", prefix: "> " },
-  { label: "Code", style: "font-family:monospace;font-size:11px;background:#222;padding:0 4px;color:#e0e0e0", prefix: "```\n", suffix: "\n```" },
+  {
+    label: "Heading 1",
+    style: "font-size:15px;font-weight:700;color:#5B9BD5;letter-spacing:-0.5px",
+    prefix: "# ",
+  },
+  {
+    label: "Heading 2",
+    style: "font-size:13px;font-weight:700;color:#5B9BD5",
+    prefix: "## ",
+  },
+  {
+    label: "Heading 3",
+    style: "font-size:12px;font-weight:700;color:#5B9BD5",
+    prefix: "### ",
+  },
+  {
+    label: "Heading 4",
+    style: "font-size:12px;font-weight:700;font-style:italic;color:#5B9BD5",
+    prefix: "#### ",
+  },
+  {
+    label: "Heading 5",
+    style: "font-size:11px;font-weight:700;color:#5B9BD5",
+    prefix: "##### ",
+  },
+  {
+    label: "Heading 6",
+    style: "font-size:11px;font-style:italic;color:#5B9BD5",
+    prefix: "###### ",
+  },
+  {
+    label: "Page Title",
+    style: "font-size:20px;font-weight:700;color:#fff",
+    prefix: "# ",
+  },
+  {
+    label: "Citation",
+    style: "font-size:11px;color:#888;font-style:italic",
+    prefix: "> ",
+  },
+  {
+    label: "Quote",
+    style: "font-size:12px;font-style:italic;color:#ccc",
+    prefix: "> ",
+  },
+  {
+    label: "Code",
+    style:
+      "font-family:monospace;font-size:11px;background:#222;padding:0 4px;color:#e0e0e0",
+    prefix: "```\n",
+    suffix: "\n```",
+  },
   { label: "Normal", style: "font-size:12px;color:#e0e0e0", prefix: "" },
 ];
 
@@ -260,7 +302,11 @@ function tagNotation(cmd: string): string {
 
 // ─── Overlay dropdown helper ──────────────────────────────────────────────────
 
-function showDropdown(anchor: HTMLElement, items: DropdownItem[], opts?: DropdownOpts): void {
+function showDropdown(
+  anchor: HTMLElement,
+  items: DropdownItem[],
+  opts?: DropdownOpts,
+): void {
   // Remove any existing dropdown
   document
     .querySelectorAll(".onr-overlay-dropdown")
@@ -550,15 +596,15 @@ function toggleInline(editor: any, open: string, close?: string): void {
 // ─── Sub / Sup toggle (cursor-aware, mutually exclusive) ─────────────────────
 
 function toggleSubSup(editor: any, tag: "sub" | "sup"): void {
-  const open  = `<${tag}>`;        // length 5
-  const close = `</${tag}>`;       // length 6
-  const otherTag   = tag === "sub" ? "sup" : "sub";
-  const otherOpen  = `<${otherTag}>`;
+  const open = `<${tag}>`; // length 5
+  const close = `</${tag}>`; // length 6
+  const otherTag = tag === "sub" ? "sup" : "sub";
+  const otherOpen = `<${otherTag}>`;
   const otherClose = `</${otherTag}>`;
 
   const cursor = editor.getCursor();
-  const line   = editor.getLine(cursor.line);
-  const ch     = cursor.ch;
+  const line = editor.getLine(cursor.line);
+  const ch = cursor.ch;
 
   // Returns the span {start, openEnd, closeStart, end} if ch falls inside it.
   // Active region matches updateRibbonState: ch > openLastCharIdx AND ch < closeEnd
@@ -567,8 +613,8 @@ function toggleSubSup(editor: any, tag: "sub" | "sup"): void {
     const cLen = ct.length;
     let p = 0;
     while (p < line.length) {
-      const o  = line.indexOf(ot, p);
-      if (o  < 0) break;
+      const o = line.indexOf(ot, p);
+      if (o < 0) break;
       const c2 = line.indexOf(ct, o + oLen);
       if (c2 < 0) break;
       if (ch > o + oLen - 1 && ch < c2 + cLen) {
@@ -579,19 +625,27 @@ function toggleSubSup(editor: any, tag: "sub" | "sup"): void {
     return null;
   };
 
-  const thisSpan  = findSpan(open,      close);
+  const thisSpan = findSpan(open, close);
   const otherSpan = findSpan(otherOpen, otherClose);
 
   if (thisSpan) {
     // Toggle off — strip tags, keep inner content
     const inner = line.slice(thisSpan.openEnd, thisSpan.closeStart);
-    editor.setLine(cursor.line,
-      line.slice(0, thisSpan.start) + inner + line.slice(thisSpan.end));
+    editor.setLine(
+      cursor.line,
+      line.slice(0, thisSpan.start) + inner + line.slice(thisSpan.end),
+    );
   } else if (otherSpan) {
     // Mutually exclusive — convert the other tag to this one
     const inner = line.slice(otherSpan.openEnd, otherSpan.closeStart);
-    editor.setLine(cursor.line,
-      line.slice(0, otherSpan.start) + open + inner + close + line.slice(otherSpan.end));
+    editor.setLine(
+      cursor.line,
+      line.slice(0, otherSpan.start) +
+        open +
+        inner +
+        close +
+        line.slice(otherSpan.end),
+    );
   } else {
     // Toggle on — wrap selection or insert empty pair
     const sel = editor.getSelection();
@@ -613,6 +667,17 @@ function toggleLinePrefix(editor: any, prefix: string): void {
   // For todo-style prefixes, also treat completed variants (- [x] / - [X] / - [✔] ) as "has prefix"
   let hasPrefix = line.startsWith(prefix);
   let actualPrefixLength = prefix.length;
+
+  // For "- " bullet prefix: if line has a full checklist variant, strip the full prefix (not just "- ")
+  if (hasPrefix && prefix === "- ") {
+    for (const v of ["- [ ] ", "- [x] ", "- [X] ", "- [✔] "]) {
+      if (line.startsWith(v)) {
+        actualPrefixLength = v.length;
+        break;
+      }
+    }
+  }
+
   if (!hasPrefix && prefix.startsWith("- [ ] ")) {
     const rest = prefix.slice("- [ ] ".length); // e.g. "" or "🔴 " or "🟡 "
     for (const v of ["- [x] ", "- [X] ", "- [✔] "]) {
@@ -886,49 +951,56 @@ export class HomeTab {
     const onEditorInteract = () => {
       requestAnimationFrame(() => this.updateRibbonState(container, app));
     };
-    const workspaceEl =
-      document.querySelector(".workspace") ?? document.body;
+    const workspaceEl = document.querySelector(".workspace") ?? document.body;
     workspaceEl.addEventListener("click", onEditorInteract, true);
     workspaceEl.addEventListener("keyup", onEditorInteract, true);
 
     // Format Painter: auto-apply when user finishes a drag-select (OneNote-style)
-    workspaceEl.addEventListener("mouseup", (e) => {
-      if (!(window as any)._onrFPActive) return;
-      // If mouseup is on a ribbon button, let the click handler do phase 2 instead
-      if ((e.target as Element)?.closest("[data-cmd]")) return;
-      requestAnimationFrame(() => {
-        const ed = app.workspace.activeEditor?.editor;
-        const fp = (window as any)._onrFP as {
-          headPrefix: string; isBold: boolean;
-          isItalic: boolean; isUnderline: boolean;
-        } | null;
-        const sel = ed?.getSelection();
+    workspaceEl.addEventListener(
+      "mouseup",
+      (e) => {
+        if (!(window as any)._onrFPActive) return;
+        // If mouseup is on a ribbon button, let the click handler do phase 2 instead
+        if ((e.target as Element)?.closest("[data-cmd]")) return;
+        requestAnimationFrame(() => {
+          const ed = app.workspace.activeEditor?.editor;
+          const fp = (window as any)._onrFP as {
+            headPrefix: string;
+            isBold: boolean;
+            isItalic: boolean;
+            isUnderline: boolean;
+          } | null;
+          const sel = ed?.getSelection();
 
-        // Always reset FP state regardless of whether we apply
-        (window as any)._onrFPActive = false;
-        (window as any)._onrFP = null;
-        const fpBtn = (
-          container.querySelector("[data-cmd=\"format-painter\"]") ??
-          document.querySelector('[data-panel="Home"] [data-cmd="format-painter"]')
-        ) as HTMLElement | null;
-        if (fpBtn) fpBtn.classList.remove("onr-active");
+          // Always reset FP state regardless of whether we apply
+          (window as any)._onrFPActive = false;
+          (window as any)._onrFP = null;
+          const fpBtn = (container.querySelector(
+            '[data-cmd="format-painter"]',
+          ) ??
+            document.querySelector(
+              '[data-panel="Home"] [data-cmd="format-painter"]',
+            )) as HTMLElement | null;
+          if (fpBtn) fpBtn.classList.remove("onr-active");
 
-        if (!fp || !ed || !sel) return;
-        // Apply inline formats
-        let result = sel;
-        if (fp.isUnderline) result = `<u>${result}</u>`;
-        if (fp.isItalic) result = `*${result}*`;
-        if (fp.isBold) result = `**${result}**`;
-        ed.replaceSelection(result);
-        if (fp.headPrefix) {
-          const c = ed.getCursor();
-          const l = ed.getLine(c.line);
-          if (!l.startsWith(fp.headPrefix)) {
-            ed.setLine(c.line, fp.headPrefix + l.replace(/^#{1,6}\s+/, ""));
+          if (!fp || !ed || !sel) return;
+          // Apply inline formats
+          let result = sel;
+          if (fp.isUnderline) result = `<u>${result}</u>`;
+          if (fp.isItalic) result = `*${result}*`;
+          if (fp.isBold) result = `**${result}**`;
+          ed.replaceSelection(result);
+          if (fp.headPrefix) {
+            const c = ed.getCursor();
+            const l = ed.getLine(c.line);
+            if (!l.startsWith(fp.headPrefix)) {
+              ed.setLine(c.line, fp.headPrefix + l.replace(/^#{1,6}\s+/, ""));
+            }
           }
-        }
-      });
-    }, true);
+        });
+      },
+      true,
+    );
 
     // Also hook workspace events to handle leaf switches and content changes
     app.workspace.on("active-leaf-change", () => {
@@ -976,14 +1048,36 @@ export class HomeTab {
 
     // Inline formatting detection
     setActive("bold", /\*\*(.*?)\*\*/.test(mdContent));
-    setActive("italic", /(?<!\*)\*((?!\*).+?)\*(?!\*)/.test(mdContent));
+    setActive("italic", /(?<!\*)\*((?!\*).+?)\*(?!\*)/.test(mdContent) || /\*\*\*(.*?)\*\*\*/.test(mdContent));
     setActive("underline", /<u>/.test(line));
     setActive("strikethrough", /~~(.*?)~~/.test(mdContent));
     setActive("highlight", /==(.*?)==/.test(mdContent));
     // sub/sup: only active when cursor is inside the tag span
     const ch = cursor.ch;
-    const isInSub = (() => { let p = 0; while (p < line.length) { const o = line.indexOf("<sub>", p); if (o < 0) break; const c2 = line.indexOf("</sub>", o); if (c2 < 0) break; if (ch > o + 4 && ch < c2 + 6) return true; p = c2 + 6; } return false; })();
-    const isInSup = (() => { let p = 0; while (p < line.length) { const o = line.indexOf("<sup>", p); if (o < 0) break; const c2 = line.indexOf("</sup>", o); if (c2 < 0) break; if (ch > o + 4 && ch < c2 + 6) return true; p = c2 + 6; } return false; })();
+    const isInSub = (() => {
+      let p = 0;
+      while (p < line.length) {
+        const o = line.indexOf("<sub>", p);
+        if (o < 0) break;
+        const c2 = line.indexOf("</sub>", o);
+        if (c2 < 0) break;
+        if (ch > o + 4 && ch < c2 + 6) return true;
+        p = c2 + 6;
+      }
+      return false;
+    })();
+    const isInSup = (() => {
+      let p = 0;
+      while (p < line.length) {
+        const o = line.indexOf("<sup>", p);
+        if (o < 0) break;
+        const c2 = line.indexOf("</sup>", o);
+        if (c2 < 0) break;
+        if (ch > o + 4 && ch < c2 + 6) return true;
+        p = c2 + 6;
+      }
+      return false;
+    })();
     setActive("subscript", isInSub);
     setActive("superscript", isInSup);
 
@@ -998,7 +1092,10 @@ export class HomeTab {
       ) as HTMLElement;
       if (!card) return;
       const s = STYLES_LIST[this.stylesOffset + i];
-      if (!s) { card.classList.remove("onr-active"); return; }
+      if (!s) {
+        card.classList.remove("onr-active");
+        return;
+      }
       const isActive =
         (headLevel > 0 && s.prefix === "#".repeat(headLevel) + " ") ||
         (headLevel === 0 && s.label === "Normal");
@@ -1369,8 +1466,7 @@ export class HomeTab {
       case "styles-preview-0":
       case "styles-preview-1": {
         if (!editor) break;
-        const idx =
-          this.stylesOffset + (cmd === "styles-preview-0" ? 0 : 1);
+        const idx = this.stylesOffset + (cmd === "styles-preview-0" ? 0 : 1);
         const s = STYLES_LIST[idx];
         if (!s) break;
         if (s.suffix) {
@@ -1399,9 +1495,7 @@ export class HomeTab {
                 if (!editor) return;
                 if (s.suffix) {
                   const sel = editor.getSelection();
-                  editor.replaceSelection(
-                    `${s.prefix}${sel || ""}${s.suffix}`,
-                  );
+                  editor.replaceSelection(`${s.prefix}${sel || ""}${s.suffix}`);
                 } else if (s.prefix === "") {
                   const cursor = editor.getCursor();
                   const line = editor.getLine(cursor.line);
@@ -1513,8 +1607,10 @@ export class HomeTab {
         // Phase 2: already active — apply stored format to current selection
         if ((window as any)._onrFPActive) {
           const stored = (window as any)._onrFP as {
-            headPrefix: string; isBold: boolean;
-            isItalic: boolean; isUnderline: boolean;
+            headPrefix: string;
+            isBold: boolean;
+            isItalic: boolean;
+            isUnderline: boolean;
           } | null;
           const fpSel = editor.getSelection();
           if (stored && fpSel) {
@@ -1557,7 +1653,9 @@ export class HomeTab {
         };
         (window as any)._onrFPActive = true;
         anchor.classList.add("onr-active");
-        new Notice("Format Painter: select target text then click again to apply");
+        new Notice(
+          "Format Painter: select target text then click again to apply",
+        );
         break;
       }
     }
