@@ -1266,3 +1266,52 @@ These render a `▾` caret visually but clicking the button fires the main comma
 | 8   | Apply Heading 1 then Heading 2                       | `# Hello` → `toggleLinePrefix("## ")` strips `# Hello` via regex → `## Hello`                                      |
 | 9   | Format Painter clicked with no selection in source   | Reads `fpLine` as source; captures bold/italic/underline from entire line                                          |
 | 10  | `refreshTagChecks` with `tag-highlight` (`==`)       | Notation = `"=="`, split on `\n` = `["=="]`, trimmed = `"=="`. Checks if line contains `"=="`. Works correctly.    |
+
+---
+
+## Section 18 — Implementation Rules Decided (Source of Truth)
+
+These are design decisions made during development and should not be changed without explicit user approval.
+
+### 18.1 Subscript / Superscript — Cursor-Aware Toggle, Mutually Exclusive
+
+**Decision:** Sub and sup use `toggleSubSup()`, not `toggleInline()`. They are **cursor-aware** and **mutually exclusive**.
+
+- A span of text can be `<sub>` OR `<sup>`, **never both, never nested**.
+- Clicking sub or sup **checks where the cursor is**, not what text is selected.
+- **Toggle off**: cursor inside `<sub>` → click sub → removes `<sub>…</sub>` tags, keeps inner text.
+- **Mutual exclusion convert**: cursor inside `<sup>` → click sub → replaces `<sup>…</sup>` with `<sub>…</sub>` in-place.
+- **Toggle on**: cursor outside both → click sub → wraps selection in `<sub>…</sub>`, or inserts empty `<sub></sub>` at cursor.
+- Active region (ribbon button highlight): `ch > openTagLastIndex AND ch < closeTagEnd` — strictly inside content, not inside the opening tag itself.
+
+### 18.2 Format Painter — OneNote-Style Drag-Select Auto-Apply
+
+**Decision:** Format painter applies on `mouseup` after drag-select (no second click needed).
+
+- **Phase 1** (click FP button): captures format from current cursor line (`_onrFP`, `_onrFPActive = true`, button gets `onr-active`).
+- **Phase 2a — auto-apply** (mouseup in editor after drag): applies captured format to selection, resets `_onrFPActive = false`, removes `onr-active` from button.
+- **Phase 2b — button click** (if mouseup lands on a ribbon button): mouseup guard skips auto-apply; the button's click handler handles phase 2.
+- After either phase 2 path: `_onrFPActive` must be `false` and `onr-active` must be absent from the FP button.
+
+### 18.3 Active State Trigger Method (for automated tests)
+
+Ribbon state (`updateRibbonState`) only fires on **click** or **keyup** events on the workspace element (capture phase). `editor.setCursor()` alone does not trigger it.
+
+To trigger ribbon state update in tests after moving cursor programmatically:
+```javascript
+editor.setCursor({ line: 0, ch: N });
+document.querySelector('.workspace').dispatchEvent(
+  new KeyboardEvent('keyup', { bubbles: true, composed: true })
+);
+await new Promise(r => requestAnimationFrame(() => setTimeout(r, 80)));
+```
+
+---
+
+## Section 19 — Known Issues & Next Steps
+
+| Priority | Item | Status |
+| --- | --- | --- |
+| HIGH | FP reset after mouseup auto-apply: `_onrFPActive` or `onr-active` class not fully cleared after drag-select path. Suspect: `container` reference in mouseup closure is stale → `querySelector('[data-cmd="format-painter"]')` returns null. Debug by logging the query result. | Open |
+| MED | Visual screenshot confirmation of sub/sup active state and format painter in Obsidian | Pending |
+| LOW | Section 15 re-click table for subscript/superscript is still phrased in selection terms — update to cursor terms | Open |
