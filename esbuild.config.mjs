@@ -1,38 +1,25 @@
-import esbuild from "esbuild";
-import builtins from "builtin-modules";
+import esbuild from 'esbuild';
+import { readFileSync } from 'fs';
 
-const prod = process.argv[2] === "production";
+const watch = process.argv.includes('--watch');
+const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
 
 const ctx = await esbuild.context({
-  entryPoints: ["src/main.ts"],
+  entryPoints: ['src/main.ts'],
   bundle: true,
-  external: [
-    "obsidian",
-    "electron",
-    "@codemirror/autocomplete",
-    "@codemirror/collab",
-    "@codemirror/commands",
-    "@codemirror/language",
-    "@codemirror/lint",
-    "@codemirror/search",
-    "@codemirror/state",
-    "@codemirror/view",
-    "@lezer/common",
-    "@lezer/highlight",
-    "@lezer/lr",
-    ...builtins,
-  ],
-  format: "cjs",
-  target: "es2018",
-  logLevel: "info",
-  sourcemap: prod ? false : "inline",
-  treeShaking: true,
-  outfile: "main.js",
+  external: ['obsidian', 'electron', '@codemirror/*', '@lezer/*'],
+  format: 'cjs',
+  target: 'es2020',
+  outfile: 'main.js',
+  sourcemap: 'inline',
+  platform: 'browser',
+  define: { 'process.env.NODE_ENV': '"development"' },
 });
 
-if (prod) {
-  await ctx.rebuild();
-  process.exit(0);
-} else {
+if (watch) {
   await ctx.watch();
+  console.log('Watching…');
+} else {
+  await ctx.rebuild();
+  await ctx.dispose();
 }

@@ -1,247 +1,216 @@
-/* ── OneNote Ribbon ── scoped under #onenote-ribbon ── */
+/* ── DESIGN TOKENS ── */
+:root {
+  --ribbon-purple:     #6B2CA6;
+  --ribbon-purple-mid: #7B3CB6;
+  --ribbon-bg:         #ffffff;
+  --ribbon-border:     #e1dfdd;
+  --btn-hover-bg:      #f0eeec;
+  --btn-hover-border:  #c8c6c4;
+  --btn-active-bg:     #c7e0f4;
+  --btn-active-border: #90c2e8;
+  --btn-focus-ring:    #0078D4;
+  --text-primary:      #201f1e;
+  --text-secondary:    #484644;
+  --text-muted:        #605e5c;
+  --text-disabled:     #a19f9d;
+  --shadow-ribbon:     0 1px 3px rgba(107,44,166,0.08), 0 2px 8px rgba(0,0,0,0.10);
+  --transition-fast:   150ms ease-out;
+  --transition-mid:    200ms ease-out;
+  --radius-sm:         3px;
+  --icon-color:        #3b3a39;
+  --icon-purple:       #6B2CA6;
+  --icon-blue:         #0078D4;
+  --icon-green:        #107C10;
+  --icon-orange:       #C45911;
+  --icon-red:          #A80000;
+  --icon-teal:         #006B6B;
+}
 
-#onenote-ribbon {
-  --ribbon-accent: var(--color-accent, #7218a5);
-  --ribbon-accent-dark: color-mix(in srgb, var(--ribbon-accent) 80%, black);
-  --ribbon-bg: var(--background-secondary, #f3f3f3);
-  --ribbon-border: var(--background-modifier-border, #c8c8c8);
-  --ribbon-text: var(--text-normal, #1a1a1a);
-  --ribbon-text-muted: var(--text-muted, #888);
-  font-family: var(--font-interface, "Segoe UI", system-ui, sans-serif);
-  font-size: 9pt;
-  background: var(--ribbon-bg);
-  border-bottom: 1px solid var(--ribbon-border);
+/* ── RIBBON ROOT ── */
+#onenote-ribbon-root {
   width: 100%;
-  flex-shrink: 0;
-  user-select: none;
-}
-
-/* Tab row */
-#onenote-ribbon .or-tab-row {
-  background: var(--ribbon-accent);
-  display: flex;
-  align-items: flex-end;
-  height: 29px;
-  padding-left: 2px;
-  overflow: hidden;
-}
-
-#onenote-ribbon .or-tab-file {
-  display: flex;
-  align-items: center;
-  padding: 0 16px;
-  height: 100%;
-  font-size: 9pt;
-  font-weight: 700;
-  color: #fff;
-  cursor: pointer;
-  background: var(--ribbon-accent-dark);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  box-shadow: var(--shadow-ribbon);
   flex-shrink: 0;
 }
-#onenote-ribbon .or-tab-file:hover {
-  filter: brightness(1.15);
-}
-#onenote-ribbon .or-tab-file.is-backstage-open {
-  filter: brightness(0.85);
-}
 
-#onenote-ribbon .or-tab {
+/* ── TAB BAR ── */
+.onr-tab-bar {
+  background: var(--ribbon-purple);
   display: flex;
-  align-items: center;
-  padding: 0 12px;
-  height: 26px;
-  font-size: 9pt;
-  color: rgba(255, 255, 255, 0.9);
-  cursor: pointer;
-  border-radius: 3px 3px 0 0;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-#onenote-ribbon .or-tab:hover {
-  background: rgba(255, 255, 255, 0.14);
-  color: #fff;
-}
-#onenote-ribbon .or-tab.is-active {
-  background: var(--ribbon-bg);
-  color: var(--ribbon-text);
-  height: 29px;
-  font-weight: 600;
-  box-shadow:
-    -1px 0 0 var(--ribbon-border),
-    1px 0 0 var(--ribbon-border);
-}
-
-/* Pin indicator */
-#onenote-ribbon .or-tab-row.is-pinned::after {
-  content: "📌";
-  font-size: 9px;
-  margin-left: auto;
-  margin-right: 8px;
-  opacity: 0.6;
-  align-self: center;
-}
-
-/* Ribbon body */
-#onenote-ribbon .or-body {
-  display: none;
   align-items: stretch;
-  min-height: 96px;
-  padding: 2px 2px 0;
+  height: 30px;
+  user-select: none;
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
+  -ms-overflow-style: none;
 }
-#onenote-ribbon .or-body::-webkit-scrollbar {
-  display: none;
-}
-#onenote-ribbon .or-body.is-visible {
+.onr-tab-bar::-webkit-scrollbar { display: none; }
+
+.onr-tab {
+  padding: 0 16px;
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.88);
   display: flex;
-}
-
-/* Collapsed state — only tab row visible */
-#onenote-ribbon.is-collapsed .or-body {
-  display: none !important;
-}
-
-/* Full-width ribbon: stack the ribbon above the entire workspace (both sidebars + editor) */
-.horizontal-main-container {
-  display: flex !important;
-  flex-direction: column !important;
-}
-
-.horizontal-main-container > .workspace {
-  flex: 1 1 0 !important;
-  min-height: 0 !important;
-}
-
-/* Ribbon sits at top, takes only its content height (Obsidian sets flex-grow:1 on children
-   so we need max-height to prevent it expanding to fill the container) */
-.horizontal-main-container > #onenote-ribbon {
-  flex: 0 0 auto !important;
-  height: auto !important;
-  min-height: 0 !important;
-  max-height: 200px !important;
-  overflow: hidden;
-  width: 100%;
-}
-
-/* ── Buttons ── */
-#onenote-ribbon .or-btn {
-  display: flex;
-  border-radius: 2px;
+  align-items: center;
   cursor: pointer;
-  flex-shrink: 0;
-  border: 1px solid transparent;
-}
-#onenote-ribbon .or-btn:hover {
-  background: rgba(114, 24, 165, 0.09);
-  border-color: rgba(114, 24, 165, 0.25);
-}
-#onenote-ribbon .or-btn:active {
-  background: rgba(114, 24, 165, 0.18);
-}
-#onenote-ribbon .or-btn[aria-disabled="true"] {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-#onenote-ribbon .or-btn[aria-disabled="true"]:hover {
-  background: none;
-  border-color: transparent;
-}
-
-/* Large button */
-#onenote-ribbon .or-btn-lg {
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 2px;
-  padding: 3px 6px 2px;
-  min-width: 44px;
-  height: 68px;
-}
-#onenote-ribbon .or-btn-lg svg {
-  width: 28px; height: 28px;
-  margin-top: auto;
-}
-#onenote-ribbon .or-btn-lg .or-btn-label {
-  font-size: 7.5pt;
-  color: var(--ribbon-text);
-  text-align: center;
-  line-height: 1.2;
+  border-right: 1px solid rgba(255,255,255,0.12);
   white-space: nowrap;
-  max-width: 58px;
+  transition: background var(--transition-fast);
+  position: relative;
+}
+.onr-tab.active {
+  background: #ffffff;
+  color: #6B2CA6;
+  font-weight: 600;
+}
+.onr-tab:hover:not(.active) {
+  background: rgba(255,255,255,0.18);
+}
+.onr-tab:focus-visible {
+  outline: 2px solid rgba(255,255,255,0.8);
+  outline-offset: -3px;
 }
 
-/* Medium button */
-#onenote-ribbon .or-btn-md {
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  padding: 3px 5px;
-  min-width: 38px;
-}
-#onenote-ribbon .or-btn-md svg { width: 22px; height: 22px; }
-#onenote-ribbon .or-btn-md .or-btn-label {
-  font-size: 7.5pt;
-  color: var(--ribbon-text-muted);
-  white-space: nowrap;
-}
+.onr-spacer { flex: 1; }
 
-/* Small button */
-#onenote-ribbon .or-btn-sm {
-  align-items: center;
-  justify-content: center;
-  padding: 2px 3px;
-  min-width: 22px;
-  height: 22px;
-}
-#onenote-ribbon .or-btn-sm svg { width: 16px; height: 16px; }
-
-/* Format button (B/I/U/S text) */
-#onenote-ribbon .or-btn-fmt {
-  align-items: center;
-  justify-content: center;
-  width: 23px;
-  height: 22px;
-  font-size: 11.5px;
-  color: var(--ribbon-text);
-}
-
-/* Groups */
-#onenote-ribbon .or-grp {
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-}
-#onenote-ribbon .or-grp + .or-grp {
-  border-left: 1px solid var(--ribbon-border);
-  margin-left: 1px;
-}
-#onenote-ribbon .or-grp-inner {
+.onr-pin-btn {
+  padding: 0 12px;
+  font-size: 10px;
+  color: rgba(255,255,255,0.65);
   display: flex;
   align-items: center;
-  flex: 1;
+  gap: 4px;
+  cursor: pointer;
+  transition: color var(--transition-fast);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.onr-pin-btn:hover { color: rgba(255,255,255,0.95); }
+
+/* ── RIBBON BODY ── */
+.onr-body {
+  background: #ffffff;
+  border-top: 1px solid #e1dfdd;
+  height: 106px;
+  min-height: 106px;
+  max-height: 106px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: stretch;
+  flex-wrap: nowrap;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── TAB PANELS ── */
+.onr-tab-panel {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: stretch;
+  flex-wrap: nowrap;
+  padding: 4px 4px 0;
+}
+
+/* ── REDUCED MOTION ── */
+@media (prefers-reduced-motion: reduce) {
+  .onr-tab, .onr-pin-btn, .onr-btn, .onr-btn-sm { transition: none; }
+}
+
+/* ── GROUPS ── */
+.onr-group {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 2px 8px 0 8px;
+  position: relative;
+  min-width: 60px;
+}
+.onr-group + .onr-group::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 6px; bottom: 16px;
+  width: 1px;
+  background: var(--ribbon-border);
+}
+.onr-group-buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
   gap: 1px;
-  padding: 3px 6px 2px;
+  flex: 1;
 }
-#onenote-ribbon .or-grp-label {
-  font-size: 7.5pt;
-  color: var(--ribbon-text-muted);
+.onr-group-name {
+  font-size: 9px;
+  font-weight: 400;
+  color: var(--text-muted);
   text-align: center;
-  padding: 1px 4px 3px;
+  padding: 3px 0 5px;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1;
 }
 
-/* Spacer */
-#onenote-ribbon .or-spacer { flex: 1; min-width: 4px; }
-#onenote-ribbon .or-sep { width: 1px; background: var(--ribbon-border); margin: 2px 3px; align-self: stretch; }
-#onenote-ribbon .or-col { display: flex; flex-direction: column; gap: 1px; }
-#onenote-ribbon .or-row { display: flex; align-items: center; gap: 1px; }
-
-/* Panel button active state */
-#onenote-ribbon .or-btn.is-panel-active {
-  background: rgba(114, 24, 165, 0.15);
-  border-color: var(--ribbon-accent);
-  outline: 1px solid var(--ribbon-accent);
+/* ── LARGE BUTTON ── */
+.onr-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  min-height: 60px;
+  padding: 5px 2px 4px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: 1px solid transparent;
+  gap: 3px;
+  text-align: center;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+  flex-shrink: 0;
+  -webkit-user-select: none; user-select: none;
+  color: var(--icon-color);
 }
+.onr-btn:hover  { background: var(--btn-hover-bg);  border-color: var(--btn-hover-border); }
+.onr-btn:active { background: var(--btn-active-bg); border-color: var(--btn-active-border); }
+.onr-btn:focus-visible { outline: 2px solid var(--btn-focus-ring); outline-offset: 1px; }
+.onr-btn.disabled { opacity: 0.40; cursor: not-allowed; pointer-events: none; }
+
+/* ── SMALL BUTTON ── */
+.onr-btn-sm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  min-height: 24px;
+  padding: 2px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: 1px solid transparent;
+  gap: 1px;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+  flex-shrink: 0;
+  -webkit-user-select: none; user-select: none;
+  color: var(--icon-color);
+}
+.onr-btn-sm:hover  { background: var(--btn-hover-bg);  border-color: var(--btn-hover-border); }
+.onr-btn-sm:active { background: var(--btn-active-bg); border-color: var(--btn-active-border); }
+.onr-btn-sm.active { background: var(--btn-active-bg); border-color: var(--btn-active-border); }
+.onr-btn-sm-active { background: var(--btn-active-bg) !important; border-color: var(--btn-active-border) !important; color: var(--icon-blue) !important; }
+.onr-btn.onr-active,
+.onr-btn-sm.onr-active { background: var(--btn-active-bg) !important; border-color: var(--btn-active-border) !important; color: var(--icon-blue) !important; }
+.onr-btn-sm:focus-visible { outline: 2px solid var(--btn-focus-ring); outline-offset: 1px; }
+
+/* ── BUTTON LABELS ── */
+.onr-btn-label    { font-size: 9px;  color: var(--text-primary);   line-height: 1.25; word-break: break-word; text-align: center; }
+.onr-btn-label-sm { font-size: 8px;  color: var(--text-secondary);  line-height: 1.2; }
+
+/* ── ICONS ── */
+.onr-icon    { width: 20px; height: 20px; flex-shrink: 0; }
+.onr-icon-sm { width: 14px; height: 14px; flex-shrink: 0; }
+#onenote-ribbon-root svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }

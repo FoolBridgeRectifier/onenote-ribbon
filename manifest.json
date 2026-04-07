@@ -1,9 +1,9 @@
 {
   "id": "onenote-ribbon",
   "name": "OneNote Ribbon",
-  "version": "0.1.0",
-  "minAppVersion": "1.4.0",
-  "description": "A Microsoft OneNote-style ribbon toolbar for Obsidian.",
+  "version": "1.0.0",
+  "minAppVersion": "1.0.0",
+  "description": "Applies a OneNote Ribbon for Windows visual style to Obsidian — purple titlebar, Segoe UI fonts, and matching accent colours.",
   "author": "local",
-  "isDesktopOnly": true
+  "isDesktopOnly": false
 }

@@ -1,33 +1,15 @@
 import { Plugin } from "obsidian";
-import { RibbonView } from "./ribbon";
-import { DEFAULT_STATE, RibbonState } from "./types";
+import { RibbonShell } from "./ribbon/RibbonShell";
 
 export default class OneNoteRibbonPlugin extends Plugin {
-  private ribbonView: RibbonView;
-  private state: RibbonState = { ...DEFAULT_STATE };
+  private shell: RibbonShell;
 
   async onload() {
-    const saved = await this.loadData();
-    if (saved) {
-      this.state = { ...DEFAULT_STATE, ...saved };
-    }
-
-    this.ribbonView = new RibbonView(
-      this.app,
-      this.state,
-      (newState) => {
-        this.state = newState;
-        this.saveData(this.state);
-      },
-    );
-
-    // Mount after workspace is ready
-    this.app.workspace.onLayoutReady(() => {
-      this.ribbonView.mount();
-    });
+    this.shell = new RibbonShell(this.app);
+    this.app.workspace.onLayoutReady(() => this.shell.mount());
   }
 
   onunload() {
-    this.ribbonView?.unmount();
+    this.shell.unmount();
   }
 }
