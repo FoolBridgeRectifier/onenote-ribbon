@@ -106,23 +106,32 @@ Combinations are grouped by logical section. Up to 5-way combinations are specif
 
 ### 2.6 Subscript (`<sub>…</sub>`)
 
-| #   | Selection                        | Expected result                                                        |
-| --- | -------------------------------- | ---------------------------------------------------------------------- |
-| 1   | "2"                              | → `<sub>2</sub>`                                                       |
-| 2   | `<sub>2</sub>` selected          | → `2` (toggle off)                                                     |
-| 3   | None                             | `<sub></sub>` inserted, cursor inside                                  |
-| 4   | `<sup>2</sup>` selected          | → `<sub>2</sub>` (superscript stripped, subscript applied — no stack) |
-| 5   | `<sub><sup>2</sup></sub>` (edge) | → `2` (both tags removed — malformed input cleaned up)                 |
+> **Rules:**
+> - **Cursor-aware toggle** — behavior depends on where the cursor is, not what is selected.
+> - **Sub and sup cannot coexist** on the same text span. Applying one always removes the other.
+> - No double-wrapping: clicking sub when already inside `<sub>` removes the tags (toggle off).
+
+| #   | Cursor / Selection                  | Starting text          | Expected result                                                   |
+| --- | ----------------------------------- | ---------------------- | ----------------------------------------------------------------- |
+| 1   | Selection "2"                       | `hello 2 world`        | `hello <sub>2</sub> world` — wraps selection                      |
+| 2   | No selection at end of line         | `hello`                | `hello<sub></sub>` — inserts empty pair, cursor inside            |
+| 3   | Cursor inside `<sub>2</sub>`        | `x<sub>2</sub>`        | `x2` — toggle off: strips tags, keeps content                     |
+| 4   | Cursor inside `<sup>3</sup>`        | `x<sup>3</sup>`        | `x<sub>3</sub>` — mutual exclusion: converts sup span to sub      |
+| 5   | Cursor outside any tag              | `x<sub>1</sub>y`       | wraps selection or inserts at cursor — does not affect other span |
+| 6   | Cursor at `>` of `<sub>` (boundary) | `x<sub>2</sub>`        | Not active (ch = tag boundary) — clicking wraps/inserts, no toggle off |
 
 ### 2.7 Superscript (`<sup>…</sup>`)
 
-| #   | Selection                        | Expected result                                                        |
-| --- | -------------------------------- | ---------------------------------------------------------------------- |
-| 1   | "2"                              | → `<sup>2</sup>`                                                       |
-| 2   | `<sup>2</sup>` selected          | → `2` (toggle off)                                                     |
-| 3   | None                             | `<sup></sup>` inserted, cursor inside                                  |
-| 4   | `<sub>2</sub>` selected          | → `<sup>2</sup>` (subscript stripped, superscript applied — no stack) |
-| 5   | `<sup><sub>2</sub></sup>` (edge) | → `2` (both tags removed — malformed input cleaned up)                 |
+> **Rules:** same as subscript. Sub and sup are **mutually exclusive** — they cannot be on the same text span, and each toggle is **cursor-aware**, not selection-based.
+
+| #   | Cursor / Selection                  | Starting text          | Expected result                                                   |
+| --- | ----------------------------------- | ---------------------- | ----------------------------------------------------------------- |
+| 1   | Selection "2"                       | `hello 2 world`        | `hello <sup>2</sup> world` — wraps selection                      |
+| 2   | No selection at end of line         | `hello`                | `hello<sup></sup>` — inserts empty pair, cursor inside            |
+| 3   | Cursor inside `<sup>3</sup>`        | `x<sup>3</sup>`        | `x3` — toggle off: strips tags, keeps content                     |
+| 4   | Cursor inside `<sub>2</sub>`        | `x<sub>2</sub>`        | `x<sup>2</sup>` — mutual exclusion: converts sub span to sup      |
+| 5   | Cursor outside any tag              | `x<sup>1</sup>y`       | wraps selection or inserts at cursor — does not affect other span |
+| 6   | Cursor at `>` of `<sup>` (boundary) | `x<sup>2</sup>`        | Not active (ch = tag boundary) — clicking wraps/inserts, no toggle off |
 
 ### 2.8 Multi-format combinations (inline, up to 5 deep)
 
@@ -690,11 +699,18 @@ All active-state checks run independently on the same line. Multiple buttons can
 
 ### How each toggle works
 
-**`toggleInline(open, close?)`** — for Bold, Italic, Underline, Strikethrough, Highlight, Subscript, Superscript:
+**`toggleInline(open, close?)`** — for Bold, Italic, Underline, Strikethrough, Highlight:
 
 - With selection: if selection **starts with** `open` AND **ends with** `close` → unwrap (strip markers). Otherwise → wrap.
 - Without selection: always inserts `open + close` and places cursor between them. **Never toggles off** without a selection.
-- **Sub/Sup mutual exclusion:** before applying `<sub>`, strip any `<sup>…</sup>` wrapper from the selection (and vice versa). Sub and sup must never nest or coexist on the same text — applying one always removes the other first.
+
+**`toggleSubSup(tag)`** — for Subscript and Superscript only:
+
+- **Cursor-aware, not selection-aware.** Behavior is determined by where the cursor sits in the line.
+- **If cursor is inside `<sub>…</sub>` or `<sup>…</sup>`** (past the opening `>`, before the end of the closing tag): **toggle off** — strips the tags, keeps the inner content. Cursor position adjusts.
+- **If cursor is inside the *other* tag** (e.g. inside `<sup>` when clicking sub): **convert** — replaces the tag pair in-place with the clicked tag. Sub and sup cannot coexist on the same span.
+- **If cursor is outside both**: **toggle on** — wraps selection in the tag, or inserts an empty `<tag></tag>` pair at the cursor with cursor positioned inside.
+- **Sub and sup are mutually exclusive.** A span of text can be either `<sub>` or `<sup>`, never both, never nested.
 
 **`toggleLinePrefix(prefix)`** — for Bullet List, Numbered List, To Do, heading styles:
 
