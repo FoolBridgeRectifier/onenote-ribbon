@@ -3,6 +3,14 @@
 ## Goal
 Implement the Help tab — external links, settings shortcut, sandbox, and feedback.
 
+## React implementation note
+
+All files in this tab are `.tsx`. Follow the same patterns established in Plans 03–04:
+- Entry point: `src/tabs/help/HelpTabPanel.tsx`
+- Groups use `<GroupShell>`, buttons use `<RibbonButton>`, app via `useApp()`
+- External links open via `window.open(url, '_blank')` in `onClick`
+- No `createDiv`, `createEl`, or `addEventListener` anywhere in this tab
+
 ## Reference design
 Open `design-mockup-v2.html` — Tab 7 HELP. Groups left to right:
 1. **Help** — Help Docs (blue) + Community Forum (gray) + GitHub (gray) + About (gray)

@@ -3,6 +3,14 @@
 ## Goal
 Implement the Review tab — spellcheck, linting, translation, and all right-sidebar panel shortcuts (Backlinks, Outgoing Links, Local Graph, Properties, Tags Pane, Encrypt).
 
+## React implementation note
+
+All files in this tab are `.tsx`. Follow the same patterns established in Plans 03–04:
+- Entry point: `src/tabs/review/ReviewTabPanel.tsx`
+- Groups use `<GroupShell>`, buttons use `<RibbonButton>`, app via `useApp()`
+- Optional plugin badges (Linter, Translate): `useState<boolean>` checking plugin availability in `useEffect`
+- No `createDiv`, `createEl`, or `addEventListener` anywhere in this tab
+
 ## Reference design
 Open `design-mockup-v2.html` — Tab 5 REVIEW. Groups left to right:
 1. **Spelling** — Spellcheck (blue) + Lint Note (gray, plugin badge) + Translate (gray)

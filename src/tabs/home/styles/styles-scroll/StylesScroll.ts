@@ -1,4 +1,6 @@
+import { App } from "obsidian";
 import { STYLES_LIST } from "../styles-data";
+import { StylesDropdown } from "../styles-dropdown/StylesDropdown";
 
 export class StylesScroll {
   constructor(
@@ -7,7 +9,7 @@ export class StylesScroll {
     private onUpdate: () => void,
   ) {}
 
-  render(container: HTMLElement): void {
+  render(container: HTMLElement, app: App): void {
     const col = container.createDiv();
     col.style.cssText =
       "display:flex;flex-direction:column;justify-content:space-between;padding:2px 1px;gap:2px";
@@ -48,6 +50,15 @@ export class StylesScroll {
       const newOffset = Math.min(STYLES_LIST.length - 2, this.getOffset() + 1);
       this.setOffset(newOffset);
       this.onUpdate();
+    });
+
+    dropBtn.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+    dropBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      StylesDropdown.show(dropBtn, app);
     });
   }
 }

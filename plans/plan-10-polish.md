@@ -6,9 +6,19 @@ Final pass covering: settings page, keyboard shortcuts, tooltips, disabled state
 ## Reference design
 All 7 tabs in `design-mockup-v2.html` are the ground truth. Every button, group, separator, color, and spacing must match.
 
+## React implementation note
+
+Plans 05–09 tabs are all `.tsx`. The ribbon shell and all tab panels are React.
+The **Settings tab is the one exception** — Obsidian's `PluginSettingTab` API requires vanilla DOM
+(`containerEl.createEl`, `new Setting(...)`) and cannot be a React component. Keep `SettingsTab.ts`
+as vanilla `.ts`. Settings values are loaded into `main.ts` on startup and passed to `RibbonApp`
+via `AppContext` or a separate `SettingsContext` if the ribbon needs to read them reactively.
+
 ## Part A — Settings Page
 
-Add a settings tab accessible from `app:open-settings`:
+`src/settings/SettingsTab.ts` stays as a vanilla TypeScript class (Obsidian API requirement).
+No React inside this file.
+
 ```ts
 // src/settings/SettingsTab.ts
 export class OneNoteRibbonSettingsTab extends PluginSettingTab {
@@ -48,27 +58,20 @@ export class OneNoteRibbonSettingsTab extends PluginSettingTab {
 ```
 
 ## Part B — Tooltips on every button
-Every `.onr-btn` must have `aria-label` = button name (e.g. `aria-label="Bold"`) and `title` for native browser tooltip on hover.
+Every button must have `aria-label` + `title` for accessibility and native browser tooltip on hover.
 
-```ts
-function makeBtn(icon: string, label: string, command: string, app: App): HTMLElement {
-  const btn = document.createElement('div');
-  btn.className = 'onr-btn';
-  btn.setAttribute('aria-label', label);
-  btn.setAttribute('title', label);
-  btn.setAttribute('role', 'button');
-  btn.setAttribute('tabindex', '0');
-  // … icon + label content …
-  btn.addEventListener('click', () => app.commands.executeCommandById(command));
-  btn.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      app.commands.executeCommandById(command);
-    }
-  });
-  return btn;
-}
+In React this is handled through the `<RibbonButton>` component's `title` prop, which renders both
+`title` and `aria-label` on the underlying `<div>`. No `makeBtn` helper needed — the old vanilla
+version below is superseded:
+
+```tsx
+// React version — just pass title prop:
+<RibbonButton label="Bold" title="Bold (Ctrl+B)" active={editorState.bold}
+  onClick={() => ed && toggleInline(ed, '**')} />
 ```
+
+`RibbonButton` should also render `role="button"` and `tabIndex={0}` for keyboard accessibility.
+Update `src/shared/components/RibbonButton.tsx` to include these attributes if not already present.
 
 ## Part C — Keyboard shortcut: Alt+R to focus ribbon
 ```ts

@@ -3,6 +3,16 @@
 ## Goal
 Implement the Draw tab with Canvas and Excalidraw launchers, canvas tool buttons, drawing tool buttons, and graceful plugin-not-installed handling.
 
+## React implementation note
+
+All files in this tab are `.tsx`. Follow the same patterns established in Plans 03–04:
+- Entry point: `src/tabs/draw/DrawTabPanel.tsx` (replaces any `DrawTab.ts`)
+- Groups use `<GroupShell name="…" dataGroup="…">` from `src/shared/components/GroupShell`
+- Buttons use `<RibbonButton>` from `src/shared/components/RibbonButton`
+- App reference via `useApp()` — no `app` parameter passed to constructors
+- Plugin-not-installed badge states use `useState<boolean>` for each optional plugin check
+- No `createDiv`, `createEl`, or `addEventListener` anywhere in this tab
+
 ## Reference design
 Open `design-mockup-v2.html` — Tab 3 DRAW. Groups left to right:
 1. **Launch** — New Canvas (blue) + Excalidraw (purple, plugin badge) + Ink Draw (teal, plugin badge)

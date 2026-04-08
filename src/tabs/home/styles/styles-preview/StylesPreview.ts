@@ -38,8 +38,15 @@ export class StylesPreview {
         const cursor = editor.getCursor();
         const line = editor.getLine(cursor.line);
         const stripped = line.replace(/^#{1,6}\s+/, "");
-        if (item.prefix) editor.setLine(cursor.line, item.prefix + stripped);
-        else editor.setLine(cursor.line, stripped);
+        if (item.prefix) {
+          if (line === item.prefix + stripped) {
+            editor.setLine(cursor.line, stripped);
+          } else {
+            editor.setLine(cursor.line, item.prefix + stripped);
+          }
+        } else {
+          editor.setLine(cursor.line, stripped);
+        }
       });
     }
   }

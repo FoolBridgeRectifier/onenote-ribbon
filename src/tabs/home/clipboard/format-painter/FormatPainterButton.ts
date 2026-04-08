@@ -1,4 +1,4 @@
-import { App } from "obsidian";
+import { App, Notice } from "obsidian";
 
 export class FormatPainterButton {
   render(container: HTMLElement, app: App): void {
@@ -26,6 +26,29 @@ export class FormatPainterButton {
       // Phase 1: capture format from current line
       const isActive = (window as any)._onrFPActive;
       if (isActive) {
+        const stored = (window as any)._onrFP as {
+          headPrefix: string;
+          isBold: boolean;
+          isItalic: boolean;
+          isUnderline: boolean;
+        } | null;
+        const fpSel = editor.getSelection();
+        if (stored && fpSel) {
+          let result = fpSel;
+          if (stored.isUnderline) result = `<u>${result}</u>`;
+          if (stored.isItalic) result = `*${result}*`;
+          if (stored.isBold) result = `**${result}**`;
+          editor.replaceSelection(result);
+          if (stored.headPrefix) {
+            const c = editor.getCursor();
+            const l = editor.getLine(c.line);
+            if (!l.startsWith(stored.headPrefix))
+              editor.setLine(c.line, stored.headPrefix + l.replace(/^#{1,6}\s+/, ""));
+          }
+        } else if (stored && !fpSel) {
+          new Notice("Format Painter: select text first, then click again");
+          return; // keep active
+        }
         (window as any)._onrFPActive = false;
         (window as any)._onrFP = null;
         btn.classList.remove("onr-active");

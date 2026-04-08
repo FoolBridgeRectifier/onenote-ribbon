@@ -53,38 +53,149 @@ Open `design-mockup-v2.html` and look at Tab 1 — HOME. The groups from left to
 
 ## Files to create
 
-### `src/tabs/HomeTab.ts`
+All UI files are `.tsx` (React). Business logic files stay `.ts` (unchanged).
 
+### Shared prerequisites (create once, used by all groups)
+
+**`src/shared/context/AppContext.ts`** — provides `App` to all components via `useApp()`:
 ```ts
-export class HomeTab {
-  render(container: HTMLElement, app: App): void {
-    container.empty();
-    container.addClass('onr-tab-panel');
-    container.setAttribute('data-panel', 'Home');
+import { createContext, useContext } from 'react';
+import { App } from 'obsidian';
+export const AppContext = createContext<App>(null!);
+export const useApp = () => useContext(AppContext);
+```
 
-    this.buildClipboardGroup(container, app);
-    this.buildBasicTextGroup(container, app);
-    this.buildStylesGroup(container, app);
-    this.buildTagsGroup(container, app);
-    this.buildEmailGroup(container, app);
-    this.buildNavigateGroup(container, app);
-  }
-
-  private buildClipboardGroup(container: HTMLElement, app: App) { … }
-  private buildBasicTextGroup(container: HTMLElement, app: App) { … }
-  // etc.
+**`src/shared/components/RibbonButton.tsx`** — the universal ribbon button, replaces every `createDiv("onr-btn-sm")` + `addEventListener`:
+```tsx
+interface Props {
+  label?: string;
+  icon?: React.ReactNode;
+  title?: string;
+  active?: boolean;
+  disabled?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
+  onClick: (e: React.MouseEvent) => void;
 }
+export function RibbonButton({ label, icon, title, active, disabled, className = 'onr-btn-sm', style, onClick }: Props) {
+  return (
+    <div
+      className={`${className}${active ? ' onr-active' : ''}${disabled ? ' onr-disabled' : ''}`}
+      title={title} style={style}
+      onMouseDown={e => { e.preventDefault(); e.stopPropagation(); }}
+      onClick={onClick}
+    >
+      {icon}
+      {label && <span className="onr-btn-label-sm">{label}</span>}
+    </div>
+  );
+}
+```
+> `onMouseDown` with `preventDefault()` is critical — it prevents the editor from losing focus when any ribbon button is clicked.
+
+**`src/shared/components/GroupShell.tsx`** — wraps every group's container + label:
+```tsx
+interface Props { name: string; dataGroup: string; children: React.ReactNode; }
+export function GroupShell({ name, dataGroup, children }: Props) {
+  return (
+    <div className="onr-group" data-group={dataGroup}>
+      {children}
+      <div className="onr-group-name">{name}</div>
+    </div>
+  );
+}
+```
+
+**`src/shared/components/Dropdown.tsx`** — React portal replacing imperative `showDropdown()`:
+- Uses `createPortal` to render into `document.body`
+- Positions below anchor, clamps to viewport
+- Closes on outside click via `useEffect`
+- Accepts same `DropdownItem[]` type from `src/shared/dropdown/Dropdown.ts`
+
+**`src/shared/hooks/useEditorState.ts`** — replaces the `requestAnimationFrame` polling + `classList.toggle` in `HomeTab.ts`. Returns `EditorState`:
+```ts
+interface EditorState {
+  bold: boolean; italic: boolean; underline: boolean;
+  strikethrough: boolean; highlight: boolean;
+  subscript: boolean; superscript: boolean;
+  bulletList: boolean; numberedList: boolean;
+  headLevel: number;  // 0 = no heading
+  fontFamily: string; fontSize: string;
+}
+```
+Uses `useEffect` + workspace event listeners (`active-leaf-change`, `editor-change`) + `requestAnimationFrame`. Returns cleanup via `app.workspace.offref`.
+
+**`src/shared/hooks/useFormatPainter.ts`** + **`src/shared/context/FormatPainterContext.ts`** — replaces `window._onrFPActive` / `window._onrFP` globals with React state scoped to `HomeTabPanel`.
+
+### `src/tabs/home/HomeTabPanel.tsx`
+
+Top-level Home panel. Owns `editorState`, `stylesOffset`, and format painter context. No DOM manipulation — all state via hooks.
+
+```tsx
+export function HomeTabPanel() {
+  const app = useApp();
+  const editorState = useEditorState(app);
+  const fp = useFormatPainter();
+  const [stylesOffset, setStylesOffset] = useState(0);
+
+  // Sync styles offset to current heading
+  useEffect(() => {
+    const { headLevel } = editorState;
+    if (headLevel >= 1 && headLevel <= 6)
+      setStylesOffset(Math.max(0, Math.min(headLevel - 1, STYLES_LIST.length - 2)));
+  }, [editorState.headLevel]);
+
+  // Format Painter: auto-apply on drag-select mouseup (OneNote-style)
+  useEffect(() => {
+    const ws = document.querySelector('.workspace') ?? document.body;
+    const onMouseUp = (e: MouseEvent) => { /* ... */ };
+    ws.addEventListener('mouseup', onMouseUp, true);
+    return () => ws.removeEventListener('mouseup', onMouseUp, true);
+  }, [app, fp]);
+
+  return (
+    <FormatPainterContext.Provider value={fp}>
+      <div className="onr-tab-panel" data-panel="Home">
+        <ClipboardGroup />
+        <BasicTextGroup editorState={editorState} />
+        <StylesGroup editorState={editorState} stylesOffset={stylesOffset} setStylesOffset={setStylesOffset} />
+        <TagsGroup />
+        <EmailGroup />
+        <NavigateGroup />
+      </div>
+    </FormatPainterContext.Provider>
+  );
+}
+```
+
+### Group files
+
+Each group is a `.tsx` file using `<GroupShell>` + `<RibbonButton>` + `useApp()`. No `render(container, app)` methods.
+
+| Old file | New file | Key React changes |
+|----------|----------|-------------------|
+| `clipboard/ClipboardGroup.ts` | `ClipboardGroup.tsx` | FP state from `useFP()` context; paste menu as `<Dropdown>` with `useState` anchor |
+| `basic-text/BasicTextGroup.ts` | `BasicTextGroup.tsx` | `active` props from `editorState`; font/color/align dropdowns as `<Dropdown>` with `useRef` anchors |
+| `styles/StylesGroup.ts` | `StylesGroup.tsx` | `stylesOffset` from props; preview cards as inline JSX with `active` derived from `editorState.headLevel` |
+| `tags/TagsGroup.ts` | `TagsGroup.tsx` | Tag check state derived from editor on each render; no direct DOM query for `.onr-tag-check` |
+| `email/EmailGroup.ts` | `EmailGroup.tsx` | Trivial — two `<RibbonButton>` with click handlers |
+| `navigate/NavigateGroup.ts` | `NavigateGroup.tsx` | Trivial — three `<RibbonButton>` calling `app.commands.executeCommandById` |
+
+All individual button files (`BoldButton.ts`, `ItalicButton.ts`, etc.) are **deleted** — their logic is inlined into the group `.tsx` files, which are now short enough to hold it.
+
+**`src/tabs/home/clipboard/format-painter/applyFormatPainter.ts`** — new pure function extracted from the duplicated logic in `HomeTab.ts` and `FormatPainterButton.ts`:
+```ts
+export function applyFormatPainter(editor: Editor, selection: string, fmt: FPFormat): void { … }
 ```
 
 ### `src/styles/home.css`
 
-All button-specific styles for the Home tab — font dropdowns, highlight swatch, styles preview panel, tag rows. Copy exact sizing from `design-mockup-v2.html` Home tab HTML.
+Unchanged. All CSS class names (`onr-btn-sm`, `onr-active`, etc.) are the same — React uses `className` instead of `class` but the values are identical.
 
-Key measurements from mockup:
-
+Key measurements (unchanged from original):
 - Big Paste button: `width: 48px, min-height: 46px`
 - Small stacked buttons: `width: 68px, min-height: 22px, flex-direction: row`
-- Font family picker: `width: 96px, height: 22px, border: 1px solid #c8c6c4`
+- Font family picker: `width: 96px, height: 22px`
 - Font size picker: `width: 34px, height: 22px`
 - Formatting buttons row 2: `width: 22px, min-height: 22px`
 - Styles preview card: `width: 130px, min-height: 28px, background: #1a1a2e`

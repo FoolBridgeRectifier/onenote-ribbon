@@ -3,6 +3,14 @@
 ## Goal
 Implement the View tab — mode toggles, graph view, sidebar toggles, zoom controls, and window management.
 
+## React implementation note
+
+All files in this tab are `.tsx`. Follow the same patterns established in Plans 03–04:
+- Entry point: `src/tabs/view/ViewTabPanel.tsx`
+- Groups use `<GroupShell>`, buttons use `<RibbonButton>`, app via `useApp()`
+- Active mode indicator (Editing/Reading/Focus): `useState` + workspace `layout-change` listener in `useEffect`
+- No `createDiv`, `createEl`, or `addEventListener` anywhere in this tab
+
 ## Reference design
 Open `design-mockup-v2.html` — Tab 6 VIEW. Groups left to right:
 1. **Views** — Editing Mode (blue, active-looking) + Reading Mode + Focus Mode (purple) + Fullscreen

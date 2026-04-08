@@ -3,6 +3,15 @@
 ## Goal
 Implement the History tab — recent files navigation, trash, Obsidian Git integration (with graceful fallback), and file recovery.
 
+## React implementation note
+
+All files in this tab are `.tsx`. Follow the same patterns established in Plans 03–04:
+- Entry point: `src/tabs/history/HistoryTabPanel.tsx`
+- Groups use `<GroupShell>`, buttons use `<RibbonButton>`, app via `useApp()`
+- Git availability check: `useState<boolean>` + `useEffect` reading `app.plugins.plugins['obsidian-git']`
+- Recent files list: `useState<TFile[]>` populated in `useEffect` from `app.workspace.getLastOpenFiles()`
+- No `createDiv`, `createEl`, or `addEventListener` anywhere in this tab
+
 ## Reference design
 Open `design-mockup-v2.html` — Tab 4 HISTORY. Groups left to right:
 1. **Navigation** — Recent Files (gray) + Nav Back (gray) + Nav Forward (gray) + Open Trash (red)

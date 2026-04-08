@@ -48,15 +48,6 @@ export class HomeTab {
         e.preventDefault();
         e.stopPropagation();
       });
-      el.addEventListener("click", (e) => {
-        e.stopPropagation();
-        this.executeCommand(
-          el.getAttribute("data-cmd"),
-          app,
-          el as HTMLElement,
-          container,
-        );
-      });
     });
 
     // Cursor-aware state tracking

@@ -15,90 +15,153 @@ Open `design-mockup-v2.html` in browser. The tab bar is the purple strip at the 
 
 ## Files to create/modify
 
-### `src/ribbon/RibbonShell.ts`
-Responsible for:
-- Creating the ribbon DOM element
-- Mounting it above `.mod-root` (the main workspace column)
-- Tab switching (clicking a tab sets `data-active-tab` on the container)
-- Collapse/expand toggle (sets `data-collapsed` attribute, ribbon body height animates to 0)
-- Pin toggle (pinned = ribbon stays open; unpinned = auto-collapses on editor focus)
-- Cleanup on `onunload`
-
+### `src/ribbon/tabs.ts`
+Central tab name list (shared by `RibbonShell`, `RibbonApp`, `TabBar`):
 ```ts
 export const TABS = ['Home', 'Insert', 'Draw', 'History', 'Review', 'View', 'Help'] as const;
-export type TabName = typeof TABS[number];
+export type TabName = (typeof TABS)[number];
+```
+
+### `src/ribbon/RibbonShell.ts`
+Responsible for:
+- Creating the container DOM element and inserting it above the workspace
+- Creating the React root and rendering `RibbonApp` inside it
+- Providing the Obsidian `App` instance via `AppContext`
+- Cleanup on `onunload` via `root.unmount()`
+
+No `buildHTML()`, no `attachEvents()`, no manual DOM manipulation — all UI is React.
+
+```ts
+import { App } from 'obsidian';
+import { createRoot, Root } from 'react-dom/client';
+import { createElement } from 'react';
+import { AppContext } from '../shared/context/AppContext';
+import { RibbonApp } from './RibbonApp';
 
 export class RibbonShell {
   private el: HTMLElement;
-  private activeTab: TabName = 'Home';
-  private collapsed = false;
-  private pinned = true;
+  private root: Root;
 
   constructor(private app: App) {}
 
-  mount(): HTMLElement {
-    // Remove any existing ribbon
+  mount(): void {
     document.getElementById('onenote-ribbon-root')?.remove();
 
     this.el = document.createElement('div');
     this.el.id = 'onenote-ribbon-root';
-    this.el.setAttribute('data-active-tab', this.activeTab);
 
-    this.el.innerHTML = this.buildHTML();
-    this.attachEvents();
+    const hmc = document.querySelector('.horizontal-main-container');
+    hmc?.parentElement?.insertBefore(this.el, hmc);
 
-    // Insert above .mod-root
-    const modRoot = document.querySelector('.mod-root');
-    modRoot?.parentElement?.insertBefore(this.el, modRoot);
+    const titlebar = document.querySelector('.titlebar') as HTMLElement | null;
+    if (titlebar) {
+      this.el.style.marginTop = `${titlebar.getBoundingClientRect().height}px`;
+    }
 
-    return this.el;
+    this.root = createRoot(this.el);
+    this.root.render(
+      createElement(AppContext.Provider, { value: this.app },
+        createElement(RibbonApp)
+      )
+    );
   }
 
-  unmount() {
+  unmount(): void {
+    this.root?.unmount();
     this.el?.remove();
-  }
-
-  private buildHTML(): string {
-    const tabs = TABS.map(t =>
-      `<div class="onr-tab ${t === this.activeTab ? 'active' : ''}" data-tab="${t}">${t}</div>`
-    ).join('');
-
-    return `
-      <div class="onr-tab-bar">
-        ${tabs}
-        <div class="onr-spacer"></div>
-        <div class="onr-pin-btn">${this.pinned ? '📌' : ''} ${this.collapsed ? '▼ Expand' : '▲ Collapse'}</div>
-      </div>
-      <div class="onr-body" data-tab-content="Home">
-        <!-- tab content injected by each tab module -->
-      </div>
-    `;
-  }
-
-  private attachEvents() {
-    this.el.querySelectorAll('.onr-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        this.activeTab = tab.getAttribute('data-tab') as TabName;
-        this.el.setAttribute('data-active-tab', this.activeTab);
-        this.el.querySelectorAll('.onr-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        this.el.querySelectorAll('.onr-tab-panel').forEach(p => {
-          (p as HTMLElement).style.display =
-            p.getAttribute('data-panel') === this.activeTab ? '' : 'none';
-        });
-      });
-    });
-
-    this.el.querySelector('.onr-pin-btn')?.addEventListener('click', () => {
-      this.collapsed = !this.collapsed;
-      const body = this.el.querySelector('.onr-body') as HTMLElement;
-      body.style.display = this.collapsed ? 'none' : '';
-      (this.el.querySelector('.onr-pin-btn') as HTMLElement).textContent =
-        this.collapsed ? '▼ Expand' : '▲ Collapse';
-    });
   }
 }
 ```
+
+### `src/shared/context/AppContext.ts`
+React context that provides the Obsidian `App` instance to all components:
+```ts
+import { createContext, useContext } from 'react';
+import { App } from 'obsidian';
+
+export const AppContext = createContext<App>(null!);
+export const useApp = () => useContext(AppContext);
+```
+
+### `src/ribbon/useRibbonState.ts`
+Hook that owns the ribbon's UI state — replaces the old instance variables on `RibbonShell`:
+```ts
+import { useState } from 'react';
+import { TabName } from './tabs';
+
+export function useRibbonState() {
+  const [activeTab, setActiveTab] = useState<TabName>('Home');
+  const [collapsed, setCollapsed] = useState(false);
+  const [pinned, setPinned] = useState(true);
+  return { activeTab, setActiveTab, collapsed, setCollapsed, pinned, setPinned };
+}
+```
+
+### `src/ribbon/TabBar.tsx`
+React component for the purple tab bar:
+```tsx
+import { TABS, TabName } from './tabs';
+
+interface Props {
+  activeTab: TabName;
+  collapsed: boolean;
+  pinned: boolean;
+  onTabClick: (t: TabName) => void;
+  onToggleCollapse: () => void;
+}
+
+export function TabBar({ activeTab, collapsed, pinned, onTabClick, onToggleCollapse }: Props) {
+  return (
+    <div className="onr-tab-bar">
+      {TABS.map(t => (
+        <div key={t}
+          className={`onr-tab${t === activeTab ? ' active' : ''}`}
+          onClick={() => onTabClick(t)}>
+          {t}
+        </div>
+      ))}
+      <div className="onr-spacer" />
+      <div className="onr-pin-btn" onClick={onToggleCollapse}>
+        {pinned ? '📌' : ''} {collapsed ? '▼ Expand' : '▲ Collapse'}
+      </div>
+    </div>
+  );
+}
+```
+
+### `src/ribbon/RibbonApp.tsx`
+Top-level React component. Owns ribbon state and renders `TabBar` + the active tab panel:
+```tsx
+import { useRibbonState } from './useRibbonState';
+import { TabBar } from './TabBar';
+import { HomeTabPanel } from '../tabs/home/HomeTabPanel';
+import { InsertTabPanel } from '../tabs/insert/InsertTabPanel';
+
+export function RibbonApp() {
+  const { activeTab, setActiveTab, collapsed, setCollapsed, pinned, setPinned } = useRibbonState();
+
+  return (
+    <div className="onr-ribbon">
+      <TabBar
+        activeTab={activeTab}
+        collapsed={collapsed}
+        pinned={pinned}
+        onTabClick={setActiveTab}
+        onToggleCollapse={() => setCollapsed(c => !c)}
+      />
+      {!collapsed && (
+        <div className="onr-body">
+          {activeTab === 'Home'   && <HomeTabPanel />}
+          {activeTab === 'Insert' && <InsertTabPanel />}
+          {/* other tabs: stub panels until implemented */}
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+Tab switching and collapse are driven by `useState` — no manual `classList.add('active')` or `style.display = 'none'` needed.
 
 ### `src/styles/shell.css`
 Exact CSS from `design-mockup-v2.html` for:

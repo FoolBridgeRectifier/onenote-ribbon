@@ -8,6 +8,7 @@ function stripInlineMarks(text: string): string {
     .replace(/_(.+?)_/gs, "$1")
     .replace(/~~(.+?)~~/gs, "$1")
     .replace(/==(.+?)==/gs, "$1")
+    .replace(/`(.+?)`/gs, "$1")
     .replace(/<u>(.*?)<\/u>/gs, "$1")
     .replace(/<sub>(.*?)<\/sub>/gs, "$1")
     .replace(/<sup>(.*?)<\/sup>/gs, "$1")

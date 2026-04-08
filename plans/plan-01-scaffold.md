@@ -49,11 +49,15 @@ Copy exactly from `design-mockup-v2.html` `:root` block:
     "dev": "node esbuild.config.mjs --watch"
   },
   "dependencies": {
-    "obsidian": "latest"
+    "obsidian": "latest",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
   },
   "devDependencies": {
     "esbuild": "^0.20.0",
     "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
     "typescript": "^5.3.0"
   }
 }
@@ -70,9 +74,11 @@ Copy exactly from `design-mockup-v2.html` `:root` block:
     "noImplicitAny": true,
     "outDir": "dist",
     "lib": ["ES2020", "DOM"],
-    "types": ["node"]
+    "types": ["node"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
 }
 ```
 
@@ -93,6 +99,7 @@ const ctx = await esbuild.context({
   outfile: 'main.js',
   sourcemap: 'inline',
   platform: 'browser',
+  jsx: 'automatic',
   define: { 'process.env.NODE_ENV': '"development"' },
 });
 
@@ -108,13 +115,19 @@ if (watch) {
 ### `src/main.ts`
 ```ts
 import { Plugin } from 'obsidian';
+import { RibbonShell } from './ribbon/RibbonShell';
 
 export default class OneNoteRibbonPlugin extends Plugin {
+  private shell: RibbonShell;
+
   async onload() {
+    this.shell = new RibbonShell(this.app);
+    this.app.workspace.onLayoutReady(() => this.shell.mount());
     console.log('OneNote Ribbon loaded');
   }
 
   onunload() {
+    this.shell?.unmount();
     console.log('OneNote Ribbon unloaded');
   }
 }

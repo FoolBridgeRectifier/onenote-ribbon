@@ -42,11 +42,138 @@ Open `design-mockup-v2.html` — Tab 2 INSERT. Groups left to right:
 
 ## Files to create
 
-### `src/tabs/InsertTab.ts`
-Same pattern as HomeTab — `render(container, app)` → builds each group.
+All UI files are `.tsx` (React). No `render(container, app)` methods. No `createDiv`/`addEventListener`.
+
+### `src/tabs/insert/InsertTabPanel.tsx`
+
+Top-level Insert panel — replaces `InsertTab.ts`:
+
+```tsx
+import { GroupShell } from '../../shared/components/GroupShell';
+import { BlankLineButton } from './blank-line/BlankLineButton';
+import { TablesGroup } from './tables/TablesGroup';
+import { FilesGroup } from './files/FilesGroup';
+import { ImagesGroup } from './images/ImagesGroup';
+import { LinksGroup } from './links/LinksGroup';
+import { TimestampGroup } from './timestamp/TimestampGroup';
+import { BlocksGroup } from './blocks/BlocksGroup';
+import { SymbolsGroup } from './symbols/SymbolsGroup';
+
+export function InsertTabPanel() {
+  return (
+    <div className="onr-tab-panel" data-panel="Insert">
+      <GroupShell name="Insert" dataGroup="Insert">
+        <div className="onr-group-buttons">
+          <BlankLineButton />
+        </div>
+      </GroupShell>
+      <TablesGroup />
+      <FilesGroup />
+      <ImagesGroup />
+      <LinksGroup />
+      <TimestampGroup />
+      <BlocksGroup />
+      <SymbolsGroup />
+    </div>
+  );
+}
+```
+
+### Group files (8 total)
+
+Each group file is a `.tsx` component using `<GroupShell>` + `<RibbonButton>` + `useApp()`.
+The conversion recipe for every group is identical:
+
+| Step | Old pattern | New pattern |
+|------|-------------|-------------|
+| Container | `container.createDiv("onr-group")` | `<GroupShell name="…" dataGroup="…">` |
+| Button | `new XButton().render(col, app)` | `<RibbonButton label="…" onClick={handler} />` |
+| mousedown guard | `btn.addEventListener("mousedown", e => e.preventDefault())` | Built into `RibbonButton` — no change needed |
+| App reference | received as `app: App` parameter | `const app = useApp()` |
+| Editor reference | `app.workspace.activeEditor?.editor` | same, called inside `onClick` |
+
+**`blank-line/BlankLineButton.tsx`**
+```tsx
+export function BlankLineButton() {
+  const app = useApp();
+  return (
+    <RibbonButton label="Blank Line" onClick={() => {
+      const ed = app.workspace.activeEditor?.editor;
+      ed?.replaceRange('\n', ed.getCursor());
+    }} />
+  );
+}
+```
+
+**`tables/TablesGroup.tsx`** — one Table button:
+```tsx
+onClick={() => {
+  const ed = app.workspace.activeEditor?.editor;
+  ed?.replaceRange('| col | col | col |\n|---|---|---|\n| | | |\n', ed.getCursor());
+}}
+```
+
+**`files/FilesGroup.tsx`** — Attach File + Embed Note buttons:
+```tsx
+// Attach File
+onClick={() => app.commands.executeCommandById('editor:attach-file')}
+// Embed Note
+onClick={() => { const ed = app.workspace.activeEditor?.editor; ed?.replaceRange('![[', ed.getCursor()); }}
+```
+
+**`images/ImagesGroup.tsx`** — Image + Video buttons.
+
+**`links/LinksGroup.tsx`** — Link + Wikilink buttons:
+```tsx
+// Link
+onClick={() => app.commands.executeCommandById('editor:insert-link')}
+// Wikilink
+onClick={() => { const ed = app.workspace.activeEditor?.editor; ed?.replaceRange('[[', ed.getCursor()); }}
+```
+
+**`timestamp/TimestampGroup.tsx`** — Date / Time / Date & Time buttons:
+```tsx
+const now = new Date();
+// Date
+onClick={() => ed?.replaceRange(now.toISOString().slice(0, 10), ed.getCursor())}
+// Time
+onClick={() => ed?.replaceRange(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), ed.getCursor())}
+// Date & Time
+onClick={() => ed?.replaceRange(`${now.toISOString().slice(0, 10)} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`, ed.getCursor())}
+```
+
+**`blocks/BlocksGroup.tsx`** — Template / Callout / Code Block buttons.
+Callout uses a `<Dropdown>` with the 12 callout types:
+```tsx
+const [calloutAnchor, setCalloutAnchor] = useState<HTMLElement | null>(null);
+const calloutRef = useRef<HTMLDivElement>(null);
+const CALLOUT_TYPES = ['note','abstract','info','tip','success','question','warning','failure','danger','bug','example','quote'];
+// ...
+{calloutAnchor && (
+  <Dropdown anchor={calloutAnchor}
+    items={CALLOUT_TYPES.map(t => ({
+      label: t,
+      action: () => { const ed = app.workspace.activeEditor?.editor; ed?.replaceRange(`> [!${t}]\n> `, ed.getCursor()); }
+    }))}
+    onClose={() => setCalloutAnchor(null)}
+  />
+)}
+```
+
+**`symbols/SymbolsGroup.tsx`** — Math / HR / Footnote / Tag buttons:
+```tsx
+// Math
+onClick={() => ed?.replaceRange('$$\n\n$$', ed.getCursor())}
+// Horizontal Rule
+onClick={() => ed?.replaceRange('\n---\n', ed.getCursor())}
+// Footnote
+onClick={() => { ed?.replaceRange('[^1]', ed.getCursor()); /* append [^1]: at end */ }}
+// Tag
+onClick={() => ed?.replaceRange('#', ed.getCursor())}
+```
 
 ### `src/styles/insert.css`
-Minimal — inherits all base button styles from shell.css. Only needs group-specific overrides if any.
+Unchanged. Inherits all base button styles from `shell.css`. No new CSS needed.
 
 ## Testing with Obsidian MCP
 
