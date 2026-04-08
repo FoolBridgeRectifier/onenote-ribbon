@@ -1,6 +1,6 @@
 import { App } from "obsidian";
-import { HomeTab } from "../tabs/HomeTab";
-import { InsertTab } from "../tabs/InsertTab";
+import { HomeTab } from "../tabs/home/HomeTab";
+import { InsertTab } from "../tabs/insert/InsertTab";
 
 export const TABS = [
   "Home",
@@ -59,7 +59,8 @@ export class RibbonShell {
   }
 
   private syncPanelVisibility(body?: HTMLElement) {
-    const container = body ?? (this.el.querySelector(".onr-body") as HTMLElement);
+    const container =
+      body ?? (this.el.querySelector(".onr-body") as HTMLElement);
     container.querySelectorAll(".onr-tab-panel").forEach((p) => {
       (p as HTMLElement).style.display =
         p.getAttribute("data-panel") === this.activeTab ? "" : "none";

@@ -1,0 +1,26 @@
+.onr-callout-picker {
+  position: fixed;
+  background: #fff;
+  border: 1px solid #c8c6c4;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  max-width: 260px;
+  z-index: 10000;
+}
+
+.onr-callout-picker div {
+  padding: 3px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  border-radius: 3px;
+  border: 1px solid #e1dfdd;
+  white-space: nowrap;
+}
+
+.onr-callout-picker div:hover {
+  background: #f0eeec;
+}

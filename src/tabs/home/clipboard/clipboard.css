@@ -1,0 +1,31 @@
+/* Clipboard group layout */
+[data-group="Clipboard"] .onr-group-buttons {
+  align-items: flex-start;
+  gap: 2px;
+}
+
+/* Paste big button */
+[data-group="Clipboard"] [data-cmd="paste"] {
+  width: 46px;
+  min-height: 46px;
+  border-bottom: none;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+/* Paste dropdown arrow */
+[data-group="Clipboard"] [data-cmd="paste-dropdown"] {
+  width: 46px;
+  border-top: 1px solid #d0d0d0;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  min-height: 14px;
+  font-size: 9px;
+  justify-content: center;
+}
+
+/* Small stacked buttons */
+[data-group="Clipboard"] .onr-btn-sm {
+  width: 68px;
+  flex-direction: row;
+  gap: 4px;
+  padding: 2px 4px;
+}

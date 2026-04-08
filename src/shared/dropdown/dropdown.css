@@ -1,0 +1,8 @@
+/* Dropdown overlay — styles are currently applied inline in Dropdown.ts */
+/* Future: migrate inline styles to these classes */
+.onr-overlay-dropdown {
+  /* reference only */
+}
+.onr-dd-item {
+  /* reference only */
+}

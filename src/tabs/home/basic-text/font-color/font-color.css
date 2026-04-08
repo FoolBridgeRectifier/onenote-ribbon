@@ -1,0 +1,6 @@
+/* Font Color button — swatch and wrapper */
+[data-group="Basic Text"] [data-cmd="font-color"] {
+  min-height: 18px;
+  width: 22px;
+  padding: 1px 2px;
+}

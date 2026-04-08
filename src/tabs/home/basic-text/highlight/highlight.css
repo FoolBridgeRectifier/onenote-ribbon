@@ -1,0 +1,6 @@
+/* Highlight button — swatch and wrapper */
+[data-group="Basic Text"] [data-cmd="highlight"] {
+  min-height: 18px;
+  width: 26px;
+  padding: 1px 2px;
+}

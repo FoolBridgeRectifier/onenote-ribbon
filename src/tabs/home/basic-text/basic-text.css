@@ -1,0 +1,63 @@
+/* Basic Text Group — Row Layout */
+[data-group="Basic Text"] .onr-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* Font pickers */
+[data-group="Basic Text"] .onr-font-picker {
+  flex-direction: row;
+  gap: 2px;
+  min-height: 22px;
+  padding: 1px 4px;
+  border: 1px solid var(--btn-hover-border);
+  cursor: pointer;
+}
+
+[data-group="Basic Text"] [data-cmd="font-family"] {
+  width: 96px;
+}
+
+[data-group="Basic Text"] [data-cmd="font-size"] {
+  width: 34px;
+}
+
+/* Highlight swatch */
+#onr-highlight-swatch {
+  width: 14px;
+  height: 3px;
+  background: #ffff00;
+  border: 1px solid #ccc;
+  margin-top: 1px;
+}
+
+/* Color swatch */
+#onr-color-swatch {
+  width: 14px;
+  height: 3px;
+  background: #ff0000;
+  border: 1px solid #ccc;
+  margin-top: 1px;
+}
+
+/* Inline formatting buttons */
+[data-group="Basic Text"] [data-cmd="bold"],
+[data-group="Basic Text"] [data-cmd="italic"],
+[data-group="Basic Text"] [data-cmd="underline"],
+[data-group="Basic Text"] [data-cmd="strikethrough"],
+[data-group="Basic Text"] [data-cmd="subscript"],
+[data-group="Basic Text"] [data-cmd="superscript"],
+[data-group="Basic Text"] [data-cmd="clear-inline"] {
+  min-height: 22px;
+  width: 22px;
+}
+
+[data-group="Basic Text"] [data-cmd="bullet-list"],
+[data-group="Basic Text"] [data-cmd="numbered-list"],
+[data-group="Basic Text"] [data-cmd="outdent"],
+[data-group="Basic Text"] [data-cmd="indent"],
+[data-group="Basic Text"] [data-cmd="clear-formatting"] {
+  min-height: 22px;
+  width: 22px;
+}
