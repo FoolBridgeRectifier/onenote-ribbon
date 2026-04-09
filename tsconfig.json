@@ -6,8 +6,18 @@
     "strict": true,
     "noImplicitAny": true,
     "outDir": "dist",
-    "lib": ["ES2020", "DOM"],
-    "types": ["node"]
+    "lib": [
+      "ES2020",
+      "DOM"
+    ],
+    "types": [
+      "node"
+    ],
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
   },
-  "include": ["src/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ]
 }

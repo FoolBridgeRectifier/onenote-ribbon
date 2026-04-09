@@ -13,6 +13,7 @@ const ctx = await esbuild.context({
   outfile: 'main.js',
   sourcemap: 'inline',
   platform: 'browser',
+  jsx: 'automatic',
   define: { 'process.env.NODE_ENV': '"development"' },
 });
 

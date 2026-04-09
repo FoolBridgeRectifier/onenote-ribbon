@@ -4,14 +4,33 @@
   "private": true,
   "scripts": {
     "build": "node esbuild.config.mjs",
-    "dev": "node esbuild.config.mjs --watch"
+    "dev": "node esbuild.config.mjs --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:e2e": "node scripts/e2e/run-e2e.mjs",
+    "test:e2e:launch": "node scripts/e2e/run-e2e.mjs --launch",
+    "test:e2e:home": "node scripts/e2e/run-e2e.mjs --suite home,basic-text,clipboard,styles,tags,email,navigate",
+    "test:e2e:insert": "node scripts/e2e/run-e2e.mjs --suite insert,tables,files,images,links,timestamp,blocks,symbols"
   },
   "dependencies": {
-    "obsidian": "latest"
+    "obsidian": "latest",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0"
   },
   "devDependencies": {
-    "esbuild": "^0.20.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20.0.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "esbuild": "^0.20.0",
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0",
+    "jsdom": "^29.0.2",
+    "ts-jest": "^29.4.9",
     "typescript": "^5.3.0"
   }
 }

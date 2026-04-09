@@ -1,6 +1,0 @@
-/* Font Family picker — label and picker layout */
-[data-group="Basic Text"] [data-cmd="font-family"] {
-  width: 96px;
-  flex-direction: row;
-  gap: 2px;
-}
