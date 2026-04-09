@@ -1,6 +1,6 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext } from "react";
 
-import { FormatPainterFormat } from '../hooks/useFormatPainter';
+import { FormatPainterFormat } from "../hooks/useFormatPainter";
 
 export interface FormatPainterContextValue {
   active: boolean;
@@ -9,5 +9,7 @@ export interface FormatPainterContextValue {
   clear: () => void;
 }
 
-export const FormatPainterContext = createContext<FormatPainterContextValue>(null!);
+export const FormatPainterContext = createContext<FormatPainterContextValue>(
+  null!,
+);
 export const useFormatPainterContext = () => useContext(FormatPainterContext);

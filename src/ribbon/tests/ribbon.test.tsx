@@ -65,7 +65,11 @@ describe("useRibbonState — initial state", () => {
 
 describe("TabBar — rendering", () => {
   const noop = () => {};
-  function renderTabBar(activeTab: TabName = "Home", collapsed = false, pinned = true) {
+  function renderTabBar(
+    activeTab: TabName = "Home",
+    collapsed = false,
+    pinned = true,
+  ) {
     return render(
       <TabBar
         activeTab={activeTab}
@@ -73,7 +77,7 @@ describe("TabBar — rendering", () => {
         pinned={pinned}
         onTabClick={noop}
         onToggleCollapse={noop}
-      />
+      />,
     );
   }
 
@@ -103,7 +107,7 @@ describe("TabBar — rendering", () => {
         pinned={false}
         onTabClick={onTabClick}
         onToggleCollapse={noop}
-      />
+      />,
     );
     fireEvent.click(screen.getByText("Insert"));
     expect(onTabClick).toHaveBeenCalledWith("Insert");
@@ -128,7 +132,7 @@ describe("TabBar — rendering", () => {
         pinned={false}
         onTabClick={noop}
         onToggleCollapse={onToggle}
-      />
+      />,
     );
     fireEvent.click(screen.getByText(/Collapse/));
     expect(onToggle).toHaveBeenCalled();
@@ -150,7 +154,7 @@ function renderRibbonApp() {
       <FormatPainterContext.Provider value={fp}>
         <RibbonApp />
       </FormatPainterContext.Provider>
-    </AppContext.Provider>
+    </AppContext.Provider>,
   );
 }
 
