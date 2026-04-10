@@ -1,0 +1,27 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"MANDATORY RULES (from .github/copilot-instructions.md):\\n\\nPLAN EXECUTION — when a plans/ file exists:\\n1. Follow the plan exactly — no skipping, reordering, or summarizing steps.\\n2. SPAWN SUBAGENTS — one dedicated subagent per plan section or independent task. NEVER execute the full plan inline in a single context window. This is non-negotiable.\\n3. Always finish the task — never stop mid-plan.\\n4. Do not mark complete until npm test passes and build is clean.\\n\\nLARGE PLANS (many tasks): spawn a single orchestrator subagent that manages the full plan and spawns per-task worker agents. Main context only dispatches the orchestrator and reads its final result.\"}}'",
+            "statusMessage": "Loading project workflow rules..."
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "today=$(date +%F); plan_count=$(find \"$PWD/plans\" -maxdepth 2 -name 'plan.md' -path \"*${today}*\" 2>/dev/null | wc -l); if [ \"$plan_count\" -eq 0 ]; then printf '{\"continue\": false, \"stopReason\": \"BLOCKED: No approved plan for today (%s). Create plans/%s-<name>/plan.md and get user approval before editing code.\"}' \"$today\" \"$today\"; fi",
+            "statusMessage": "Checking for approved plan..."
+          }
+        ]
+      }
+    ]
+  }
+}

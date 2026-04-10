@@ -7,6 +7,15 @@
 Obsidian plugin rendering a Microsoft OneNote-style ribbon toolbar.
 Stack: TypeScript 5 strict + React 18 + esbuild (build) + Jest 30 + RTL (tests).
 
+## Code Quality Standards (always enforce, no exceptions)
+
+- **Preferred stack:** React, React Testing Library, Node, Java, TypeScript — prefer these over other frameworks when a choice exists.
+- **Logical blocks = subfolders + unit tests:** When writing any new code, if it introduces a new logical block (a self-contained function, hook, utility, or transformation), extract it into its own file and add a `tests/` subfolder with unit tests covering every variation of params and every return path. The logical block must be a pure exported function (or hook) called from the editing file.
+- **Comments on hard-to-understand code:** Add a one-line comment above any line or block that is not immediately obvious. Do not comment trivial code.
+- **Spacing:** Leave a blank line between distinct logical sections within a function or block.
+- **Full variable names:** Never shorten names. `editor` not `ed`, `backgroundColor` not `bgColor`, `index` not `i` (except conventional loop counters).
+- **Code quality, readability, and redundancy reduction are the highest priorities.** Always maximize these. Prefer explicit, readable code over clever or compact code.
+
 ## Critical Rules
 
 ### File location
@@ -43,6 +52,15 @@ Stack: TypeScript 5 strict + React 18 + esbuild (build) + Jest 30 + RTL (tests).
 
 - Strict mode is enforced — no `any` except mock-casting in test utilities
 - `npm test` must pass all 475 tests before any task is considered complete
+
+## Plan Execution Rules
+
+When a plan file exists in `plans/`:
+
+1. **Follow the plan to the dot** — do not skip, reorder, or summarize steps. Execute exactly what is written, in the order written.
+2. **Use agents for separate sections and tasks** — spawn a dedicated agent (subagent) per plan section or independent task to avoid losing context of the overall plan. Do not attempt to execute the entire plan in a single context window.
+3. **Always complete the task** — if a plan step is ambiguous, make a reasonable decision and continue. Never stop mid-plan without finishing.
+4. **Do not mark a task complete** until its specific acceptance criteria (tests passing, build clean, etc.) are verified.
 
 ---
 

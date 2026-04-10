@@ -22,6 +22,22 @@ npm run build             # esbuild production bundle
 npm run test:e2e          # E2E via CDP (needs live Obsidian on port 9222)
 ```
 
+## Planning rule
+
+For any task that is not a short, single-file edit: **write a plan file and stop — do not execute**. Wait for explicit user approval before making any code changes.
+
+**Plan file location:** Every new plan must be created in its own dated subfolder:
+
+```
+plans/YYYY-MM-DD-<short-name>/plan.md
+```
+
+Examples:
+- `plans/2026-04-09-css-refactor/plan.md`
+- `plans/2026-04-09-insert-tab-icons/plan.md`
+
+Use today's date (ISO 8601) and a short kebab-case name derived from the task. The folder must contain only `plan.md` unless the plan explicitly calls for additional files (e.g. mockups, screenshots).
+
 ## Enforce before any task completion
 
 1. All new test files go in `tests/` subdirectory — never alongside source files
