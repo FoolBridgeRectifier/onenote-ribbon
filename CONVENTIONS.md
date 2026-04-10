@@ -18,17 +18,17 @@ An Obsidian plugin that renders a Microsoft OneNote-style ribbon toolbar.
 
 ## 2. Toolchain
 
-| Tool                      | Version | Purpose                                                            |
-| ------------------------- | ------- | ------------------------------------------------------------------ |
-| TypeScript                | ^5.3    | Strict mode: `strict: true`, `noImplicitAny: true`                 |
-| React                     | ^18.3   | UI components                                                      |
-| esbuild                   | ^0.20   | Production bundle (`npm run build`, `npm run dev`)                 |
-| Jest                      | ^30     | Unit + integration test runner                                     |
-| ts-jest                   | ^29     | TypeScript transform for Jest (CommonJS, `moduleResolution: node`) |
-| jest-environment-jsdom    | ^30     | Browser environment simulation                                     |
-| @testing-library/react      | ^16     | RTL for component rendering                                        |
-| @testing-library/jest-dom   | ^6      | Custom DOM matchers                                                |
-| @testing-library/user-event | ^14     | Higher-level user interaction simulation (available, use sparingly)|
+| Tool                        | Version | Purpose                                                             |
+| --------------------------- | ------- | ------------------------------------------------------------------- |
+| TypeScript                  | ^5.3    | Strict mode: `strict: true`, `noImplicitAny: true`                  |
+| React                       | ^18.3   | UI components                                                       |
+| esbuild                     | ^0.20   | Production bundle (`npm run build`, `npm run dev`)                  |
+| Jest                        | ^30     | Unit + integration test runner                                      |
+| ts-jest                     | ^29     | TypeScript transform for Jest (CommonJS, `moduleResolution: node`)  |
+| jest-environment-jsdom      | ^30     | Browser environment simulation                                      |
+| @testing-library/react      | ^16     | RTL for component rendering                                         |
+| @testing-library/jest-dom   | ^6      | Custom DOM matchers                                                 |
+| @testing-library/user-event | ^14     | Higher-level user interaction simulation (available, use sparingly) |
 
 **Commands:**
 
@@ -238,6 +238,7 @@ Every feature module (group, button, helper) follows this layout:
 - Test files (`.test.ts`, `.test.tsx`) live **exclusively** inside `tests/` subdirectories.
 - `README.md` files are allowed at folder level — not test files.
 - Do not put test files at the same level as source files.
+- Every new logical block (pure function, hook, utility, transformation) must be extracted into its own file, exported from that file, and called from the editing file. Its `tests/` directory must contain unit tests that cover every variation of parameters and every return path.
 
 ---
 
@@ -249,10 +250,10 @@ Two distinct format-painter hooks — do not confuse them:
 
 ```ts
 // useFormatPainter  — CREATES state. Used only in HomeTabPanel as the context provider.
-import { useFormatPainter } from 'src/shared/hooks/useFormatPainter';
+import { useFormatPainter } from "src/shared/hooks/useFormatPainter";
 
 // useFormatPainterContext — CONSUMES context. Used inside group components.
-import { useFormatPainterContext } from 'src/shared/context/FormatPainterContext';
+import { useFormatPainterContext } from "src/shared/context/FormatPainterContext";
 ```
 
 ```ts
@@ -326,31 +327,31 @@ export function MyGroup({ editorState }: Props) {
 
 All identifiers (variables, parameters, constants, type aliases, hook names) must be fully descriptive. The following abbreviations are **banned**:
 
-| Banned          | Use instead                         | Where                              |
-| --------------- | ----------------------------------- | ---------------------------------- |
-| `ed`, `e`       | `editor`, `getEditor`               | Editor accessor + handler locals   |
-| `fp`            | `formatPainter`                     | Format painter context value       |
-| `FPFormat`      | `FormatPainterFormat`               | Interface name                     |
-| `FPContextValue`| `FormatPainterContextValue`         | Interface name                     |
-| `useFP`         | `useFormatPainterContext`           | Hook name (consumer hook)          |
-| `exec`          | `executeCommand`                    | Editor command helper              |
-| `ws`            | `workspaceElement`                  | DOM element variable               |
-| `hmc`           | `horizontalMainContainer`           | DOM element variable               |
-| `fmt`           | `newFormat` (param) / `format` (state) | Format painter parameter       |
-| `sel`           | `selection`                         | Editor selection string            |
-| `src`           | `sourceText`                        | Text being inspected               |
-| `tmpl`          | `template`                          | Template string                    |
-| `t`             | `clipboardText`, `text`, etc.       | Single-letter callback params      |
-| `f`, `s`, `c`   | `fontName`, `pointSize`, `colorItem`| Single-letter loop variables       |
-| `i`             | `index`, `rowIndex`                 | Loop / map index                   |
-| `k`, `v`        | `key`, `value`                      | Object / map iteration             |
-| `mh`            | `estimatedMaxHeight`                | Computed layout value              |
-| `ref1`, `ref2`  | `leafChangeEventRef`, `editorChangeEventRef` | Event ref names          |
-| `fmtDate`       | `formatCurrentDate`                 | Function name                      |
-| `fmtTime`       | `formatCurrentTime`                 | Function name                      |
-| `now`           | `currentDate`                       | Date variable                      |
-| `el`            | `element`                           | DOM element                        |
-| `titlebar`      | `titlebarElement`                   | DOM element                        |
+| Banned           | Use instead                                  | Where                            |
+| ---------------- | -------------------------------------------- | -------------------------------- |
+| `ed`, `e`        | `editor`, `getEditor`                        | Editor accessor + handler locals |
+| `fp`             | `formatPainter`                              | Format painter context value     |
+| `FPFormat`       | `FormatPainterFormat`                        | Interface name                   |
+| `FPContextValue` | `FormatPainterContextValue`                  | Interface name                   |
+| `useFP`          | `useFormatPainterContext`                    | Hook name (consumer hook)        |
+| `exec`           | `executeCommand`                             | Editor command helper            |
+| `ws`             | `workspaceElement`                           | DOM element variable             |
+| `hmc`            | `horizontalMainContainer`                    | DOM element variable             |
+| `fmt`            | `newFormat` (param) / `format` (state)       | Format painter parameter         |
+| `sel`            | `selection`                                  | Editor selection string          |
+| `src`            | `sourceText`                                 | Text being inspected             |
+| `tmpl`           | `template`                                   | Template string                  |
+| `t`              | `clipboardText`, `text`, etc.                | Single-letter callback params    |
+| `f`, `s`, `c`    | `fontName`, `pointSize`, `colorItem`         | Single-letter loop variables     |
+| `i`              | `index`, `rowIndex`                          | Loop / map index                 |
+| `k`, `v`         | `key`, `value`                               | Object / map iteration           |
+| `mh`             | `estimatedMaxHeight`                         | Computed layout value            |
+| `ref1`, `ref2`   | `leafChangeEventRef`, `editorChangeEventRef` | Event ref names                  |
+| `fmtDate`        | `formatCurrentDate`                          | Function name                    |
+| `fmtTime`        | `formatCurrentTime`                          | Function name                    |
+| `now`            | `currentDate`                                | Date variable                    |
+| `el`             | `element`                                    | DOM element                      |
+| `titlebar`       | `titlebarElement`                            | DOM element                      |
 
 **Single-letter names are never acceptable** outside `for`-loop counters in tight numeric loops. Even there, prefer `index`.
 
@@ -359,7 +360,7 @@ All identifiers (variables, parameters, constants, type aliases, hook names) mus
 `parseCssString` is defined and **exported exclusively from `src/shared/components/Dropdown.tsx`**. Do not duplicate it in any other file. Import it where needed:
 
 ```ts
-import { parseCssString } from '../../../shared/components/Dropdown';
+import { parseCssString } from "../../../shared/components/Dropdown";
 ```
 
 ---
@@ -472,6 +473,7 @@ await act(async () => {
 ### Coverage
 
 - `npm run test:coverage` must pass threshold: **80% lines** (currently ~97%)
+- Each test file must cover **every variation of parameters and every return path** of the logic it tests.
 - Excluded from coverage:
   - `src/__mocks__/**` — mocks
   - `src/test-utils/**` — test helpers
@@ -505,6 +507,8 @@ await act(async () => {
 
 ## 10. Code Quality Rules
 
+> **Code quality, readability, and redundancy reduction are the highest priorities.** Always maximise these. Prefer explicit, readable code over clever or compact code.
+
 1. **No globals** — never use `window._onrFP*` or any global state. Use React context.
 2. **No side effects at module load** — all effects inside hooks/components.
 3. **No vitest** — vitest is not installed. Use Jest + RTL only. Do not import from `vitest`.
@@ -532,3 +536,16 @@ The CDP runner (`scripts/e2e/run-e2e.mjs`) is a zero-dependency Node 24 script:
 - Legacy `src/**/*.integration.ts` and `src/**/*.combinations.ts` patterns are excluded from coverage for historical reasons; no new files should use those patterns
 
 > **Do not confuse E2E with RTL integration tests.** RTL tests run in jsdom with mock Obsidian — they are the primary test layer. E2E only runs against a live Obsidian instance.
+
+---
+
+## 12. Debugging Behavior
+
+When stuck or unable to find a solution:
+
+1. Do **not** give up or ask the user to figure it out.
+2. Add debug logging or instrumentation to the code to gather more information.
+3. Re-run or re-analyse with the added debug output.
+4. If still unable to proceed, ask the user to run the code and share the debug output.
+
+Never declare defeat without first exhausting debug-driven investigation. If analysis is taking too long without a clear answer, stop reasoning and add debug logging to gather concrete evidence instead.
