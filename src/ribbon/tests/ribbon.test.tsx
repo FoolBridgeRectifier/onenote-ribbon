@@ -68,13 +68,13 @@ describe("TabBar — rendering", () => {
   function renderTabBar(
     activeTab: TabName = "Home",
     collapsed = false,
-    pinned = true,
+    isTemporarilyExpanded = false,
   ) {
     return render(
       <TabBar
         activeTab={activeTab}
         collapsed={collapsed}
-        pinned={pinned}
+        isTemporarilyExpanded={isTemporarilyExpanded}
         onTabClick={noop}
         onToggleCollapse={noop}
       />,
@@ -104,7 +104,7 @@ describe("TabBar — rendering", () => {
       <TabBar
         activeTab="Home"
         collapsed={false}
-        pinned={false}
+        isTemporarilyExpanded={false}
         onTabClick={onTabClick}
         onToggleCollapse={noop}
       />,
@@ -129,7 +129,7 @@ describe("TabBar — rendering", () => {
       <TabBar
         activeTab="Home"
         collapsed={false}
-        pinned={false}
+        isTemporarilyExpanded={true}
         onTabClick={noop}
         onToggleCollapse={onToggle}
       />,
@@ -144,10 +144,11 @@ describe("TabBar — rendering", () => {
 function renderRibbonApp() {
   const app = createMockApp();
   const fp = {
-    active: false,
+    isActive: false,
     format: null,
-    capture: () => {},
-    clear: () => {},
+    setIsActive: () => {},
+    setFormat: () => {},
+    apply: () => {},
   };
   return render(
     <AppContext.Provider value={app as any}>

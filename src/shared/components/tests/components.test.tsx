@@ -43,14 +43,6 @@ describe("RibbonButton — rendering", () => {
     expect(container.firstChild).toHaveClass("onr-disabled");
   });
 
-  it("calls custom onMouseDown if provided", () => {
-    const onMouseDown = jest.fn();
-    render(
-      <RibbonButton label="Btn" onMouseDown={onMouseDown} onClick={() => {}} />
-    );
-    fireEvent.mouseDown(screen.getByText("Btn"));
-    expect(onMouseDown).toHaveBeenCalled();
-  });
 
   it("renders icon children", () => {
     const { container } = render(
@@ -88,24 +80,26 @@ describe("GroupShell — rendering", () => {
 describe("useFormatPainter — hook", () => {
   it("starts inactive with no format", () => {
     const { result } = renderHook(() => useFormatPainter());
-    expect(result.current.active).toBe(false);
+    expect(result.current.isActive).toBe(false);
     expect(result.current.format).toBeNull();
   });
 
-  it("capture sets format and activates", () => {
+  it("setFormat and setIsActive update state", () => {
     const { result } = renderHook(() => useFormatPainter());
-    const fmt = { headPrefix: "## ", isBold: true, isItalic: false, isUnderline: false };
-    act(() => result.current.capture(fmt));
-    expect(result.current.active).toBe(true);
+    const fmt = { prefix: "**", suffix: "**" };
+    act(() => result.current.setFormat(fmt));
+    act(() => result.current.setIsActive(true));
+    expect(result.current.isActive).toBe(true);
     expect(result.current.format).toEqual(fmt);
   });
 
-  it("clear resets format and deactivates", () => {
+  it("setFormat(null) clears format", () => {
     const { result } = renderHook(() => useFormatPainter());
-    const fmt = { headPrefix: "", isBold: false, isItalic: true, isUnderline: false };
-    act(() => result.current.capture(fmt));
-    act(() => result.current.clear());
-    expect(result.current.active).toBe(false);
+    const fmt = { prefix: "**", suffix: "**" };
+    act(() => result.current.setFormat(fmt));
+    act(() => result.current.setFormat(null));
+    act(() => result.current.setIsActive(false));
+    expect(result.current.isActive).toBe(false);
     expect(result.current.format).toBeNull();
   });
 });

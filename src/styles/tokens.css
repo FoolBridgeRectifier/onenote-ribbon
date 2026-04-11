@@ -1,0 +1,27 @@
+/* ── DESIGN TOKENS ── */
+:root {
+  --ribbon-purple:     #6B2CA6;
+  --ribbon-purple-mid: #7B3CB6;
+  --ribbon-bg:         #ffffff;
+  --ribbon-border:     #e1dfdd;
+  --btn-hover-bg:      #f0eeec;
+  --btn-hover-border:  #c8c6c4;
+  --btn-active-bg:     #c7e0f4;
+  --btn-active-border: #90c2e8;
+  --btn-focus-ring:    #0078D4;
+  --text-primary:      #201f1e;
+  --text-secondary:    #484644;
+  --text-muted:        #605e5c;
+  --text-disabled:     #a19f9d;
+  --shadow-ribbon:     0 1px 3px rgba(107,44,166,0.08), 0 2px 8px rgba(0,0,0,0.10);
+  --transition-fast:   150ms ease-out;
+  --transition-mid:    200ms ease-out;
+  --radius-sm:         3px;
+  --icon-color:        #3b3a39;
+  --icon-purple:       #6B2CA6;
+  --icon-blue:         #0078D4;
+  --icon-green:        #107C10;
+  --icon-orange:       #C45911;
+  --icon-red:          #A80000;
+  --icon-teal:         #006B6B;
+}

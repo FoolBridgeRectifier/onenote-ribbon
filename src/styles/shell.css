@@ -1,0 +1,93 @@
+#onenote-ribbon-root {
+  width: 100%;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.onr-ribbon {
+  display: flex;
+  flex-direction: column;
+  background: var(--ribbon-bg);
+}
+
+.onr-tab-bar {
+  background: var(--ribbon-purple);
+  height: 30px;
+  display: flex;
+  align-items: stretch;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-app-region: drag;
+}
+
+.onr-tab-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.onr-tab {
+  padding: 0 16px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.88);
+  cursor: pointer;
+  white-space: nowrap;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  transition: background var(--transition-fast), color var(--transition-fast);
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  -webkit-app-region: no-drag;
+}
+
+.onr-tab:hover {
+  background: var(--ribbon-purple-mid);
+}
+
+.onr-tab.active {
+  background: var(--ribbon-bg);
+  color: var(--ribbon-purple);
+  font-weight: 600;
+  border-bottom: none;
+}
+
+.onr-spacer {
+  flex: 1;
+}
+
+.onr-pin-btn {
+  padding: 0 16px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.88);
+  cursor: pointer;
+  white-space: nowrap;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  transition: background var(--transition-fast);
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  -webkit-app-region: no-drag;
+}
+
+.onr-pin-btn:hover {
+  background: var(--ribbon-purple-mid);
+}
+
+.onr-body {
+  background: var(--ribbon-bg);
+  border-top: 1px solid var(--ribbon-border);
+  min-height: 92px;
+  display: flex;
+  align-items: stretch;
+  flex-wrap: nowrap;
+  padding: 4px 4px 0;
+  box-shadow: var(--shadow-ribbon);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onr-tab {
+    transition: none;
+  }
+
+  .onr-pin-btn {
+    transition: none;
+  }
+}
