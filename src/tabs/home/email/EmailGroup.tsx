@@ -36,7 +36,7 @@ Agenda:
 
   return (
     <div className="onr-group">
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1 }}>
+      <div className="onr-email-group" style={{ flex: 1 }}>
         <div
           className="onr-btn"
           title="Copy as formatted text"
@@ -47,7 +47,7 @@ Agenda:
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
             <polyline points="22,6 12,13 2,6" />
           </svg>
-          <span className="onr-btn-label">📧 Email Page</span>
+          <span className="onr-btn-label">Email Page</span>
         </div>
         <div
           className="onr-btn"
@@ -62,7 +62,7 @@ Agenda:
             <line x1="3" y1="10" x2="21" y2="10" />
             <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01" />
           </svg>
-          <span className="onr-btn-label">📋 Meeting Details</span>
+          <span className="onr-btn-label">Meeting Details</span>
         </div>
       </div>
       <div className="onr-group-name">Email &amp; Meetings</div>

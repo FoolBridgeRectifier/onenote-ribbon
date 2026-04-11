@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__obsidian-devtools__take_snapshot",
+      "mcp__obsidian-devtools__take_screenshot",
+      "mcp__obsidian-devtools__evaluate_script",
+      "mcp__obsidian-devtools__wait_for"
+    ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Were any visual or functionality changes made to the onenote-ribbon plugin in this response? If yes, have I tested them in Obsidian MCP? If not, remind me to test them."
+          }
+        ]
+      }
+    ]
+  }
+}

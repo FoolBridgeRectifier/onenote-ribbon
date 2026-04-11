@@ -34,7 +34,7 @@ const DEFAULT_ES: EditorState = {
   fontSize: "",
 };
 
-/** Renders StylesGroup with controlled offset state so scroll tests work. */
+/** Renders StylesGroup with AppContext. */
 function StylesWrapper({
   app,
   editorState = DEFAULT_ES,
@@ -44,14 +44,9 @@ function StylesWrapper({
   editorState?: EditorState;
   initialOffset?: number;
 }) {
-  const [offset, setOffset] = useState(initialOffset);
   return (
     <AppContext.Provider value={app as any}>
-      <StylesGroup
-        editorState={editorState}
-        stylesOffset={offset}
-        setStylesOffset={setOffset}
-      />
+      <StylesGroup />
     </AppContext.Provider>
   );
 }
@@ -65,8 +60,8 @@ describe("StylesGroup — §5 Styles (integration)", () => {
       container.querySelector('[data-cmd="styles-scroll-down"]')!,
     );
     // After click, offset should be 1 → shows STYLES_LIST[1] and [2]
-    expect(screen.getByText(STYLES_LIST[1].label)).toBeInTheDocument();
-    expect(screen.getByText(STYLES_LIST[2].label)).toBeInTheDocument();
+    expect(screen.getByText(STYLES_LIST[1].name)).toBeInTheDocument();
+    expect(screen.getByText(STYLES_LIST[2].name)).toBeInTheDocument();
   });
 
   // §5.1 — Scroll up decrements offset
@@ -75,7 +70,7 @@ describe("StylesGroup — §5 Styles (integration)", () => {
     const { container } = render(<StylesWrapper app={app} initialOffset={2} />);
     fireEvent.click(container.querySelector('[data-cmd="styles-scroll-up"]')!);
     // offset: 2 → 1
-    expect(screen.getByText(STYLES_LIST[1].label)).toBeInTheDocument();
+    expect(screen.getByText(STYLES_LIST[1].name)).toBeInTheDocument();
   });
 
   // §5.1 — Scroll up clamps at 0 (cannot go below 0)
@@ -84,8 +79,8 @@ describe("StylesGroup — §5 Styles (integration)", () => {
     const { container } = render(<StylesWrapper app={app} initialOffset={0} />);
     fireEvent.click(container.querySelector('[data-cmd="styles-scroll-up"]')!);
     // Still at 0 → shows STYLES_LIST[0] and [1]
-    expect(screen.getByText(STYLES_LIST[0].label)).toBeInTheDocument();
-    expect(screen.getByText(STYLES_LIST[1].label)).toBeInTheDocument();
+    expect(screen.getByText(STYLES_LIST[0].name)).toBeInTheDocument();
+    expect(screen.getByText(STYLES_LIST[1].name)).toBeInTheDocument();
   });
 
   // §5.1 — Scroll down clamps at STYLES_LIST.length - 2 = 9
@@ -99,9 +94,9 @@ describe("StylesGroup — §5 Styles (integration)", () => {
       container.querySelector('[data-cmd="styles-scroll-down"]')!,
     );
     // Still at max → shows STYLES_LIST[9] and [10]
-    expect(screen.getByText(STYLES_LIST[maxOffset].label)).toBeInTheDocument();
+    expect(screen.getByText(STYLES_LIST[maxOffset].name)).toBeInTheDocument();
     expect(
-      screen.getByText(STYLES_LIST[maxOffset + 1].label),
+      screen.getByText(STYLES_LIST[maxOffset + 1].name),
     ).toBeInTheDocument();
   });
 

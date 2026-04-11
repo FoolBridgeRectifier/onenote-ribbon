@@ -32,7 +32,7 @@ const DEFAULT_ES: EditorState = {
 function renderBasic(content = "", editorState: Partial<EditorState> = {}) {
   const { app, editor } = createAppWithEditor(content);
   const es = { ...DEFAULT_ES, ...editorState };
-  const result = renderWithApp(<BasicTextGroup editorState={es} />, app);
+  const result = renderWithApp(<BasicTextGroup />, app);
   return { ...result, app, editor, es };
 }
 
@@ -70,7 +70,7 @@ describe("BasicTextGroup — §2.1 Bold (integration)", () => {
 
   it("§2.1.5 Bold button is no-op when no active editor", () => {
     const app = createMockApp();
-    renderWithApp(<BasicTextGroup editorState={DEFAULT_ES} />, app);
+    renderWithApp(<BasicTextGroup />, app);
     expect(() => fireEvent.click(screen.getByText("B"))).not.toThrow();
   });
 });
@@ -109,7 +109,7 @@ describe("BasicTextGroup — §2.2 Italic (integration)", () => {
 
   it("§2.2.5 Italic is no-op when no active editor", () => {
     const app = createMockApp();
-    renderWithApp(<BasicTextGroup editorState={DEFAULT_ES} />, app);
+    renderWithApp(<BasicTextGroup />, app);
     expect(() => fireEvent.click(screen.getByText("I"))).not.toThrow();
   });
 });
@@ -141,7 +141,7 @@ describe("BasicTextGroup — §2.3 Underline (integration)", () => {
 
   it("§2.3.4 Underline is no-op when no active editor", () => {
     const app = createMockApp();
-    renderWithApp(<BasicTextGroup editorState={DEFAULT_ES} />, app);
+    renderWithApp(<BasicTextGroup />, app);
     expect(() => fireEvent.click(screen.getByText("U"))).not.toThrow();
   });
 });
@@ -173,7 +173,7 @@ describe("BasicTextGroup — §2.4 Strikethrough (integration)", () => {
 
   it("§2.4.4 Strikethrough is no-op when no active editor", () => {
     const app = createMockApp();
-    renderWithApp(<BasicTextGroup editorState={DEFAULT_ES} />, app);
+    renderWithApp(<BasicTextGroup />, app);
     expect(() => fireEvent.click(screen.getByText("S̶"))).not.toThrow();
   });
 });
@@ -205,7 +205,7 @@ describe("BasicTextGroup — §2.5 Highlight (integration)", () => {
 
   it("§2.5.4 Highlight is no-op when no active editor", () => {
     const app = createMockApp();
-    renderWithApp(<BasicTextGroup editorState={DEFAULT_ES} />, app);
+    renderWithApp(<BasicTextGroup />, app);
     expect(() => fireEvent.click(screen.getByText("H̲"))).not.toThrow();
   });
 });
@@ -243,7 +243,7 @@ describe("BasicTextGroup — §2.6 Subscript (integration)", () => {
 
   it("§2.6.5 Subscript is no-op when no active editor", () => {
     const app = createMockApp();
-    renderWithApp(<BasicTextGroup editorState={DEFAULT_ES} />, app);
+    renderWithApp(<BasicTextGroup />, app);
     expect(() => fireEvent.click(screen.getByText("x₂"))).not.toThrow();
   });
 
@@ -288,7 +288,7 @@ describe("BasicTextGroup — §2.7 Superscript (integration)", () => {
 
   it("§2.7.5 Superscript is no-op when no active editor", () => {
     const app = createMockApp();
-    renderWithApp(<BasicTextGroup editorState={DEFAULT_ES} />, app);
+    renderWithApp(<BasicTextGroup />, app);
     expect(() => fireEvent.click(screen.getByText("x²"))).not.toThrow();
   });
 
@@ -375,7 +375,7 @@ describe("BasicTextGroup — §3.1 Clear Formatting (integration)", () => {
 
   it("§3.1.11 Clear Formatting is no-op when no active editor", () => {
     const app = createMockApp();
-    renderWithApp(<BasicTextGroup editorState={DEFAULT_ES} />, app);
+    renderWithApp(<BasicTextGroup />, app);
     expect(() => fireEvent.click(screen.getByText("🧹 Clear"))).not.toThrow();
   });
 });
@@ -413,7 +413,7 @@ describe("BasicTextGroup — §3.2 Clear Inline (integration)", () => {
 
   it("§3.2.5 Clear Inline is no-op when no active editor", () => {
     const app = createMockApp();
-    renderWithApp(<BasicTextGroup editorState={DEFAULT_ES} />, app);
+    renderWithApp(<BasicTextGroup />, app);
     expect(() => fireEvent.click(screen.getByText("A̶"))).not.toThrow();
   });
 });
@@ -472,7 +472,7 @@ describe("BasicTextGroup — §4.1 Bullet List (integration)", () => {
 
   it("§4.1.8 Bullet List is no-op when no active editor", () => {
     const app = createMockApp();
-    renderWithApp(<BasicTextGroup editorState={DEFAULT_ES} />, app);
+    renderWithApp(<BasicTextGroup />, app);
     expect(() => fireEvent.click(screen.getByText("• List"))).not.toThrow();
   });
 });
@@ -517,7 +517,7 @@ describe("BasicTextGroup — §4.2 Numbered List (integration)", () => {
 
   it("§4.2.6 Numbered List is no-op when no active editor", () => {
     const app = createMockApp();
-    renderWithApp(<BasicTextGroup editorState={DEFAULT_ES} />, app);
+    renderWithApp(<BasicTextGroup />, app);
     expect(() => fireEvent.click(screen.getByText("1. List"))).not.toThrow();
   });
 });
@@ -539,7 +539,7 @@ describe("BasicTextGroup — §4.3 Indent/Outdent (integration)", () => {
 
   it("§4.3.3 Indent with no editor still dispatches command", () => {
     const app = createMockApp();
-    renderWithApp(<BasicTextGroup editorState={DEFAULT_ES} />, app);
+    renderWithApp(<BasicTextGroup />, app);
     fireEvent.click(screen.getByText("⇥ In"));
     expect(app.commands._called).toContain("editor:indent-list");
   });
@@ -575,7 +575,7 @@ describe("BasicTextGroup — §6.1 Font Family (integration)", () => {
 
   it("§6.1.4 Font button is no-op when no active editor (dropdown still opens)", () => {
     const app = createMockApp();
-    renderWithApp(<BasicTextGroup editorState={DEFAULT_ES} />, app);
+    renderWithApp(<BasicTextGroup />, app);
     expect(() => {
       fireEvent.click(screen.getByText("Font"));
       // Font dropdown opens but selecting does nothing without editor

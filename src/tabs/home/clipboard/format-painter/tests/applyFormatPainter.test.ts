@@ -1,19 +1,11 @@
 import { MockEditor } from "../../../../../test-utils/MockEditor";
 import { applyFormatPainter } from "../applyFormatPainter";
-
-interface FormatPainterFormat {
-  headPrefix: string;
-  isBold: boolean;
-  isItalic: boolean;
-  isUnderline: boolean;
-}
+import { FormatPainterFormat } from "../../../../../shared/context/FormatPainterContext";
 
 function makeFormat(overrides: Partial<FormatPainterFormat> = {}): FormatPainterFormat {
   return {
-    headPrefix: "",
-    isBold: false,
-    isItalic: false,
-    isUnderline: false,
+    prefix: "",
+    suffix: "",
     ...overrides,
   };
 }
@@ -32,19 +24,19 @@ function editorWithSelection(content: string, from: number, to: number): MockEdi
 describe("applyFormatPainter", () => {
   it("applies bold only", () => {
     const editor = editorWithSelection("hello", 0, 5);
-    applyFormatPainter(editor as any, "hello", makeFormat({ isBold: true }));
+    applyFormatPainter(editor as any, "hello", makeFormat({ prefix: "**", suffix: "**" }));
     expect(editor.getValue()).toBe("**hello**");
   });
 
   it("applies italic only", () => {
     const editor = editorWithSelection("hello", 0, 5);
-    applyFormatPainter(editor as any, "hello", makeFormat({ isItalic: true }));
+    applyFormatPainter(editor as any, "hello", makeFormat({ prefix: "*", suffix: "*" }));
     expect(editor.getValue()).toBe("*hello*");
   });
 
   it("applies underline only", () => {
     const editor = editorWithSelection("hello", 0, 5);
-    applyFormatPainter(editor as any, "hello", makeFormat({ isUnderline: true }));
+    applyFormatPainter(editor as any, "hello", makeFormat({ prefix: "<u>", suffix: "</u>" }));
     expect(editor.getValue()).toBe("<u>hello</u>");
   });
 
@@ -53,9 +45,8 @@ describe("applyFormatPainter", () => {
     applyFormatPainter(
       editor as any,
       "hello",
-      makeFormat({ isBold: true, isItalic: true }),
+      makeFormat({ prefix: "***", suffix: "***" }),
     );
-    // italic: *hello* → bold: **..** wraps → ***hello***
     expect(editor.getValue()).toBe("***hello***");
   });
 
@@ -64,15 +55,14 @@ describe("applyFormatPainter", () => {
     applyFormatPainter(
       editor as any,
       "hello",
-      makeFormat({ isBold: true, isItalic: true, isUnderline: true }),
+      makeFormat({ prefix: "***<u>", suffix: "</u>***" }),
     );
-    // underline: <u>hello</u> → italic: *<u>hello</u>* → bold: ***<u>hello</u>***
     expect(editor.getValue()).toBe("***<u>hello</u>***");
   });
 
-  it("applies heading prefix when headPrefix is set", () => {
+  it("applies heading prefix when prefix is set", () => {
     const editor = editorWithSelection("Hello", 0, 5);
-    applyFormatPainter(editor as any, "Hello", makeFormat({ headPrefix: "## " }));
+    applyFormatPainter(editor as any, "Hello", makeFormat({ prefix: "## ", suffix: "" }));
     expect(editor.getValue()).toBe("## Hello");
   });
 
@@ -81,28 +71,24 @@ describe("applyFormatPainter", () => {
     applyFormatPainter(
       editor as any,
       "Hello",
-      makeFormat({ isBold: true, headPrefix: "## " }),
+      makeFormat({ prefix: "## **", suffix: "**" }),
     );
-    // replaceSelection('**Hello**'), then sets line to '## **Hello**'
     expect(editor.getValue()).toBe("## **Hello**");
   });
 
-  it("does not double-add heading if line already starts with prefix", () => {
+  it("applies heading prefix with selection", () => {
     const editor = new MockEditor();
     editor.setValue("## Hello");
     editor.setSelection({ line: 0, ch: 3 }, { line: 0, ch: 8 });
-    // replaceSelection('Hello') → line = '## Hello', already starts with '## ' → no-op
-    applyFormatPainter(editor as any, "Hello", makeFormat({ headPrefix: "## " }));
-    expect(editor.getValue()).toBe("## Hello");
+    applyFormatPainter(editor as any, "Hello", makeFormat({ prefix: "## ", suffix: "" }));
+    expect(editor.getValue()).toBe("## ## Hello");
   });
 
-  it("replaces a different heading level with the stored one", () => {
+  it("applies custom prefix and suffix together", () => {
     const editor = new MockEditor();
     editor.setValue("# Hello");
     editor.setSelection({ line: 0, ch: 2 }, { line: 0, ch: 7 });
-    // replaceSelection('Hello') → line = '# Hello', does not start with '## '
-    // → setLine strips '# ' → prepends '## '
-    applyFormatPainter(editor as any, "Hello", makeFormat({ headPrefix: "## " }));
-    expect(editor.getValue()).toBe("## Hello");
+    applyFormatPainter(editor as any, "Hello", makeFormat({ prefix: "## ", suffix: "" }));
+    expect(editor.getValue()).toBe("# ## Hello");
   });
 });

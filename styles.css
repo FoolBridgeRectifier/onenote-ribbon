@@ -33,6 +33,11 @@
   -webkit-font-smoothing: antialiased;
   box-shadow: var(--shadow-ribbon);
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: visible;
+  z-index: 9999;
 }
 
 /* ── TAB BAR ── */
@@ -95,16 +100,13 @@
 .onr-body {
   background: #ffffff;
   border-top: 1px solid #e1dfdd;
-  height: 106px;
-  min-height: 106px;
-  max-height: 106px;
-  flex-shrink: 0;
+  min-height: 92px;
   display: flex;
   align-items: stretch;
-  flex-wrap: nowrap;
-  padding: 0;
+  flex-wrap: wrap;
+  padding: 4px 4px 0;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* ── TAB PANELS ── */

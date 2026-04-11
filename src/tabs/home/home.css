@@ -20,7 +20,7 @@
 }
 
 .onr-group + .onr-group::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 6px;
@@ -55,7 +55,9 @@
   border: 1px solid transparent;
   gap: 0;
   text-align: center;
-  transition: background 150ms ease-out, border-color 150ms ease-out;
+  transition:
+    background 150ms ease-out,
+    border-color 150ms ease-out;
   flex-shrink: 0;
   user-select: none;
   background: transparent;
@@ -103,7 +105,9 @@
   cursor: pointer;
   border: 1px solid transparent;
   gap: 1px;
-  transition: background 150ms ease-out, border-color 150ms ease-out;
+  transition:
+    background 150ms ease-out,
+    border-color 150ms ease-out;
   flex-shrink: 0;
   user-select: none;
   background: transparent;
@@ -279,7 +283,7 @@
 .onr-highlight-swatch {
   width: 14px;
   height: 3px;
-  background: #FFFF00;
+  background: #ffff00;
   border: 1px solid #ccc;
   margin-top: 1px;
 }
@@ -293,7 +297,7 @@
 .onr-color-swatch {
   width: 14px;
   height: 3px;
-  background: #FF0000;
+  background: #ff0000;
   border: 1px solid #ccc;
   margin-top: 1px;
 }
@@ -334,7 +338,7 @@
   justify-content: flex-start;
   padding: 2px 8px;
   gap: 0;
-  color: #5B9BD5;
+  color: #5b9bd5;
   font-weight: 700;
 }
 
@@ -428,7 +432,6 @@
 
 .onr-tag-big-buttons {
   display: flex;
-  flex-direction: column;
   gap: 2px;
 }
 
@@ -438,12 +441,26 @@
 }
 
 /* Email & Meetings Group */
+.onr-email-group {
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+  align-items: flex-start;
+}
+
 .onr-email-btn {
   width: 48px;
   min-height: 60px;
 }
 
 /* Navigate Group */
+.onr-navigate-group {
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+  align-items: flex-start;
+}
+
 .onr-navigate-btn {
   width: 48px;
   min-height: 60px;

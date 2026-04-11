@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react';
-import { useApp } from '../../../shared/context/AppContext';
-import { Dropdown } from '../../../shared/components/Dropdown';
+import { useRef, useState } from "react";
+import { useApp } from "../../../shared/context/AppContext";
+import { Dropdown } from "../../../shared/components/Dropdown";
 
 export function TagsGroup() {
   const app = useApp();
@@ -10,29 +10,37 @@ export function TagsGroup() {
   const getEditor = () => app.workspace.activeEditor?.editor;
 
   const handleTodo = () => {
-    ((app as any).commands).executeCommandById('editor:toggle-todo');
+    (app as any).commands.executeCommandById("editor:toggle-todo");
   };
 
   const handleImportant = () => {
     const editor = getEditor();
     if (!editor) return;
     const cursor = editor.getCursor();
-    editor.setLine(cursor.line, `> [!important]\n> ${editor.getLine(cursor.line)}`);
+    editor.setLine(
+      cursor.line,
+      `> [!important]\n> ${editor.getLine(cursor.line)}`,
+    );
   };
 
   const handleQuestion = () => {
     const editor = getEditor();
     if (!editor) return;
     const cursor = editor.getCursor();
-    editor.setLine(cursor.line, `> [!question]\n> ${editor.getLine(cursor.line)}`);
+    editor.setLine(
+      cursor.line,
+      `> [!question]\n> ${editor.getLine(cursor.line)}`,
+    );
   };
 
   const handleFindTags = () => {
-    ((app as any).commands).executeCommandById('global-search:open');
-    const searchBox = document.querySelector('input[placeholder*="Search"]') as HTMLInputElement;
+    (app as any).commands.executeCommandById("global-search:open");
+    const searchBox = document.querySelector(
+      'input[placeholder*="Search"]',
+    ) as HTMLInputElement;
     if (searchBox) {
-      searchBox.value = '#';
-      searchBox.dispatchEvent(new Event('input', { bubbles: true }));
+      searchBox.value = "#";
+      searchBox.dispatchEvent(new Event("input", { bubbles: true }));
     }
   };
 
@@ -45,9 +53,16 @@ export function TagsGroup() {
 
   return (
     <div className="onr-group">
-      <div style={{ display: 'flex', gap: '4px', alignItems: 'flex-start', flex: 1 }}>
+      <div className="onr-tags-group" style={{ flex: 1 }}>
         {/* Stacked tag rows */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', width: '150px' }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "1px",
+            width: "150px",
+          }}
+        >
           {/* To Do row */}
           <div
             className="onr-btn-sm"
@@ -55,21 +70,43 @@ export function TagsGroup() {
             data-cmd="todo"
             title="Toggle to-do"
             style={{
-              width: '150px',
-              minHeight: '20px',
-              flexDirection: 'row',
-              gap: '4px',
-              padding: '1px 6px',
-              justifyContent: 'flex-start',
-              alignItems: 'center',
+              width: "150px",
+              minHeight: "20px",
+              flexDirection: "row",
+              gap: "4px",
+              padding: "1px 6px",
+              justifyContent: "flex-start",
+              alignItems: "center",
             }}
           >
-            <svg viewBox="0 0 16 16" style={{ width: '13px', height: '13px', flexShrink: '0', fill: 'none', stroke: 'none' }}>
+            <svg
+              viewBox="0 0 16 16"
+              style={{
+                width: "13px",
+                height: "13px",
+                flexShrink: "0",
+                fill: "none",
+                stroke: "none",
+              }}
+            >
               <rect x="1" y="1" width="14" height="14" rx="2" fill="#4472C4" />
-              <polyline points="4,8 7,11 12,5" stroke="white" strokeWidth="2" fill="none" />
+              <polyline
+                points="4,8 7,11 12,5"
+                stroke="white"
+                strokeWidth="2"
+                fill="none"
+              />
             </svg>
-            <span style={{ fontSize: '10px', color: '#222' }}>To Do</span>
-            <div style={{ width: '14px', height: '14px', border: '1px solid #999', marginLeft: 'auto', background: '#fff' }} />
+            <span style={{ fontSize: "10px", color: "#222" }}>To Do</span>
+            <div
+              style={{
+                width: "14px",
+                height: "14px",
+                border: "1px solid #999",
+                marginLeft: "auto",
+                background: "#fff",
+              }}
+            />
           </div>
 
           {/* Important row */}
@@ -79,21 +116,41 @@ export function TagsGroup() {
             data-cmd="important"
             title="Mark as important"
             style={{
-              width: '150px',
-              minHeight: '20px',
-              flexDirection: 'row',
-              gap: '4px',
-              padding: '1px 6px',
-              justifyContent: 'flex-start',
-              alignItems: 'center',
+              width: "150px",
+              minHeight: "20px",
+              flexDirection: "row",
+              gap: "4px",
+              padding: "1px 6px",
+              justifyContent: "flex-start",
+              alignItems: "center",
             }}
           >
-            <svg viewBox="0 0 16 16" style={{ width: '13px', height: '13px', flexShrink: '0', fill: 'none', stroke: 'none' }}>
+            <svg
+              viewBox="0 0 16 16"
+              style={{
+                width: "13px",
+                height: "13px",
+                flexShrink: "0",
+                fill: "none",
+                stroke: "none",
+              }}
+            >
               <rect x="1" y="1" width="14" height="14" rx="2" fill="#F5A623" />
-              <polygon points="8,3 9.5,6.5 13,7 10.5,9.5 11,13 8,11.5 5,13 5.5,9.5 3,7 6.5,6.5" fill="white" />
+              <polygon
+                points="8,3 9.5,6.5 13,7 10.5,9.5 11,13 8,11.5 5,13 5.5,9.5 3,7 6.5,6.5"
+                fill="white"
+              />
             </svg>
-            <span style={{ fontSize: '10px', color: '#222' }}>Important</span>
-            <div style={{ width: '14px', height: '14px', border: '1px solid #999', marginLeft: 'auto', background: '#fff' }} />
+            <span style={{ fontSize: "10px", color: "#222" }}>Important</span>
+            <div
+              style={{
+                width: "14px",
+                height: "14px",
+                border: "1px solid #999",
+                marginLeft: "auto",
+                background: "#fff",
+              }}
+            />
           </div>
 
           {/* Question row */}
@@ -103,28 +160,60 @@ export function TagsGroup() {
             data-cmd="question"
             title="Mark as question"
             style={{
-              width: '150px',
-              minHeight: '20px',
-              flexDirection: 'row',
-              gap: '4px',
-              padding: '1px 6px',
-              justifyContent: 'flex-start',
-              alignItems: 'center',
+              width: "150px",
+              minHeight: "20px",
+              flexDirection: "row",
+              gap: "4px",
+              padding: "1px 6px",
+              justifyContent: "flex-start",
+              alignItems: "center",
             }}
           >
-            <svg viewBox="0 0 16 16" style={{ width: '13px', height: '13px', flexShrink: '0', fill: 'none', stroke: 'none' }}>
+            <svg
+              viewBox="0 0 16 16"
+              style={{
+                width: "13px",
+                height: "13px",
+                flexShrink: "0",
+                fill: "none",
+                stroke: "none",
+              }}
+            >
               <rect x="1" y="1" width="14" height="14" rx="2" fill="#7030A0" />
-              <text x="8" y="12" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">
+              <text
+                x="8"
+                y="12"
+                textAnchor="middle"
+                fill="white"
+                fontSize="11"
+                fontWeight="bold"
+              >
                 ?
               </text>
             </svg>
-            <span style={{ fontSize: '10px', color: '#222' }}>Question</span>
-            <div style={{ width: '14px', height: '14px', border: '1px solid #999', marginLeft: 'auto', background: '#fff' }} />
+            <span style={{ fontSize: "10px", color: "#222" }}>Question</span>
+            <div
+              style={{
+                width: "14px",
+                height: "14px",
+                border: "1px solid #999",
+                marginLeft: "auto",
+                background: "#fff",
+              }}
+            />
           </div>
         </div>
 
         {/* More arrow with dropdown */}
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '64px', position: 'relative' }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            height: "64px",
+            position: "relative",
+          }}
+        >
           <div
             ref={moreButtonRef}
             className="onr-btn-sm"
@@ -132,11 +221,11 @@ export function TagsGroup() {
             onClick={() => setMoreMenuOpen(!moreMenuOpen)}
             data-cmd="more-tags"
             style={{
-              width: '14px',
-              minHeight: '64px',
-              padding: '0',
-              fontSize: '9px',
-              zIndex: moreMenuOpen ? 100 : 'auto',
+              width: "14px",
+              minHeight: "64px",
+              padding: "0",
+              fontSize: "9px",
+              zIndex: moreMenuOpen ? 100 : "auto",
             }}
           >
             ▾
@@ -145,8 +234,18 @@ export function TagsGroup() {
             <Dropdown
               anchor={moreButtonRef.current}
               items={[
-                { label: 'Quote', onClick: () => { setMoreMenuOpen(false); } },
-                { label: 'Code', onClick: () => { setMoreMenuOpen(false); } },
+                {
+                  label: "Quote",
+                  onClick: () => {
+                    setMoreMenuOpen(false);
+                  },
+                },
+                {
+                  label: "Code",
+                  onClick: () => {
+                    setMoreMenuOpen(false);
+                  },
+                },
               ]}
               onClose={() => setMoreMenuOpen(false)}
             />
@@ -154,13 +253,16 @@ export function TagsGroup() {
         </div>
 
         {/* Big buttons: To Do Tag + Find Tags */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', justifyContent: 'flex-start' }}>
+        <div
+          className="onr-tag-big-buttons"
+          style={{ justifyContent: "flex-start" }}
+        >
           <div
             className="onr-btn"
             title="Insert To Do tag"
             onClick={handleToDoTag}
             data-cmd="todo-tag"
-            style={{ width: '46px', minHeight: '58px' }}
+            style={{ width: "46px", minHeight: "58px" }}
           >
             <svg className="onr-icon" viewBox="0 0 24 24">
               <rect x="3" y="5" width="18" height="14" rx="2" />
@@ -174,7 +276,7 @@ export function TagsGroup() {
             title="Search for tags"
             onClick={handleFindTags}
             data-cmd="find-tags"
-            style={{ width: '46px', minHeight: '58px' }}
+            style={{ width: "46px", minHeight: "58px" }}
           >
             <svg className="onr-icon" viewBox="0 0 24 24">
               <circle cx="11" cy="11" r="8" />

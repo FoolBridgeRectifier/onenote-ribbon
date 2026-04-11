@@ -1,6 +1,10 @@
 #onenote-ribbon-root {
   width: 100%;
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family:
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -10,6 +14,11 @@
   background: var(--ribbon-bg);
 }
 
+/* Enable titlebar dragging in frameless mode */
+body.is-hidden-frameless:not(.starter) .titlebar {
+  -webkit-app-region: drag !important;
+}
+
 .onr-tab-bar {
   background: var(--ribbon-purple);
   height: 30px;
@@ -17,7 +26,6 @@
   align-items: stretch;
   overflow-x: auto;
   scrollbar-width: none;
-  -webkit-app-region: drag;
 }
 
 .onr-tab-bar::-webkit-scrollbar {
@@ -31,7 +39,9 @@
   cursor: pointer;
   white-space: nowrap;
   border-right: 1px solid rgba(255, 255, 255, 0.12);
-  transition: background var(--transition-fast), color var(--transition-fast);
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
   display: flex;
   align-items: center;
   font-weight: 500;
@@ -77,9 +87,9 @@
   min-height: 92px;
   display: flex;
   align-items: stretch;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   padding: 4px 4px 0;
-  box-shadow: var(--shadow-ribbon);
+  overflow: visible;
 }
 
 @media (prefers-reduced-motion: reduce) {

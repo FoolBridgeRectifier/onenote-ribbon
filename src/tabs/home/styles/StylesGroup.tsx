@@ -32,7 +32,7 @@ export function StylesGroup() {
 
   return (
     <div className="onr-group">
-      <div style={{ display: 'flex', alignItems: 'stretch', gap: '0', flex: 1 }}>
+      <div className="onr-styles-group" style={{ flex: 1 }}>
         {/* Style previews stacked 2 visible + scroll */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', width: '130px' }}>
           {visibleStyles.map((style) => (

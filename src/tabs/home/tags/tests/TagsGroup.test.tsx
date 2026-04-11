@@ -36,7 +36,7 @@ const DEFAULT_ES: EditorState = {
 function renderTags(content = "", editorState: Partial<EditorState> = {}) {
   const { app, editor } = createAppWithEditor(content);
   const es = { ...DEFAULT_ES, ...editorState };
-  const result = renderWithApp(<TagsGroup editorState={es} />, app);
+  const result = renderWithApp(<TagsGroup />, app);
   return { ...result, app, editor, es };
 }
 
@@ -176,7 +176,7 @@ describe("TagsGroup — §8 Tags (integration)", () => {
   // §8 — No editor: tag buttons do not crash
   it("§8 all tag buttons are no-ops when no active editor", () => {
     const app = createMockApp();
-    renderWithApp(<TagsGroup editorState={DEFAULT_ES} />, app);
+    renderWithApp(<TagsGroup />, app);
     expect(() => fireEvent.click(screen.getByText("To Do"))).not.toThrow();
     expect(() => fireEvent.click(screen.getByText("☐ Todo"))).not.toThrow();
   });
