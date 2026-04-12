@@ -6,3 +6,12 @@
   flex: 1;
   width: 100%;
 }
+
+.onr-email-group,
+.onr-navigate-group {
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+  align-items: flex-start;
+  flex: 1;
+}

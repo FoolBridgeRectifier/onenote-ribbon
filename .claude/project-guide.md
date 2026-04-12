@@ -473,6 +473,12 @@ await act(async () => {
 });
 ```
 
+### Dropdown and modal visual-state testing
+
+- Any new or modified dropdown or modal must include at least one snapshot assertion for its open state (and closed state when applicable).
+- The same test file must also assert computed CSS using `window.getComputedStyle(...)` for critical visual properties (for example: `display`, `visibility`, `opacity`, `position`, `zIndex`, and placement offsets).
+- Do not rely on class-name assertions alone for overlays; include computed-style checks that prove the rendered result.
+
 ### Mock setup
 
 - `obsidian` module is mocked via `moduleNameMapper` → `src/__mocks__/obsidian.ts`
@@ -574,6 +580,7 @@ Use today's date (ISO 8601) and a short kebab-case name derived from the task. T
 3. No imports from `vitest` — Jest only
 4. TypeScript strict mode — no unguarded `any`
 5. Every editor handler guards: `const editor = getEditor(); if (!editor) return;`
+6. Dropdown and modal tests include both snapshot assertions and computed CSS assertions
 
 ---
 

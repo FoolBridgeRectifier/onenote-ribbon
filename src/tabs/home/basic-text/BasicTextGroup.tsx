@@ -2,6 +2,16 @@ import { useRef, useState } from "react";
 import "./BasicTextGroup.css";
 import { useApp } from "../../../shared/context/AppContext";
 import { Dropdown } from "../../../shared/components/Dropdown";
+import {
+  AlignLeftIcon,
+  BulletListIcon,
+  ClearFormattingIcon,
+  ClearInlineIcon,
+  HighlightIcon,
+  IndentIcon,
+  NumberedListIcon,
+  OutdentIcon,
+} from "../../../assets/icons";
 import { clearFormatting } from "./clearFormatting";
 
 const FONTS = [
@@ -157,26 +167,7 @@ export function BasicTextGroup() {
             onClick={handleBulletList}
             data-cmd="bullet-list"
           >
-            <svg className="onr-icon-sm" viewBox="0 0 24 24">
-              <line x1="9" y1="6" x2="20" y2="6" />
-              <line x1="9" y1="12" x2="20" y2="12" />
-              <line x1="9" y1="18" x2="20" y2="18" />
-              <circle cx="5" cy="6" r="1.5" fill="currentColor" stroke="none" />
-              <circle
-                cx="5"
-                cy="12"
-                r="1.5"
-                fill="currentColor"
-                stroke="none"
-              />
-              <circle
-                cx="5"
-                cy="18"
-                r="1.5"
-                fill="currentColor"
-                stroke="none"
-              />
-            </svg>
+            <BulletListIcon className="onr-icon-sm" />
             <span className="onr-list-caret">▾</span>
           </div>
 
@@ -187,18 +178,7 @@ export function BasicTextGroup() {
             onClick={handleNumberedList}
             data-cmd="numbered-list"
           >
-            <svg className="onr-icon-sm" viewBox="0 0 24 24">
-              <line x1="10" y1="6" x2="21" y2="6" />
-              <line x1="10" y1="12" x2="21" y2="12" />
-              <line x1="10" y1="18" x2="21" y2="18" />
-              <path d="M4 6h1v4" stroke="currentColor" strokeWidth="1.5" />
-              <path d="M4 10h2" stroke="currentColor" strokeWidth="1.5" />
-              <path
-                d="M6 14H4l2 2-2 2h2"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              />
-            </svg>
+            <NumberedListIcon className="onr-icon-sm" />
             <span className="onr-list-caret">▾</span>
           </div>
 
@@ -209,12 +189,7 @@ export function BasicTextGroup() {
             onClick={handleOutdent}
             data-cmd="outdent"
           >
-            <svg className="onr-icon-sm" viewBox="0 0 24 24">
-              <polyline points="7 8 3 12 7 16" />
-              <line x1="21" y1="12" x2="3" y2="12" />
-              <line x1="21" y1="6" x2="11" y2="6" />
-              <line x1="21" y1="18" x2="11" y2="18" />
-            </svg>
+            <OutdentIcon className="onr-icon-sm" />
           </div>
 
           {/* Indent */}
@@ -224,12 +199,7 @@ export function BasicTextGroup() {
             onClick={handleIndent}
             data-cmd="indent"
           >
-            <svg className="onr-icon-sm" viewBox="0 0 24 24">
-              <polyline points="17 8 21 12 17 16" />
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="6" x2="13" y2="6" />
-              <line x1="3" y1="18" x2="13" y2="18" />
-            </svg>
+            <IndentIcon className="onr-icon-sm" />
           </div>
 
           {/* Clear formatting */}
@@ -239,11 +209,7 @@ export function BasicTextGroup() {
             onClick={handleClearAllFormatting}
             data-cmd="clear-all"
           >
-            <svg className="onr-icon-sm" viewBox="0 0 24 24">
-              <path d="M20 5H9l-7 7 7 7h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z" />
-              <line x1="18" y1="9" x2="12" y2="15" />
-              <line x1="12" y1="9" x2="18" y2="15" />
-            </svg>
+            <ClearFormattingIcon className="onr-icon-sm" />
           </div>
         </div>
 
@@ -318,10 +284,7 @@ export function BasicTextGroup() {
             onClick={handleHighlight}
             data-cmd="highlight"
           >
-            <svg className="onr-icon-sm" viewBox="0 0 24 24">
-              <path d="M9 11l-6 6v3h3l6-6" />
-              <path d="M22 5.54a2 2 0 0 0-2.83-2.83l-11.3 11.3 2.83 2.83L22 5.54z" />
-            </svg>
+            <HighlightIcon className="onr-icon-sm" />
             <div className="onr-highlight-swatch" />
           </div>
 
@@ -350,11 +313,7 @@ export function BasicTextGroup() {
             onClick={() => {}}
             data-cmd="align"
           >
-            <svg className="onr-icon-sm" viewBox="0 0 24 24">
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="18" x2="15" y2="18" />
-            </svg>
+            <AlignLeftIcon className="onr-icon-sm" />
             <span className="onr-align-caret">▾</span>
           </div>
 
@@ -365,10 +324,7 @@ export function BasicTextGroup() {
             onClick={handleClearInline}
             data-cmd="clear-inline"
           >
-            <svg className="onr-icon-sm" viewBox="0 0 24 24">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
+            <ClearInlineIcon className="onr-icon-sm" />
           </div>
         </div>
       </div>

@@ -2,6 +2,13 @@ import { useRef, useState } from "react";
 import "./TagsGroup.css";
 import { useApp } from "../../../shared/context/AppContext";
 import { Dropdown } from "../../../shared/components/Dropdown";
+import {
+  FindTagsIcon,
+  ImportantTagIcon,
+  QuestionTagIcon,
+  TodoTagButtonIcon,
+  TodoTagIcon,
+} from "../../../assets/icons";
 
 export function TagsGroup() {
   const app = useApp();
@@ -68,15 +75,7 @@ export function TagsGroup() {
              * Colored SVG icon — fill/stroke none on the element prevents
              * the global SVG stroke rule from overriding the internal fills.
              */}
-            <svg viewBox="0 0 16 16" className="onr-tag-icon">
-              <rect x="1" y="1" width="14" height="14" rx="2" fill="#4472C4" />
-              <polyline
-                points="4,8 7,11 12,5"
-                stroke="white"
-                strokeWidth="2"
-                fill="none"
-              />
-            </svg>
+            <TodoTagIcon className="onr-tag-icon" />
             <span className="onr-tag-label">To Do</span>
             <div className="onr-tag-swatch" />
           </div>
@@ -88,13 +87,7 @@ export function TagsGroup() {
             data-cmd="important"
             title="Mark as important"
           >
-            <svg viewBox="0 0 16 16" className="onr-tag-icon">
-              <rect x="1" y="1" width="14" height="14" rx="2" fill="#F5A623" />
-              <polygon
-                points="8,3 9.5,6.5 13,7 10.5,9.5 11,13 8,11.5 5,13 5.5,9.5 3,7 6.5,6.5"
-                fill="white"
-              />
-            </svg>
+            <ImportantTagIcon className="onr-tag-icon" />
             <span className="onr-tag-label">Important</span>
             <div className="onr-tag-swatch" />
           </div>
@@ -106,19 +99,7 @@ export function TagsGroup() {
             data-cmd="question"
             title="Mark as question"
           >
-            <svg viewBox="0 0 16 16" className="onr-tag-icon">
-              <rect x="1" y="1" width="14" height="14" rx="2" fill="#7030A0" />
-              <text
-                x="8"
-                y="12"
-                textAnchor="middle"
-                fill="white"
-                fontSize="11"
-                fontWeight="bold"
-              >
-                ?
-              </text>
-            </svg>
+            <QuestionTagIcon className="onr-tag-icon" />
             <span className="onr-tag-label">Question</span>
             <div className="onr-tag-swatch" />
           </div>
@@ -165,11 +146,7 @@ export function TagsGroup() {
             onClick={handleToDoTag}
             data-cmd="todo-tag"
           >
-            <svg className="onr-icon" viewBox="0 0 24 24">
-              <rect x="3" y="5" width="18" height="14" rx="2" />
-              <line x1="9" y1="12" x2="15" y2="12" />
-              <line x1="12" y1="9" x2="12" y2="15" />
-            </svg>
+            <TodoTagButtonIcon className="onr-icon" />
             <span className="onr-btn-label">To Do Tag</span>
           </div>
           <div
@@ -178,12 +155,7 @@ export function TagsGroup() {
             onClick={handleFindTags}
             data-cmd="find-tags"
           >
-            <svg className="onr-icon" viewBox="0 0 24 24">
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              <line x1="11" y1="8" x2="11" y2="14" />
-              <line x1="8" y1="11" x2="14" y2="11" />
-            </svg>
+            <FindTagsIcon className="onr-icon" />
             <span className="onr-btn-label">Find Tags</span>
           </div>
         </div>

@@ -1,8 +1,14 @@
-import { useRef, useState } from 'react';
-import './ClipboardGroup.css';
-import { useApp } from '../../../shared/context/AppContext';
-import { useFormatPainterContext } from '../../../shared/context/FormatPainterContext';
-import { Dropdown } from '../../../shared/components/Dropdown';
+import { useRef, useState } from "react";
+import "./ClipboardGroup.css";
+import { useApp } from "../../../shared/context/AppContext";
+import { useFormatPainterContext } from "../../../shared/context/FormatPainterContext";
+import { Dropdown } from "../../../shared/components/Dropdown";
+import {
+  CopyIcon,
+  CutIcon,
+  FormatPainterIcon,
+  PasteIcon,
+} from "../../../assets/icons";
 
 export function ClipboardGroup() {
   const app = useApp();
@@ -16,7 +22,7 @@ export function ClipboardGroup() {
     const editor = getEditor();
     if (!editor) return;
 
-    navigator.clipboard.readText().then(text => {
+    navigator.clipboard.readText().then((text) => {
       editor.replaceSelection(text);
     });
   };
@@ -29,14 +35,14 @@ export function ClipboardGroup() {
     const editor = getEditor();
     if (!editor) return;
 
-    document.execCommand('cut');
+    document.execCommand("cut");
   };
 
   const handleCopy = () => {
     const editor = getEditor();
     if (!editor) return;
 
-    document.execCommand('copy');
+    document.execCommand("copy");
   };
 
   const handleFormatPainterClick = () => {
@@ -45,11 +51,11 @@ export function ClipboardGroup() {
 
     const sourceLine = editor.getLine(editor.getCursor().line);
     const prefixMatch = sourceLine.match(/^(#+\s|\*\*|__|~~)?/);
-    const prefix = prefixMatch?.[1] ?? '';
+    const prefix = prefixMatch?.[1] ?? "";
 
     formatPainter.setIsActive(!formatPainter.isActive);
     if (!formatPainter.isActive) {
-      formatPainter.setFormat({ prefix, suffix: '' });
+      formatPainter.setFormat({ prefix, suffix: "" });
     }
   };
 
@@ -65,12 +71,7 @@ export function ClipboardGroup() {
             onClick={handlePaste}
             data-cmd="paste"
           >
-            <svg className="onr-icon" viewBox="0 0 24 24">
-              <rect x="8" y="2" width="8" height="4" rx="1" />
-              <path d="M6 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1" />
-              <polyline points="9 14 12 17 15 14" />
-              <line x1="12" y1="10" x2="12" y2="17" />
-            </svg>
+            <PasteIcon className="onr-icon" />
             <span className="onr-btn-label">Paste</span>
           </div>
           <div
@@ -88,15 +89,15 @@ export function ClipboardGroup() {
             anchor={pasteAnchorRef.current}
             items={[
               {
-                label: 'Paste plain text',
+                label: "Paste plain text",
                 onClick: handlePaste,
               },
               {
-                label: 'Paste as code block',
+                label: "Paste as code block",
                 onClick: () => {
                   const editor = getEditor();
                   if (!editor) return;
-                  navigator.clipboard.readText().then(text => {
+                  navigator.clipboard.readText().then((text) => {
                     editor.replaceSelection(`\`\`\`\n${text}\n\`\`\``);
                   });
                 },
@@ -114,13 +115,7 @@ export function ClipboardGroup() {
             onClick={handleCut}
             data-cmd="cut"
           >
-            <svg className="onr-icon-sm" viewBox="0 0 24 24">
-              <circle cx="6" cy="6" r="3" />
-              <circle cx="6" cy="18" r="3" />
-              <line x1="20" y1="4" x2="8.12" y2="15.88" />
-              <line x1="14.47" y1="14.48" x2="20" y2="20" />
-              <line x1="8.12" y1="8.12" x2="12" y2="12" />
-            </svg>
+            <CutIcon className="onr-icon-sm" />
             <span className="onr-btn-label-sm">Cut</span>
           </div>
           <div
@@ -129,25 +124,20 @@ export function ClipboardGroup() {
             onClick={handleCopy}
             data-cmd="copy"
           >
-            <svg className="onr-icon-sm" viewBox="0 0 24 24">
-              <rect x="9" y="9" width="13" height="13" rx="2" />
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-            </svg>
+            <CopyIcon className="onr-icon-sm" />
             <span className="onr-btn-label-sm">Copy</span>
           </div>
           <div
-            className={`onr-btn-sm onr-clipboard-item${formatPainter.isActive ? ' onr-active' : ''}`}
-            title={formatPainter.isActive ? 'Disable format painter' : 'Enable format painter'}
+            className={`onr-btn-sm onr-clipboard-item${formatPainter.isActive ? " onr-active" : ""}`}
+            title={
+              formatPainter.isActive
+                ? "Disable format painter"
+                : "Enable format painter"
+            }
             onClick={handleFormatPainterClick}
             data-cmd="format-painter"
           >
-            <svg className="onr-icon-sm" viewBox="0 0 24 24">
-              <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
-              <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
-              <line x1="6" y1="1" x2="6" y2="4" />
-              <line x1="10" y1="1" x2="10" y2="4" />
-              <line x1="14" y1="1" x2="14" y2="4" />
-            </svg>
+            <FormatPainterIcon className="onr-icon-sm" />
             <span className="onr-btn-label-sm">Format Painter</span>
           </div>
         </div>
