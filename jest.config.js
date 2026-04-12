@@ -4,6 +4,7 @@ module.exports = {
   testMatch: ["**/*.test.ts", "**/*.test.tsx"],
   setupFilesAfterEnv: ["<rootDir>/src/test-utils/setup.ts"],
   transform: {
+    "^.+\\.css$": "<rootDir>/scripts/jest/cssTransform.cjs",
     "^.+\\.(ts|tsx)$": [
       "ts-jest",
       {
@@ -24,7 +25,6 @@ module.exports = {
   },
   moduleNameMapper: {
     "^obsidian$": "<rootDir>/src/__mocks__/obsidian.ts",
-    "\\.css$": "<rootDir>/src/__mocks__/css.ts",
   },
   collectCoverageFrom: [
     "src/**/*.{ts,tsx}",
