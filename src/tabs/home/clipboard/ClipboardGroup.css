@@ -20,12 +20,16 @@
   min-height: 46px;
   border-bottom: none;
   border-radius: 3px 3px 0 0;
-  gap: 4px;
 }
 
 /* Bump the label size on the paste button to match its larger icon */
 .onr-paste-main .onr-btn-label {
   font-size: 10px;
+}
+
+.onr-paste-main .onr-icon {
+  width: 24px;
+  height: 24px;
 }
 
 /* Thin dropdown trigger below the paste button */
