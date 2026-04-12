@@ -1,3 +1,5 @@
+import './RibbonButton.css';
+
 interface Props {
   label?: string;
   icon?: React.ReactNode;

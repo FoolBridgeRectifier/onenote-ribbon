@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import "./TagsGroup.css";
 import { useApp } from "../../../shared/context/AppContext";
 import { Dropdown } from "../../../shared/components/Dropdown";
 
@@ -53,42 +54,21 @@ export function TagsGroup() {
 
   return (
     <div className="onr-group">
-      <div className="onr-tags-group" style={{ flex: 1 }}>
+      <div className="onr-tags-group">
         {/* Stacked tag rows */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "1px",
-            width: "150px",
-          }}
-        >
+        <div className="onr-tags-stack">
           {/* To Do row */}
           <div
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-tag-row"
             onClick={handleTodo}
             data-cmd="todo"
             title="Toggle to-do"
-            style={{
-              width: "150px",
-              minHeight: "20px",
-              flexDirection: "row",
-              gap: "4px",
-              padding: "1px 6px",
-              justifyContent: "flex-start",
-              alignItems: "center",
-            }}
           >
-            <svg
-              viewBox="0 0 16 16"
-              style={{
-                width: "13px",
-                height: "13px",
-                flexShrink: "0",
-                fill: "none",
-                stroke: "none",
-              }}
-            >
+            {/*
+             * Colored SVG icon — fill/stroke none on the element prevents
+             * the global SVG stroke rule from overriding the internal fills.
+             */}
+            <svg viewBox="0 0 16 16" className="onr-tag-icon">
               <rect x="1" y="1" width="14" height="14" rx="2" fill="#4472C4" />
               <polyline
                 points="4,8 7,11 12,5"
@@ -97,88 +77,36 @@ export function TagsGroup() {
                 fill="none"
               />
             </svg>
-            <span style={{ fontSize: "10px", color: "#222" }}>To Do</span>
-            <div
-              style={{
-                width: "14px",
-                height: "14px",
-                border: "1px solid #999",
-                marginLeft: "auto",
-                background: "#fff",
-              }}
-            />
+            <span className="onr-tag-label">To Do</span>
+            <div className="onr-tag-swatch" />
           </div>
 
           {/* Important row */}
           <div
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-tag-row"
             onClick={handleImportant}
             data-cmd="important"
             title="Mark as important"
-            style={{
-              width: "150px",
-              minHeight: "20px",
-              flexDirection: "row",
-              gap: "4px",
-              padding: "1px 6px",
-              justifyContent: "flex-start",
-              alignItems: "center",
-            }}
           >
-            <svg
-              viewBox="0 0 16 16"
-              style={{
-                width: "13px",
-                height: "13px",
-                flexShrink: "0",
-                fill: "none",
-                stroke: "none",
-              }}
-            >
+            <svg viewBox="0 0 16 16" className="onr-tag-icon">
               <rect x="1" y="1" width="14" height="14" rx="2" fill="#F5A623" />
               <polygon
                 points="8,3 9.5,6.5 13,7 10.5,9.5 11,13 8,11.5 5,13 5.5,9.5 3,7 6.5,6.5"
                 fill="white"
               />
             </svg>
-            <span style={{ fontSize: "10px", color: "#222" }}>Important</span>
-            <div
-              style={{
-                width: "14px",
-                height: "14px",
-                border: "1px solid #999",
-                marginLeft: "auto",
-                background: "#fff",
-              }}
-            />
+            <span className="onr-tag-label">Important</span>
+            <div className="onr-tag-swatch" />
           </div>
 
           {/* Question row */}
           <div
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-tag-row"
             onClick={handleQuestion}
             data-cmd="question"
             title="Mark as question"
-            style={{
-              width: "150px",
-              minHeight: "20px",
-              flexDirection: "row",
-              gap: "4px",
-              padding: "1px 6px",
-              justifyContent: "flex-start",
-              alignItems: "center",
-            }}
           >
-            <svg
-              viewBox="0 0 16 16"
-              style={{
-                width: "13px",
-                height: "13px",
-                flexShrink: "0",
-                fill: "none",
-                stroke: "none",
-              }}
-            >
+            <svg viewBox="0 0 16 16" className="onr-tag-icon">
               <rect x="1" y="1" width="14" height="14" rx="2" fill="#7030A0" />
               <text
                 x="8"
@@ -191,42 +119,19 @@ export function TagsGroup() {
                 ?
               </text>
             </svg>
-            <span style={{ fontSize: "10px", color: "#222" }}>Question</span>
-            <div
-              style={{
-                width: "14px",
-                height: "14px",
-                border: "1px solid #999",
-                marginLeft: "auto",
-                background: "#fff",
-              }}
-            />
+            <span className="onr-tag-label">Question</span>
+            <div className="onr-tag-swatch" />
           </div>
         </div>
 
         {/* More arrow with dropdown */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            height: "64px",
-            position: "relative",
-          }}
-        >
+        <div className="onr-tags-more">
           <div
             ref={moreButtonRef}
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-more-arrow"
             title="More tags"
             onClick={() => setMoreMenuOpen(!moreMenuOpen)}
             data-cmd="more-tags"
-            style={{
-              width: "14px",
-              minHeight: "64px",
-              padding: "0",
-              fontSize: "9px",
-              zIndex: moreMenuOpen ? 100 : "auto",
-            }}
           >
             ▾
           </div>
@@ -253,16 +158,12 @@ export function TagsGroup() {
         </div>
 
         {/* Big buttons: To Do Tag + Find Tags */}
-        <div
-          className="onr-tag-big-buttons"
-          style={{ justifyContent: "flex-start" }}
-        >
+        <div className="onr-tag-big-buttons">
           <div
-            className="onr-btn"
+            className="onr-btn onr-tag-btn"
             title="Insert To Do tag"
             onClick={handleToDoTag}
             data-cmd="todo-tag"
-            style={{ width: "46px", minHeight: "58px" }}
           >
             <svg className="onr-icon" viewBox="0 0 24 24">
               <rect x="3" y="5" width="18" height="14" rx="2" />
@@ -272,11 +173,10 @@ export function TagsGroup() {
             <span className="onr-btn-label">To Do Tag</span>
           </div>
           <div
-            className="onr-btn"
+            className="onr-btn onr-tag-btn"
             title="Search for tags"
             onClick={handleFindTags}
             data-cmd="find-tags"
-            style={{ width: "46px", minHeight: "58px" }}
           >
             <svg className="onr-icon" viewBox="0 0 24 24">
               <circle cx="11" cy="11" r="8" />

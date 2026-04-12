@@ -1,0 +1,21 @@
+.onr-ribbon {
+  display: flex;
+  flex-direction: column;
+  background: var(--ribbon-bg);
+}
+
+/* Enable titlebar dragging in frameless Obsidian mode */
+body.is-hidden-frameless:not(.starter) .titlebar {
+  -webkit-app-region: drag !important;
+}
+
+.onr-body {
+  background: var(--ribbon-bg);
+  border-top: 1px solid var(--ribbon-border);
+  min-height: 92px;
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  padding: 4px 4px 0;
+  overflow: visible;
+}

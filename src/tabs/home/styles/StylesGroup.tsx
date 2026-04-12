@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import './StylesGroup.css';
 import { useApp } from '../../../shared/context/AppContext';
 import { STYLES_LIST } from './styles-data';
 
@@ -30,32 +31,24 @@ export function StylesGroup() {
 
   const visibleStyles = STYLES_LIST.slice(stylesOffset, stylesOffset + 2);
 
+  const levelClass = (level: number) => {
+    if (level === 1) return 'onr-style-h1';
+    if (level === 2) return 'onr-style-h2';
+    return '';
+  };
+
   return (
     <div className="onr-group">
-      <div className="onr-styles-group" style={{ flex: 1 }}>
+      <div className="onr-styles-group">
         {/* Style previews stacked 2 visible + scroll */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', width: '130px' }}>
+        <div className="onr-styles-previews">
           {visibleStyles.map((style) => (
             <div
               key={style.name}
-              className="onr-btn-sm"
+              className={`onr-btn-sm onr-style-preview ${levelClass(style.level)}`}
               onClick={() => handleStyleClick(style.level)}
               data-cmd={`style-${style.name.toLowerCase().replace(/\s+/g, '-')}`}
               title={`Apply ${style.name}`}
-              style={{
-                width: '130px',
-                minHeight: '28px',
-                background: '#1a1a2e',
-                border: '1px solid #555',
-                borderRadius: '2px',
-                flexDirection: 'row',
-                justifyContent: 'flex-start',
-                padding: '2px 8px',
-                gap: '0',
-                fontSize: style.level === 1 ? '15px' : style.level === 2 ? '13px' : '11px',
-                fontWeight: '700',
-                color: '#5B9BD5',
-              }}
             >
               {style.name}
             </div>
@@ -63,46 +56,28 @@ export function StylesGroup() {
         </div>
 
         {/* Scroll arrows */}
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '2px 1px', gap: '2px' }}>
+        <div className="onr-styles-scroll">
           <div
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-scroll-arrow"
             title="Previous styles"
             onClick={handleScrollUp}
             data-cmd="styles-prev"
-            style={{
-              width: '16px',
-              minHeight: '28px',
-              padding: '0',
-              fontSize: '9px',
-            }}
           >
             ▲
           </div>
           <div
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-scroll-arrow"
             title="Next styles"
             onClick={handleScrollDown}
             data-cmd="styles-next"
-            style={{
-              width: '16px',
-              minHeight: '28px',
-              padding: '0',
-              fontSize: '9px',
-            }}
           >
             ▼
           </div>
           <div
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-scroll-expand"
             title="Expand"
             onClick={() => {}}
             data-cmd="styles-expand"
-            style={{
-              width: '16px',
-              minHeight: '14px',
-              padding: '0',
-              fontSize: '9px',
-            }}
           >
             ▾
           </div>

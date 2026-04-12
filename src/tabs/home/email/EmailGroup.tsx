@@ -1,3 +1,4 @@
+import './EmailGroup.css';
 import { useApp } from '../../../shared/context/AppContext';
 
 export function EmailGroup() {
@@ -36,7 +37,7 @@ Agenda:
 
   return (
     <div className="onr-group">
-      <div className="onr-email-group" style={{ flex: 1 }}>
+      <div className="onr-email-group">
         <div
           className="onr-btn"
           title="Copy as formatted text"

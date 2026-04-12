@@ -1,3 +1,4 @@
+import './NavigateGroup.css';
 import { useApp } from '../../../shared/context/AppContext';
 
 export function NavigateGroup() {
@@ -17,7 +18,7 @@ export function NavigateGroup() {
 
   return (
     <div className="onr-group">
-      <div className="onr-navigate-group" style={{ flex: 1 }}>
+      <div className="onr-navigate-group">
         <div
           className="onr-btn"
           title="Open outline panel"

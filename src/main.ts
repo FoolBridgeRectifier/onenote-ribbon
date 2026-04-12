@@ -1,7 +1,4 @@
 import { Plugin } from 'obsidian';
-import '../styles.css';
-import './styles/shell.css';
-import './tabs/home/home.css';
 import { RibbonShell } from './ribbon/RibbonShell';
 
 export default class OneNoteRibbonPlugin extends Plugin {

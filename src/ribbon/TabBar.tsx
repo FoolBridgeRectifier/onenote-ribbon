@@ -1,3 +1,4 @@
+import './TabBar.css';
 import { TABS, TabName } from './tabs';
 
 interface Props {

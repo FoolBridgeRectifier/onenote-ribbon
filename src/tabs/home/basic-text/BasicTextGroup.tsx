@@ -1,10 +1,17 @@
-import { useRef, useState } from 'react';
-import { useApp } from '../../../shared/context/AppContext';
-import { Dropdown } from '../../../shared/components/Dropdown';
-import { clearFormatting } from './clearFormatting';
+import { useRef, useState } from "react";
+import "./BasicTextGroup.css";
+import { useApp } from "../../../shared/context/AppContext";
+import { Dropdown } from "../../../shared/components/Dropdown";
+import { clearFormatting } from "./clearFormatting";
 
-const FONTS = ['System Default', 'Monospace', 'Arial', 'Times New Roman', 'Georgia'];
-const SIZES = ['12', '14', '16', '18', '20', '24'];
+const FONTS = [
+  "System Default",
+  "Monospace",
+  "Arial",
+  "Times New Roman",
+  "Georgia",
+];
+const SIZES = ["12", "14", "16", "18", "20", "24"];
 
 export function BasicTextGroup() {
   const app = useApp();
@@ -16,11 +23,11 @@ export function BasicTextGroup() {
   const getEditor = () => app.workspace.activeEditor?.editor;
 
   const handleBold = () => {
-    ((app as any).commands).executeCommandById('editor:toggle-bold');
+    (app as any).commands.executeCommandById("editor:toggle-bold");
   };
 
   const handleItalic = () => {
-    ((app as any).commands).executeCommandById('editor:toggle-italic');
+    (app as any).commands.executeCommandById("editor:toggle-italic");
   };
 
   const handleUnderline = () => {
@@ -31,7 +38,7 @@ export function BasicTextGroup() {
   };
 
   const handleStrikethrough = () => {
-    ((app as any).commands).executeCommandById('editor:toggle-strikethrough');
+    (app as any).commands.executeCommandById("editor:toggle-strikethrough");
   };
 
   const handleSubscript = () => {
@@ -49,23 +56,23 @@ export function BasicTextGroup() {
   };
 
   const handleBulletList = () => {
-    ((app as any).commands).executeCommandById('editor:toggle-bullet-list');
+    (app as any).commands.executeCommandById("editor:toggle-bullet-list");
   };
 
   const handleNumberedList = () => {
-    ((app as any).commands).executeCommandById('editor:toggle-numbered-list');
+    (app as any).commands.executeCommandById("editor:toggle-numbered-list");
   };
 
   const handleOutdent = () => {
-    ((app as any).commands).executeCommandById('editor:unindent-list');
+    (app as any).commands.executeCommandById("editor:unindent-list");
   };
 
   const handleIndent = () => {
-    ((app as any).commands).executeCommandById('editor:indent-list');
+    (app as any).commands.executeCommandById("editor:indent-list");
   };
 
   const handleHighlight = () => {
-    ((app as any).commands).executeCommandById('editor:toggle-highlight');
+    (app as any).commands.executeCommandById("editor:toggle-highlight");
   };
 
   const handleClearInline = () => {
@@ -88,39 +95,28 @@ export function BasicTextGroup() {
 
   return (
     <div className="onr-group">
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1 }}>
+      <div className="onr-basic-text-inner">
         {/* Row 1: Font, size, bullets, lists, indent, clear */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2px', padding: '2px 0 0 0', position: 'relative' }}>
+        <div className="onr-basic-text-row1">
           {/* Font family dropdown */}
           <div
             ref={fontAnchorRef}
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-font-picker"
             title="Font family"
             onClick={() => setFontMenuOpen(!fontMenuOpen)}
             data-cmd="font-family"
-            style={{
-              width: '96px',
-              flexDirection: 'row',
-              gap: '2px',
-              minHeight: '22px',
-              padding: '1px 4px',
-              border: '1px solid #c8c6c4',
-              justifyContent: 'space-between',
-              position: 'relative',
-              zIndex: fontMenuOpen ? 100 : 'auto',
-            }}
           >
-            <span style={{ fontSize: '10px', color: '#222' }}>Font</span>
-            <span style={{ fontSize: '8px', color: '#666' }}>▾</span>
+            <span className="onr-picker-label">Font</span>
+            <span className="onr-picker-caret">▾</span>
           </div>
           {fontMenuOpen && fontAnchorRef.current && (
             <Dropdown
               anchor={fontAnchorRef.current}
-              items={FONTS.map(font => ({
+              items={FONTS.map((font) => ({
                 label: font,
                 onClick: () => {
-                  ((app.vault as any).setConfig)('fontText', font);
-                  app.workspace.trigger('css-change');
+                  (app.vault as any).setConfig("fontText", font);
+                  app.workspace.trigger("css-change");
                   setFontMenuOpen(false);
                 },
               }))}
@@ -131,32 +127,22 @@ export function BasicTextGroup() {
           {/* Font size */}
           <div
             ref={sizeAnchorRef}
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-size-picker"
             title="Font size"
             onClick={() => setSizeMenuOpen(!sizeMenuOpen)}
             data-cmd="font-size"
-            style={{
-              width: '34px',
-              flexDirection: 'row',
-              minHeight: '22px',
-              padding: '1px 4px',
-              border: '1px solid #c8c6c4',
-              justifyContent: 'space-between',
-              position: 'relative',
-              zIndex: sizeMenuOpen ? 100 : 'auto',
-            }}
           >
-            <span style={{ fontSize: '10px', color: '#222' }}>11</span>
-            <span style={{ fontSize: '8px', color: '#666' }}>▾</span>
+            <span className="onr-picker-label">11</span>
+            <span className="onr-picker-caret">▾</span>
           </div>
           {sizeMenuOpen && sizeAnchorRef.current && (
             <Dropdown
               anchor={sizeAnchorRef.current}
-              items={SIZES.map(size => ({
+              items={SIZES.map((size) => ({
                 label: `${size}px`,
                 onClick: () => {
-                  ((app.vault as any).setConfig)('baseFontSize', parseInt(size));
-                  app.workspace.trigger('css-change');
+                  (app.vault as any).setConfig("baseFontSize", parseInt(size));
+                  app.workspace.trigger("css-change");
                   setSizeMenuOpen(false);
                 },
               }))}
@@ -166,30 +152,40 @@ export function BasicTextGroup() {
 
           {/* Bullet list */}
           <div
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-format-btn"
             title="Bullet list"
             onClick={handleBulletList}
             data-cmd="bullet-list"
-            style={{ minHeight: '22px', width: '22px' }}
           >
             <svg className="onr-icon-sm" viewBox="0 0 24 24">
               <line x1="9" y1="6" x2="20" y2="6" />
               <line x1="9" y1="12" x2="20" y2="12" />
               <line x1="9" y1="18" x2="20" y2="18" />
               <circle cx="5" cy="6" r="1.5" fill="currentColor" stroke="none" />
-              <circle cx="5" cy="12" r="1.5" fill="currentColor" stroke="none" />
-              <circle cx="5" cy="18" r="1.5" fill="currentColor" stroke="none" />
+              <circle
+                cx="5"
+                cy="12"
+                r="1.5"
+                fill="currentColor"
+                stroke="none"
+              />
+              <circle
+                cx="5"
+                cy="18"
+                r="1.5"
+                fill="currentColor"
+                stroke="none"
+              />
             </svg>
-            <span style={{ fontSize: '7px' }}>▾</span>
+            <span className="onr-list-caret">▾</span>
           </div>
 
           {/* Numbered list */}
           <div
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-format-btn"
             title="Numbered list"
             onClick={handleNumberedList}
             data-cmd="numbered-list"
-            style={{ minHeight: '22px', width: '22px' }}
           >
             <svg className="onr-icon-sm" viewBox="0 0 24 24">
               <line x1="10" y1="6" x2="21" y2="6" />
@@ -197,18 +193,21 @@ export function BasicTextGroup() {
               <line x1="10" y1="18" x2="21" y2="18" />
               <path d="M4 6h1v4" stroke="currentColor" strokeWidth="1.5" />
               <path d="M4 10h2" stroke="currentColor" strokeWidth="1.5" />
-              <path d="M6 14H4l2 2-2 2h2" stroke="currentColor" strokeWidth="1.5" />
+              <path
+                d="M6 14H4l2 2-2 2h2"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              />
             </svg>
-            <span style={{ fontSize: '7px' }}>▾</span>
+            <span className="onr-list-caret">▾</span>
           </div>
 
           {/* Outdent */}
           <div
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-format-btn"
             title="Decrease indent"
             onClick={handleOutdent}
             data-cmd="outdent"
-            style={{ minHeight: '22px', width: '22px' }}
           >
             <svg className="onr-icon-sm" viewBox="0 0 24 24">
               <polyline points="7 8 3 12 7 16" />
@@ -220,11 +219,10 @@ export function BasicTextGroup() {
 
           {/* Indent */}
           <div
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-format-btn"
             title="Increase indent"
             onClick={handleIndent}
             data-cmd="indent"
-            style={{ minHeight: '22px', width: '22px' }}
           >
             <svg className="onr-icon-sm" viewBox="0 0 24 24">
               <polyline points="17 8 21 12 17 16" />
@@ -236,11 +234,10 @@ export function BasicTextGroup() {
 
           {/* Clear formatting */}
           <div
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-format-btn"
             title="Clear formatting"
             onClick={handleClearAllFormatting}
             data-cmd="clear-all"
-            style={{ minHeight: '22px', width: '22px' }}
           >
             <svg className="onr-icon-sm" viewBox="0 0 24 24">
               <path d="M20 5H9l-7 7 7 7h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z" />
@@ -251,135 +248,122 @@ export function BasicTextGroup() {
         </div>
 
         {/* Row 2: B I U S x₂ x² | Highlight | Font color | Align | Clear inline */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+        <div className="onr-basic-text-row2">
           {/* Bold */}
           <div
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-format-btn onr-format-bold"
             title="Bold"
             onClick={handleBold}
             data-cmd="bold"
-            style={{ minHeight: '22px', width: '22px', fontWeight: '700', fontSize: '13px' }}
           >
             B
           </div>
 
           {/* Italic */}
           <div
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-format-btn onr-format-italic"
             title="Italic"
             onClick={handleItalic}
             data-cmd="italic"
-            style={{ minHeight: '22px', width: '22px', fontStyle: 'italic', fontSize: '13px' }}
           >
             I
           </div>
 
           {/* Underline */}
           <div
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-format-btn onr-format-underline"
             title="Underline"
             onClick={handleUnderline}
             data-cmd="underline"
-            style={{ minHeight: '22px', width: '22px', textDecoration: 'underline', fontSize: '12px', fontWeight: '600' }}
           >
             U
           </div>
 
           {/* Strikethrough */}
           <div
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-format-btn"
             title="Strikethrough"
             onClick={handleStrikethrough}
             data-cmd="strikethrough"
-            style={{ minHeight: '22px', width: '22px' }}
           >
-            <s style={{ fontSize: '11px' }}>ab</s>
+            <s className="onr-strikethrough-text">ab</s>
           </div>
 
           {/* Subscript */}
           <div
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-format-btn onr-format-sub"
             title="Subscript"
             onClick={handleSubscript}
             data-cmd="subscript"
-            style={{ minHeight: '22px', width: '22px', fontSize: '10px' }}
           >
-            x<sub style={{ fontSize: '7px' }}>2</sub>
+            x<sub className="onr-sub-text">2</sub>
           </div>
 
           {/* Superscript */}
           <div
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-format-btn onr-format-sup"
             title="Superscript"
             onClick={handleSuperscript}
             data-cmd="superscript"
-            style={{ minHeight: '22px', width: '22px', fontSize: '10px' }}
           >
-            x<sup style={{ fontSize: '7px' }}>2</sup>
+            x<sup className="onr-sup-text">2</sup>
           </div>
 
-          {/* Divider */}
-          <div style={{ width: '1px', height: '18px', background: '#d0d0d0', margin: '0 1px' }} />
+          <div className="onr-divider" />
 
           {/* Highlight with color swatch */}
           <div
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-highlight-btn"
             title="Highlight"
             onClick={handleHighlight}
             data-cmd="highlight"
-            style={{ minHeight: '18px', width: '26px', padding: '1px 2px', flexDirection: 'column', gap: '1px' }}
           >
-            <svg className="onr-icon-sm" viewBox="0 0 24 24" style={{ width: '12px', height: '12px' }}>
+            <svg className="onr-icon-sm" viewBox="0 0 24 24">
               <path d="M9 11l-6 6v3h3l6-6" />
               <path d="M22 5.54a2 2 0 0 0-2.83-2.83l-11.3 11.3 2.83 2.83L22 5.54z" />
             </svg>
-            <div style={{ width: '14px', height: '3px', background: '#FFFF00', border: '1px solid #ccc' }} />
+            <div className="onr-highlight-swatch" />
           </div>
 
-          {/* Divider */}
-          <div style={{ width: '1px', height: '18px', background: '#d0d0d0', margin: '0 1px' }} />
+          <div className="onr-divider" />
 
           {/* Font color A with swatch + dropdown */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0' }}>
+          <div className="onr-color-wrapper">
             <div
-              className="onr-btn-sm"
+              className="onr-btn-sm onr-color-btn"
               title="Font color"
               onClick={() => {}}
               data-cmd="font-color"
-              style={{ minHeight: '18px', width: '22px', padding: '1px 2px' }}
             >
-              <span style={{ fontSize: '12px', fontWeight: '700', color: '#222', lineHeight: '1' }}>A</span>
-              <div style={{ width: '14px', height: '3px', background: '#FF0000', border: '1px solid #ccc', marginTop: '1px' }} />
+              <span className="onr-color-label">A</span>
+              <div className="onr-color-swatch" />
             </div>
-            <div style={{ fontSize: '7px', color: '#666', lineHeight: '1' }}>▾</div>
+            <div className="onr-color-caret">▾</div>
           </div>
 
-          {/* Divider */}
-          <div style={{ width: '1px', height: '18px', background: '#d0d0d0', margin: '0 1px' }} />
+          <div className="onr-divider" />
 
           {/* Align */}
           <div
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-align-btn"
             title="Align"
             onClick={() => {}}
             data-cmd="align"
-            style={{ minHeight: '22px', width: '26px', flexDirection: 'row', gap: '1px' }}
           >
-            <svg className="onr-icon-sm" viewBox="0 0 24 24" style={{ width: '10px', height: '10px' }}>
+            <svg className="onr-icon-sm" viewBox="0 0 24 24">
               <line x1="3" y1="6" x2="21" y2="6" />
               <line x1="3" y1="12" x2="21" y2="12" />
               <line x1="3" y1="18" x2="15" y2="18" />
             </svg>
-            <span style={{ fontSize: '8px' }}>▾</span>
+            <span className="onr-align-caret">▾</span>
           </div>
 
           {/* Clear inline */}
           <div
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-clear-inline-btn"
             title="Clear inline formatting"
             onClick={handleClearInline}
             data-cmd="clear-inline"
-            style={{ minHeight: '22px', width: '22px' }}
           >
             <svg className="onr-icon-sm" viewBox="0 0 24 24">
               <line x1="18" y1="6" x2="6" y2="18" />

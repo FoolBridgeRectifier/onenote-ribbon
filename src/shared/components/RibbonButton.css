@@ -1,0 +1,131 @@
+/* ── LARGE BUTTON ── */
+.onr-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 48px;
+  min-height: 60px;
+  padding: 5px 2px 4px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: 1px solid transparent;
+  gap: 0;
+  text-align: center;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+  flex-shrink: 0;
+  user-select: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.onr-btn:hover {
+  background: var(--btn-hover-bg);
+  border-color: var(--btn-hover-border);
+}
+
+.onr-btn:active {
+  background: var(--btn-active-bg);
+  border-color: var(--btn-active-border);
+}
+
+.onr-btn.onr-active {
+  background: var(--btn-active-bg);
+  border-color: var(--btn-active-border);
+}
+
+.onr-btn:focus-visible {
+  outline: 2px solid var(--btn-focus-ring);
+  outline-offset: 1px;
+}
+
+.onr-btn.onr-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── SMALL BUTTON ── */
+.onr-btn-sm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  min-height: 24px;
+  padding: 2px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: 1px solid transparent;
+  gap: 1px;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+  flex-shrink: 0;
+  user-select: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 9px;
+}
+
+.onr-btn-sm:hover {
+  background: var(--btn-hover-bg);
+  border-color: var(--btn-hover-border);
+}
+
+.onr-btn-sm:active {
+  background: var(--btn-active-bg);
+  border-color: var(--btn-active-border);
+}
+
+.onr-btn-sm.onr-active {
+  background: var(--btn-active-bg);
+  border-color: var(--btn-active-border);
+}
+
+.onr-btn-sm:focus-visible {
+  outline: 2px solid var(--btn-focus-ring);
+  outline-offset: 1px;
+}
+
+.onr-btn-sm.onr-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── BUTTON LABELS ── */
+.onr-btn-label {
+  font-size: 9px;
+  color: var(--text-primary);
+  line-height: 1.25;
+  word-break: break-word;
+  text-align: center;
+}
+
+.onr-btn-label-sm {
+  font-size: 8px;
+  color: var(--text-secondary);
+  line-height: 1.2;
+}
+
+/* ── ICONS ── */
+/* Size only; stroke properties come from the global SVG rule in styles.css */
+.onr-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.onr-icon-sm {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onr-btn,
+  .onr-btn-sm {
+    transition: none;
+  }
+}

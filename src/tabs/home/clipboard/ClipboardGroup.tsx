@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import './ClipboardGroup.css';
 import { useApp } from '../../../shared/context/AppContext';
 import { useFormatPainterContext } from '../../../shared/context/FormatPainterContext';
 import { Dropdown } from '../../../shared/components/Dropdown';
@@ -54,22 +55,15 @@ export function ClipboardGroup() {
 
   return (
     <div className="onr-group">
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '2px', flex: 1 }}>
+      <div className="onr-clipboard-inner">
         {/* Big Paste button with dropdown */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0' }}>
+        <div className="onr-clipboard-paste">
           <div
             ref={pasteAnchorRef}
-            className="onr-btn"
+            className="onr-btn onr-paste-main"
             title="Paste from clipboard"
             onClick={handlePaste}
             data-cmd="paste"
-            style={{
-              width: '46px',
-              minHeight: '46px',
-              borderBottom: 'none',
-              borderRadius: '3px 3px 0 0',
-              gap: '4px',
-            }}
           >
             <svg className="onr-icon" viewBox="0 0 24 24">
               <rect x="8" y="2" width="8" height="4" rx="1" />
@@ -77,20 +71,13 @@ export function ClipboardGroup() {
               <polyline points="9 14 12 17 15 14" />
               <line x1="12" y1="10" x2="12" y2="17" />
             </svg>
-            <span className="onr-btn-label" style={{ fontSize: '10px' }}>Paste</span>
+            <span className="onr-btn-label">Paste</span>
           </div>
           <div
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-paste-dropdown"
             title="Paste special"
             onClick={handlePasteSpecial}
             data-cmd="paste-dropdown"
-            style={{
-              width: '46px',
-              borderTop: '1px solid #d0d0d0',
-              borderRadius: '0 0 3px 3px',
-              minHeight: '14px',
-              fontSize: '9px',
-            }}
           >
             ▾
           </div>
@@ -120,18 +107,12 @@ export function ClipboardGroup() {
         )}
 
         {/* Stacked small buttons: Cut / Copy / Format Painter */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', paddingTop: '2px' }}>
+        <div className="onr-clipboard-stack">
           <div
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-clipboard-item"
             title="Cut selection"
             onClick={handleCut}
             data-cmd="cut"
-            style={{
-              width: '68px',
-              flexDirection: 'row',
-              gap: '4px',
-              padding: '2px 4px',
-            }}
           >
             <svg className="onr-icon-sm" viewBox="0 0 24 24">
               <circle cx="6" cy="6" r="3" />
@@ -143,16 +124,10 @@ export function ClipboardGroup() {
             <span className="onr-btn-label-sm">Cut</span>
           </div>
           <div
-            className="onr-btn-sm"
+            className="onr-btn-sm onr-clipboard-item"
             title="Copy selection"
             onClick={handleCopy}
             data-cmd="copy"
-            style={{
-              width: '68px',
-              flexDirection: 'row',
-              gap: '4px',
-              padding: '2px 4px',
-            }}
           >
             <svg className="onr-icon-sm" viewBox="0 0 24 24">
               <rect x="9" y="9" width="13" height="13" rx="2" />
@@ -161,16 +136,10 @@ export function ClipboardGroup() {
             <span className="onr-btn-label-sm">Copy</span>
           </div>
           <div
-            className={`onr-btn-sm ${formatPainter.isActive ? 'onr-active' : ''}`}
+            className={`onr-btn-sm onr-clipboard-item${formatPainter.isActive ? ' onr-active' : ''}`}
             title={formatPainter.isActive ? 'Disable format painter' : 'Enable format painter'}
             onClick={handleFormatPainterClick}
             data-cmd="format-painter"
-            style={{
-              width: '68px',
-              flexDirection: 'row',
-              gap: '4px',
-              padding: '2px 4px',
-            }}
           >
             <svg className="onr-icon-sm" viewBox="0 0 24 24">
               <path d="M18 8h1a4 4 0 0 1 0 8h-1" />

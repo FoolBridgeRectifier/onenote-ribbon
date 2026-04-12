@@ -1,0 +1,54 @@
+/* Flex row holding the paste section and the stacked cut/copy/format buttons */
+.onr-clipboard-inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 2px;
+  flex: 1;
+}
+
+/* Paste section: big paste button stacked above the dropdown trigger */
+.onr-clipboard-paste {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* Big paste button overrides */
+.onr-paste-main {
+  width: 46px;
+  min-height: 46px;
+  border-bottom: none;
+  border-radius: 3px 3px 0 0;
+  gap: 4px;
+}
+
+/* Bump the label size on the paste button to match its larger icon */
+.onr-paste-main .onr-btn-label {
+  font-size: 10px;
+}
+
+/* Thin dropdown trigger below the paste button */
+.onr-paste-dropdown {
+  width: 46px;
+  border-top: 1px solid #d0d0d0;
+  border-radius: 0 0 3px 3px;
+  min-height: 14px;
+  font-size: 9px;
+}
+
+/* Column of cut / copy / format-painter buttons */
+.onr-clipboard-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding-top: 2px;
+}
+
+/* Wide row-layout button used for cut, copy, and format painter */
+.onr-clipboard-item {
+  width: 68px;
+  flex-direction: row;
+  gap: 4px;
+  padding: 2px 4px;
+}

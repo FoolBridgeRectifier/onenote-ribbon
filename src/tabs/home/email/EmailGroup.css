@@ -1,0 +1,7 @@
+.onr-email-group {
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+  align-items: flex-start;
+  flex: 1;
+}

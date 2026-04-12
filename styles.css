@@ -1,35 +1,40 @@
 /* ── DESIGN TOKENS ── */
 :root {
-  --ribbon-purple:     #6B2CA6;
-  --ribbon-purple-mid: #7B3CB6;
-  --ribbon-bg:         #ffffff;
-  --ribbon-border:     #e1dfdd;
-  --btn-hover-bg:      #f0eeec;
-  --btn-hover-border:  #c8c6c4;
-  --btn-active-bg:     #c7e0f4;
+  --ribbon-purple: #6b2ca6;
+  --ribbon-purple-mid: #7b3cb6;
+  --ribbon-bg: #ffffff;
+  --ribbon-border: #e1dfdd;
+  --btn-hover-bg: #f0eeec;
+  --btn-hover-border: #c8c6c4;
+  --btn-active-bg: #c7e0f4;
   --btn-active-border: #90c2e8;
-  --btn-focus-ring:    #0078D4;
-  --text-primary:      #201f1e;
-  --text-secondary:    #484644;
-  --text-muted:        #605e5c;
-  --text-disabled:     #a19f9d;
-  --shadow-ribbon:     0 1px 3px rgba(107,44,166,0.08), 0 2px 8px rgba(0,0,0,0.10);
-  --transition-fast:   150ms ease-out;
-  --transition-mid:    200ms ease-out;
-  --radius-sm:         3px;
-  --icon-color:        #3b3a39;
-  --icon-purple:       #6B2CA6;
-  --icon-blue:         #0078D4;
-  --icon-green:        #107C10;
-  --icon-orange:       #C45911;
-  --icon-red:          #A80000;
-  --icon-teal:         #006B6B;
+  --btn-focus-ring: #0078d4;
+  --text-primary: #201f1e;
+  --text-secondary: #484644;
+  --text-muted: #605e5c;
+  --text-disabled: #a19f9d;
+  --shadow-ribbon:
+    0 1px 3px rgba(107, 44, 166, 0.08), 0 2px 8px rgba(0, 0, 0, 0.1);
+  --transition-fast: 150ms ease-out;
+  --transition-mid: 200ms ease-out;
+  --radius-sm: 3px;
+  --icon-color: #3b3a39;
+  --icon-purple: #6b2ca6;
+  --icon-blue: #0078d4;
+  --icon-green: #107c10;
+  --icon-orange: #c45911;
+  --icon-red: #a80000;
+  --icon-teal: #006b6b;
 }
 
-/* ── RIBBON ROOT ── */
+/* ── RIBBON ROOT — scopes all plugin styles ── */
 #onenote-ribbon-root {
   width: 100%;
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family:
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   box-shadow: var(--shadow-ribbon);
   flex-shrink: 0;
@@ -37,182 +42,26 @@
   flex-direction: column;
   position: relative;
   overflow: visible;
-  z-index: 9999;
+  z-index: 49;
 }
 
-/* ── TAB BAR ── */
-.onr-tab-bar {
-  background: var(--ribbon-purple);
-  display: flex;
-  align-items: stretch;
-  height: 30px;
-  user-select: none;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.onr-tab-bar::-webkit-scrollbar { display: none; }
-
-.onr-tab {
-  padding: 0 16px;
-  font-size: 11px;
-  font-weight: 400;
-  color: rgba(255,255,255,0.88);
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  border-right: 1px solid rgba(255,255,255,0.12);
-  white-space: nowrap;
-  transition: background var(--transition-fast);
-  position: relative;
-}
-.onr-tab.active {
-  background: #ffffff;
-  color: #6B2CA6;
-  font-weight: 600;
-}
-.onr-tab:hover:not(.active) {
-  background: rgba(255,255,255,0.18);
-}
-.onr-tab:focus-visible {
-  outline: 2px solid rgba(255,255,255,0.8);
-  outline-offset: -3px;
+/* ── GLOBAL SVG NORMALISATION ── */
+/* Applies a consistent stroke style to all ribbon icons */
+#onenote-ribbon-root svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-.onr-spacer { flex: 1; }
-
-.onr-pin-btn {
-  padding: 0 12px;
-  font-size: 10px;
-  color: rgba(255,255,255,0.65);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  cursor: pointer;
-  transition: color var(--transition-fast);
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-}
-.onr-pin-btn:hover { color: rgba(255,255,255,0.95); }
-
-/* ── RIBBON BODY ── */
-.onr-body {
-  background: #ffffff;
-  border-top: 1px solid #e1dfdd;
-  min-height: 92px;
-  display: flex;
-  align-items: stretch;
-  flex-wrap: wrap;
-  padding: 4px 4px 0;
-  position: relative;
-  overflow: visible;
+/* Small icons use a thinner stroke; ID specificity needed to beat the rule above */
+#onenote-ribbon-root .onr-icon-sm {
+  stroke-width: 1.2;
 }
 
-/* ── TAB PANELS ── */
-.onr-tab-panel {
-  display: flex;
-  flex: 1 1 auto;
-  align-items: stretch;
-  flex-wrap: nowrap;
-  padding: 4px 4px 0;
+/* Coloured tag icons have inline fills — suppress the inherited stroke so the
+   rect borders don't get a dark outline from currentColor */
+#onenote-ribbon-root .onr-tag-icon {
+  stroke: none;
 }
-
-/* ── REDUCED MOTION ── */
-@media (prefers-reduced-motion: reduce) {
-  .onr-tab, .onr-pin-btn, .onr-btn, .onr-btn-sm { transition: none; }
-}
-
-/* ── GROUPS ── */
-.onr-group {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  padding: 2px 8px 0 8px;
-  position: relative;
-  min-width: 60px;
-}
-.onr-group + .onr-group::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 6px; bottom: 16px;
-  width: 1px;
-  background: var(--ribbon-border);
-}
-.onr-group-buttons {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 1px;
-  flex: 1;
-}
-.onr-group-name {
-  font-size: 9px;
-  font-weight: 400;
-  color: var(--text-muted);
-  text-align: center;
-  padding: 3px 0 5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1;
-}
-
-/* ── LARGE BUTTON ── */
-.onr-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  min-height: 60px;
-  padding: 5px 2px 4px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  border: 1px solid transparent;
-  gap: 3px;
-  text-align: center;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
-  flex-shrink: 0;
-  -webkit-user-select: none; user-select: none;
-  color: var(--icon-color);
-}
-.onr-btn:hover  { background: var(--btn-hover-bg);  border-color: var(--btn-hover-border); }
-.onr-btn:active { background: var(--btn-active-bg); border-color: var(--btn-active-border); }
-.onr-btn:focus-visible { outline: 2px solid var(--btn-focus-ring); outline-offset: 1px; }
-.onr-btn.disabled { opacity: 0.40; cursor: not-allowed; pointer-events: none; }
-
-/* ── SMALL BUTTON ── */
-.onr-btn-sm {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  min-height: 24px;
-  padding: 2px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  border: 1px solid transparent;
-  gap: 1px;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
-  flex-shrink: 0;
-  -webkit-user-select: none; user-select: none;
-  color: var(--icon-color);
-}
-.onr-btn-sm:hover  { background: var(--btn-hover-bg);  border-color: var(--btn-hover-border); }
-.onr-btn-sm:active { background: var(--btn-active-bg); border-color: var(--btn-active-border); }
-.onr-btn-sm.active { background: var(--btn-active-bg); border-color: var(--btn-active-border); }
-.onr-btn-sm-active { background: var(--btn-active-bg) !important; border-color: var(--btn-active-border) !important; color: var(--icon-blue) !important; }
-.onr-btn.onr-active,
-.onr-btn-sm.onr-active { background: var(--btn-active-bg) !important; border-color: var(--btn-active-border) !important; color: var(--icon-blue) !important; }
-.onr-btn-sm:focus-visible { outline: 2px solid var(--btn-focus-ring); outline-offset: 1px; }
-
-/* ── BUTTON LABELS ── */
-.onr-btn-label    { font-size: 9px;  color: var(--text-primary);   line-height: 1.25; word-break: break-word; text-align: center; }
-.onr-btn-label-sm { font-size: 8px;  color: var(--text-secondary);  line-height: 1.2; }
-
-/* ── ICONS ── */
-.onr-icon    { width: 20px; height: 20px; flex-shrink: 0; }
-.onr-icon-sm { width: 14px; height: 14px; flex-shrink: 0; }
-#onenote-ribbon-root svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }

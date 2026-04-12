@@ -1,0 +1,84 @@
+/* Tags group: stacked rows + more button + big action buttons */
+.onr-tags-group {
+  display: flex;
+  gap: 4px;
+  align-items: flex-start;
+  flex: 1;
+}
+
+/* Column of tag rows */
+.onr-tags-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  width: 150px;
+}
+
+/* Individual tag row button */
+.onr-tag-row {
+  width: 150px;
+  min-height: 20px;
+  flex-direction: row;
+  gap: 4px;
+  padding: 1px 6px;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+/*
+ * Colored tag icon SVG.
+ * Explicit fill/stroke none overrides the global SVG rule so that
+ * SVG presentation attributes (fill="#4472C4" etc.) render correctly.
+ */
+.onr-tag-icon {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: none;
+}
+
+/* Tag label text */
+.onr-tag-label {
+  font-size: 10px;
+  color: #222;
+}
+
+/* Color swatch on the right of each tag row */
+.onr-tag-swatch {
+  width: 14px;
+  height: 14px;
+  border: 1px solid #999;
+  margin-left: auto;
+  background: #fff;
+}
+
+/* Wrapper that vertically centres the "more" dropdown trigger */
+.onr-tags-more {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 64px;
+  position: relative;
+}
+
+/* Tall narrow "more tags" dropdown trigger button */
+.onr-more-arrow {
+  width: 14px;
+  min-height: 64px;
+  padding: 0;
+  font-size: 9px;
+}
+
+/* Row of larger action buttons (To Do Tag, Find Tags) */
+.onr-tag-big-buttons {
+  display: flex;
+  gap: 2px;
+  justify-content: flex-start;
+}
+
+/* Size override for the big tag action buttons */
+.onr-tag-btn {
+  width: 46px;
+  min-height: 58px;
+}

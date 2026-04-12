@@ -1,3 +1,5 @@
+import './GroupShell.css';
+
 interface Props {
   name: string;
   dataGroup: string;

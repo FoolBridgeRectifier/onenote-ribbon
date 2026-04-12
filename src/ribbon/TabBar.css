@@ -1,24 +1,3 @@
-#onenote-ribbon-root {
-  width: 100%;
-  font-family:
-    "Segoe UI",
-    system-ui,
-    -apple-system,
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-
-.onr-ribbon {
-  display: flex;
-  flex-direction: column;
-  background: var(--ribbon-bg);
-}
-
-/* Enable titlebar dragging in frameless mode */
-body.is-hidden-frameless:not(.starter) .titlebar {
-  -webkit-app-region: drag !important;
-}
-
 .onr-tab-bar {
   background: var(--ribbon-purple);
   height: 30px;
@@ -26,6 +5,7 @@ body.is-hidden-frameless:not(.starter) .titlebar {
   align-items: stretch;
   overflow-x: auto;
   scrollbar-width: none;
+  user-select: none;
 }
 
 .onr-tab-bar::-webkit-scrollbar {
@@ -35,16 +15,14 @@ body.is-hidden-frameless:not(.starter) .titlebar {
 .onr-tab {
   padding: 0 16px;
   font-size: 11px;
+  font-weight: 500;
   color: rgba(255, 255, 255, 0.88);
   cursor: pointer;
   white-space: nowrap;
   border-right: 1px solid rgba(255, 255, 255, 0.12);
-  transition:
-    background var(--transition-fast),
-    color var(--transition-fast);
+  transition: background var(--transition-fast);
   display: flex;
   align-items: center;
-  font-weight: 500;
   -webkit-app-region: no-drag;
 }
 
@@ -56,7 +34,11 @@ body.is-hidden-frameless:not(.starter) .titlebar {
   background: var(--ribbon-bg);
   color: var(--ribbon-purple);
   font-weight: 600;
-  border-bottom: none;
+}
+
+.onr-tab:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: -3px;
 }
 
 .onr-spacer {
@@ -66,6 +48,7 @@ body.is-hidden-frameless:not(.starter) .titlebar {
 .onr-pin-btn {
   padding: 0 16px;
   font-size: 11px;
+  font-weight: 500;
   color: rgba(255, 255, 255, 0.88);
   cursor: pointer;
   white-space: nowrap;
@@ -73,7 +56,6 @@ body.is-hidden-frameless:not(.starter) .titlebar {
   transition: background var(--transition-fast);
   display: flex;
   align-items: center;
-  font-weight: 500;
   -webkit-app-region: no-drag;
 }
 
@@ -81,22 +63,8 @@ body.is-hidden-frameless:not(.starter) .titlebar {
   background: var(--ribbon-purple-mid);
 }
 
-.onr-body {
-  background: var(--ribbon-bg);
-  border-top: 1px solid var(--ribbon-border);
-  min-height: 92px;
-  display: flex;
-  align-items: stretch;
-  flex-wrap: wrap;
-  padding: 4px 4px 0;
-  overflow: visible;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .onr-tab {
-    transition: none;
-  }
-
+  .onr-tab,
   .onr-pin-btn {
     transition: none;
   }

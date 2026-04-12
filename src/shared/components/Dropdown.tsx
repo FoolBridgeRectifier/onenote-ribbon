@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
-import type { DropdownItem } from '../dropdown/Dropdown';
+import { useEffect, useRef } from "react";
+import "./Dropdown.css";
+import { createPortal } from "react-dom";
+import type { DropdownItem } from "../dropdown/Dropdown";
 
 interface Props {
   anchor: HTMLElement | null;
@@ -24,8 +25,9 @@ export function Dropdown({ anchor, items, onClose }: Props) {
       }
     };
 
-    document.addEventListener('click', handleDocumentClick, true);
-    return () => document.removeEventListener('click', handleDocumentClick, true);
+    document.addEventListener("click", handleDocumentClick, true);
+    return () =>
+      document.removeEventListener("click", handleDocumentClick, true);
   }, [anchor, onClose]);
 
   if (!anchor) return null;
@@ -39,10 +41,8 @@ export function Dropdown({ anchor, items, onClose }: Props) {
       ref={dropdownRef}
       className="onr-overlay-dropdown"
       style={{
-        position: 'fixed',
         top: `${top}px`,
         left: `${left}px`,
-        zIndex: 1000,
       }}
     >
       {items.map((item, index) => (
@@ -57,7 +57,9 @@ export function Dropdown({ anchor, items, onClose }: Props) {
           {item.icon && <span className="onr-dd-icon">{item.icon}</span>}
           <div className="onr-dd-content">
             <div className="onr-dd-label">{item.label}</div>
-            {item.sublabel && <div className="onr-dd-sublabel">{item.sublabel}</div>}
+            {item.sublabel && (
+              <div className="onr-dd-sublabel">{item.sublabel}</div>
+            )}
           </div>
         </div>
       ))}
@@ -66,4 +68,4 @@ export function Dropdown({ anchor, items, onClose }: Props) {
   );
 }
 
-export { parseCssString } from '../dropdown/Dropdown';
+export { parseCssString } from "../dropdown/Dropdown";

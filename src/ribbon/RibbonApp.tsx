@@ -1,4 +1,7 @@
 import { useRef, useEffect } from 'react';
+import './RibbonApp.css';
+import '../shared/components/GroupShell.css';
+import '../shared/components/RibbonButton.css';
 import { useRibbonState } from './useRibbonState';
 import { TabBar } from './TabBar';
 import { HomeTabPanel } from '../tabs/home/HomeTabPanel';

@@ -1,0 +1,65 @@
+/* Styles group: previews column + scroll arrows column */
+.onr-styles-group {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  flex: 1;
+}
+
+/* Column of style preview buttons */
+.onr-styles-previews {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 130px;
+}
+
+/* Individual heading style preview button */
+.onr-style-preview {
+  width: 130px;
+  min-height: 28px;
+  background: #1a1a2e;
+  border: 1px solid #555;
+  border-radius: 2px;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: 2px 8px;
+  gap: 0;
+  color: #5b9bd5;
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.onr-style-h1 {
+  font-size: 15px;
+  letter-spacing: -0.5px;
+}
+
+.onr-style-h2 {
+  font-size: 13px;
+}
+
+/* Column of up/down/expand arrow buttons */
+.onr-styles-scroll {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2px 1px;
+  gap: 2px;
+}
+
+/* Up and down scroll arrows */
+.onr-scroll-arrow {
+  width: 16px;
+  min-height: 28px;
+  padding: 0;
+  font-size: 9px;
+}
+
+/* Expand/collapse arrow */
+.onr-scroll-expand {
+  width: 16px;
+  min-height: 14px;
+  padding: 0;
+  font-size: 9px;
+}

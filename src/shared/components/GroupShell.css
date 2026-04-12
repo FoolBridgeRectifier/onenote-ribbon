@@ -1,0 +1,31 @@
+.onr-group {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 2px 8px 0;
+  position: relative;
+  min-width: 60px;
+}
+
+/* Vertical separator between adjacent groups */
+.onr-group + .onr-group::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 16px;
+  width: 1px;
+  background: var(--ribbon-border);
+}
+
+.onr-group-name {
+  font-size: 9px;
+  font-weight: 400;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 3px 0 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1;
+}
