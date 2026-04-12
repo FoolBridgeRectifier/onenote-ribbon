@@ -1,4 +1,4 @@
-import './RibbonButton.css';
+import "./RibbonButton.css";
 
 interface Props {
   label?: string;
@@ -8,7 +8,7 @@ interface Props {
   disabled?: boolean;
   className?: string;
   style?: React.CSSProperties;
-  'data-cmd'?: string;
+  "data-cmd"?: string;
   onClick: (e: React.MouseEvent) => void;
 }
 
@@ -18,18 +18,18 @@ export function RibbonButton({
   title,
   active,
   disabled,
-  className = 'onr-btn-sm',
+  className = "onr-btn-sm",
   style,
-  'data-cmd': dataCmd,
+  "data-cmd": dataCmd,
   onClick,
 }: Props) {
   return (
     <div
-      className={`${className}${active ? ' onr-active' : ''}${disabled ? ' onr-disabled' : ''}`}
+      className={`${className}${active ? " onr-active" : ""}${disabled ? " onr-disabled" : ""}`}
       title={title}
       style={style}
       data-cmd={dataCmd}
-      onMouseDown={e => {
+      onMouseDown={(e) => {
         e.preventDefault();
         e.stopPropagation();
       }}

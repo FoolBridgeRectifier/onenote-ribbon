@@ -1,0 +1,28 @@
+/* Typography modifiers for subscript and superscript buttons */
+.onr-format-sub,
+.onr-format-sup {
+  font-size: 10px;
+}
+
+/* Single flex item containing both x and the script number */
+.onr-script-label {
+  display: inline;
+  line-height: 1;
+}
+
+/* Smaller text rendered inside the sub/sup buttons.
+   Forces display:inline because Obsidian's global CSS resets sub/sup to display:block.
+   Uses position:relative + top instead of vertical-align for the same reason. */
+.onr-sub-text {
+  font-size: 7px;
+  display: inline;
+  position: relative;
+  top: 2px;
+}
+
+.onr-sup-text {
+  font-size: 7px;
+  display: inline;
+  position: relative;
+  top: -4px;
+}

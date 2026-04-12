@@ -1,4 +1,4 @@
-import './GroupShell.css';
+import "./GroupShell.css";
 
 interface Props {
   name: string;

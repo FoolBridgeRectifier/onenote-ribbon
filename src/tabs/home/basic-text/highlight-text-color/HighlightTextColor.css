@@ -1,0 +1,98 @@
+/* Wrapper column for the highlight button + caret control */
+.onr-highlight-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* Highlight button with icon + swatch stacked */
+.onr-highlight-btn {
+  min-height: 18px;
+  width: 26px;
+  padding: 1px 2px;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* Smaller icon inside the highlight button */
+.onr-highlight-btn .onr-icon-sm {
+  width: 12px;
+  height: 12px;
+}
+
+/* Yellow swatch strip under the highlight icon */
+.onr-highlight-swatch {
+  width: 14px;
+  height: 3px;
+  background: #ffff00;
+  border: 1px solid #ccc;
+}
+
+/* Dropdown caret below the highlight button */
+.onr-highlight-caret {
+  font-size: 7px;
+  color: #666;
+  line-height: 1;
+  background: none;
+  border: none;
+  padding: 0 1px;
+  margin: 0;
+  cursor: pointer;
+  height: 10px;
+  min-height: 0;
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Wrapper column for the "A" + swatch + caret font-color control */
+.onr-color-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* Font color button */
+.onr-color-btn {
+  min-height: 18px;
+  width: 22px;
+  padding: 1px 2px;
+}
+
+/* "A" label inside the font color button */
+.onr-color-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #222;
+  line-height: 1;
+}
+
+/* Red swatch strip under the "A" label */
+.onr-color-swatch {
+  width: 14px;
+  height: 3px;
+  background: #ff0000;
+  border: 1px solid #ccc;
+  margin-top: 1px;
+}
+
+/* Dropdown caret below the font-color button */
+.onr-color-caret {
+  font-size: 7px;
+  color: #666;
+  line-height: 1;
+  background: none;
+  border: none;
+  padding: 0 1px;
+  margin: 0;
+  cursor: pointer;
+  height: 10px;
+  min-height: 0;
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TabName } from './tabs';
+import { TabName } from '../../ribbon/tabs';
 
 export function useRibbonState() {
   const [activeTab, setActiveTab] = useState<TabName>('Home');
@@ -15,7 +15,7 @@ export function useRibbonState() {
   };
 
   const handleCollapseToggle = () => {
-    setCollapsed(c => !c);
+    setCollapsed((c) => !c);
     setIsTemporarilyExpanded(false);
   };
 

@@ -1,0 +1,62 @@
+.onr-paste-options-panel {
+  position: fixed;
+  z-index: 50;
+  background: var(--ribbon-bg);
+  border: 1px solid var(--ribbon-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-ribbon);
+  padding: 4px 6px 6px;
+}
+
+.onr-paste-options-header {
+  font-size: 10px;
+  color: var(--text-secondary);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--ribbon-border);
+  margin-bottom: 4px;
+  white-space: nowrap;
+}
+
+.onr-paste-options-row {
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+}
+
+.onr-paste-option-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 4px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text-primary);
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.onr-paste-option-btn:hover {
+  background: var(--btn-hover-bg);
+  border-color: var(--btn-active-border, var(--ribbon-border));
+}
+
+.onr-paste-option-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onr-paste-option-btn {
+    transition: none;
+  }
+}

@@ -8,13 +8,26 @@
     ]
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/hooks/sessionStartProjectGuide.cjs",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "matcher": "",
         "hooks": [
           {
-            "type": "prompt",
-            "prompt": "Were any visual or functionality changes made to the onenote-ribbon plugin in this response? If yes, have I tested them in Obsidian MCP? If not, remind me to test them."
+            "type": "command",
+            "command": "node scripts/hooks/stopObsidianMcpCheck.cjs",
+            "timeout": 15
           }
         ]
       }

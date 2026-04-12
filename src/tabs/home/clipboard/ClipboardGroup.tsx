@@ -2,12 +2,14 @@ import { useRef, useState } from "react";
 import "./ClipboardGroup.css";
 import { useApp } from "../../../shared/context/AppContext";
 import { useFormatPainterContext } from "../../../shared/context/FormatPainterContext";
-import { Dropdown } from "../../../shared/components/Dropdown";
+import { PasteOptionsDropdown } from "./paste-options/PasteOptionsDropdown";
 import {
   CopyIcon,
   CutIcon,
   FormatPainterIcon,
+  PasteCodeIcon,
   PasteIcon,
+  PasteTextIcon,
 } from "../../../assets/icons";
 
 export function ClipboardGroup() {
@@ -84,16 +86,18 @@ export function ClipboardGroup() {
           </div>
         </div>
 
-        {pasteMenuOpen && pasteAnchorRef.current && (
-          <Dropdown
+        {pasteMenuOpen && (
+          <PasteOptionsDropdown
             anchor={pasteAnchorRef.current}
-            items={[
+            options={[
               {
-                label: "Paste plain text",
+                icon: <PasteTextIcon className="onr-icon-sm" />,
+                title: "Paste plain text",
                 onClick: handlePaste,
               },
               {
-                label: "Paste as code block",
+                icon: <PasteCodeIcon className="onr-icon-sm" />,
+                title: "Paste as code block",
                 onClick: () => {
                   const editor = getEditor();
                   if (!editor) return;

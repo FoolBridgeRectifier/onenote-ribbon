@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import "./BasicTextGroup.css";
 import { useApp } from "../../../shared/context/AppContext";
-import { Dropdown } from "../../../shared/components/Dropdown";
+import { Dropdown } from "../../../shared/components/dropdown/Dropdown";
 import {
   AlignLeftIcon,
   BulletListIcon,

@@ -1,5 +1,5 @@
 import './TabBar.css';
-import { TABS, TabName } from './tabs';
+import { TABS, TabName } from '../tabs';
 
 interface Props {
   activeTab: TabName;
@@ -21,7 +21,7 @@ export function TabBar({
 
   return (
     <div className="onr-tab-bar">
-      {TABS.map(t => (
+      {TABS.map((t) => (
         <div
           key={t}
           className={`onr-tab${isBodyVisible && t === activeTab ? ' active' : ''}`}

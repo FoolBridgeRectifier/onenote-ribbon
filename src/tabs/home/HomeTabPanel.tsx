@@ -15,7 +15,8 @@ export function HomeTabPanel() {
   const formatPainter = useFormatPainter();
 
   useEffect(() => {
-    const workspaceElement = document.querySelector('.workspace') ?? document.body;
+    const workspaceElement =
+      document.querySelector('.workspace') ?? document.body;
 
     const onMouseUp = (event: Event) => {
       if (!formatPainter.isActive) return;
@@ -31,7 +32,8 @@ export function HomeTabPanel() {
     };
 
     workspaceElement.addEventListener('mouseup', onMouseUp, true);
-    return () => workspaceElement.removeEventListener('mouseup', onMouseUp, true);
+    return () =>
+      workspaceElement.removeEventListener('mouseup', onMouseUp, true);
   }, [app, formatPainter]);
 
   return (

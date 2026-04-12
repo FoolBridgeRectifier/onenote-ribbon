@@ -1,0 +1,39 @@
+/* Font family picker button */
+.onr-font-picker {
+  width: 96px;
+  flex-direction: row;
+  gap: 2px;
+  min-height: 22px;
+  padding: 1px 4px;
+  border: 1px solid #c8c6c4;
+  justify-content: space-between;
+  position: relative;
+}
+
+/* Font size picker button */
+.onr-size-picker {
+  width: 34px;
+  flex-direction: row;
+  min-height: 22px;
+  padding: 1px 4px;
+  border: 1px solid #c8c6c4;
+  justify-content: space-between;
+  position: relative;
+}
+
+/* Value label inside font/size pickers */
+.onr-picker-label {
+  font-size: 10px;
+  color: #222;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Dropdown caret inside font/size pickers */
+.onr-picker-caret {
+  font-size: 8px;
+  color: #666;
+}

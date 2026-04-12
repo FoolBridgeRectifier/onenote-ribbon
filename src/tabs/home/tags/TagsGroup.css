@@ -75,10 +75,12 @@
   display: flex;
   gap: 2px;
   justify-content: flex-start;
+  align-items: start;
 }
 
 /* Size override for the big tag action buttons */
 .onr-tag-btn {
   width: 46px;
   min-height: 58px;
+  justify-content: flex-start;
 }
