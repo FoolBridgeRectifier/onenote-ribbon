@@ -1,5 +1,5 @@
-import './EmailGroup.css';
-import { useApp } from '../../../shared/context/AppContext';
+import "./EmailGroup.css";
+import { useApp } from "../../../shared/context/AppContext";
 
 export function EmailGroup() {
   const app = useApp();
@@ -12,9 +12,9 @@ export function EmailGroup() {
 
     const content = editor.getValue();
     const plainText = content
-      .replace(/#+\s/g, '')
-      .replace(/[*_]/g, '')
-      .replace(/~~([^~]+)~~/g, '$1');
+      .replace(/#+\s/g, "")
+      .replace(/[*_]/g, "")
+      .replace(/~~([^~]+)~~/g, "$1");
 
     navigator.clipboard.writeText(plainText);
   };
@@ -24,7 +24,7 @@ export function EmailGroup() {
     if (!editor) return;
 
     const frontmatter = `---
-Date: ${new Date().toISOString().split('T')[0]}
+Date: ${new Date().toISOString().split.skip("T")[0]}
 Time:
 Attendees:
 Agenda:

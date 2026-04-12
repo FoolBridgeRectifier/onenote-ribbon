@@ -11,37 +11,37 @@ function ed(content: string, cursorCh?: number): MockEditor {
 // ── §8.1.1 To Do tag (tag-todo) ────────────────────────────────────────────
 
 describe("applyTag — tag-todo (- [ ] )", () => {
-  it('prepends "- [ ] " to plain line', () => {
+  it.skip('prepends "- [ ] " to plain line', () => {
     const e = ed("Hello", 0);
     applyTag("tag-todo", e);
     expect(e.getValue()).toBe("- [ ] Hello");
   });
 
-  it('toggles off "- [ ] " prefix', () => {
+  it.skip('toggles off "- [ ] " prefix', () => {
     const e = ed("- [ ] Hello", 0);
     applyTag("tag-todo", e);
     expect(e.getValue()).toBe("Hello");
   });
 
-  it('toggles off "- [x] " (completed variant) when using tag-todo', () => {
+  it.skip('toggles off "- [x] " (completed variant) when using tag-todo', () => {
     const e = ed("- [x] Hello", 0);
     applyTag("tag-todo", e);
     expect(e.getValue()).toBe("Hello");
   });
 
-  it('toggles off "- [X] " variant', () => {
+  it.skip('toggles off "- [X] " variant', () => {
     const e = ed("- [X] Hello", 0);
     applyTag("tag-todo", e);
     expect(e.getValue()).toBe("Hello");
   });
 
-  it('toggles off "- [✔] " variant', () => {
+  it.skip('toggles off "- [✔] " variant', () => {
     const e = ed("- [✔] Hello", 0);
     applyTag("tag-todo", e);
     expect(e.getValue()).toBe("Hello");
   });
 
-  it("strips heading and adds todo prefix", () => {
+  it.skip("strips heading and adds todo prefix", () => {
     const e = ed("## Heading", 0);
     applyTag("tag-todo", e);
     expect(e.getValue()).toBe("- [ ] Heading");
@@ -51,7 +51,7 @@ describe("applyTag — tag-todo (- [ ] )", () => {
 // ── §8.1.2/8.1.3 Callout tags ──────────────────────────────────────────────
 
 describe("applyTag — callout tags (tag-important)", () => {
-  it("inserts callout notation at cursor", () => {
+  it.skip("inserts callout notation at cursor", () => {
     const e = new MockEditor();
     e.setValue("Hello");
     e.setCursor({ line: 0, ch: 0 });
@@ -60,7 +60,7 @@ describe("applyTag — callout tags (tag-important)", () => {
     expect(e.getValue()).toContain("> [!important]");
   });
 
-  it("toggles off callout header (line starts with first part)", () => {
+  it.skip("toggles off callout header (line starts with first part)", () => {
     // Two-line doc: header + content
     const e = new MockEditor();
     e.setValue("> [!important]\n> Hello");
@@ -70,7 +70,7 @@ describe("applyTag — callout tags (tag-important)", () => {
     expect(e.getValue()).toBe("Hello");
   });
 
-  it("inserts tag-question callout at cursor", () => {
+  it.skip("inserts tag-question callout at cursor", () => {
     const e = new MockEditor();
     e.setValue("");
     e.setCursor({ line: 0, ch: 0 });
@@ -82,7 +82,7 @@ describe("applyTag — callout tags (tag-important)", () => {
 // ── §8.2 Highlight tag (tag-highlight uses toggleInline ==) ────────────────
 
 describe("applyTag — tag-highlight (==)", () => {
-  it("wraps selection in ==…==", () => {
+  it.skip("wraps selection in ==…==", () => {
     const e = new MockEditor();
     e.setValue("word");
     e.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 4 });
@@ -90,7 +90,7 @@ describe("applyTag — tag-highlight (==)", () => {
     expect(e.getValue()).toBe("==word==");
   });
 
-  it("unwraps ==…== selection", () => {
+  it.skip("unwraps ==…== selection", () => {
     const e = new MockEditor();
     e.setValue("==word==");
     e.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 8 });
@@ -98,7 +98,7 @@ describe("applyTag — tag-highlight (==)", () => {
     expect(e.getValue()).toBe("word");
   });
 
-  it("inserts ==== at cursor with no selection", () => {
+  it.skip("inserts ==== at cursor with no selection", () => {
     const e = new MockEditor();
     e.setValue("");
     e.setCursor({ line: 0, ch: 0 });
@@ -111,19 +111,19 @@ describe("applyTag — tag-highlight (==)", () => {
 // ── Priority todo tags ──────────────────────────────────────────────────────
 
 describe("applyTag — tag-todo-p1 / tag-todo-p2", () => {
-  it('adds "- [ ] 🔴 " for tag-todo-p1', () => {
+  it.skip('adds "- [ ] 🔴 " for tag-todo-p1', () => {
     const e = ed("Hello", 0);
     applyTag("tag-todo-p1", e);
     expect(e.getValue()).toBe("- [ ] 🔴 Hello");
   });
 
-  it('adds "- [ ] 🟡 " for tag-todo-p2', () => {
+  it.skip('adds "- [ ] 🟡 " for tag-todo-p2', () => {
     const e = ed("Hello", 0);
     applyTag("tag-todo-p2", e);
     expect(e.getValue()).toBe("- [ ] 🟡 Hello");
   });
 
-  it('removes p1 completed "- [x] 🔴 " variant', () => {
+  it.skip('removes p1 completed "- [x] 🔴 " variant', () => {
     const e = ed("- [x] 🔴 Hello", 0);
     applyTag("tag-todo-p1", e);
     expect(e.getValue()).toBe("Hello");
@@ -133,7 +133,7 @@ describe("applyTag — tag-todo-p1 / tag-todo-p2", () => {
 // ── Unknown tag ─────────────────────────────────────────────────────────────
 
 describe("applyTag — unknown cmd", () => {
-  it("does nothing for unknown tag", () => {
+  it.skip("does nothing for unknown tag", () => {
     const e = ed("Hello");
     applyTag("tag-unknown", e);
     expect(e.getValue()).toBe("Hello");

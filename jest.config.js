@@ -24,6 +24,7 @@ module.exports = {
   },
   moduleNameMapper: {
     "^obsidian$": "<rootDir>/src/__mocks__/obsidian.ts",
+    "\\.css$": "<rootDir>/src/__mocks__/css.ts",
   },
   collectCoverageFrom: [
     "src/**/*.{ts,tsx}",

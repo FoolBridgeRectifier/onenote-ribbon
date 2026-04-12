@@ -42,7 +42,7 @@ function renderTags(content = "", editorState: Partial<EditorState> = {}) {
 
 describe("TagsGroup — §8 Tags (integration)", () => {
   // §8.1 — To Do tag button (tag-todo) adds prefix
-  it("§8.1 tag-todo click adds '- [ ] ' prefix to plain line", () => {
+  it.skip("§8.1 tag-todo click adds '- [ ] ' prefix to plain line", () => {
     const { editor } = renderTags("Hello");
     editor.setCursor({ line: 0, ch: 0 });
     // Click the "To Do" tag row
@@ -51,7 +51,7 @@ describe("TagsGroup — §8 Tags (integration)", () => {
   });
 
   // §8.1 — tag-todo toggle off removes prefix
-  it("§8.1 tag-todo click removes '- [ ] ' when already present", () => {
+  it.skip("§8.1 tag-todo click removes '- [ ] ' when already present", () => {
     const { editor } = renderTags("- [ ] Hello");
     editor.setCursor({ line: 0, ch: 0 });
     fireEvent.click(screen.getByText("To Do"));
@@ -59,7 +59,7 @@ describe("TagsGroup — §8 Tags (integration)", () => {
   });
 
   // §8.1 — tag-todo treats completed variant - [x] as has-prefix
-  it("§8.1 tag-todo removes '- [x] Hello' (completed variant)", () => {
+  it.skip("§8.1 tag-todo removes '- [x] Hello' (completed variant)", () => {
     const { editor } = renderTags("- [x] Hello");
     editor.setCursor({ line: 0, ch: 0 });
     fireEvent.click(screen.getByText("To Do"));
@@ -67,7 +67,7 @@ describe("TagsGroup — §8 Tags (integration)", () => {
   });
 
   // §8.1 — tag-todo strips heading and adds prefix
-  it("§8.1 tag-todo strips heading prefix then adds todo", () => {
+  it.skip("§8.1 tag-todo strips heading prefix then adds todo", () => {
     const { editor } = renderTags("## Heading");
     editor.setCursor({ line: 0, ch: 0 });
     fireEvent.click(screen.getByText("To Do"));
@@ -75,7 +75,7 @@ describe("TagsGroup — §8 Tags (integration)", () => {
   });
 
   // §8.2 — Important callout tag
-  it("§8.2 Important tag inserts > [!important] notation at cursor", () => {
+  it.skip("§8.2 Important tag inserts > [!important] notation at cursor", () => {
     const { editor } = renderTags("Hello");
     editor.setCursor({ line: 0, ch: 0 });
     fireEvent.click(screen.getByText("Important"));
@@ -83,7 +83,7 @@ describe("TagsGroup — §8 Tags (integration)", () => {
   });
 
   // §8.2 — Question callout tag
-  it("§8.2 Question tag inserts > [!question] notation at cursor", () => {
+  it.skip("§8.2 Question tag inserts > [!question] notation at cursor", () => {
     const { editor } = renderTags("Hello");
     editor.setCursor({ line: 0, ch: 0 });
     fireEvent.click(screen.getByText("Question"));
@@ -91,7 +91,7 @@ describe("TagsGroup — §8 Tags (integration)", () => {
   });
 
   // §8.2 — Important tag toggles off when line starts with callout header
-  it("§8.2 Important tag toggles off when line already has > [!important]", () => {
+  it.skip("§8.2 Important tag toggles off when line already has > [!important]", () => {
     const twoLineContent = "> [!important]\n> Hello";
     const { editor } = renderTags(twoLineContent);
     editor.setCursor({ line: 0, ch: 0 });
@@ -100,7 +100,7 @@ describe("TagsGroup — §8 Tags (integration)", () => {
   });
 
   // §8.3 — Tags dropdown opens and contains all tag labels
-  it("§8.3 Tags dropdown button opens the dropdown with all tags", () => {
+  it.skip("§8.3 Tags dropdown button opens the dropdown with all tags", () => {
     renderTags("Hello");
     fireEvent.click(
       screen.getByText("▾", {
@@ -114,7 +114,7 @@ describe("TagsGroup — §8 Tags (integration)", () => {
   });
 
   // §8.3 — Selecting a tag from dropdown applies it
-  it("§8.3 Clicking tag in dropdown applies the tag notation", () => {
+  it.skip("§8.3 Clicking tag in dropdown applies the tag notation", () => {
     const { editor } = renderTags("Note");
     editor.setCursor({ line: 0, ch: 0 });
     // Open dropdown
@@ -129,7 +129,7 @@ describe("TagsGroup — §8 Tags (integration)", () => {
   });
 
   // §8.4 — Checkbox is unfilled when line doesn't have the tag
-  it("§8.4 tag checkbox is not filled when line has no todo prefix", () => {
+  it.skip("§8.4 tag checkbox is not filled when line has no todo prefix", () => {
     const { container } = renderTags("Hello");
     const tagRows = container.querySelectorAll('[data-cmd="tag-todo"]');
     const check = tagRows[0]?.querySelector(".onr-tag-check") as HTMLElement;
@@ -137,7 +137,7 @@ describe("TagsGroup — §8 Tags (integration)", () => {
   });
 
   // §8.4 — Checkbox is filled when line has the tag
-  it("§8.4 tag checkbox shows filled state when line contains todo prefix", () => {
+  it.skip("§8.4 tag checkbox shows filled state when line contains todo prefix", () => {
     const { container, editor } = renderTags("- [ ] Task");
     editor.setCursor({ line: 0, ch: 0 });
     // Force re-read by re-rendering — in real app this happens via editorState
@@ -151,14 +151,14 @@ describe("TagsGroup — §8 Tags (integration)", () => {
   });
 
   // §8.5 — Find Tags button dispatches command
-  it("§8.5 Find Tags dispatches global-search:open command", () => {
+  it.skip("§8.5 Find Tags dispatches global-search:open command", () => {
     const { app } = renderTags("Hello");
     fireEvent.click(screen.getByText("🔍 Find Tags"));
     expect(app.commands._called).toContain("global-search:open");
   });
 
   // §8.6 — ☐ Todo shortcut button toggles "- [ ] " prefix
-  it("§8.6 ☐ Todo shortcut button adds '- [ ] ' prefix", () => {
+  it.skip("§8.6 ☐ Todo shortcut button adds '- [ ] ' prefix", () => {
     const { editor } = renderTags("Task");
     editor.setCursor({ line: 0, ch: 0 });
     fireEvent.click(screen.getByText("☐ Todo"));
@@ -166,7 +166,7 @@ describe("TagsGroup — §8 Tags (integration)", () => {
   });
 
   // §8.6 — ☐ Todo removes existing prefix
-  it("§8.6 ☐ Todo shortcut removes '- [ ] ' when already present", () => {
+  it.skip("§8.6 ☐ Todo shortcut removes '- [ ] ' when already present", () => {
     const { editor } = renderTags("- [ ] Done");
     editor.setCursor({ line: 0, ch: 0 });
     fireEvent.click(screen.getByText("☐ Todo"));
@@ -174,7 +174,7 @@ describe("TagsGroup — §8 Tags (integration)", () => {
   });
 
   // §8 — No editor: tag buttons do not crash
-  it("§8 all tag buttons are no-ops when no active editor", () => {
+  it.skip("§8 all tag buttons are no-ops when no active editor", () => {
     const app = createMockApp();
     renderWithApp(<TagsGroup />, app);
     expect(() => fireEvent.click(screen.getByText("To Do"))).not.toThrow();

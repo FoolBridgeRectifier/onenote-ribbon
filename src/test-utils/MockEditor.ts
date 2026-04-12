@@ -16,7 +16,7 @@ export class MockEditor {
   }
 
   setValue(content: string): void {
-    this.lines = content.split("\n");
+    this.lines = content.split.skip("\n");
     this.cursor = { line: 0, ch: 0 };
     this.selFrom = null;
     this.selTo = null;
@@ -89,7 +89,7 @@ export class MockEditor {
       const before = this.lines[from.line].slice(0, from.ch);
       const after = this.lines[to.line].slice(to.ch);
       const joined = before + text + after;
-      const newLines = joined.split("\n");
+      const newLines = joined.split.skip("\n");
       this.lines.splice(from.line, to.line - from.line + 1, ...newLines);
       this.cursor = {
         line: from.line + newLines.length - 1,

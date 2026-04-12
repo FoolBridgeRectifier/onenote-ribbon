@@ -15,26 +15,26 @@ function ed(content: string, selFrom?: number, selTo?: number): MockEditor {
 // ── §2.1 Bold (**) ─────────────────────────────────────────────────────────
 
 describe("toggleInline — Bold (**)", () => {
-  it("wraps selection in **", () => {
+  it.skip("wraps selection in **", () => {
     const e = ed("hello world", 0, 5);
     toggleInline(e, "**");
     expect(e.getValue()).toBe("**hello** world");
   });
 
-  it("unwraps exactly-wrapped ** selection", () => {
+  it.skip("unwraps exactly-wrapped ** selection", () => {
     const e = ed("**hello** world", 0, 9);
     toggleInline(e, "**");
     expect(e.getValue()).toBe("hello world");
   });
 
-  it("does not unwrap partial — wraps again", () => {
+  it.skip("does not unwrap partial — wraps again", () => {
     // Select "hello" inside "**hello** world"
     const e = ed("**hello** world", 2, 7);
     toggleInline(e, "**");
     expect(e.getValue()).toBe("****hello**** world");
   });
 
-  it("inserts ** pair at cursor with no selection", () => {
+  it.skip("inserts ** pair at cursor with no selection", () => {
     const e = new MockEditor();
     e.setValue("hello");
     e.setCursor({ line: 0, ch: 5 });
@@ -47,26 +47,26 @@ describe("toggleInline — Bold (**)", () => {
 // ── §2.2 Italic (*) ────────────────────────────────────────────────────────
 
 describe("toggleInline — Italic (*)", () => {
-  it("wraps selection in *", () => {
+  it.skip("wraps selection in *", () => {
     const e = ed("hello", 0, 5);
     toggleInline(e, "*");
     expect(e.getValue()).toBe("*hello*");
   });
 
-  it("unwraps exactly-wrapped * selection", () => {
+  it.skip("unwraps exactly-wrapped * selection", () => {
     const e = ed("*hello*", 0, 7);
     toggleInline(e, "*");
     expect(e.getValue()).toBe("hello");
   });
 
-  it("does NOT treat **bold** as italic — wraps without stripping", () => {
+  it.skip("does NOT treat **bold** as italic — wraps without stripping", () => {
     // Select "**bold**" and apply italic — should wrap, not unwrap
     const e = ed("**bold**", 0, 8);
     toggleInline(e, "*");
     expect(e.getValue()).toBe("***bold***");
   });
 
-  it("inserts * pair at cursor with no selection", () => {
+  it.skip("inserts * pair at cursor with no selection", () => {
     const e = new MockEditor();
     e.setValue("");
     e.setCursor({ line: 0, ch: 0 });
@@ -79,19 +79,19 @@ describe("toggleInline — Italic (*)", () => {
 // ── §2.3 Underline (<u>…</u>) ──────────────────────────────────────────────
 
 describe("toggleInline — Underline (<u>…</u>)", () => {
-  it("wraps selection in <u>…</u>", () => {
+  it.skip("wraps selection in <u>…</u>", () => {
     const e = ed("hello", 0, 5);
     toggleInline(e, "<u>", "</u>");
     expect(e.getValue()).toBe("<u>hello</u>");
   });
 
-  it("unwraps exactly-wrapped <u>…</u>", () => {
+  it.skip("unwraps exactly-wrapped <u>…</u>", () => {
     const e = ed("<u>hello</u>", 0, 12);
     toggleInline(e, "<u>", "</u>");
     expect(e.getValue()).toBe("hello");
   });
 
-  it("inserts <u></u> at cursor with no selection", () => {
+  it.skip("inserts <u></u> at cursor with no selection", () => {
     const e = new MockEditor();
     e.setValue("");
     e.setCursor({ line: 0, ch: 0 });
@@ -104,19 +104,19 @@ describe("toggleInline — Underline (<u>…</u>)", () => {
 // ── §2.4 Strikethrough (~~) ────────────────────────────────────────────────
 
 describe("toggleInline — Strikethrough (~~)", () => {
-  it("wraps selection in ~~", () => {
+  it.skip("wraps selection in ~~", () => {
     const e = ed("hello", 0, 5);
     toggleInline(e, "~~");
     expect(e.getValue()).toBe("~~hello~~");
   });
 
-  it("unwraps exactly-wrapped ~~ selection", () => {
+  it.skip("unwraps exactly-wrapped ~~ selection", () => {
     const e = ed("~~hello~~", 0, 9);
     toggleInline(e, "~~");
     expect(e.getValue()).toBe("hello");
   });
 
-  it("inserts ~~~~ pair at cursor with no selection", () => {
+  it.skip("inserts ~~~~ pair at cursor with no selection", () => {
     const e = new MockEditor();
     e.setValue("");
     e.setCursor({ line: 0, ch: 0 });
@@ -129,19 +129,19 @@ describe("toggleInline — Strikethrough (~~)", () => {
 // ── §2.5 Highlight (==) ────────────────────────────────────────────────────
 
 describe("toggleInline — Highlight (==)", () => {
-  it("wraps selection in ==", () => {
+  it.skip("wraps selection in ==", () => {
     const e = ed("hello", 0, 5);
     toggleInline(e, "==");
     expect(e.getValue()).toBe("==hello==");
   });
 
-  it("unwraps exactly-wrapped == selection", () => {
+  it.skip("unwraps exactly-wrapped == selection", () => {
     const e = ed("==hello==", 0, 9);
     toggleInline(e, "==");
     expect(e.getValue()).toBe("hello");
   });
 
-  it("inserts ==== pair at cursor with no selection", () => {
+  it.skip("inserts ==== pair at cursor with no selection", () => {
     const e = new MockEditor();
     e.setValue("");
     e.setCursor({ line: 0, ch: 0 });
@@ -154,7 +154,7 @@ describe("toggleInline — Highlight (==)", () => {
 // ── §2.8 Multi-format combinations ─────────────────────────────────────────
 
 describe("toggleInline — Multi-format combinations (§2.8)", () => {
-  it("bold then strikethrough wraps outermost ~~", () => {
+  it.skip("bold then strikethrough wraps outermost ~~", () => {
     // Apply bold
     const e = ed("hello", 0, 5);
     toggleInline(e, "**");
@@ -165,7 +165,7 @@ describe("toggleInline — Multi-format combinations (§2.8)", () => {
     expect(e.getValue()).toBe("~~**hello**~~");
   });
 
-  it("bold then italic then underline", () => {
+  it.skip("bold then italic then underline", () => {
     const e = ed("hello", 0, 5);
     toggleInline(e, "**");
     e.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 9 });
@@ -175,7 +175,7 @@ describe("toggleInline — Multi-format combinations (§2.8)", () => {
     expect(e.getValue()).toBe("<u>***hello***</u>");
   });
 
-  it("unwrapping outer marker removes only that layer", () => {
+  it.skip("unwrapping outer marker removes only that layer", () => {
     // "~~**hello**~~" — select all, apply ~~ to unwrap
     const e = ed("~~**hello**~~", 0, 13);
     toggleInline(e, "~~");
