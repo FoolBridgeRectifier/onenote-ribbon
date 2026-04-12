@@ -4,12 +4,6 @@
   font-size: 10px;
 }
 
-/* Single flex item containing both x and the script number */
-.onr-script-label {
-  display: inline;
-  line-height: 1;
-}
-
 /* Smaller text rendered inside the sub/sup buttons.
    Forces display:inline because Obsidian's global CSS resets sub/sup to display:block.
    Uses position:relative + top instead of vertical-align for the same reason. */

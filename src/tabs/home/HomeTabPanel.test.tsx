@@ -1,7 +1,7 @@
 import React from 'react';
-import { createMockApp } from '../../../test-utils/mockApp';
-import { renderWithApp } from '../../../test-utils/renderWithApp';
-import { HomeTabPanel } from '../HomeTabPanel';
+import { createMockApp } from '../../test-utils/mockApp';
+import { renderWithApp } from '../../test-utils/renderWithApp';
+import { HomeTabPanel } from './HomeTabPanel';
 
 interface ElementSnapshotNode {
   tagName: string;

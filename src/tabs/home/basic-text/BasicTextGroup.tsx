@@ -1,43 +1,30 @@
-import { useRef, useState } from "react";
-import "./BasicTextGroup.css";
-import { useApp } from "../../../shared/context/AppContext";
-import { Dropdown } from "../../../shared/components/dropdown/Dropdown";
+import './BasicTextGroup.css';
+import { useApp } from '../../../shared/context/AppContext';
 import {
-  AlignLeftIcon,
   BulletListIcon,
   ClearFormattingIcon,
   ClearInlineIcon,
-  HighlightIcon,
   IndentIcon,
   NumberedListIcon,
   OutdentIcon,
-} from "../../../assets/icons";
-import { clearFormatting } from "./clearFormatting";
-
-const FONTS = [
-  "System Default",
-  "Monospace",
-  "Arial",
-  "Times New Roman",
-  "Georgia",
-];
-const SIZES = ["12", "14", "16", "18", "20", "24"];
+} from '../../../assets/icons';
+import { clearFormatting } from './clearFormatting';
+import { FontPicker } from './font-picker/FontPicker';
+import { HighlightTextColor } from './highlight-text-color/HighlightTextColor';
+import { ScriptButtons } from './script-buttons/ScriptButtons';
+import { AlignButton } from './align-button/AlignButton';
 
 export function BasicTextGroup() {
   const app = useApp();
-  const fontAnchorRef = useRef<HTMLDivElement>(null);
-  const sizeAnchorRef = useRef<HTMLDivElement>(null);
-  const [fontMenuOpen, setFontMenuOpen] = useState(false);
-  const [sizeMenuOpen, setSizeMenuOpen] = useState(false);
 
   const getEditor = () => app.workspace.activeEditor?.editor;
 
   const handleBold = () => {
-    (app as any).commands.executeCommandById("editor:toggle-bold");
+    (app as any).commands.executeCommandById('editor:toggle-bold');
   };
 
   const handleItalic = () => {
-    (app as any).commands.executeCommandById("editor:toggle-italic");
+    (app as any).commands.executeCommandById('editor:toggle-italic');
   };
 
   const handleUnderline = () => {
@@ -48,41 +35,23 @@ export function BasicTextGroup() {
   };
 
   const handleStrikethrough = () => {
-    (app as any).commands.executeCommandById("editor:toggle-strikethrough");
-  };
-
-  const handleSubscript = () => {
-    const editor = getEditor();
-    if (!editor) return;
-    const selection = editor.getSelection();
-    editor.replaceSelection(`<sub>${selection}</sub>`);
-  };
-
-  const handleSuperscript = () => {
-    const editor = getEditor();
-    if (!editor) return;
-    const selection = editor.getSelection();
-    editor.replaceSelection(`<sup>${selection}</sup>`);
+    (app as any).commands.executeCommandById('editor:toggle-strikethrough');
   };
 
   const handleBulletList = () => {
-    (app as any).commands.executeCommandById("editor:toggle-bullet-list");
+    (app as any).commands.executeCommandById('editor:toggle-bullet-list');
   };
 
   const handleNumberedList = () => {
-    (app as any).commands.executeCommandById("editor:toggle-numbered-list");
+    (app as any).commands.executeCommandById('editor:toggle-numbered-list');
   };
 
   const handleOutdent = () => {
-    (app as any).commands.executeCommandById("editor:unindent-list");
+    (app as any).commands.executeCommandById('editor:unindent-list');
   };
 
   const handleIndent = () => {
-    (app as any).commands.executeCommandById("editor:indent-list");
-  };
-
-  const handleHighlight = () => {
-    (app as any).commands.executeCommandById("editor:toggle-highlight");
+    (app as any).commands.executeCommandById('editor:indent-list');
   };
 
   const handleClearInline = () => {
@@ -108,57 +77,7 @@ export function BasicTextGroup() {
       <div className="onr-basic-text-inner">
         {/* Row 1: Font, size, bullets, lists, indent, clear */}
         <div className="onr-basic-text-row1">
-          {/* Font family dropdown */}
-          <div
-            ref={fontAnchorRef}
-            className="onr-btn-sm onr-font-picker"
-            title="Font family"
-            onClick={() => setFontMenuOpen(!fontMenuOpen)}
-            data-cmd="font-family"
-          >
-            <span className="onr-picker-label">Font</span>
-            <span className="onr-picker-caret">▾</span>
-          </div>
-          {fontMenuOpen && fontAnchorRef.current && (
-            <Dropdown
-              anchor={fontAnchorRef.current}
-              items={FONTS.map((font) => ({
-                label: font,
-                onClick: () => {
-                  (app.vault as any).setConfig("fontText", font);
-                  app.workspace.trigger("css-change");
-                  setFontMenuOpen(false);
-                },
-              }))}
-              onClose={() => setFontMenuOpen(false)}
-            />
-          )}
-
-          {/* Font size */}
-          <div
-            ref={sizeAnchorRef}
-            className="onr-btn-sm onr-size-picker"
-            title="Font size"
-            onClick={() => setSizeMenuOpen(!sizeMenuOpen)}
-            data-cmd="font-size"
-          >
-            <span className="onr-picker-label">11</span>
-            <span className="onr-picker-caret">▾</span>
-          </div>
-          {sizeMenuOpen && sizeAnchorRef.current && (
-            <Dropdown
-              anchor={sizeAnchorRef.current}
-              items={SIZES.map((size) => ({
-                label: `${size}px`,
-                onClick: () => {
-                  (app.vault as any).setConfig("baseFontSize", parseInt(size));
-                  app.workspace.trigger("css-change");
-                  setSizeMenuOpen(false);
-                },
-              }))}
-              onClose={() => setSizeMenuOpen(false)}
-            />
-          )}
+          <FontPicker />
 
           {/* Bullet list */}
           <div
@@ -255,67 +174,15 @@ export function BasicTextGroup() {
             <s className="onr-strikethrough-text">ab</s>
           </div>
 
-          {/* Subscript */}
-          <div
-            className="onr-btn-sm onr-format-btn onr-format-sub"
-            title="Subscript"
-            onClick={handleSubscript}
-            data-cmd="subscript"
-          >
-            x<sub className="onr-sub-text">2</sub>
-          </div>
-
-          {/* Superscript */}
-          <div
-            className="onr-btn-sm onr-format-btn onr-format-sup"
-            title="Superscript"
-            onClick={handleSuperscript}
-            data-cmd="superscript"
-          >
-            x<sup className="onr-sup-text">2</sup>
-          </div>
+          <ScriptButtons />
 
           <div className="onr-divider" />
 
-          {/* Highlight with color swatch */}
-          <div
-            className="onr-btn-sm onr-highlight-btn"
-            title="Highlight"
-            onClick={handleHighlight}
-            data-cmd="highlight"
-          >
-            <HighlightIcon className="onr-icon-sm" />
-            <div className="onr-highlight-swatch" />
-          </div>
+          <HighlightTextColor />
 
           <div className="onr-divider" />
 
-          {/* Font color A with swatch + dropdown */}
-          <div className="onr-color-wrapper">
-            <div
-              className="onr-btn-sm onr-color-btn"
-              title="Font color"
-              onClick={() => {}}
-              data-cmd="font-color"
-            >
-              <span className="onr-color-label">A</span>
-              <div className="onr-color-swatch" />
-            </div>
-            <div className="onr-color-caret">▾</div>
-          </div>
-
-          <div className="onr-divider" />
-
-          {/* Align */}
-          <div
-            className="onr-btn-sm onr-align-btn"
-            title="Align"
-            onClick={() => {}}
-            data-cmd="align"
-          >
-            <AlignLeftIcon className="onr-icon-sm" />
-            <span className="onr-align-caret">▾</span>
-          </div>
+          <AlignButton />
 
           {/* Clear inline */}
           <div

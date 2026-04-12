@@ -1,11 +1,3 @@
-/* Wrapper column for the highlight button + caret control */
-.onr-highlight-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-}
-
 /* Highlight button with icon + swatch stacked */
 .onr-highlight-btn {
   min-height: 18px;
@@ -27,24 +19,6 @@
   height: 3px;
   background: #ffff00;
   border: 1px solid #ccc;
-}
-
-/* Dropdown caret below the highlight button */
-.onr-highlight-caret {
-  font-size: 7px;
-  color: #666;
-  line-height: 1;
-  background: none;
-  border: none;
-  padding: 0 1px;
-  margin: 0;
-  cursor: pointer;
-  height: 10px;
-  min-height: 0;
-  width: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 /* Wrapper column for the "A" + swatch + caret font-color control */

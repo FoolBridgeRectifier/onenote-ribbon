@@ -1,5 +1,5 @@
-import "./ScriptButtons.css";
-import { useApp } from "../../../../shared/context/AppContext";
+import './ScriptButtons.css';
+import { useApp } from '../../../../shared/context/AppContext';
 
 export function ScriptButtons() {
   const app = useApp();
@@ -28,10 +28,7 @@ export function ScriptButtons() {
         onClick={handleSubscript}
         data-cmd="subscript"
       >
-        {/* Wrap in span so x+2 are one flex item in inline flow */}
-        <span className="onr-script-label">
-          x<sub className="onr-sub-text">2</sub>
-        </span>
+        x<sub className="onr-sub-text">2</sub>
       </div>
 
       <div
@@ -40,10 +37,7 @@ export function ScriptButtons() {
         onClick={handleSuperscript}
         data-cmd="superscript"
       >
-        {/* Wrap in span so x+2 are one flex item in inline flow */}
-        <span className="onr-script-label">
-          x<sup className="onr-sup-text">2</sup>
-        </span>
+        x<sup className="onr-sup-text">2</sup>
       </div>
     </>
   );
