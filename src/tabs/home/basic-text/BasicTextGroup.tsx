@@ -10,7 +10,8 @@ import {
   NumberedListIcon,
   OutdentIcon,
 } from '../../../assets/icons';
-import { clearFormatting } from './helpers';
+import { toggleTagInEditor, removeAllTagsInEditor } from '../../../shared/editor/styling-engine/editorIntegration';
+import { UNDERLINE_TAG } from '../../../shared/editor/styling-engine/constants';
 import { FontPicker } from './font-picker/FontPicker';
 import { HighlightTextColor } from './highlight-text-color/HighlightTextColor';
 import { ScriptButtons } from './script-buttons/ScriptButtons';
@@ -32,8 +33,7 @@ export function BasicTextGroup() {
   const handleUnderline = () => {
     const editor = getEditor();
     if (!editor) return;
-    const selection = editor.getSelection();
-    editor.replaceSelection(`<u>${selection}</u>`);
+    toggleTagInEditor(editor, UNDERLINE_TAG);
   };
 
   const handleStrikethrough = () => {
@@ -59,19 +59,13 @@ export function BasicTextGroup() {
   const handleClearInline = () => {
     const editor = getEditor();
     if (!editor) return;
-    const selection = editor.getSelection();
-    if (!selection) return;
-    const cleaned = clearFormatting(selection, { preserveHeadings: true });
-    editor.replaceSelection(cleaned);
+    removeAllTagsInEditor(editor, { preserveLinePrefix: true });
   };
 
   const handleClearAllFormatting = () => {
     const editor = getEditor();
     if (!editor) return;
-    const selection = editor.getSelection();
-    if (!selection) return;
-    const cleaned = clearFormatting(selection, { preserveHeadings: false });
-    editor.replaceSelection(cleaned);
+    removeAllTagsInEditor(editor, { preserveLinePrefix: false });
   };
 
   return (

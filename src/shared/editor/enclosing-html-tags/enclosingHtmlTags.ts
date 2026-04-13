@@ -3,7 +3,6 @@ import {
   HTML_TAG_PATTERN_FLAGS,
   HTML_TAG_PATTERN_SOURCE,
   MARKDOWN_TAG_PATTERN_DEFINITIONS,
-  NEWLINE_DELIMITER,
   SELF_CLOSING_TAG_END_PATTERN,
   VOID_HTML_TAG_NAMES,
 } from './constants';
@@ -17,6 +16,10 @@ import {
   TextIndex,
   TextPosition,
 } from './interfaces';
+import {
+  buildTextIndex,
+  positionToOffset,
+} from '../text-offset/textOffset';
 
 export type {
   CursorOrSelectionLocation,
@@ -24,76 +27,6 @@ export type {
   HtmlTagRange,
   TextPosition,
 } from './interfaces';
-
-/**
- * Builds line-start and line-length indexes so cursor positions can be converted
- * to string offsets in O(1) time during hot cursor-move queries.
- */
-function buildTextIndex(sourceText: string): TextIndex {
-  const sourceLines = sourceText.split(NEWLINE_DELIMITER);
-  const lineStartOffsets: number[] = [];
-  const lineLengths: number[] = [];
-
-  let runningOffset = 0;
-
-  for (let lineIndex = 0; lineIndex < sourceLines.length; lineIndex += 1) {
-    const sourceLine = sourceLines[lineIndex];
-    lineStartOffsets.push(runningOffset);
-    lineLengths.push(sourceLine.length);
-
-    runningOffset += sourceLine.length;
-
-    if (lineIndex < sourceLines.length - 1) {
-      runningOffset += 1;
-    }
-  }
-
-  return {
-    lineStartOffsets,
-    lineLengths,
-    sourceLength: sourceText.length,
-  };
-}
-
-/**
- * Clamps a number to an inclusive range to keep all offset math within bounds.
- */
-function clamp(value: number, minimum: number, maximum: number): number {
-  if (value < minimum) return minimum;
-  if (value > maximum) return maximum;
-  return value;
-}
-
-/**
- * Converts a {line, ch} position to a flat source-text offset.
- *
- * Positions are clamped so malformed or stale cursor data cannot throw,
- * which is important when this runs repeatedly as editor state changes.
- */
-function positionToOffset(
-  position: TextPosition,
-  textIndex: TextIndex,
-): number {
-  if (textIndex.lineStartOffsets.length === 0) {
-    return 0;
-  }
-
-  const safeLineIndex = clamp(
-    position.line,
-    0,
-    textIndex.lineStartOffsets.length - 1,
-  );
-  const safeCharacterIndex = clamp(
-    position.ch,
-    0,
-    textIndex.lineLengths[safeLineIndex],
-  );
-
-  const unsafeOffset =
-    textIndex.lineStartOffsets[safeLineIndex] + safeCharacterIndex;
-
-  return clamp(unsafeOffset, 0, textIndex.sourceLength);
-}
 
 /**
  * Normalizes any two offsets into left-to-right order.
@@ -193,7 +126,7 @@ function findMatchingOpeningTagIndex(
  * Malformed nesting is tolerated by dropping skipped inner openings when a
  * later close tag matches an outer opening tag.
  */
-function buildHtmlTagRanges(sourceText: string): HtmlTagRange[] {
+export function buildHtmlTagRanges(sourceText: string): HtmlTagRange[] {
   // Build a fresh global pattern each call to avoid stale RegExp lastIndex state.
   const htmlTagPattern = new RegExp(
     HTML_TAG_PATTERN_SOURCE,
@@ -282,7 +215,7 @@ function createMarkdownTagRange(
  * Parses markdown inline wrappers (for example **bold**, _italic_, ~~strike~~)
  * into the same range model used for HTML tags.
  */
-function buildMarkdownTagRanges(sourceText: string): HtmlTagRange[] {
+export function buildMarkdownTagRanges(sourceText: string): HtmlTagRange[] {
   const markdownTagRanges: HtmlTagRange[] = [];
 
   for (

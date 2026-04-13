@@ -1,6 +1,8 @@
 import './script-buttons.css';
 import { useApp } from '../../../../shared/context/AppContext';
 import { RibbonButton } from '../../../../shared/components/ribbon-button/RibbonButton';
+import { toggleTagInEditor } from '../../../../shared/editor/styling-engine/editorIntegration';
+import { SUBSCRIPT_TAG, SUPERSCRIPT_TAG } from '../../../../shared/editor/styling-engine/constants';
 
 export function ScriptButtons() {
   const app = useApp();
@@ -10,15 +12,13 @@ export function ScriptButtons() {
   const handleSubscript = () => {
     const editor = getEditor();
     if (!editor) return;
-    const selection = editor.getSelection();
-    editor.replaceSelection(`<sub>${selection}</sub>`);
+    toggleTagInEditor(editor, SUBSCRIPT_TAG);
   };
 
   const handleSuperscript = () => {
     const editor = getEditor();
     if (!editor) return;
-    const selection = editor.getSelection();
-    editor.replaceSelection(`<sup>${selection}</sup>`);
+    toggleTagInEditor(editor, SUPERSCRIPT_TAG);
   };
 
   return (
