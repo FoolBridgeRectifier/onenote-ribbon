@@ -263,6 +263,36 @@ function findAllEnclosingTags(
 }
 
 /**
+ * Finds all tag ranges whose full span (opening start to closing end) falls within the selection.
+ * Used for delimiter-inclusive selections (e.g., Ctrl+A on `<u><b>text</b></u>`).
+ * Returns results inner-to-outer (smallest content range first).
+ */
+function findAllTagsWithinSelection(
+  allTagRanges: HtmlTagRange[],
+  selectionStartOffset: number,
+  selectionEndOffset: number,
+): HtmlTagRange[] {
+  const withinRanges: HtmlTagRange[] = [];
+
+  for (let rangeIndex = 0; rangeIndex < allTagRanges.length; rangeIndex++) {
+    const tagRange = allTagRanges[rangeIndex];
+
+    if (tagSpanIsWithinSelection(tagRange, selectionStartOffset, selectionEndOffset)) {
+      withinRanges.push(tagRange);
+    }
+  }
+
+  // Sort inner-to-outer: smallest content range first
+  withinRanges.sort((rangeA, rangeB) => {
+    const widthA = rangeA.closingTagStartOffset - rangeA.openingTagEndOffset;
+    const widthB = rangeB.closingTagStartOffset - rangeB.openingTagEndOffset;
+    return widthA - widthB;
+  });
+
+  return withinRanges;
+}
+
+/**
  * Sorts replacements by fromOffset descending (last-to-first) for safe sequential application.
  */
 function sortReplacementsLastToFirst(replacements: TextReplacement[]): TextReplacement[] {
@@ -590,7 +620,21 @@ export function removeTag(
   );
 
   if (matchingRange === null) {
-    return { replacements: [], isNoOp: true };
+    // Delimiter-inclusive fallback: selection may include the tag delimiters
+    const delimiterInclusiveMatch = findDelimiterInclusiveMatch(
+      allTagRanges,
+      sourceText,
+      selectionStartOffset,
+      selectionEndOffset,
+      tagDefinition,
+    );
+
+    if (delimiterInclusiveMatch === null) {
+      return { replacements: [], isNoOp: true };
+    }
+
+    const replacements = unwrapTag(delimiterInclusiveMatch);
+    return { replacements, isNoOp: false };
   }
 
   const replacements = unwrapTag(matchingRange);
@@ -620,21 +664,30 @@ export function removeAllTags(
   const allTagRanges = buildAllTagRanges(sourceText);
 
   // Find all enclosing tags (returned inner-to-outer)
-  const enclosingTags = findAllEnclosingTags(
+  let tagsToRemove = findAllEnclosingTags(
     allTagRanges,
     selectionStartOffset,
     selectionEndOffset,
   );
 
-  if (enclosingTags.length === 0) {
+  // Also find tags whose full span is within the selection (delimiter-inclusive)
+  if (tagsToRemove.length === 0) {
+    tagsToRemove = findAllTagsWithinSelection(
+      allTagRanges,
+      selectionStartOffset,
+      selectionEndOffset,
+    );
+  }
+
+  if (tagsToRemove.length === 0) {
     return { replacements: [], isNoOp: true };
   }
 
   // Collect all unwrap replacements from inner tags outward
   const allReplacements: TextReplacement[] = [];
 
-  for (let tagIndex = 0; tagIndex < enclosingTags.length; tagIndex++) {
-    const tagRange = enclosingTags[tagIndex];
+  for (let tagIndex = 0; tagIndex < tagsToRemove.length; tagIndex++) {
+    const tagRange = tagsToRemove[tagIndex];
     const unwrapReplacements = unwrapTag(tagRange);
     allReplacements.push(...unwrapReplacements);
   }

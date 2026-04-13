@@ -429,6 +429,17 @@ describe('removeTag', () => {
     const applied = applyReplacements(sourceText, result.replacements);
     expect(applied).toBe('<u>text</u>');
   });
+
+  it('removes the tag when selection includes delimiters (delimiter-inclusive)', () => {
+    const sourceText = '<u>hello</u>';
+    // Selection spans entire text including <u> and </u>
+    const context = createContext(sourceText, 0, 12);
+
+    const result = removeTag(context, UNDERLINE_TAG);
+
+    expect(result.isNoOp).toBe(false);
+    expect(applyReplacements(sourceText, result.replacements)).toBe('hello');
+  });
 });
 
 // ============================================================
@@ -484,6 +495,17 @@ describe('removeAllTags', () => {
 
     const applied = applyReplacements(sourceText, result.replacements);
     expect(applied).toBe('text');
+  });
+
+  it('removes all tags when selection includes delimiters (delimiter-inclusive via Ctrl+A)', () => {
+    const sourceText = '<u><b>bold</b></u>';
+    // Selection spans entire text including all delimiters
+    const context = createContext(sourceText, 0, 18);
+
+    const result = removeAllTags(context);
+
+    expect(result.isNoOp).toBe(false);
+    expect(applyReplacements(sourceText, result.replacements)).toBe('bold');
   });
 
   it('returns isNoOp for code blocks', () => {
