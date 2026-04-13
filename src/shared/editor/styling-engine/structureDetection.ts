@@ -47,16 +47,16 @@ function buildInertRanges(sourceText: string): InertRange[] {
   collectFencedBlockRanges(sourceText, MATH_FENCE_PATTERN, 'mathBlock', inertRanges);
 
   // Table lines: each matching line is independently inert
-  collectLineMatchRanges(sourceText, TABLE_LINE_PATTERN, 'table', inertRanges);
+  collectMatchRanges(sourceText, TABLE_LINE_PATTERN, 'table', inertRanges);
 
   // Horizontal rules: each matching line is independently inert
-  collectLineMatchRanges(sourceText, HORIZONTAL_RULE_PATTERN, 'horizontalRule', inertRanges);
+  collectMatchRanges(sourceText, HORIZONTAL_RULE_PATTERN, 'horizontalRule', inertRanges);
 
   // Inline math: each match is an inert span
-  collectInlineMatchRanges(sourceText, INLINE_MATH_PATTERN, 'inlineMath', inertRanges);
+  collectMatchRanges(sourceText, INLINE_MATH_PATTERN, 'inlineMath', inertRanges);
 
   // Inline code: each match is an inert span
-  collectInlineMatchRanges(sourceText, INLINE_CODE_PATTERN, 'inlineCode', inertRanges);
+  collectMatchRanges(sourceText, INLINE_CODE_PATTERN, 'inlineCode', inertRanges);
 
   return inertRanges;
 }
@@ -101,31 +101,9 @@ function collectFencedBlockRanges(
 }
 
 /**
- * Each regex match is treated as a standalone inert line.
+ * Each regex match is treated as an independent inert range (line-level or inline span).
  */
-function collectLineMatchRanges(
-  sourceText: string,
-  patternTemplate: RegExp,
-  zoneType: InertZoneType,
-  output: InertRange[],
-): void {
-  const pattern = new RegExp(patternTemplate.source, patternTemplate.flags);
-
-  let match = pattern.exec(sourceText);
-  while (match !== null) {
-    output.push({
-      startOffset: match.index,
-      endOffset: match.index + match[0].length,
-      zoneType,
-    });
-    match = pattern.exec(sourceText);
-  }
-}
-
-/**
- * Each regex match is treated as an inline inert span.
- */
-function collectInlineMatchRanges(
+function collectMatchRanges(
   sourceText: string,
   patternTemplate: RegExp,
   zoneType: InertZoneType,

@@ -34,6 +34,7 @@ import {
   extractStylePropertyFromOpeningTag,
   replaceOpeningTagAttribute,
   splitFormattingAroundProtectedRanges,
+  buildSpanTagDefinition,
 } from './tagManipulation';
 
 import { buildTagRanges } from '../enclosing-html-tags/enclosingHtmlTags';
@@ -43,6 +44,15 @@ import { HtmlTagRange } from '../enclosing-html-tags/interfaces';
 // ============================================================
 // Shared Helpers
 // ============================================================
+
+/**
+ * Comparator: sorts tag ranges by content width (inner-to-outer).
+ */
+function compareByContentWidth(rangeA: HtmlTagRange, rangeB: HtmlTagRange): number {
+  const widthA = rangeA.closingTagStartOffset - rangeA.openingTagEndOffset;
+  const widthB = rangeB.closingTagStartOffset - rangeB.openingTagEndOffset;
+  return widthA - widthB;
+}
 
 /**
  * Checks if a tag range fully encloses the given selection.
@@ -215,6 +225,28 @@ function findEnclosingMatchingTag(
 }
 
 /**
+ * Filters tag ranges by a geometry predicate, returning matches sorted inner-to-outer.
+ * Shared by findAllEnclosingTags and findAllTagsWithinSelection.
+ */
+function filterTagRangesByGeometry(
+  allTagRanges: HtmlTagRange[],
+  geometryPredicate: (tagRange: HtmlTagRange) => boolean,
+): HtmlTagRange[] {
+  const matchingRanges: HtmlTagRange[] = [];
+
+  for (let rangeIndex = 0; rangeIndex < allTagRanges.length; rangeIndex++) {
+    const tagRange = allTagRanges[rangeIndex];
+
+    if (geometryPredicate(tagRange)) {
+      matchingRanges.push(tagRange);
+    }
+  }
+
+  matchingRanges.sort(compareByContentWidth);
+  return matchingRanges;
+}
+
+/**
  * Finds all tag ranges that enclose the selection (both HTML and MD).
  * Returns them in inner-to-outer order (smallest content range first).
  */
@@ -223,24 +255,9 @@ function findAllEnclosingTags(
   selectionStartOffset: number,
   selectionEndOffset: number,
 ): HtmlTagRange[] {
-  const enclosingRanges: HtmlTagRange[] = [];
-
-  for (let rangeIndex = 0; rangeIndex < allTagRanges.length; rangeIndex++) {
-    const tagRange = allTagRanges[rangeIndex];
-
-    if (tagEnclosesSelection(tagRange, selectionStartOffset, selectionEndOffset)) {
-      enclosingRanges.push(tagRange);
-    }
-  }
-
-  // Sort inner-to-outer: smallest content range first
-  enclosingRanges.sort((rangeA, rangeB) => {
-    const widthA = rangeA.closingTagStartOffset - rangeA.openingTagEndOffset;
-    const widthB = rangeB.closingTagStartOffset - rangeB.openingTagEndOffset;
-    return widthA - widthB;
-  });
-
-  return enclosingRanges;
+  return filterTagRangesByGeometry(allTagRanges, (tagRange) =>
+    tagEnclosesSelection(tagRange, selectionStartOffset, selectionEndOffset),
+  );
 }
 
 /**
@@ -253,24 +270,9 @@ function findAllTagsWithinSelection(
   selectionStartOffset: number,
   selectionEndOffset: number,
 ): HtmlTagRange[] {
-  const withinRanges: HtmlTagRange[] = [];
-
-  for (let rangeIndex = 0; rangeIndex < allTagRanges.length; rangeIndex++) {
-    const tagRange = allTagRanges[rangeIndex];
-
-    if (tagSpanIsWithinSelection(tagRange, selectionStartOffset, selectionEndOffset)) {
-      withinRanges.push(tagRange);
-    }
-  }
-
-  // Sort inner-to-outer: smallest content range first
-  withinRanges.sort((rangeA, rangeB) => {
-    const widthA = rangeA.closingTagStartOffset - rangeA.openingTagEndOffset;
-    const widthB = rangeB.closingTagStartOffset - rangeB.openingTagEndOffset;
-    return widthA - widthB;
-  });
-
-  return withinRanges;
+  return filterTagRangesByGeometry(allTagRanges, (tagRange) =>
+    tagSpanIsWithinSelection(tagRange, selectionStartOffset, selectionEndOffset),
+  );
 }
 
 /**
@@ -391,6 +393,64 @@ function buildDomainConversionReplacements(
 }
 
 // ============================================================
+// Shared Wrap Logic
+// ============================================================
+
+/**
+ * Produces wrap replacements for adding a tag, handling domain conversion,
+ * protected ranges, and standard wrapping. Shared by toggleTag and addTag.
+ */
+function buildWrapReplacements(
+  sourceText: string,
+  selectionStartOffset: number,
+  selectionEndOffset: number,
+  tagDefinition: TagDefinition,
+  effectiveTag: TagDefinition,
+  domainResult: { domain: FormattingDomain; hasMarkdownTokens: boolean },
+  structureContext: { protectedRanges: { startOffset: number; endOffset: number; tokenType: string }[] },
+  allTagRanges: HtmlTagRange[] | null,
+): StylingResult {
+  // Domain conversion: adding HTML tag in MD domain with MD tokens present
+  if (
+    domainResult.domain === 'markdown' &&
+    tagDefinition.domain === 'html' &&
+    domainResult.hasMarkdownTokens
+  ) {
+    const tagRanges = allTagRanges ?? buildTagRanges(sourceText);
+    const replacements = buildDomainConversionReplacements(
+      sourceText,
+      selectionStartOffset,
+      selectionEndOffset,
+      tagDefinition,
+      tagRanges,
+    );
+
+    return { replacements: sortReplacementsLastToFirst(replacements), isNoOp: false };
+  }
+
+  // If structure has protected ranges, split formatting around them
+  if (structureContext.protectedRanges.length > 0) {
+    const replacements = splitFormattingAroundProtectedRanges(
+      selectionStartOffset,
+      selectionEndOffset,
+      structureContext.protectedRanges,
+      effectiveTag,
+    );
+
+    return { replacements, isNoOp: false };
+  }
+
+  // Standard wrap
+  const replacements = wrapTextWithTag(
+    selectionStartOffset,
+    selectionEndOffset,
+    effectiveTag,
+  );
+
+  return { replacements, isNoOp: false };
+}
+
+// ============================================================
 // Exported Functions
 // ============================================================
 
@@ -463,43 +523,16 @@ export function toggleTag(
   // Step 8: Tag is absent — add it
   const effectiveTag = resolveTagForDomain(tagDefinition, domainResult.domain);
 
-  // Domain conversion: adding HTML tag in MD domain with MD tokens present
-  if (
-    domainResult.domain === 'markdown' &&
-    tagDefinition.domain === 'html' &&
-    domainResult.hasMarkdownTokens
-  ) {
-    const replacements = buildDomainConversionReplacements(
-      sourceText,
-      selectionStartOffset,
-      selectionEndOffset,
-      tagDefinition,
-      allTagRanges,
-    );
-
-    return { replacements: sortReplacementsLastToFirst(replacements), isNoOp: false };
-  }
-
-  // If structure has protected ranges, split formatting around them
-  if (structureContext.protectedRanges.length > 0) {
-    const replacements = splitFormattingAroundProtectedRanges(
-      selectionStartOffset,
-      selectionEndOffset,
-      structureContext.protectedRanges,
-      effectiveTag,
-    );
-
-    return { replacements, isNoOp: false };
-  }
-
-  // Standard wrap
-  const replacements = wrapTextWithTag(
+  return buildWrapReplacements(
+    sourceText,
     selectionStartOffset,
     selectionEndOffset,
+    tagDefinition,
     effectiveTag,
+    domainResult,
+    structureContext,
+    allTagRanges,
   );
-
-  return { replacements, isNoOp: false };
 }
 
 /**
@@ -563,44 +596,17 @@ export function addTag(
     }
   }
 
-  // Domain conversion: adding HTML tag in MD domain with MD tokens present
-  if (
-    domainResult.domain === 'markdown' &&
-    effectiveTag.domain === 'html' &&
-    domainResult.hasMarkdownTokens
-  ) {
-    const allTagRanges = buildTagRanges(sourceText);
-    const replacements = buildDomainConversionReplacements(
-      sourceText,
-      selectionStartOffset,
-      selectionEndOffset,
-      effectiveTag,
-      allTagRanges,
-    );
-
-    return { replacements: sortReplacementsLastToFirst(replacements), isNoOp: false };
-  }
-
-  // Protected ranges
-  if (structureContext.protectedRanges.length > 0) {
-    const replacements = splitFormattingAroundProtectedRanges(
-      selectionStartOffset,
-      selectionEndOffset,
-      structureContext.protectedRanges,
-      effectiveTag,
-    );
-
-    return { replacements, isNoOp: false };
-  }
-
-  // Standard wrap
-  const replacements = wrapTextWithTag(
+  // Wrap with the tag (handles domain conversion, protected ranges, standard wrap)
+  return buildWrapReplacements(
+    sourceText,
     selectionStartOffset,
     selectionEndOffset,
+    tagDefinition,
     effectiveTag,
+    domainResult,
+    structureContext,
+    null,
   );
-
-  return { replacements, isNoOp: false };
 }
 
 /**
@@ -699,11 +705,7 @@ export function removeAllTags(
   }
 
   // Sort inner-to-outer by content width for consistent unwrap ordering
-  tagsToRemove.sort((rangeA, rangeB) => {
-    const widthA = rangeA.closingTagStartOffset - rangeA.openingTagEndOffset;
-    const widthB = rangeB.closingTagStartOffset - rangeB.openingTagEndOffset;
-    return widthA - widthB;
-  });
+  tagsToRemove.sort(compareByContentWidth);
 
   // Collect all unwrap replacements from inner tags outward
   const allReplacements: TextReplacement[] = [];
@@ -825,13 +827,7 @@ function tagRangeToTagDefinition(
     const extracted = extractStylePropertyFromOpeningTag(openingTagText);
 
     if (extracted !== null) {
-      return {
-        tagName: 'span',
-        domain: 'html',
-        openingMarkup: '<span style="' + extracted.propertyName + ': ' + extracted.propertyValue + '">',
-        closingMarkup: '</span>',
-        attributes: { [extracted.propertyName]: extracted.propertyValue },
-      };
+      return buildSpanTagDefinition(extracted.propertyName, extracted.propertyValue);
     }
   }
 
