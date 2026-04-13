@@ -131,10 +131,8 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
           </span>
         </div>
         <div
-          aria-disabled="true"
           class="onr-btn-sm onr-clipboard-item"
           data-cmd="format-painter"
-          title="Format painter (stub)"
         >
           <svg
             class="onr-icon-sm"
