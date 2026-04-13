@@ -140,6 +140,8 @@ Every feature module (group, button, helper) follows this layout:
 ├── README.md                ← purpose, props, behavior summary
 ├── <Feature>.tsx            ← React component (PascalCase)
 ├── <feature>.css            ← scoped CSS (if any)
+├── constants.ts             ← ALL constants for this feature (required)
+├── interfaces.ts            ← ALL types and interfaces for this feature (required)
 ├── <helper>.ts              ← pure logic extracted from component (if any)
 ├── <Feature>.test.tsx       ← colocated RTL test (same folder as component)
 └── __snapshots__/           ← optional Jest snapshots
@@ -147,6 +149,7 @@ Every feature module (group, button, helper) follows this layout:
 
 **Rules:**
 
+- `constants.ts` and `interfaces.ts` are **strictly required** in every feature folder. No constants or type definitions may be inlined inside `.tsx` or `.ts` source files — they must live in these dedicated files and be imported from them.
 - Source files (`.ts`, `.tsx`, `.css`) live **directly** in the feature folder.
 - Test files (`.test.ts`, `.test.tsx`) live **in the same folder** as the source they test.
 - Snapshot files live in `__snapshots__/` next to the colocated test file when Jest creates them.
@@ -156,7 +159,7 @@ Every feature module (group, button, helper) follows this layout:
 ### Folder Organization Rules
 
 - **One index file per folder:** Each feature folder may have **at most one main component** (e.g., `BasicTextGroup.tsx`) and **at most one helper file** (e.g., `clearFormatting.ts`).
-- **Separate constants and interfaces:** Define constants in a dedicated `constants.ts` file and types/interfaces in a dedicated `interfaces.ts` file. These files are exceptions to the "one helper" rule.
+- **Mandatory constants and interfaces:** Every feature folder must contain `constants.ts` (all magic values, string literals, default configs) and `interfaces.ts` (all TypeScript types and interfaces). These are not optional — a feature folder without them is incomplete.
 - **Subfolder pattern for overflow:** If a folder needs more than one component or helper, create a subfolder with its own index and helper, following the same pattern.
 - **No sibling files at the same level:** Related utilities, helpers, and data files must be organized into their own subfolders (e.g., `format-painter/`, `tag-apply/`) with their own index files.
 - **Always check for redundancy:** Before adding a new file, verify that similar logic does not already exist elsewhere in the codebase. Consolidate duplicated logic into a shared utility (e.g., `src/shared/`).
@@ -283,6 +286,7 @@ import { parseCssString } from '../../../shared/components/dropdown/Dropdown';
 
 ## 7. CSS Conventions
 
+- **Design gate**: before adding any new component or style, read `design.md`. Every visual choice (color, spacing, shadow, icon, transition) must trace back to a named principle in that document. If the choice is not covered, update `design.md` first, then add the code.
 - **Tokens**: global design tokens live in `src/styles/tokens.css` (CSS custom properties).
 - **Scoped CSS**: each feature may have a `<feature>.css` with `onr-` prefixed class names.
 - **No inline styles** in components except for dynamic values (e.g., dropdown position).
@@ -488,6 +492,8 @@ Use today's date (ISO 8601) and a short kebab-case name derived from the task. T
 4. TypeScript strict mode — no unguarded `any`
 5. Every editor handler guards: `const editor = getEditor(); if (!editor) return;`
 6. Dropdown and modal tests include both snapshot assertions and computed CSS assertions
+7. Any new component or CSS addition traces back to a principle in `design.md` — if the design choice is not covered, update `design.md` first
+8. Every new feature folder contains both `constants.ts` and `interfaces.ts` — no constants or type definitions inlined in component files
 
 ---
 
@@ -539,4 +545,5 @@ Never declare defeat without first exhausting debug-driven investigation. If ana
 - `clearFormatting` repeatedly strips `<span ...>...</span>` wrappers until stable, so nested font wrappers are fully removed.
 - `stripFormatting(sourceText, stripInline)` treats `stripInline = true` as preserve headings and strip only inline markup; default behavior strips headings too.
 - `applyFormatPainter` is a no-op for empty selections and only wraps non-empty selection text.
+- Enclosing-tag detection (HTML + Markdown) only returns tags that enclose the **entire** cursor/selection range. Tags that are merely inside a broader selection are intentionally ignored. Example: in `<u>as<b>s</b>asgs</u>`, selecting `as<b>s</b>asgs` returns `u` only; `b` is returned only when the cursor is inside `s` or the selection is within `b`'s content.
 - **Plugin reload for dev**: `app.plugins.disablePlugin('onenote-ribbon')` then `enablePlugin` — NOT `plugin.shell.mount()` (doesn't reload JS)

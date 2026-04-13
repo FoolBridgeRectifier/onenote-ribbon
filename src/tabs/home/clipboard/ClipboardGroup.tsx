@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react';
 import './clipboard-group.css';
 import { useApp } from '../../../shared/context/AppContext';
-import { useFormatPainterContext } from '../../../shared/context/FormatPainterContext';
 import { GroupShell } from '../../../shared/components/group-shell/GroupShell';
 import { RibbonButton } from '../../../shared/components/ribbon-button/RibbonButton';
 import { PasteOptionsDropdown } from './paste-options/PasteOptionsDropdown';
@@ -16,7 +15,6 @@ import {
 
 export function ClipboardGroup() {
   const app = useApp();
-  const formatPainter = useFormatPainterContext();
   const pasteAnchorRef = useRef<HTMLDivElement>(null);
   const [pasteMenuOpen, setPasteMenuOpen] = useState(false);
 
@@ -47,20 +45,6 @@ export function ClipboardGroup() {
     if (!editor) return;
 
     document.execCommand('copy');
-  };
-
-  const handleFormatPainterClick = () => {
-    const editor = getEditor();
-    if (!editor) return;
-
-    const sourceLine = editor.getLine(editor.getCursor().line);
-    const prefixMatch = sourceLine.match(/^(#+\s|\*\*|__|~~)?/);
-    const prefix = prefixMatch?.[1] ?? '';
-
-    formatPainter.setIsActive(!formatPainter.isActive);
-    if (!formatPainter.isActive) {
-      formatPainter.setFormat({ prefix, suffix: '' });
-    }
   };
 
   return (
@@ -133,15 +117,9 @@ export function ClipboardGroup() {
           />
           <RibbonButton
             className="onr-clipboard-item"
-            active={formatPainter.isActive}
             icon={<FormatPainterIcon className="onr-icon-sm" />}
             label="Format Painter"
-            title={
-              formatPainter.isActive
-                ? 'Disable format painter'
-                : 'Enable format painter'
-            }
-            onClick={handleFormatPainterClick}
+            onClick={() => {}}
             data-cmd="format-painter"
           />
         </div>
