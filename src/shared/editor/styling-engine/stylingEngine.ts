@@ -80,17 +80,16 @@ function tagSpanIsWithinSelection(
 }
 
 /**
- * Finds a matching tag range whose entire span (including delimiters) falls within
- * the selection. Used for delimiter-inclusive selections like selecting `<u>text</u>`.
- * Returns the outermost such tag (largest span) for consistent unwrapping.
+ * Filters tag ranges by a geometry predicate and tag definition match.
+ * Shared by findEnclosingMatchingTag and findDelimiterInclusiveMatch —
+ * they differ only in their geometry check and which match to return.
  */
-function findDelimiterInclusiveMatch(
+function filterMatchingTagRanges(
   allTagRanges: HtmlTagRange[],
   sourceText: string,
-  selectionStartOffset: number,
-  selectionEndOffset: number,
   tagDefinition: TagDefinition,
-): HtmlTagRange | null {
+  geometryPredicate: (tagRange: HtmlTagRange) => boolean,
+): HtmlTagRange[] {
   const isSpanWithAttributes =
     tagDefinition.tagName === 'span' && tagDefinition.attributes !== undefined;
 
@@ -99,7 +98,7 @@ function findDelimiterInclusiveMatch(
   for (let rangeIndex = 0; rangeIndex < allTagRanges.length; rangeIndex++) {
     const tagRange = allTagRanges[rangeIndex];
 
-    if (!tagSpanIsWithinSelection(tagRange, selectionStartOffset, selectionEndOffset)) {
+    if (!geometryPredicate(tagRange)) {
       continue;
     }
 
@@ -132,6 +131,28 @@ function findDelimiterInclusiveMatch(
       matchingRanges.push(tagRange);
     }
   }
+
+  return matchingRanges;
+}
+
+/**
+ * Finds a matching tag range whose entire span (including delimiters) falls within
+ * the selection. Used for delimiter-inclusive selections like selecting `<u>text</u>`.
+ * Returns the outermost such tag (largest span) for consistent unwrapping.
+ */
+function findDelimiterInclusiveMatch(
+  allTagRanges: HtmlTagRange[],
+  sourceText: string,
+  selectionStartOffset: number,
+  selectionEndOffset: number,
+  tagDefinition: TagDefinition,
+): HtmlTagRange | null {
+  const matchingRanges = filterMatchingTagRanges(
+    allTagRanges,
+    sourceText,
+    tagDefinition,
+    (tagRange) => tagSpanIsWithinSelection(tagRange, selectionStartOffset, selectionEndOffset),
+  );
 
   if (matchingRanges.length === 0) {
     return null;
@@ -166,60 +187,22 @@ function findEnclosingMatchingTag(
   selectionEndOffset: number,
   tagDefinition: TagDefinition,
 ): HtmlTagRange | null {
-  const isSpanWithAttributes =
-    tagDefinition.tagName === 'span' && tagDefinition.attributes !== undefined;
+  const matchingRanges = filterMatchingTagRanges(
+    allTagRanges,
+    sourceText,
+    tagDefinition,
+    (tagRange) => tagEnclosesSelection(tagRange, selectionStartOffset, selectionEndOffset),
+  );
 
-  // Filter to only enclosing ranges with matching tag name
-  const enclosingRanges: HtmlTagRange[] = [];
-
-  for (let rangeIndex = 0; rangeIndex < allTagRanges.length; rangeIndex++) {
-    const tagRange = allTagRanges[rangeIndex];
-
-    if (!tagEnclosesSelection(tagRange, selectionStartOffset, selectionEndOffset)) {
-      continue;
-    }
-
-    // For standard tags, match by tagName directly
-    if (!isSpanWithAttributes) {
-      if (tagRange.tagName === tagDefinition.tagName) {
-        enclosingRanges.push(tagRange);
-      }
-
-      continue;
-    }
-
-    // For span tags with CSS attributes, check the CSS property matches
-    if (tagRange.tagName !== 'span') {
-      continue;
-    }
-
-    const openingTagText = sourceText.slice(
-      tagRange.openingTagStartOffset,
-      tagRange.openingTagEndOffset,
-    );
-    const extracted = extractStylePropertyFromOpeningTag(openingTagText);
-
-    if (extracted === null) {
-      continue;
-    }
-
-    // Match if the CSS property name is the same
-    const targetPropertyName = Object.keys(tagDefinition.attributes!)[0];
-
-    if (extracted.propertyName === targetPropertyName) {
-      enclosingRanges.push(tagRange);
-    }
-  }
-
-  if (enclosingRanges.length === 0) {
+  if (matchingRanges.length === 0) {
     return null;
   }
 
   // Return the innermost match (smallest content span)
-  let innermost = enclosingRanges[0];
+  let innermost = matchingRanges[0];
 
-  for (let rangeIndex = 1; rangeIndex < enclosingRanges.length; rangeIndex++) {
-    const candidate = enclosingRanges[rangeIndex];
+  for (let rangeIndex = 1; rangeIndex < matchingRanges.length; rangeIndex++) {
+    const candidate = matchingRanges[rangeIndex];
     const candidateContentWidth =
       candidate.closingTagStartOffset - candidate.openingTagEndOffset;
     const innermostContentWidth =
