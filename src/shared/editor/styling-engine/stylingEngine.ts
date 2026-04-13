@@ -11,41 +11,38 @@ import {
 import {
   MARKDOWN_TO_HTML_TAG_MAP,
   MARKDOWN_TO_HTML_CONVERSION_TABLE,
+  UNDERLINE_TAG,
+  SUBSCRIPT_TAG,
+  SUPERSCRIPT_TAG,
+  BOLD_HTML_TAG,
+  ITALIC_HTML_TAG,
+  STRIKETHROUGH_HTML_TAG,
+  HIGHLIGHT_HTML_TAG,
+  BOLD_MD_TAG,
+  ITALIC_MD_TAG,
+  STRIKETHROUGH_MD_TAG,
+  HIGHLIGHT_MD_TAG,
 } from './constants';
 
 import { detectStructureContext } from './structureDetection';
 import { detectFormattingDomain } from './domainDetection';
-import { convertMarkdownTokensToHtml, containsMarkdownTokens } from './markdownToHtmlConversion';
+import { convertMarkdownTokensToHtml } from './markdownToHtmlConversion';
 
 import {
   wrapTextWithTag,
   unwrapTag,
   extractStylePropertyFromOpeningTag,
   replaceOpeningTagAttribute,
-  findOverlappingTagRanges,
   splitFormattingAroundProtectedRanges,
 } from './tagManipulation';
 
-import {
-  buildHtmlTagRanges,
-  buildMarkdownTagRanges,
-} from '../enclosing-html-tags/enclosingHtmlTags';
+import { buildTagRanges } from '../enclosing-html-tags/enclosingHtmlTags';
 
 import { HtmlTagRange } from '../enclosing-html-tags/interfaces';
 
 // ============================================================
 // Shared Helpers
 // ============================================================
-
-/**
- * Combines HTML and Markdown tag ranges for a given source text.
- */
-function buildAllTagRanges(sourceText: string): HtmlTagRange[] {
-  const htmlRanges = buildHtmlTagRanges(sourceText);
-  const markdownRanges = buildMarkdownTagRanges(sourceText);
-
-  return [...htmlRanges, ...markdownRanges];
-}
 
 /**
  * Checks if a tag range fully encloses the given selection.
@@ -57,6 +54,7 @@ function tagEnclosesSelection(
   selectionStartOffset: number,
   selectionEndOffset: number,
 ): boolean {
+  // Inclusive boundaries: cursor at tag boundary is considered enclosed
   return (
     tagRange.openingTagEndOffset <= selectionStartOffset &&
     tagRange.closingTagStartOffset >= selectionEndOffset
@@ -285,8 +283,31 @@ function sortReplacementsLastToFirst(replacements: TextReplacement[]): TextRepla
 }
 
 /**
+ * Removes duplicate replacements that share the same fromOffset and toOffset.
+ * Keeps the first occurrence (which is the one from the innermost tag due to sort order).
+ * Guards against malformed markup like `<b><b>text</b></b>` producing overlapping deletions.
+ */
+function deduplicateReplacements(replacements: TextReplacement[]): TextReplacement[] {
+  const seen = new Set<string>();
+  const deduplicated: TextReplacement[] = [];
+
+  for (const replacement of replacements) {
+    const key = replacement.fromOffset + ':' + replacement.toOffset;
+
+    if (!seen.has(key)) {
+      seen.add(key);
+      deduplicated.push(replacement);
+    }
+  }
+
+  return deduplicated;
+}
+
+/**
  * Resolves the effective tag definition for cross-domain scenarios.
  * If adding a markdown tag in an HTML domain, substitutes the HTML equivalent.
+ * The reverse (HTML → MD) is intentionally not done because HTML tags are always valid
+ * in markdown files, but markdown delimiters break in HTML-heavy contexts.
  */
 function resolveTagForDomain(
   tagDefinition: TagDefinition,
@@ -407,7 +428,7 @@ export function toggleTag(
   );
 
   // Step 5: Get all tag ranges
-  const allTagRanges = buildAllTagRanges(sourceText);
+  const allTagRanges = buildTagRanges(sourceText);
 
   // Step 6: Check if the target tag is already present
   const matchingRange = findEnclosingMatchingTag(
@@ -517,7 +538,7 @@ export function addTag(
     effectiveTag.tagName === 'span' && effectiveTag.attributes !== undefined;
 
   if (isSpanWithAttributes) {
-    const allTagRanges = buildAllTagRanges(sourceText);
+    const allTagRanges = buildTagRanges(sourceText);
     const matchingRange = findEnclosingMatchingTag(
       allTagRanges,
       sourceText,
@@ -548,7 +569,7 @@ export function addTag(
     effectiveTag.domain === 'html' &&
     domainResult.hasMarkdownTokens
   ) {
-    const allTagRanges = buildAllTagRanges(sourceText);
+    const allTagRanges = buildTagRanges(sourceText);
     const replacements = buildDomainConversionReplacements(
       sourceText,
       selectionStartOffset,
@@ -592,7 +613,7 @@ export function removeTag(
 ): StylingResult {
   const { sourceText, selectionStartOffset, selectionEndOffset } = context;
 
-  const allTagRanges = buildAllTagRanges(sourceText);
+  const allTagRanges = buildTagRanges(sourceText);
 
   const matchingRange = findEnclosingMatchingTag(
     allTagRanges,
@@ -626,10 +647,12 @@ export function removeTag(
 
 /**
  * Removes all formatting tags (both HTML and MD) enclosing the selection.
+ * Combines both enclosing tags and delimiter-inclusive tags (for Ctrl+A selections).
  * Processes tags inner-to-outer. All replacements sorted by fromOffset descending.
  */
 export function removeAllTags(
   context: StylingContext,
+  // TODO: implement preserveLinePrefix option — currently accepted but unused
   options?: RemoveAllTagsOptions,
 ): StylingResult {
   const { sourceText, selectionStartOffset, selectionEndOffset } = context;
@@ -644,27 +667,43 @@ export function removeAllTags(
     return { replacements: [], isNoOp: true };
   }
 
-  const allTagRanges = buildAllTagRanges(sourceText);
+  const allTagRanges = buildTagRanges(sourceText);
 
-  // Find all enclosing tags (returned inner-to-outer)
-  let tagsToRemove = findAllEnclosingTags(
+  // Combine enclosing tags and delimiter-inclusive tags to handle both selection geometries
+  const enclosingTags = findAllEnclosingTags(
     allTagRanges,
     selectionStartOffset,
     selectionEndOffset,
   );
 
-  // Also find tags whose full span is within the selection (delimiter-inclusive)
-  if (tagsToRemove.length === 0) {
-    tagsToRemove = findAllTagsWithinSelection(
-      allTagRanges,
-      selectionStartOffset,
-      selectionEndOffset,
-    );
+  const delimiterInclusiveTags = findAllTagsWithinSelection(
+    allTagRanges,
+    selectionStartOffset,
+    selectionEndOffset,
+  );
+
+  // Deduplicate by opening tag start offset (same tag can't appear in both sets,
+  // but guard against future edge cases)
+  const seenOffsets = new Set<number>();
+  const tagsToRemove: HtmlTagRange[] = [];
+
+  for (const tagRange of [...enclosingTags, ...delimiterInclusiveTags]) {
+    if (!seenOffsets.has(tagRange.openingTagStartOffset)) {
+      seenOffsets.add(tagRange.openingTagStartOffset);
+      tagsToRemove.push(tagRange);
+    }
   }
 
   if (tagsToRemove.length === 0) {
     return { replacements: [], isNoOp: true };
   }
+
+  // Sort inner-to-outer by content width for consistent unwrap ordering
+  tagsToRemove.sort((rangeA, rangeB) => {
+    const widthA = rangeA.closingTagStartOffset - rangeA.openingTagEndOffset;
+    const widthB = rangeB.closingTagStartOffset - rangeB.openingTagEndOffset;
+    return widthA - widthB;
+  });
 
   // Collect all unwrap replacements from inner tags outward
   const allReplacements: TextReplacement[] = [];
@@ -678,7 +717,11 @@ export function removeAllTags(
   // Sort all replacements by fromOffset descending for safe sequential application
   const sortedReplacements = sortReplacementsLastToFirst(allReplacements);
 
-  return { replacements: sortedReplacements, isNoOp: false };
+  // Deduplicate overlapping replacements at the same offset range
+  // (can occur with malformed markup like <b><b>text</b></b>)
+  const deduplicatedReplacements = deduplicateReplacements(sortedReplacements);
+
+  return { replacements: deduplicatedReplacements, isNoOp: false };
 }
 
 /**
@@ -690,7 +733,7 @@ export function copyFormat(
   selectionStartOffset: number,
   selectionEndOffset: number,
 ): CopiedFormat {
-  const allTagRanges = buildAllTagRanges(sourceText);
+  const allTagRanges = buildTagRanges(sourceText);
 
   const enclosingTags = findAllEnclosingTags(
     allTagRanges,
@@ -730,39 +773,25 @@ export function copyFormat(
  * Known HTML tag name to TagDefinition mappings for standard tags.
  * Used by copyFormat to reconstruct TagDefinition from discovered tag ranges.
  */
-const HTML_TAG_NAME_DEFINITIONS: Map<string, TagDefinition> = new Map();
-
-// Populated from MARKDOWN_TO_HTML_TAG_MAP values and the HTML-only tags
-import {
-  UNDERLINE_TAG,
-  SUBSCRIPT_TAG,
-  SUPERSCRIPT_TAG,
-  BOLD_HTML_TAG,
-  ITALIC_HTML_TAG,
-  STRIKETHROUGH_HTML_TAG,
-  HIGHLIGHT_HTML_TAG,
-  BOLD_MD_TAG,
-  ITALIC_MD_TAG,
-  STRIKETHROUGH_MD_TAG,
-  HIGHLIGHT_MD_TAG,
-} from './constants';
-
-HTML_TAG_NAME_DEFINITIONS.set('u', UNDERLINE_TAG);
-HTML_TAG_NAME_DEFINITIONS.set('sub', SUBSCRIPT_TAG);
-HTML_TAG_NAME_DEFINITIONS.set('sup', SUPERSCRIPT_TAG);
-HTML_TAG_NAME_DEFINITIONS.set('b', BOLD_HTML_TAG);
-HTML_TAG_NAME_DEFINITIONS.set('i', ITALIC_HTML_TAG);
-HTML_TAG_NAME_DEFINITIONS.set('s', STRIKETHROUGH_HTML_TAG);
-HTML_TAG_NAME_DEFINITIONS.set('mark', HIGHLIGHT_HTML_TAG);
+const HTML_TAG_NAME_DEFINITIONS: Map<string, TagDefinition> = new Map([
+  ['u', UNDERLINE_TAG],
+  ['sub', SUBSCRIPT_TAG],
+  ['sup', SUPERSCRIPT_TAG],
+  ['b', BOLD_HTML_TAG],
+  ['i', ITALIC_HTML_TAG],
+  ['s', STRIKETHROUGH_HTML_TAG],
+  ['mark', HIGHLIGHT_HTML_TAG],
+]);
 
 /**
  * Known MD tag name to TagDefinition mappings.
  */
-const MARKDOWN_TAG_NAME_DEFINITIONS: Map<string, TagDefinition> = new Map();
-MARKDOWN_TAG_NAME_DEFINITIONS.set('bold', BOLD_MD_TAG);
-MARKDOWN_TAG_NAME_DEFINITIONS.set('italic', ITALIC_MD_TAG);
-MARKDOWN_TAG_NAME_DEFINITIONS.set('strikethrough', STRIKETHROUGH_MD_TAG);
-MARKDOWN_TAG_NAME_DEFINITIONS.set('highlight', HIGHLIGHT_MD_TAG);
+const MARKDOWN_TAG_NAME_DEFINITIONS: Map<string, TagDefinition> = new Map([
+  ['bold', BOLD_MD_TAG],
+  ['italic', ITALIC_MD_TAG],
+  ['strikethrough', STRIKETHROUGH_MD_TAG],
+  ['highlight', HIGHLIGHT_MD_TAG],
+]);
 
 /**
  * Converts a tag range to a TagDefinition.

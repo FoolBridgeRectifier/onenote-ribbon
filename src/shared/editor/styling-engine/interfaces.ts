@@ -103,3 +103,15 @@ export interface DomainDetectionResult {
 export interface RemoveAllTagsOptions {
   preserveLinePrefix?: boolean;  // default true; false strips heading prefixes too
 }
+
+// === Markdown-to-HTML Conversion Entry ===
+
+// Entries that expand to multiple HTML tags (e.g. *** → <b><i>)
+// use `htmlTags` array. Single-tag entries use a one-element array.
+// Order matters: longer delimiters must come before shorter ones
+// (*** before ** before *) to avoid partial-match confusion.
+export interface MarkdownToHtmlConversionEntry {
+  markdownOpening: string;
+  markdownClosing: string;
+  htmlTags: TagDefinition[];  // multiple entries for combined formats like bold+italic
+}

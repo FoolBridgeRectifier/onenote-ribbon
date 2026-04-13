@@ -245,7 +245,7 @@ export function buildMarkdownTagRanges(sourceText: string): HtmlTagRange[] {
 /**
  * Builds a unified list of HTML and Markdown tag ranges for a source snapshot.
  */
-function buildTagRanges(sourceText: string): HtmlTagRange[] {
+export function buildTagRanges(sourceText: string): HtmlTagRange[] {
   const htmlTagRanges = buildHtmlTagRanges(sourceText);
   const markdownTagRanges = buildMarkdownTagRanges(sourceText);
 

@@ -1,4 +1,4 @@
-import { TagDefinition, LinePrefixType } from './interfaces';
+import { TagDefinition, LinePrefixType, MarkdownToHtmlConversionEntry } from './interfaces';
 
 // ============================================================
 // HTML-only Tag Definitions
@@ -93,16 +93,8 @@ export const HIGHLIGHT_HTML_TAG: TagDefinition = {
 // Markdown to HTML Conversion Table
 // ============================================================
 
-// Entries that expand to multiple HTML tags (e.g. *** → <b><i>)
-// use `htmlTags` array. Single-tag entries use a one-element array.
-// Order matters: longer delimiters must come before shorter ones
+// Entries are defined in order: longer delimiters before shorter ones
 // (*** before ** before *) to avoid partial-match confusion.
-export interface MarkdownToHtmlConversionEntry {
-  markdownOpening: string;
-  markdownClosing: string;
-  htmlTags: TagDefinition[];  // multiple entries for combined formats like bold+italic
-}
-
 export const MARKDOWN_TO_HTML_CONVERSION_TABLE: MarkdownToHtmlConversionEntry[] = [
   // *** = bold + italic (must precede ** and * entries)
   {

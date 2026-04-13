@@ -21,7 +21,7 @@ import {
 } from './constants';
 
 import { buildSpanTagDefinition } from './tagManipulation';
-import { StylingContext, TextReplacement } from './interfaces';
+import { StylingContext, TextReplacement, RemoveAllTagsOptions } from './interfaces';
 
 // ============================================================
 // Test Helpers
@@ -721,5 +721,384 @@ describe('edge cases', () => {
     const result = toggleTag(context, BOLD_MD_TAG);
 
     expect(result.isNoOp).toBe(true);
+  });
+});
+
+// ============================================================
+// Batch 1: Line prefix tests
+// ============================================================
+
+describe('toggleTag — line prefix preservation', () => {
+
+  it('preserves bullet prefix and underlines content', () => {
+    const sourceText = '- item text';
+    // "item text" starts at offset 2
+    const context = createContext(sourceText, 2, 11);
+
+    const result = toggleTag(context, UNDERLINE_TAG);
+
+    expect(result.isNoOp).toBe(false);
+    const output = applyReplacements(sourceText, result.replacements);
+    expect(output).toBe('- <u>item text</u>');
+  });
+
+  it('preserves numbered list prefix and underlines content', () => {
+    const sourceText = '1. numbered';
+    // "numbered" starts at offset 3
+    const context = createContext(sourceText, 3, 11);
+
+    const result = toggleTag(context, UNDERLINE_TAG);
+
+    expect(result.isNoOp).toBe(false);
+    const output = applyReplacements(sourceText, result.replacements);
+    expect(output).toBe('1. <u>numbered</u>');
+  });
+
+  it('preserves unchecked task prefix and underlines content', () => {
+    const sourceText = '- [ ] task';
+    // "task" starts at offset 6
+    const context = createContext(sourceText, 6, 10);
+
+    const result = toggleTag(context, UNDERLINE_TAG);
+
+    expect(result.isNoOp).toBe(false);
+    const output = applyReplacements(sourceText, result.replacements);
+    expect(output).toBe('- [ ] <u>task</u>');
+  });
+
+  it('preserves checked task prefix and bolds content', () => {
+    const sourceText = '- [x] done';
+    // "done" starts at offset 6
+    const context = createContext(sourceText, 6, 10);
+
+    const result = toggleTag(context, BOLD_MD_TAG);
+
+    expect(result.isNoOp).toBe(false);
+    const output = applyReplacements(sourceText, result.replacements);
+    expect(output).toBe('- [x] **done**');
+  });
+
+  it('preserves nested bullet prefix (indented) and underlines content', () => {
+    const sourceText = '  - nested';
+    // "nested" starts at offset 4
+    const context = createContext(sourceText, 4, 10);
+
+    const result = toggleTag(context, UNDERLINE_TAG);
+
+    expect(result.isNoOp).toBe(false);
+    const output = applyReplacements(sourceText, result.replacements);
+    expect(output).toBe('  - <u>nested</u>');
+  });
+
+  it('preserves callout prefix and bolds content', () => {
+    const sourceText = '> callout body';
+    // "callout body" starts at offset 2
+    const context = createContext(sourceText, 2, 14);
+
+    const result = toggleTag(context, BOLD_MD_TAG);
+
+    expect(result.isNoOp).toBe(false);
+    const output = applyReplacements(sourceText, result.replacements);
+    expect(output).toBe('> **callout body**');
+  });
+
+  it('preserves callout prefix and underlines content', () => {
+    const sourceText = '> callout body';
+    // "callout body" starts at offset 2
+    const context = createContext(sourceText, 2, 14);
+
+    const result = toggleTag(context, UNDERLINE_TAG);
+
+    expect(result.isNoOp).toBe(false);
+    const output = applyReplacements(sourceText, result.replacements);
+    expect(output).toBe('> <u>callout body</u>');
+  });
+
+  it('preserves composite callout + task prefix and bolds content', () => {
+    const sourceText = '> - [ ] task';
+    // "task" starts at offset 8
+    const context = createContext(sourceText, 8, 12);
+
+    const result = toggleTag(context, BOLD_MD_TAG);
+
+    expect(result.isNoOp).toBe(false);
+    const output = applyReplacements(sourceText, result.replacements);
+    expect(output).toBe('> - [ ] **task**');
+  });
+});
+
+// ============================================================
+// Batch 2: Domain conversion extras
+// ============================================================
+
+describe('toggleTag — domain conversion extras', () => {
+
+  it('converts MD strikethrough to HTML and wraps with <u> when adding underline', () => {
+    const sourceText = '~~struck~~';
+    // "struck" at offsets 2-8
+    const context = createContext(sourceText, 2, 8);
+
+    const result = toggleTag(context, UNDERLINE_TAG);
+
+    expect(result.isNoOp).toBe(false);
+    const output = applyReplacements(sourceText, result.replacements);
+    expect(output).toBe('<u><s>struck</s></u>');
+  });
+
+  it('converts MD highlight to HTML and wraps with <u> when adding underline', () => {
+    const sourceText = '==highlighted==';
+    // "highlighted" at offsets 2-13
+    const context = createContext(sourceText, 2, 13);
+
+    const result = toggleTag(context, UNDERLINE_TAG);
+
+    expect(result.isNoOp).toBe(false);
+    const output = applyReplacements(sourceText, result.replacements);
+    expect(output).toBe('<u><mark>highlighted</mark></u>');
+  });
+});
+
+// ============================================================
+// Batch 3: Span toggle-off
+// ============================================================
+
+describe('toggleTag — span toggle-off', () => {
+
+  it('removes color span when toggling same color span tag', () => {
+    const sourceText = '<span style="color: red">text</span>';
+    // "text" at offsets 25-29
+    const context = createContext(sourceText, 25, 29);
+
+    const colorRedTag = buildSpanTagDefinition('color', 'red');
+    const result = toggleTag(context, colorRedTag);
+
+    expect(result.isNoOp).toBe(false);
+    const output = applyReplacements(sourceText, result.replacements);
+    expect(output).toBe('text');
+  });
+});
+
+// ============================================================
+// Batch 4: Atomic token extras
+// ============================================================
+
+describe('toggleTag — atomic token extras', () => {
+
+  it('splits bold formatting around a markdown link', () => {
+    const sourceText = 'See [link](url) end';
+    // Select full text 0-19
+    const context = createContext(sourceText, 0, 19);
+
+    const result = toggleTag(context, BOLD_HTML_TAG);
+
+    expect(result.isNoOp).toBe(false);
+    const output = applyReplacements(sourceText, result.replacements);
+    expect(output).toBe('<b>See </b>[link](url)<b> end</b>');
+  });
+
+  it('splits underline formatting around a hashtag', () => {
+    const sourceText = 'Check #my-tag rest';
+    // Select full text 0-18
+    const context = createContext(sourceText, 0, 18);
+
+    const result = toggleTag(context, UNDERLINE_TAG);
+
+    expect(result.isNoOp).toBe(false);
+    const output = applyReplacements(sourceText, result.replacements);
+    expect(output).toBe('<u>Check </u>#my-tag<u> rest</u>');
+  });
+
+  it('splits underline formatting around a footnote reference', () => {
+    const sourceText = 'Ref [^1] text';
+    // Select full text 0-13
+    const context = createContext(sourceText, 0, 13);
+
+    const result = toggleTag(context, UNDERLINE_TAG);
+
+    expect(result.isNoOp).toBe(false);
+    const output = applyReplacements(sourceText, result.replacements);
+    expect(output).toBe('<u>Ref </u>[^1]<u> text</u>');
+  });
+});
+
+// ============================================================
+// Batch 5: removeAllTags extras
+// ============================================================
+
+describe('removeAllTags — extras', () => {
+
+  it('removes <u> tags from heading content with preserveLinePrefix option', () => {
+    const sourceText = '## <u>Title</u>';
+    // Select "Title" inside the <u> tags: "<u>" starts at offset 3, "Title" at offset 6, ends at 11
+    const context = createContext(sourceText, 6, 11);
+
+    // Note: removeAllTags accepts an optional RemoveAllTagsOptions parameter.
+    // Even if the option is not fully wired, the tags should still be removed.
+    const result = removeAllTags(context, { preserveLinePrefix: true });
+
+    expect(result.isNoOp).toBe(false);
+    const output = applyReplacements(sourceText, result.replacements);
+    expect(output).toBe('## Title');
+  });
+
+  it('removes all nested HTML tags from fully selected content', () => {
+    const sourceText = '<u><b>text</b></u>';
+    // Select full text 0-18
+    const context = createContext(sourceText, 0, 18);
+
+    const result = removeAllTags(context);
+
+    expect(result.isNoOp).toBe(false);
+    const output = applyReplacements(sourceText, result.replacements);
+    expect(output).toBe('text');
+  });
+
+  it('removes MD bold delimiters from fully selected content', () => {
+    const sourceText = '**bold**';
+    // Select full text 0-8
+    const context = createContext(sourceText, 0, 8);
+
+    const result = removeAllTags(context);
+
+    expect(result.isNoOp).toBe(false);
+    const output = applyReplacements(sourceText, result.replacements);
+    expect(output).toBe('bold');
+  });
+});
+
+// ============================================================
+// Batch 6: Cursor-only tag insertion
+// ============================================================
+
+describe('toggleTag — cursor-only insertion', () => {
+
+  it('inserts empty underline tag pair at cursor position in plain text', () => {
+    const sourceText = 'hello world';
+    // Zero-width cursor at offset 5
+    const context = createContext(sourceText, 5, 5);
+
+    const result = toggleTag(context, UNDERLINE_TAG);
+
+    // Document actual engine behavior for zero-width cursor in plain text
+    expect(result.isNoOp).toBe(false);
+    const output = applyReplacements(sourceText, result.replacements);
+    expect(output).toBe('hello<u></u> world');
+  });
+
+  it('inserts empty bold MD delimiters at cursor position in plain text', () => {
+    const sourceText = 'hello world';
+    // Zero-width cursor at offset 5
+    const context = createContext(sourceText, 5, 5);
+
+    const result = toggleTag(context, BOLD_MD_TAG);
+
+    // Document actual engine behavior for zero-width cursor in plain text
+    expect(result.isNoOp).toBe(false);
+    const output = applyReplacements(sourceText, result.replacements);
+    expect(output).toBe('hello**** world');
+  });
+});
+
+// ============================================================
+// Batch 7: Inert zone — inline math
+// ============================================================
+
+describe('toggleTag — inert zone: inline math', () => {
+
+  it('returns isNoOp for cursor inside inline math $...$', () => {
+    const sourceText = '$x^2$';
+    // Zero-width cursor at offset 1 (inside the $ delimiters)
+    const context = createContext(sourceText, 1, 1);
+
+    const result = toggleTag(context, UNDERLINE_TAG);
+
+    expect(result.isNoOp).toBe(true);
+    expect(result.replacements).toHaveLength(0);
+  });
+});
+
+// ============================================================
+// Batch 8: Adjacent protected tokens with no gap
+// ============================================================
+
+describe('toggleTag — adjacent protected tokens with no gap', () => {
+
+  it('produces no wraps when two wikilinks are directly adjacent', () => {
+    const sourceText = '[[A]][[B]]';
+    // Select full text 0-10
+    const context = createContext(sourceText, 0, 10);
+
+    const result = toggleTag(context, UNDERLINE_TAG);
+
+    // Both wikilinks are protected ranges with no formattable gap between them.
+    // The engine finds no gaps to wrap so replacements is empty.
+    expect(result.replacements).toHaveLength(0);
+  });
+});
+
+// ============================================================
+// Batch 9: Cursor-only removeTag
+// ============================================================
+
+describe('removeTag — cursor-only (zero-width selection)', () => {
+
+  it('removes enclosing <u> tags when cursor is inside the content', () => {
+    const sourceText = '<u>text</u>';
+    // Cursor at offset 4 (inside "text": t=3, e=4, x=5, t=6)
+    const context = createContext(sourceText, 4, 4);
+
+    const result = removeTag(context, UNDERLINE_TAG);
+
+    expect(result.isNoOp).toBe(false);
+    expect(applyReplacements(sourceText, result.replacements)).toBe('text');
+  });
+
+  it('returns isNoOp when cursor is inside <u> but removing bold (not present)', () => {
+    const sourceText = '<u>text</u>';
+    // Cursor at offset 4 (inside "text")
+    const context = createContext(sourceText, 4, 4);
+
+    const result = removeTag(context, BOLD_MD_TAG);
+
+    expect(result.isNoOp).toBe(true);
+    expect(result.replacements).toHaveLength(0);
+  });
+});
+
+// ============================================================
+// Batch 10: Cursor-only addTag
+// ============================================================
+
+describe('addTag — cursor-only (zero-width selection)', () => {
+
+  it('inserts empty <u></u> tag pair at cursor position in plain text', () => {
+    const sourceText = 'hello world';
+    // Zero-width cursor at offset 5
+    const context = createContext(sourceText, 5, 5);
+
+    const result = addTag(context, UNDERLINE_TAG);
+
+    expect(result.isNoOp).toBe(false);
+    const output = applyReplacements(sourceText, result.replacements);
+    expect(output).toBe('hello<u></u> world');
+  });
+});
+
+// ============================================================
+// Batch 11: Mixed-content full-selection removeAllTags
+// ============================================================
+
+describe('removeAllTags — mixed-content full selection', () => {
+
+  it('removes both MD bold and HTML underline when full text is selected', () => {
+    const sourceText = '**bold** and <u>underline</u>';
+    // Select full text
+    const context = createContext(sourceText, 0, sourceText.length);
+
+    const result = removeAllTags(context);
+
+    expect(result.isNoOp).toBe(false);
+    const output = applyReplacements(sourceText, result.replacements);
+    expect(output).toBe('bold and underline');
   });
 });

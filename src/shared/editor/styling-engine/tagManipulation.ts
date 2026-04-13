@@ -71,7 +71,7 @@ export function buildSpanTagDefinition(
 // ============================================================
 
 const STYLE_ATTRIBUTE_REGEX = /style="([^"]+)"/;
-const STYLE_PROPERTY_VALUE_REGEX = /^\s*([^:]+?)\s*:\s*(.+?)\s*$/;
+const STYLE_PROPERTY_VALUE_REGEX = /^\s*([^:]+?)\s*:\s*(.+?)\s*;?\s*$/;
 
 /**
  * Extracts the CSS property name and value from a span's opening tag.
@@ -106,6 +106,8 @@ export function extractStylePropertyFromOpeningTag(
 /**
  * Replaces the opening tag within sourceText with a new tag containing
  * the updated CSS property value. Returns a single TextReplacement.
+ * Note: This assumes one-CSS-property-per-span (invariant of this system).
+ * Multi-property spans would lose other properties during replacement.
  */
 export function replaceOpeningTagAttribute(
   sourceText: string,
