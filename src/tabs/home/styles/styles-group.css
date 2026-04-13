@@ -15,7 +15,7 @@
 }
 
 /* Individual heading style preview button */
-.onr-style-preview {
+.onr-btn-sm.onr-style-preview {
   width: 130px;
   min-height: 28px;
   background: #1a1a2e;
@@ -49,7 +49,7 @@
 }
 
 /* Up and down scroll arrows */
-.onr-scroll-arrow {
+.onr-btn-sm.onr-scroll-arrow {
   width: 16px;
   min-height: 28px;
   padding: 0;
@@ -57,7 +57,7 @@
 }
 
 /* Expand/collapse arrow */
-.onr-scroll-expand {
+.onr-btn-sm.onr-scroll-expand {
   width: 16px;
   min-height: 14px;
   padding: 0;

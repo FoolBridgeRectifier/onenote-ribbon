@@ -15,7 +15,7 @@
 }
 
 /* Big paste button overrides */
-.onr-paste-main {
+.onr-btn.onr-paste-main {
   width: 46px;
   min-height: 46px;
   border-bottom: none;
@@ -33,7 +33,7 @@
 }
 
 /* Thin dropdown trigger below the paste button */
-.onr-paste-dropdown {
+.onr-btn-sm.onr-paste-dropdown {
   width: 46px;
   border-top: 1px solid #d0d0d0;
   border-radius: 0 0 3px 3px;
@@ -50,7 +50,7 @@
 }
 
 /* Wide row-layout button used for cut, copy, and format painter */
-.onr-clipboard-item {
+.onr-btn-sm.onr-clipboard-item {
   width: 68px;
   flex-direction: row;
   gap: 4px;

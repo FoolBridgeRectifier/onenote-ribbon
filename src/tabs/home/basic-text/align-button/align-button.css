@@ -1,5 +1,5 @@
 /* Align button with icon + caret in a row */
-.onr-align-btn {
+.onr-btn-sm.onr-align-btn {
   min-height: 22px;
   width: 26px;
   flex-direction: row;

@@ -1,16 +1,21 @@
-import "./AlignButton.css";
-import { AlignLeftIcon } from "../../../../assets/icons";
+import './align-button.css';
+import { AlignLeftIcon } from '../../../../assets/icons';
+import { RibbonButton } from '../../../../shared/components/ribbon-button/RibbonButton';
 
 export function AlignButton() {
+  const handleAlignButtonClick = () => {
+    // Alignment menu behavior is not implemented yet.
+  };
+
   return (
-    <div
-      className="onr-btn-sm onr-align-btn"
+    <RibbonButton
+      className="onr-align-btn"
       title="Align"
-      onClick={() => {}}
+      onClick={handleAlignButtonClick}
       data-cmd="align"
     >
       <AlignLeftIcon className="onr-icon-sm" />
       <span className="onr-align-caret">▾</span>
-    </div>
+    </RibbonButton>
   );
 }

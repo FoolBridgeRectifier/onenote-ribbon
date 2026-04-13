@@ -1,10 +1,9 @@
 /**
  * In-memory editor mock for unit tests.
- * Fully implements the Obsidian Editor interface needed by toggleInline,
- * toggleSubSup, toggleLinePrefix, clearFormatting, applyFormatPainter, applyTag.
+ * Fully implements the Obsidian Editor interface needed by formatting helpers.
  */
 export class MockEditor {
-  private lines: string[] = [""];
+  private lines: string[] = [''];
   private cursor: { line: number; ch: number } = { line: 0, ch: 0 };
   private selFrom: { line: number; ch: number } | null = null;
   private selTo: { line: number; ch: number } | null = null;
@@ -12,18 +11,18 @@ export class MockEditor {
   // ── State helpers ──────────────────────────────────────────────────────────
 
   getValue(): string {
-    return this.lines.join("\n");
+    return this.lines.join('\n');
   }
 
   setValue(content: string): void {
-    this.lines = content.split("\n");
+    this.lines = content.split('\n');
     this.cursor = { line: 0, ch: 0 };
     this.selFrom = null;
     this.selTo = null;
   }
 
   getLine(n: number): string {
-    return this.lines[n] ?? "";
+    return this.lines[n] ?? '';
   }
 
   lastLine(): number {
@@ -45,7 +44,7 @@ export class MockEditor {
   }
 
   getSelection(): string {
-    if (!this.selFrom || !this.selTo) return "";
+    if (!this.selFrom || !this.selTo) return '';
     const from = this.selFrom;
     const to = this.selTo;
     if (from.line === to.line) {
@@ -53,10 +52,10 @@ export class MockEditor {
     }
     // Multi-line selection
     let result = this.lines[from.line].slice(from.ch);
-    for (let l = from.line + 1; l < to.line; l++) {
-      result += "\n" + this.lines[l];
+    for (let lineIndex = from.line + 1; lineIndex < to.line; lineIndex++) {
+      result += '\n' + this.lines[lineIndex];
     }
-    result += "\n" + this.lines[to.line].slice(0, to.ch);
+    result += '\n' + this.lines[to.line].slice(0, to.ch);
     return result;
   }
 
@@ -89,7 +88,7 @@ export class MockEditor {
       const before = this.lines[from.line].slice(0, from.ch);
       const after = this.lines[to.line].slice(to.ch);
       const joined = before + text + after;
-      const newLines = joined.split("\n");
+      const newLines = joined.split('\n');
       this.lines.splice(from.line, to.line - from.line + 1, ...newLines);
       this.cursor = {
         line: from.line + newLines.length - 1,

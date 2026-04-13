@@ -1,4 +1,4 @@
-import { MockEditor } from "./MockEditor";
+import { MockEditor } from './MockEditor';
 
 /**
  * A comprehensive mock of the Obsidian App, Workspace, Vault, and Commands
@@ -44,11 +44,11 @@ export function createMockApp(editor?: MockEditor): MockApp {
       this._handlers[event].push(handler);
       return { event, handler }; // ref object for offref
     },
-    offref(_ref: object) {
+    offref(_reference: object) {
       // no-op; real cleanup is handled per-event in tests
     },
     trigger(event: string) {
-      this._handlers[event]?.forEach((h) => h());
+      this._handlers[event]?.forEach((handlerCallback) => handlerCallback());
     },
   };
 
@@ -76,7 +76,7 @@ export function createMockApp(editor?: MockEditor): MockApp {
  * Creates a MockApp with an active editor pre-loaded with the given content.
  * The cursor is placed at the start of the first line by default.
  */
-export function createAppWithEditor(content = ""): {
+export function createAppWithEditor(content = ''): {
   app: MockApp;
   editor: MockEditor;
 } {

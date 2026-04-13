@@ -1,14 +1,22 @@
-import "./GroupShell.css";
+import './group-shell.css';
 
-interface Props {
+type GroupShellProps = {
   name: string;
-  dataGroup: string;
   children: React.ReactNode;
-}
+} & Omit<React.HTMLAttributes<HTMLDivElement>, 'children'>;
 
-export function GroupShell({ name, dataGroup, children }: Props) {
+export function GroupShell({
+  name,
+  className,
+  children,
+  ...restProps
+}: GroupShellProps) {
+  const combinedClassName = className
+    ? `onr-group ${className}`
+    : 'onr-group';
+
   return (
-    <div className="onr-group" data-group={dataGroup}>
+    <div className={combinedClassName} {...restProps}>
       {children}
       <div className="onr-group-name">{name}</div>
     </div>

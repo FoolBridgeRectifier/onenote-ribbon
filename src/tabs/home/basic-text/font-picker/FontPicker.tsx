@@ -1,49 +1,49 @@
-import { useRef, useState } from "react";
-import "./FontPicker.css";
-import { useApp } from "../../../../shared/context/AppContext";
-import { Dropdown } from "../../../../shared/components/dropdown/Dropdown";
-import { applyFontFamily } from "./applyFontFamily";
-import { applyFontSize } from "./applyFontSize";
+import { useRef, useState } from 'react';
+import './font-picker.css';
+import { useApp } from '../../../../shared/context/AppContext';
+import { Dropdown } from '../../../../shared/components/dropdown/Dropdown';
+import { RibbonButton } from '../../../../shared/components/ribbon-button/RibbonButton';
+import { applyFontFamily, applyFontSize } from './helpers';
 
 const FONTS = [
-  "Arial",
-  "Arial Black",
-  "Book Antiqua",
-  "Calibri",
-  "Comic Sans MS",
-  "Courier New",
-  "Franklin Gothic Medium",
-  "Georgia",
-  "Helvetica",
-  "Impact",
-  "Palatino",
-  "Tahoma",
-  "Times New Roman",
-  "Trebuchet MS",
-  "Verdana",
+  'Arial',
+  'Arial Black',
+  'Book Antiqua',
+  'Calibri',
+  'Comic Sans MS',
+  'Courier New',
+  'Franklin Gothic Medium',
+  'Georgia',
+  'Helvetica',
+  'Impact',
+  'Palatino',
+  'Tahoma',
+  'Times New Roman',
+  'Trebuchet MS',
+  'Verdana',
 ];
 
 const SIZES = [
-  "8",
-  "9",
-  "10",
-  "11",
-  "12",
-  "14",
-  "16",
-  "18",
-  "20",
-  "22",
-  "24",
-  "26",
-  "28",
-  "36",
-  "48",
-  "72",
+  '8',
+  '9',
+  '10',
+  '11',
+  '12',
+  '14',
+  '16',
+  '18',
+  '20',
+  '22',
+  '24',
+  '26',
+  '28',
+  '36',
+  '48',
+  '72',
 ];
 
-const DEFAULT_FONT_LABEL = "Font";
-const DEFAULT_SIZE_LABEL = "11";
+const DEFAULT_FONT_LABEL = 'Font';
+const DEFAULT_SIZE_LABEL = '11';
 
 export function FontPicker() {
   const app = useApp();
@@ -54,8 +54,10 @@ export function FontPicker() {
   const [selectedFont, setSelectedFont] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
 
+  const getEditor = () => app.workspace.activeEditor?.editor;
+
   const handleFontSelect = (font: string) => {
-    const editor = app.workspace.activeEditor?.editor;
+    const editor = getEditor();
     if (!editor) return;
 
     applyFontFamily(editor, font);
@@ -64,7 +66,7 @@ export function FontPicker() {
   };
 
   const handleSizeSelect = (size: string) => {
-    const editor = app.workspace.activeEditor?.editor;
+    const editor = getEditor();
     if (!editor) return;
 
     applyFontSize(editor, parseInt(size, 10));
@@ -74,9 +76,9 @@ export function FontPicker() {
 
   return (
     <>
-      <div
+      <RibbonButton
         ref={fontAnchorRef}
-        className="onr-btn-sm onr-font-picker"
+        className="onr-font-picker"
         title="Font family"
         onClick={() => setFontMenuOpen(!fontMenuOpen)}
         data-cmd="font-family"
@@ -85,7 +87,7 @@ export function FontPicker() {
           {selectedFont ?? DEFAULT_FONT_LABEL}
         </span>
         <span className="onr-picker-caret">▾</span>
-      </div>
+      </RibbonButton>
       {fontMenuOpen && fontAnchorRef.current && (
         <Dropdown
           anchor={fontAnchorRef.current}
@@ -97,9 +99,9 @@ export function FontPicker() {
         />
       )}
 
-      <div
+      <RibbonButton
         ref={sizeAnchorRef}
-        className="onr-btn-sm onr-size-picker"
+        className="onr-size-picker"
         title="Font size"
         onClick={() => setSizeMenuOpen(!sizeMenuOpen)}
         data-cmd="font-size"
@@ -108,7 +110,7 @@ export function FontPicker() {
           {selectedSize ?? DEFAULT_SIZE_LABEL}
         </span>
         <span className="onr-picker-caret">▾</span>
-      </div>
+      </RibbonButton>
       {sizeMenuOpen && sizeAnchorRef.current && (
         <Dropdown
           anchor={sizeAnchorRef.current}

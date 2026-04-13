@@ -4,7 +4,7 @@ import { TabBar } from './tab-bar/TabBar';
 import { HomeTabPanel } from '../tabs/home/HomeTabPanel';
 import { InsertTabPanel } from '../tabs/insert/InsertTabPanel';
 
-import './RibbonApp.css';
+import './ribbon-app.css';
 
 export function RibbonApp() {
   const {

@@ -1,8 +1,10 @@
-import { useRef, useState } from "react";
-import "./ClipboardGroup.css";
-import { useApp } from "../../../shared/context/AppContext";
-import { useFormatPainterContext } from "../../../shared/context/FormatPainterContext";
-import { PasteOptionsDropdown } from "./paste-options/PasteOptionsDropdown";
+import { useRef, useState } from 'react';
+import './clipboard-group.css';
+import { useApp } from '../../../shared/context/AppContext';
+import { useFormatPainterContext } from '../../../shared/context/FormatPainterContext';
+import { GroupShell } from '../../../shared/components/group-shell/GroupShell';
+import { RibbonButton } from '../../../shared/components/ribbon-button/RibbonButton';
+import { PasteOptionsDropdown } from './paste-options/PasteOptionsDropdown';
 import {
   CopyIcon,
   CutIcon,
@@ -10,7 +12,7 @@ import {
   PasteCodeIcon,
   PasteIcon,
   PasteTextIcon,
-} from "../../../assets/icons";
+} from '../../../assets/icons';
 
 export function ClipboardGroup() {
   const app = useApp();
@@ -37,14 +39,14 @@ export function ClipboardGroup() {
     const editor = getEditor();
     if (!editor) return;
 
-    document.execCommand("cut");
+    document.execCommand('cut');
   };
 
   const handleCopy = () => {
     const editor = getEditor();
     if (!editor) return;
 
-    document.execCommand("copy");
+    document.execCommand('copy');
   };
 
   const handleFormatPainterClick = () => {
@@ -53,37 +55,37 @@ export function ClipboardGroup() {
 
     const sourceLine = editor.getLine(editor.getCursor().line);
     const prefixMatch = sourceLine.match(/^(#+\s|\*\*|__|~~)?/);
-    const prefix = prefixMatch?.[1] ?? "";
+    const prefix = prefixMatch?.[1] ?? '';
 
     formatPainter.setIsActive(!formatPainter.isActive);
     if (!formatPainter.isActive) {
-      formatPainter.setFormat({ prefix, suffix: "" });
+      formatPainter.setFormat({ prefix, suffix: '' });
     }
   };
 
   return (
-    <div className="onr-group">
+    <GroupShell name="Clipboard">
       <div className="onr-clipboard-inner">
         {/* Big Paste button with dropdown */}
         <div className="onr-clipboard-paste">
-          <div
+          <RibbonButton
             ref={pasteAnchorRef}
-            className="onr-btn onr-paste-main"
+            size="large"
+            className="onr-paste-main"
+            icon={<PasteIcon className="onr-icon" />}
+            label="Paste"
             title="Paste from clipboard"
             onClick={handlePaste}
             data-cmd="paste"
-          >
-            <PasteIcon className="onr-icon" />
-            <span className="onr-btn-label">Paste</span>
-          </div>
-          <div
-            className="onr-btn-sm onr-paste-dropdown"
+          />
+          <RibbonButton
+            className="onr-paste-dropdown"
             title="Paste special"
             onClick={handlePasteSpecial}
             data-cmd="paste-dropdown"
           >
             ▾
-          </div>
+          </RibbonButton>
         </div>
 
         {pasteMenuOpen && (
@@ -92,12 +94,12 @@ export function ClipboardGroup() {
             options={[
               {
                 icon: <PasteTextIcon className="onr-icon-sm" />,
-                title: "Paste plain text",
+                title: 'Paste plain text',
                 onClick: handlePaste,
               },
               {
                 icon: <PasteCodeIcon className="onr-icon-sm" />,
-                title: "Paste as code block",
+                title: 'Paste as code block',
                 onClick: () => {
                   const editor = getEditor();
                   if (!editor) return;
@@ -113,40 +115,37 @@ export function ClipboardGroup() {
 
         {/* Stacked small buttons: Cut / Copy / Format Painter */}
         <div className="onr-clipboard-stack">
-          <div
-            className="onr-btn-sm onr-clipboard-item"
+          <RibbonButton
+            className="onr-clipboard-item"
+            icon={<CutIcon className="onr-icon-sm" />}
+            label="Cut"
             title="Cut selection"
             onClick={handleCut}
             data-cmd="cut"
-          >
-            <CutIcon className="onr-icon-sm" />
-            <span className="onr-btn-label-sm">Cut</span>
-          </div>
-          <div
-            className="onr-btn-sm onr-clipboard-item"
+          />
+          <RibbonButton
+            className="onr-clipboard-item"
+            icon={<CopyIcon className="onr-icon-sm" />}
+            label="Copy"
             title="Copy selection"
             onClick={handleCopy}
             data-cmd="copy"
-          >
-            <CopyIcon className="onr-icon-sm" />
-            <span className="onr-btn-label-sm">Copy</span>
-          </div>
-          <div
-            className={`onr-btn-sm onr-clipboard-item${formatPainter.isActive ? " onr-active" : ""}`}
+          />
+          <RibbonButton
+            className="onr-clipboard-item"
+            active={formatPainter.isActive}
+            icon={<FormatPainterIcon className="onr-icon-sm" />}
+            label="Format Painter"
             title={
               formatPainter.isActive
-                ? "Disable format painter"
-                : "Enable format painter"
+                ? 'Disable format painter'
+                : 'Enable format painter'
             }
             onClick={handleFormatPainterClick}
             data-cmd="format-painter"
-          >
-            <FormatPainterIcon className="onr-icon-sm" />
-            <span className="onr-btn-label-sm">Format Painter</span>
-          </div>
+          />
         </div>
       </div>
-      <div className="onr-group-name">Clipboard</div>
-    </div>
+    </GroupShell>
   );
 }

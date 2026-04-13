@@ -28,23 +28,23 @@
 }
 
 /* 22 × 22 size override for inline format buttons */
-.onr-format-btn {
+.onr-btn-sm.onr-format-btn {
   min-height: 22px;
   width: 22px;
 }
 
 /* Typography modifiers for each format button */
-.onr-format-bold {
+.onr-btn-sm.onr-format-bold {
   font-weight: 700;
   font-size: 13px;
 }
 
-.onr-format-italic {
+.onr-btn-sm.onr-format-italic {
   font-style: italic;
   font-size: 13px;
 }
 
-.onr-format-underline {
+.onr-btn-sm.onr-format-underline {
   text-decoration: underline;
   font-size: 12px;
   font-weight: 600;
@@ -65,7 +65,7 @@
 }
 
 /* Clear inline formatting button */
-.onr-clear-inline-btn {
+.onr-btn-sm.onr-clear-inline-btn {
   min-height: 22px;
   width: 22px;
 }

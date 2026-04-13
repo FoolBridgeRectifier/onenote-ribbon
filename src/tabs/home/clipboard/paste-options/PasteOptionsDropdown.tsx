@@ -1,6 +1,5 @@
-import { useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
-import "./PasteOptionsDropdown.css";
+import { Dropdown } from '../../../../shared/components/dropdown/Dropdown';
+import './paste-options-dropdown.css';
 
 export interface PasteOption {
   icon: React.ReactNode;
@@ -15,37 +14,18 @@ interface Props {
 }
 
 export function PasteOptionsDropdown({ anchor, options, onClose }: Props) {
-  const panelRef = useRef<HTMLDivElement>(null);
+  const handleOptionClick = (option: PasteOption) => {
+    option.onClick();
+    onClose();
+  };
 
-  useEffect(() => {
-    if (!anchor) return;
-
-    const handleDocumentClick = (event: MouseEvent) => {
-      if (
-        panelRef.current &&
-        !panelRef.current.contains(event.target as Node) &&
-        !anchor.contains(event.target as Node)
-      ) {
-        onClose();
-      }
-    };
-
-    document.addEventListener("click", handleDocumentClick, true);
-    return () =>
-      document.removeEventListener("click", handleDocumentClick, true);
-  }, [anchor, onClose]);
-
-  if (!anchor) return null;
-
-  const rect = anchor.getBoundingClientRect();
-  const top = rect.bottom + 2;
-  const left = rect.left;
-
-  return createPortal(
-    <div
-      ref={panelRef}
+  return (
+    <Dropdown
+      anchor={anchor}
+      onClose={onClose}
       className="onr-paste-options-panel"
-      style={{ top: `${top}px`, left: `${left}px` }}
+      offsetY={2}
+      constrainLeftToViewport={false}
     >
       <div className="onr-paste-options-header">Paste Options:</div>
       <div className="onr-paste-options-row">
@@ -54,16 +34,12 @@ export function PasteOptionsDropdown({ anchor, options, onClose }: Props) {
             key={index}
             className="onr-paste-option-btn"
             title={option.title}
-            onClick={() => {
-              option.onClick();
-              onClose();
-            }}
+            onClick={() => handleOptionClick(option)}
           >
             {option.icon}
           </button>
         ))}
       </div>
-    </div>,
-    document.body,
+    </Dropdown>
   );
 }

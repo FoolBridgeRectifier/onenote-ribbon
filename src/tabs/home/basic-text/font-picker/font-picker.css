@@ -1,5 +1,5 @@
 /* Font family picker button */
-.onr-font-picker {
+.onr-btn-sm.onr-font-picker {
   width: 96px;
   flex-direction: row;
   gap: 2px;
@@ -11,7 +11,7 @@
 }
 
 /* Font size picker button */
-.onr-size-picker {
+.onr-btn-sm.onr-size-picker {
   width: 34px;
   flex-direction: row;
   min-height: 22px;

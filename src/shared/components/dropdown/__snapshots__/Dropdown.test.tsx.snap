@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Dropdown renders default item layout and computed placement styles: default-dropdown-open 1`] = `
+<div
+  class="onr-overlay-dropdown"
+  style="top: 68px; left: 120px;"
+>
+  <div
+    class="onr-dd-item"
+  >
+    <div
+      class="onr-dd-content"
+    >
+      <div
+        class="onr-dd-label"
+      >
+        Paste
+      </div>
+    </div>
+  </div>
+  <div
+    class="onr-dd-item"
+  >
+    <div
+      class="onr-dd-content"
+    >
+      <div
+        class="onr-dd-label"
+      >
+        Paste Plain
+      </div>
+      <div
+        class="onr-dd-sublabel"
+      >
+        Keep text only
+      </div>
+    </div>
+  </div>
+</div>
+`;

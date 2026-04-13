@@ -35,7 +35,7 @@ An Obsidian plugin that renders a Microsoft OneNote-style ribbon toolbar.
 ```
 npm run build                 # production bundle
 npm run dev                   # watch mode
-npm test                      # all Jest tests (475 tests)
+npm test                      # all Jest tests
 npm run test:watch            # jest --watch
 npm run test:coverage         # jest --coverage (threshold: 80% lines)
 npm run test:e2e              # E2E via CDP (requires running Obsidian on port 9222)
@@ -50,169 +50,83 @@ npm run test:e2e:insert       # E2E insert tab suites only
 
 ```
 onenote-ribbon/
-├── .claude/
-│   └── project-guide.md     ← you are here; read before any task
-├── .github/
-│   └── copilot-instructions.md
 ├── src/
 │   ├── main.ts              ← plugin entry; registers RibbonShell only
 │   ├── __mocks__/
 │   │   └── obsidian.ts      ← Jest mock for 'obsidian' module
-│   ├── test-utils/          ← shared test helpers (NOT in coverage, NOT in tests/)
+│   ├── test-utils/          ← shared test helpers (excluded from coverage)
 │   │   ├── MockEditor.ts
 │   │   ├── mockApp.ts
 │   │   ├── renderWithApp.tsx
 │   │   └── setup.ts
-│   ├── styles/              ← global CSS (tokens + shell layout)
-│   │   ├── tokens.css
-│   │   └── shell.css
 │   ├── ribbon/              ← top-level ribbon wiring
-│   │   ├── RibbonShell.ts   ← createRoot mount (excluded from coverage)
+│   │   ├── ribbon-app.css
 │   │   ├── RibbonApp.tsx
-│   │   ├── TabBar.tsx
+│   │   ├── RibbonShell.ts
 │   │   ├── tabs.ts
-│   │   ├── useRibbonState.ts
-│   │   └── tests/
-│   │       └── ribbon.test.tsx
-│   ├── shared/              ← reusable logic, components, hooks
-│   │   ├── README.md
-│   │   ├── components/      ← RibbonButton, GroupShell, Dropdown (React)
-│   │   │   ├── RibbonButton.tsx
-│   │   │   ├── GroupShell.tsx
-│   │   │   ├── Dropdown.tsx
-│   │   │   └── tests/
-│   │   │       └── components.test.tsx
+│   │   └── tab-bar/
+│   │       ├── tab-bar.css
+│   │       └── TabBar.tsx
+│   ├── shared/
+│   │   ├── components/
+│   │   │   └── dropdown/
+│   │   │       ├── dropdown.css
+│   │   │       └── Dropdown.tsx
 │   │   ├── context/         ← AppContext, FormatPainterContext
 │   │   │   ├── AppContext.ts
 │   │   │   └── FormatPainterContext.ts
-│   │   ├── dropdown/        ← Dropdown types + CSS (non-React)
+│   │   ├── dropdown/
 │   │   │   ├── Dropdown.ts
-│   │   │   ├── dropdown.css
-│   │   │   └── README.md
-│   │   ├── hooks/           ← useEditorState, useFormatPainter
-│   │   │   ├── useEditorState.ts
+│   │   └── hooks/
 │   │   │   ├── useFormatPainter.ts
-│   │   │   └── tests/
-│   │   │       └── useEditorState.test.ts
-│   │   ├── tests/           ← pure-logic unit tests (toggleInline etc.)
-│   │   │   ├── README.md
-│   │   │   ├── toggleInline.test.ts
-│   │   │   ├── toggleLinePrefix.test.ts
-│   │   │   └── toggleSubSup.test.ts
-│   │   ├── toggleInline.ts
-│   │   ├── toggleLinePrefix.ts
-│   │   └── toggleSubSup.ts
+│   │   │   └── useRibbonState.ts
 │   └── tabs/
 │       ├── home/
-│       │   ├── README.md
+│       │   ├── home-tab-panel.css
+│       │   ├── HomeTabPanel.test.tsx
 │       │   ├── HomeTabPanel.tsx
-│       │   ├── home.css
+│       │   ├── __snapshots__/
+│       │   │   └── HomeTabPanel.test.tsx.snap
 │       │   ├── clipboard/
-│       │   │   ├── README.md
+│       │   │   ├── clipboard-group.css
 │       │   │   ├── ClipboardGroup.tsx
-│       │   │   ├── clipboard.css
 │       │   │   ├── format-painter/
-│       │   │   │   ├── README.md
-│       │   │   │   ├── applyFormatPainter.ts
-│       │   │   │   └── tests/
-│       │   │   │       ├── README.md
-│       │   │   │       └── applyFormatPainter.test.ts
-│       │   │   └── tests/
-│       │   │       └── ClipboardGroup.test.tsx
+│       │   │   │   └── helpers.ts
+│       │   │   └── paste-options/
+│       │   │       ├── paste-options-dropdown.css
+│       │   │       └── PasteOptionsDropdown.tsx
 │       │   ├── basic-text/
-│       │   │   ├── README.md
+│       │   │   ├── basic-text-group.css
 │       │   │   ├── BasicTextGroup.tsx
-│       │   │   ├── basic-text.css
-│       │   │   ├── clearFormatting.ts
-│       │   │   └── tests/
-│       │   │       ├── README.md
-│       │   │       ├── BasicTextGroup.test.tsx
-│       │   │       └── clearFormatting.test.ts
+│       │   │   ├── helpers.ts
+│       │   │   ├── align-button/
+│       │   │   │   ├── align-button.css
+│       │   │   │   └── AlignButton.tsx
+│       │   │   ├── font-picker/
+│       │   │   │   ├── font-picker.css
+│       │   │   │   ├── FontPicker.tsx
+│       │   │   │   └── helpers.ts
+│       │   │   ├── highlight-text-color/
+│       │   │   │   ├── highlight-text-color.css
+│       │   │   │   └── HighlightTextColor.tsx
+│       │   │   └── script-buttons/
+│       │   │       ├── script-buttons.css
+│       │   │       └── ScriptButtons.tsx
 │       │   ├── styles/
-│       │   │   ├── README.md
+│       │   │   ├── styles-group.css
 │       │   │   ├── StylesGroup.tsx
-│       │   │   ├── styles.css
 │       │   │   ├── styles-data.ts
-│       │   │   └── tests/
-│       │   │       └── StylesGroup.test.tsx
 │       │   ├── tags/
-│       │   │   ├── README.md
+│       │   │   ├── tags-group.css
 │       │   │   ├── TagsGroup.tsx
-│       │   │   ├── tags.css
-│       │   │   ├── tags-data.ts
-│       │   │   ├── tag-apply/
-│       │   │   │   ├── README.md
-│       │   │   │   ├── applyTag.ts
-│       │   │   │   └── tests/
-│       │   │   │       ├── README.md
-│       │   │   │       └── applyTag.test.ts
-│       │   │   └── tests/
-│       │   │       └── TagsGroup.test.tsx
 │       │   ├── email/
-│       │   │   ├── README.md
 │       │   │   ├── EmailGroup.tsx
-│       │   │   └── tests/
-│       │   │       └── EmailGroup.test.tsx
 │       │   └── navigate/
-│       │       ├── README.md
 │       │       ├── NavigateGroup.tsx
-│       │       └── tests/
-│       │           └── NavigateGroup.test.tsx
 │       ├── insert/
-│       │   ├── README.md
 │       │   ├── InsertTabPanel.tsx
-│       │   ├── insert.css
-│       │   ├── tests/
-│       │   │   └── InsertTabPanel.test.tsx
-│       │   ├── blank-line/
-│       │   │   ├── README.md
-│       │   │   ├── BlankLineButton.tsx
-│       │   │   └── tests/
-│       │   │       └── BlankLineButton.test.tsx
-│       │   ├── blocks/
-│       │   │   ├── README.md
-│       │   │   ├── BlocksGroup.tsx
-│       │   │   └── tests/
-│       │   │       └── BlocksGroup.test.tsx
-│       │   ├── files/
-│       │   │   ├── README.md
-│       │   │   ├── FilesGroup.tsx
-│       │   │   └── tests/
-│       │   │       └── FilesGroup.test.tsx
-│       │   ├── images/
-│       │   │   ├── README.md
-│       │   │   ├── ImagesGroup.tsx
-│       │   │   └── tests/
-│       │   │       └── ImagesGroup.test.tsx
-│       │   ├── links/
-│       │   │   ├── README.md
-│       │   │   ├── LinksGroup.tsx
-│       │   │   └── tests/
-│       │   │       └── LinksGroup.test.tsx
-│       │   ├── symbols/
-│       │   │   ├── README.md
-│       │   │   ├── SymbolsGroup.tsx
-│       │   │   └── tests/
-│       │   │       └── SymbolsGroup.test.tsx
-│       │   ├── tables/
-│       │   │   ├── README.md
-│       │   │   ├── TablesGroup.tsx
-│       │   │   └── tests/
-│       │   │       └── TablesGroup.test.tsx
-│       │   └── timestamp/
-│       │       ├── README.md
-│       │       ├── TimestampGroup.tsx
-│       │       └── tests/
-│       │           └── TimestampGroup.test.tsx
-│       └── draw/ history/ review/ view/ help/   ← stub tabs (no tests required)
-├── scripts/
-│   └── e2e/
-│       └── run-e2e.mjs      ← CDP E2E runner (Node 24, zero deps)
-├── plans/                   ← implementation plan markdown files
-├── jest.config.js
-├── tsconfig.json
-├── esbuild.config.mjs
-└── package.json
+│       │   └── (sub-groups planned, not scaffolded yet)
+│       └── draw/ history/ review/ view/ help/   ← stub tabs (no src files yet)
 ```
 
 ---
@@ -227,18 +141,17 @@ Every feature module (group, button, helper) follows this layout:
 ├── <Feature>.tsx            ← React component (PascalCase)
 ├── <feature>.css            ← scoped CSS (if any)
 ├── <helper>.ts              ← pure logic extracted from component (if any)
-└── tests/
-    ├── README.md            ← what this test file covers
-    └── <Feature>.test.tsx   ← RTL integration tests
+├── <Feature>.test.tsx       ← colocated RTL test (same folder as component)
+└── __snapshots__/           ← optional Jest snapshots
 ```
 
 **Rules:**
 
 - Source files (`.ts`, `.tsx`, `.css`) live **directly** in the feature folder.
-- Test files (`.test.ts`, `.test.tsx`) live **exclusively** inside `tests/` subdirectories.
+- Test files (`.test.ts`, `.test.tsx`) live **in the same folder** as the source they test.
+- Snapshot files live in `__snapshots__/` next to the colocated test file when Jest creates them.
 - `README.md` files are allowed at folder level — not test files.
-- Do not put test files at the same level as source files.
-- Every new logical block (pure function, hook, utility, transformation) must be extracted into its own file, exported from that file, and called from the editing file. Its `tests/` directory must contain unit tests that cover every variation of parameters and every return path.
+- Every new logical block (pure function, hook, utility, transformation) must be extracted into its own file, exported from that file, and called from the editing file. Its unit tests must be colocated in the same folder and cover every variation of parameters and every return path.
 
 ### Folder Organization Rules
 
@@ -247,7 +160,7 @@ Every feature module (group, button, helper) follows this layout:
 - **Subfolder pattern for overflow:** If a folder needs more than one component or helper, create a subfolder with its own index and helper, following the same pattern.
 - **No sibling files at the same level:** Related utilities, helpers, and data files must be organized into their own subfolders (e.g., `format-painter/`, `tag-apply/`) with their own index files.
 - **Always check for redundancy:** Before adding a new file, verify that similar logic does not already exist elsewhere in the codebase. Consolidate duplicated logic into a shared utility (e.g., `src/shared/`).
-- **Naming consistency:** The folder name (kebab-case) must match the file prefix. Example: `format-painter/` contains `applyFormatPainter.ts` and `applyFormatPainter.test.ts`.
+- **Naming consistency:** The folder name (kebab-case) must match the file purpose. Example: `format-painter/` contains `helpers.ts` (and optional colocated `helpers.test.ts`).
 
 ---
 
@@ -259,10 +172,10 @@ Two distinct format-painter hooks — do not confuse them:
 
 ```ts
 // useFormatPainter  — CREATES state. Used only in HomeTabPanel as the context provider.
-import { useFormatPainter } from "src/shared/hooks/useFormatPainter";
+import { useFormatPainter } from 'src/shared/hooks/useFormatPainter';
 
 // useFormatPainterContext — CONSUMES context. Used inside group components.
-import { useFormatPainterContext } from "src/shared/context/FormatPainterContext";
+import { useFormatPainterContext } from 'src/shared/context/FormatPainterContext';
 ```
 
 ```ts
@@ -290,16 +203,11 @@ export function MyGroup({ editorState }: Props) {
 - Every handler calls `const editor = getEditor(); if (!editor) return;` before using the editor.
 - Extract all multi-line `onClick` / `onMouseDown` logic to named functions — do not use anonymous inline arrow functions for non-trivial logic.
 
-### RibbonButton
+### Buttons And Groups
 
-- Always use `<RibbonButton>` for toolbar buttons — it handles `onMouseDown` + `preventDefault()` automatically.
-- Use `data-cmd` prop for identifying buttons in tests.
-- Use `active` prop (boolean) for toggled state — renders `onr-active` class.
-- Use `disabled` prop — renders `onr-disabled` class.
-
-### GroupShell
-
-- Wraps every group. Takes `name` (label below group) and `dataGroup` (for `data-group` attribute).
+- Button markup uses `onr-btn` (large) and `onr-btn-sm` (small) classes.
+- Groups use `onr-group` wrappers with a `onr-group-name` label element.
+- Use `data-cmd` attributes on interactive controls for test and automation targeting.
 
 ### Dropdown
 
@@ -309,9 +217,8 @@ export function MyGroup({ editorState }: Props) {
 
 ### Active state
 
-- Driven by `EditorState` from `useEditorState(app)` hook.
-- Components receive `editorState` as a prop — do not call `useEditorState` inside groups.
-- `HomeTabPanel` calls `useEditorState` once and fans out via props.
+- Active/toggled UI state is managed locally per group and via shared contexts (for example, format painter context).
+- There is no shared `useEditorState` hook in the current structure.
 
 ---
 
@@ -366,10 +273,10 @@ All identifiers (variables, parameters, constants, type aliases, hook names) mus
 
 ### `parseCssString` — single source of truth
 
-`parseCssString` is defined and **exported exclusively from `src/shared/components/Dropdown.tsx`**. Do not duplicate it in any other file. Import it where needed:
+`parseCssString` is defined and **exported exclusively from `src/shared/components/dropdown/Dropdown.tsx`**. Do not duplicate it in any other file. Import it where needed:
 
 ```ts
-import { parseCssString } from "../../../shared/components/Dropdown";
+import { parseCssString } from '../../../shared/components/dropdown/Dropdown';
 ```
 
 ---
@@ -391,22 +298,22 @@ import { parseCssString } from "../../../shared/components/Dropdown";
 
 ### Three test layers
 
-| Layer           | Files                 | Tool          | What it tests                                                                        |
-| --------------- | --------------------- | ------------- | ------------------------------------------------------------------------------------ |
-| **Unit**        | `*.test.ts`           | Jest (no DOM) | Pure logic functions (toggleInline, clearFormatting, applyTag, etc.)                 |
-| **Integration** | `*.test.tsx`          | Jest + RTL    | React components: render, click → editor mutation, dropdown open/close, active state |
-| **E2E**         | `scripts/e2e/` runner | CDP (Node)    | Live Obsidian with real vault; see `npm run test:e2e`                                |
+| Layer           | Files                 | Tool          | What it tests                                                                                     |
+| --------------- | --------------------- | ------------- | ------------------------------------------------------------------------------------------------- |
+| **Unit**        | `*.test.ts`           | Jest (no DOM) | Pure logic functions (clearFormatting, stripFormatting, applyFormatPainter, parseCssString, etc.) |
+| **Integration** | `*.test.tsx`          | Jest + RTL    | React components: render, click → editor mutation, dropdown open/close, active state              |
+| **E2E**         | `scripts/e2e/` runner | CDP (Node)    | Live Obsidian with real vault; see `npm run test:e2e`                                             |
 
 ### File location rule
 
 ```
-✅ src/tabs/home/basic-text/tests/BasicTextGroup.test.tsx
-✅ src/shared/hooks/tests/useEditorState.test.ts
-❌ src/tabs/home/basic-text/BasicTextGroup.test.tsx  ← NEVER at same level as source
-❌ src/shared/hooks/useEditorState.test.ts            ← NEVER at same level as source
+✅ src/tabs/home/basic-text/BasicTextGroup.test.tsx
+✅ src/shared/hooks/useRibbonState.test.ts
+❌ src/tabs/home/basic-text/tests/BasicTextGroup.test.tsx
+❌ src/shared/hooks/tests/useRibbonState.test.ts
 ```
 
-**All test files must live inside a `tests/` subdirectory** relative to the module they test.
+**All test files must be colocated in the same folder as the module they test.**
 
 ### Test file naming
 
@@ -433,26 +340,26 @@ const ddItem = (phrase) =>
 
 ```tsx
 // Standard structure for integration tests:
-describe("FeatureGroup — description (integration)", () => {
-  it("renders expected buttons", () => {
-    const { app } = createAppWithEditor("");
+describe('FeatureGroup — description (integration)', () => {
+  it('renders expected buttons', () => {
+    const { app } = createAppWithEditor('');
     renderWithApp(<FeatureGroup />, app);
-    expect(screen.getByText("Button Label")).toBeInTheDocument();
+    expect(screen.getByText('Button Label')).toBeInTheDocument();
   });
 
-  it("click applies expected editor change", () => {
-    const { app, editor } = createAppWithEditor("initial content");
+  it('click applies expected editor change', () => {
+    const { app, editor } = createAppWithEditor('initial content');
     editor.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 7 });
     renderWithApp(<FeatureGroup />, app);
-    fireEvent.click(screen.getByText("Button Label"));
-    expect(editor.getValue()).toBe("expected result");
+    fireEvent.click(screen.getByText('Button Label'));
+    expect(editor.getValue()).toBe('expected result');
   });
 
-  it("is no-op when no active editor", () => {
+  it('is no-op when no active editor', () => {
     const app = createMockApp();
     renderWithApp(<FeatureGroup />, app);
     expect(() =>
-      fireEvent.click(screen.getByText("Button Label")),
+      fireEvent.click(screen.getByText('Button Label')),
     ).not.toThrow();
   });
 });
@@ -462,7 +369,7 @@ describe("FeatureGroup — description (integration)", () => {
 
 ```tsx
 // Dropdowns (async — use act for clicking items):
-fireEvent.click(screen.getByText("Dropdown Button"));
+fireEvent.click(screen.getByText('Dropdown Button'));
 act(() => {
   fireEvent.click(dropdownItem);
 });
@@ -529,10 +436,10 @@ await act(async () => {
 3. **No vitest** — vitest is not installed. Use Jest + RTL only. Do not import from `vitest`.
 4. **TypeScript strict** — all code must pass `tsc --noEmit`. No `any` except in test utils casting mock.
 5. **Editor guard** — every button handler must declare `const editor = getEditor(); if (!editor) return;` before using the editor. The accessor itself is `const getEditor = () => app.workspace.activeEditor?.editor;` at component top-level.
-6. **No component-level polling** — `useEditorState` uses `workspace.on("active-leaf-change")`, `workspace.on("editor-change")`, and DOM `click`/`keyup` capture listeners. No manual RAF polling loops.
+6. **No component-level polling** — do not use `requestAnimationFrame` or `setInterval` loops to synchronize editor UI state. Prefer explicit event-driven updates and direct handler execution paths.
 7. **CSS prefix** — all classes must use `onr-` prefix. No Tailwind, no utility classes.
-8. **No test files at source level** — all `.test.ts` / `.test.tsx` files must be in a `tests/` subdirectory.
-9. **No README.md in tests/** folders unless documenting test scope — keep them short.
+8. **Colocated tests only** — `.test.ts` / `.test.tsx` files should be in the same folder as the module they cover.
+9. **Avoid test-only folder sprawl** — do not create dedicated `tests/` folders for feature modules.
 10. **No `console.log`** left in production code. Debug logs are acceptable in test files only.
 11. **No abbreviations** — all identifiers must be fully descriptive. See §6 for the full banned-abbreviations table. Single-letter names are never acceptable outside tight numeric `for`-loop counters.
 12. **Extract inline handlers** — do not write multi-line logic inside `onClick`/`onMouseDown` JSX props. Extract to named functions declared above the `return`.
@@ -575,7 +482,7 @@ Use today's date (ISO 8601) and a short kebab-case name derived from the task. T
 
 ## 13. Enforce before any task completion
 
-1. All new test files go in `tests/` subdirectory — never alongside source files
+1. All new test files are colocated with source files
 2. `npm test` must pass with 0 failures
 3. No imports from `vitest` — Jest only
 4. TypeScript strict mode — no unguarded `any`
@@ -629,6 +536,7 @@ Never declare defeat without first exhausting debug-driven investigation. If ana
 
 ## 16. Non-obvious Behaviors
 
-- `toggleLinePrefix("- ")`: strips full checklist prefix variants when removing bullet prefix
-- `toggleInline`: unwrap guard checks `sel[open.length] !== open[0]` — prevents `*` treating `**text**` as italic
+- `clearFormatting` repeatedly strips `<span ...>...</span>` wrappers until stable, so nested font wrappers are fully removed.
+- `stripFormatting(sourceText, stripInline)` treats `stripInline = true` as preserve headings and strip only inline markup; default behavior strips headings too.
+- `applyFormatPainter` is a no-op for empty selections and only wraps non-empty selection text.
 - **Plugin reload for dev**: `app.plugins.disablePlugin('onenote-ribbon')` then `enablePlugin` — NOT `plugin.shell.mount()` (doesn't reload JS)

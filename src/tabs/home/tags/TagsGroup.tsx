@@ -1,14 +1,16 @@
-import { useRef, useState } from "react";
-import "./TagsGroup.css";
-import { useApp } from "../../../shared/context/AppContext";
-import { Dropdown } from "../../../shared/components/dropdown/Dropdown";
+import { useRef, useState } from 'react';
+import './tags-group.css';
+import { useApp } from '../../../shared/context/AppContext';
+import { GroupShell } from '../../../shared/components/group-shell/GroupShell';
+import { RibbonButton } from '../../../shared/components/ribbon-button/RibbonButton';
+import { Dropdown } from '../../../shared/components/dropdown/Dropdown';
 import {
   FindTagsIcon,
   ImportantTagIcon,
   QuestionTagIcon,
   TodoTagButtonIcon,
   TodoTagIcon,
-} from "../../../assets/icons";
+} from '../../../assets/icons';
 
 export function TagsGroup() {
   const app = useApp();
@@ -18,7 +20,7 @@ export function TagsGroup() {
   const getEditor = () => app.workspace.activeEditor?.editor;
 
   const handleTodo = () => {
-    (app as any).commands.executeCommandById("editor:toggle-todo");
+    (app as any).commands.executeCommandById('editor:toggle-todo');
   };
 
   const handleImportant = () => {
@@ -42,13 +44,13 @@ export function TagsGroup() {
   };
 
   const handleFindTags = () => {
-    (app as any).commands.executeCommandById("global-search:open");
+    (app as any).commands.executeCommandById('global-search:open');
     const searchBox = document.querySelector(
       'input[placeholder*="Search"]',
     ) as HTMLInputElement;
     if (searchBox) {
-      searchBox.value = "#";
-      searchBox.dispatchEvent(new Event("input", { bubbles: true }));
+      searchBox.value = '#';
+      searchBox.dispatchEvent(new Event('input', { bubbles: true }));
     }
   };
 
@@ -60,13 +62,13 @@ export function TagsGroup() {
   };
 
   return (
-    <div className="onr-group">
+    <GroupShell name="Tags">
       <div className="onr-tags-group">
         {/* Stacked tag rows */}
         <div className="onr-tags-stack">
           {/* To Do row */}
-          <div
-            className="onr-btn-sm onr-tag-row"
+          <RibbonButton
+            className="onr-tag-row"
             onClick={handleTodo}
             data-cmd="todo"
             title="Toggle to-do"
@@ -78,11 +80,11 @@ export function TagsGroup() {
             <TodoTagIcon className="onr-tag-icon" />
             <span className="onr-tag-label">To Do</span>
             <div className="onr-tag-swatch" />
-          </div>
+          </RibbonButton>
 
           {/* Important row */}
-          <div
-            className="onr-btn-sm onr-tag-row"
+          <RibbonButton
+            className="onr-tag-row"
             onClick={handleImportant}
             data-cmd="important"
             title="Mark as important"
@@ -90,11 +92,11 @@ export function TagsGroup() {
             <ImportantTagIcon className="onr-tag-icon" />
             <span className="onr-tag-label">Important</span>
             <div className="onr-tag-swatch" />
-          </div>
+          </RibbonButton>
 
           {/* Question row */}
-          <div
-            className="onr-btn-sm onr-tag-row"
+          <RibbonButton
+            className="onr-tag-row"
             onClick={handleQuestion}
             data-cmd="question"
             title="Mark as question"
@@ -102,32 +104,32 @@ export function TagsGroup() {
             <QuestionTagIcon className="onr-tag-icon" />
             <span className="onr-tag-label">Question</span>
             <div className="onr-tag-swatch" />
-          </div>
+          </RibbonButton>
         </div>
 
         {/* More arrow with dropdown */}
         <div className="onr-tags-more">
-          <div
+          <RibbonButton
             ref={moreButtonRef}
-            className="onr-btn-sm onr-more-arrow"
+            className="onr-more-arrow"
             title="More tags"
             onClick={() => setMoreMenuOpen(!moreMenuOpen)}
             data-cmd="more-tags"
           >
             ▾
-          </div>
+          </RibbonButton>
           {moreMenuOpen && moreButtonRef.current && (
             <Dropdown
               anchor={moreButtonRef.current}
               items={[
                 {
-                  label: "Quote",
+                  label: 'Quote',
                   onClick: () => {
                     setMoreMenuOpen(false);
                   },
                 },
                 {
-                  label: "Code",
+                  label: 'Code',
                   onClick: () => {
                     setMoreMenuOpen(false);
                   },
@@ -140,27 +142,26 @@ export function TagsGroup() {
 
         {/* Big buttons: To Do Tag + Find Tags */}
         <div className="onr-tag-big-buttons">
-          <div
-            className="onr-btn onr-tag-btn"
+          <RibbonButton
+            size="large"
+            className="onr-tag-btn"
+            icon={<TodoTagButtonIcon className="onr-icon" />}
+            label="To Do Tag"
             title="Insert To Do tag"
             onClick={handleToDoTag}
             data-cmd="todo-tag"
-          >
-            <TodoTagButtonIcon className="onr-icon" />
-            <span className="onr-btn-label">To Do Tag</span>
-          </div>
-          <div
-            className="onr-btn onr-tag-btn"
+          />
+          <RibbonButton
+            size="large"
+            className="onr-tag-btn"
+            icon={<FindTagsIcon className="onr-icon" />}
+            label="Find Tags"
             title="Search for tags"
             onClick={handleFindTags}
             data-cmd="find-tags"
-          >
-            <FindTagsIcon className="onr-icon" />
-            <span className="onr-btn-label">Find Tags</span>
-          </div>
+          />
         </div>
       </div>
-      <div className="onr-group-name">Tags</div>
-    </div>
+    </GroupShell>
   );
 }

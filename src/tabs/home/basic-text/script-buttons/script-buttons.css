@@ -1,6 +1,6 @@
 /* Typography modifiers for subscript and superscript buttons */
-.onr-format-sub,
-.onr-format-sup {
+.onr-btn-sm.onr-format-sub,
+.onr-btn-sm.onr-format-sup {
   font-size: 10px;
 }
 

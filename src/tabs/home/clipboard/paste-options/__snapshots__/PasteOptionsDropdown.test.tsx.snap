@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`PasteOptionsDropdown renders open state snapshot and computed styles through shared Dropdown: paste-options-open 1`] = `
+<div
+  class="onr-overlay-dropdown onr-paste-options-panel"
+  style="top: 122px; left: 88px;"
+>
+  <div
+    class="onr-paste-options-header"
+  >
+    Paste Options:
+  </div>
+  <div
+    class="onr-paste-options-row"
+  >
+    <button
+      class="onr-paste-option-btn"
+      title="Paste plain text"
+    >
+      <span>
+        PT
+      </span>
+    </button>
+    <button
+      class="onr-paste-option-btn"
+      title="Paste as code block"
+    >
+      <span>
+        CB
+      </span>
+    </button>
+  </div>
+</div>
+`;

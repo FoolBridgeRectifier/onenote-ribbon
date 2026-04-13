@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { Editor } from 'obsidian';
-import { FormatPainterContextValue, FormatPainterFormat } from '../context/FormatPainterContext';
-import { applyFormatPainter } from '../../tabs/home/clipboard/format-painter/applyFormatPainter';
+import {
+  FormatPainterContextValue,
+  FormatPainterFormat,
+} from '../context/FormatPainterContext';
+import { applyFormatPainter } from '../../tabs/home/clipboard/format-painter/helpers';
 
 export function useFormatPainter(): FormatPainterContextValue {
   const [isActive, setIsActive] = useState(false);

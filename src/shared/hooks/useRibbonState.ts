@@ -15,7 +15,7 @@ export function useRibbonState() {
   };
 
   const handleCollapseToggle = () => {
-    setCollapsed((c) => !c);
+    setCollapsed((isCurrentlyCollapsed) => !isCurrentlyCollapsed);
     setIsTemporarilyExpanded(false);
   };
 

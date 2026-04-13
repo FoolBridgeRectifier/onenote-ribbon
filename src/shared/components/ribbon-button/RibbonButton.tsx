@@ -1,42 +1,46 @@
-import "./RibbonButton.css";
+import { forwardRef } from 'react';
+import './ribbon-button.css';
 
-interface Props {
-  label?: string;
+type RibbonButtonProps = {
+  size?: 'large' | 'small';
   icon?: React.ReactNode;
-  title?: string;
+  label?: string;
   active?: boolean;
-  disabled?: boolean;
-  className?: string;
-  style?: React.CSSProperties;
-  "data-cmd"?: string;
-  onClick: (e: React.MouseEvent) => void;
-}
+  children?: React.ReactNode;
+} & Omit<React.HTMLAttributes<HTMLDivElement>, 'children'>;
 
-export function RibbonButton({
-  label,
-  icon,
-  title,
-  active,
-  disabled,
-  className = "onr-btn-sm",
-  style,
-  "data-cmd": dataCmd,
-  onClick,
-}: Props) {
-  return (
-    <div
-      className={`${className}${active ? " onr-active" : ""}${disabled ? " onr-disabled" : ""}`}
-      title={title}
-      style={style}
-      data-cmd={dataCmd}
-      onMouseDown={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
-      onClick={onClick}
-    >
-      {icon}
-      {label && <span className="onr-btn-label-sm">{label}</span>}
-    </div>
-  );
-}
+export const RibbonButton = forwardRef<HTMLDivElement, RibbonButtonProps>(
+  function RibbonButton(
+    { size = 'small', icon, label, active, className, children, ...restProps },
+    ref,
+  ) {
+    const baseClass = size === 'large' ? 'onr-btn' : 'onr-btn-sm';
+    const activeClass = active ? ' onr-active' : '';
+    const extraClass = className ? ` ${className}` : '';
+    const combinedClassName = baseClass + activeClass + extraClass;
+
+    const labelClass = size === 'large' ? 'onr-btn-label' : 'onr-btn-label-sm';
+
+    // Prevent editor blur when clicking ribbon buttons.
+    const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
+    };
+
+    return (
+      <div
+        ref={ref}
+        className={combinedClassName}
+        onMouseDown={handleMouseDown}
+        {...restProps}
+      >
+        {children ?? (
+          <>
+            {icon}
+            {label && <span className={labelClass}>{label}</span>}
+          </>
+        )}
+      </div>
+    );
+  },
+);

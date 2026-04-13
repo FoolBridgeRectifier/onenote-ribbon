@@ -1,5 +1,6 @@
-import './ScriptButtons.css';
+import './script-buttons.css';
 import { useApp } from '../../../../shared/context/AppContext';
+import { RibbonButton } from '../../../../shared/components/ribbon-button/RibbonButton';
 
 export function ScriptButtons() {
   const app = useApp();
@@ -22,23 +23,23 @@ export function ScriptButtons() {
 
   return (
     <>
-      <div
-        className="onr-btn-sm onr-format-btn onr-format-sub"
+      <RibbonButton
+        className="onr-format-btn onr-format-sub"
         title="Subscript"
         onClick={handleSubscript}
         data-cmd="subscript"
       >
         x<sub className="onr-sub-text">2</sub>
-      </div>
+      </RibbonButton>
 
-      <div
-        className="onr-btn-sm onr-format-btn onr-format-sup"
+      <RibbonButton
+        className="onr-format-btn onr-format-sup"
         title="Superscript"
         onClick={handleSuperscript}
         data-cmd="superscript"
       >
         x<sup className="onr-sup-text">2</sup>
-      </div>
+      </RibbonButton>
     </>
   );
 }

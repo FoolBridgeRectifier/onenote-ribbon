@@ -1,5 +1,5 @@
 /* Highlight button with icon + swatch stacked */
-.onr-highlight-btn {
+.onr-btn-sm.onr-highlight-btn {
   min-height: 18px;
   width: 26px;
   padding: 1px 2px;
@@ -30,7 +30,7 @@
 }
 
 /* Font color button */
-.onr-color-btn {
+.onr-btn-sm.onr-color-btn {
   min-height: 18px;
   width: 22px;
   padding: 1px 2px;

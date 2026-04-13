@@ -1,11 +1,11 @@
-import './TabBar.css';
+import './tab-bar.css';
 import { TABS, TabName } from '../tabs';
 
 interface Props {
   activeTab: TabName;
   collapsed: boolean;
   isTemporarilyExpanded: boolean;
-  onTabClick: (t: TabName) => void;
+  onTabClick: (tabName: TabName) => void;
   onToggleCollapse: () => void;
 }
 
@@ -21,14 +21,14 @@ export function TabBar({
 
   return (
     <div className="onr-tab-bar">
-      {TABS.map((t) => (
+      {TABS.map((tabName) => (
         <div
-          key={t}
-          className={`onr-tab${isBodyVisible && t === activeTab ? ' active' : ''}`}
-          data-tab={t}
-          onClick={() => onTabClick(t)}
+          key={tabName}
+          className={`onr-tab${isBodyVisible && tabName === activeTab ? ' active' : ''}`}
+          data-tab={tabName}
+          onClick={() => onTabClick(tabName)}
         >
-          {t}
+          {tabName}
         </div>
       ))}
       <div className="onr-spacer" />

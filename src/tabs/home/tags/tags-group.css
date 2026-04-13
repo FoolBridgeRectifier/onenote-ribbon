@@ -15,7 +15,7 @@
 }
 
 /* Individual tag row button */
-.onr-tag-row {
+.onr-btn-sm.onr-tag-row {
   width: 150px;
   min-height: 20px;
   flex-direction: row;
@@ -63,7 +63,7 @@
 }
 
 /* Tall narrow "more tags" dropdown trigger button */
-.onr-more-arrow {
+.onr-btn-sm.onr-more-arrow {
   width: 14px;
   min-height: 64px;
   padding: 0;
@@ -79,7 +79,7 @@
 }
 
 /* Size override for the big tag action buttons */
-.onr-tag-btn {
+.onr-btn.onr-tag-btn {
   width: 46px;
   min-height: 58px;
   justify-content: flex-start;

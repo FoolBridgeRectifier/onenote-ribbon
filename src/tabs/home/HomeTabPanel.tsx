@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import './HomeTabPanel.css';
+import './home-tab-panel.css';
 import { useApp } from '../../shared/context/AppContext';
 import { useFormatPainter } from '../../shared/hooks/useFormatPainter';
 import { FormatPainterContext } from '../../shared/context/FormatPainterContext';

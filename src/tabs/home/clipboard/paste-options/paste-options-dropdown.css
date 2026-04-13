@@ -1,4 +1,4 @@
-.onr-paste-options-panel {
+.onr-overlay-dropdown.onr-paste-options-panel {
   position: fixed;
   z-index: 50;
   background: var(--ribbon-bg);
@@ -6,6 +6,7 @@
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-ribbon);
   padding: 4px 6px 6px;
+  min-width: fit-content;
 }
 
 .onr-paste-options-header {

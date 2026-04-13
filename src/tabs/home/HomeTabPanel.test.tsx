@@ -63,6 +63,50 @@ function buildElementSnapshotTree(element: Element): ElementSnapshotNode {
   };
 }
 
+/**
+ * Recursively collect all `onr-*` class names used in the rendered DOM tree.
+ */
+function collectRenderedClassNames(element: Element): Set<string> {
+  const classNames = new Set<string>();
+
+  for (const singleClassName of element.classList) {
+    if (singleClassName.startsWith('onr-')) {
+      classNames.add(singleClassName);
+    }
+  }
+
+  for (const childElement of Array.from(element.children)) {
+    for (const childClassName of collectRenderedClassNames(childElement)) {
+      classNames.add(childClassName);
+    }
+  }
+
+  return classNames;
+}
+
+/**
+ * Parse all `<style>` elements in `document.head` and return the set of
+ * `onr-*` class names that appear in at least one CSS selector.
+ */
+function collectDefinedCssClassNames(): Set<string> {
+  const definedClassNames = new Set<string>();
+  const styleElements = document.head.querySelectorAll('style');
+
+  for (const styleElement of Array.from(styleElements)) {
+    const cssText = styleElement.textContent ?? '';
+
+    // Match `.onr-<name>` in selectors — stop at whitespace, comma, brace,
+    // colon (pseudo-class), dot (chained class), or plus/tilde (combinators).
+    const selectorMatches = cssText.matchAll(/\.(onr-[a-zA-Z0-9_-]+)/g);
+
+    for (const selectorMatch of selectorMatches) {
+      definedClassNames.add(selectorMatch[1]);
+    }
+  }
+
+  return definedClassNames;
+}
+
 describe('HomeTabPanel snapshots', () => {
   it('matches DOM snapshot and recursive computed CSS snapshot for all elements', () => {
     const app = createMockApp();
@@ -79,5 +123,24 @@ describe('HomeTabPanel snapshots', () => {
     expect(buildElementSnapshotTree(panelElement)).toMatchSnapshot(
       'home-tab-panel-recursive-computed-css',
     );
+  });
+
+  it('every onr-* class used in the DOM has a matching CSS rule', () => {
+    const app = createMockApp();
+    const { container } = renderWithApp(<HomeTabPanel />, app);
+
+    const panelElement = container.querySelector('[data-panel="Home"]');
+    if (!panelElement) {
+      throw new Error('Expected Home tab panel element to exist.');
+    }
+
+    const renderedClassNames = collectRenderedClassNames(panelElement);
+    const definedCssClassNames = collectDefinedCssClassNames();
+
+    const orphanedClassNames = [...renderedClassNames]
+      .filter((className) => !definedCssClassNames.has(className))
+      .sort();
+
+    expect(orphanedClassNames).toEqual([]);
   });
 });

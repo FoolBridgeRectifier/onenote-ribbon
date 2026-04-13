@@ -1,53 +1,51 @@
-import { useApp } from "../../../shared/context/AppContext";
-import { FoldAllIcon, OutlineIcon, UnfoldAllIcon } from "../../../assets/icons";
+import { useApp } from '../../../shared/context/AppContext';
+import { FoldAllIcon, OutlineIcon, UnfoldAllIcon } from '../../../assets/icons';
+import { GroupShell } from '../../../shared/components/group-shell/GroupShell';
+import { RibbonButton } from '../../../shared/components/ribbon-button/RibbonButton';
 
 export function NavigateGroup() {
   const app = useApp();
 
   const handleOutline = () => {
-    (app as any).commands.executeCommandById("outline:open");
+    (app as any).commands.executeCommandById('outline:open');
   };
 
   const handleFoldAll = () => {
-    (app as any).commands.executeCommandById("editor:fold-all");
+    (app as any).commands.executeCommandById('editor:fold-all');
   };
 
   const handleUnfoldAll = () => {
-    (app as any).commands.executeCommandById("editor:unfold-all");
+    (app as any).commands.executeCommandById('editor:unfold-all');
   };
 
   return (
-    <div className="onr-group">
+    <GroupShell name="Navigate">
       <div className="onr-navigate-group">
-        <div
-          className="onr-btn"
+        <RibbonButton
+          size="large"
+          icon={<OutlineIcon className="onr-icon" />}
+          label="Outline"
           title="Open outline panel"
           onClick={handleOutline}
           data-cmd="outline"
-        >
-          <OutlineIcon className="onr-icon" />
-          <span className="onr-btn-label">Outline</span>
-        </div>
-        <div
-          className="onr-btn"
+        />
+        <RibbonButton
+          size="large"
+          icon={<FoldAllIcon className="onr-icon" />}
+          label="Fold All"
           title="Collapse all headings"
           onClick={handleFoldAll}
           data-cmd="fold-all"
-        >
-          <FoldAllIcon className="onr-icon" />
-          <span className="onr-btn-label">Fold All</span>
-        </div>
-        <div
-          className="onr-btn"
+        />
+        <RibbonButton
+          size="large"
+          icon={<UnfoldAllIcon className="onr-icon" />}
+          label="Unfold All"
           title="Expand all headings"
           onClick={handleUnfoldAll}
           data-cmd="unfold-all"
-        >
-          <UnfoldAllIcon className="onr-icon" />
-          <span className="onr-btn-label">Unfold All</span>
-        </div>
+        />
       </div>
-      <div className="onr-group-name">Navigate</div>
-    </div>
+    </GroupShell>
   );
 }

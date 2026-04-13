@@ -1,5 +1,7 @@
 import { useApp } from '../../../shared/context/AppContext';
 import { EmailPageIcon, MeetingDetailsIcon } from '../../../assets/icons';
+import { GroupShell } from '../../../shared/components/group-shell/GroupShell';
+import { RibbonButton } from '../../../shared/components/ribbon-button/RibbonButton';
 
 export function EmailGroup() {
   const app = useApp();
@@ -36,28 +38,25 @@ Agenda:
   };
 
   return (
-    <div className="onr-group">
+    <GroupShell name="Email &amp; Meetings">
       <div className="onr-email-group">
-        <div
-          className="onr-btn"
+        <RibbonButton
+          size="large"
+          icon={<EmailPageIcon className="onr-icon" />}
+          label="Email Page"
           title="Copy as formatted text"
           onClick={handleEmailPage}
           data-cmd="email-page"
-        >
-          <EmailPageIcon className="onr-icon" />
-          <span className="onr-btn-label">Email Page</span>
-        </div>
-        <div
-          className="onr-btn"
+        />
+        <RibbonButton
+          size="large"
+          icon={<MeetingDetailsIcon className="onr-icon" />}
+          label="Meeting Details"
           title="Insert meeting template"
           onClick={handleMeetingDetails}
           data-cmd="meeting-details"
-        >
-          <MeetingDetailsIcon className="onr-icon" />
-          <span className="onr-btn-label">Meeting Details</span>
-        </div>
+        />
       </div>
-      <div className="onr-group-name">Email &amp; Meetings</div>
-    </div>
+    </GroupShell>
   );
 }

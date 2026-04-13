@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import './StylesGroup.css';
+import './styles-group.css';
 import { useApp } from '../../../shared/context/AppContext';
+import { GroupShell } from '../../../shared/components/group-shell/GroupShell';
+import { RibbonButton } from '../../../shared/components/ribbon-button/RibbonButton';
 import { STYLES_LIST } from './styles-data';
 
 export function StylesGroup() {
@@ -17,7 +19,9 @@ export function StylesGroup() {
       const line = editor.getLine(cursor.line);
       editor.setLine(cursor.line, line.replace(/^#+\s/, ''));
     } else {
-      ((app as any).commands).executeCommandById(`editor:toggle-heading-${level}`);
+      (app as any).commands.executeCommandById(
+        `editor:toggle-heading-${level}`,
+      );
     }
   };
 
@@ -29,6 +33,10 @@ export function StylesGroup() {
     setStylesOffset(Math.min(STYLES_LIST.length - 2, stylesOffset + 1));
   };
 
+  const handleExpandStyles = () => {
+    // Expanded styles panel behavior is not implemented yet.
+  };
+
   const visibleStyles = STYLES_LIST.slice(stylesOffset, stylesOffset + 2);
 
   const levelClass = (level: number) => {
@@ -38,52 +46,51 @@ export function StylesGroup() {
   };
 
   return (
-    <div className="onr-group">
+    <GroupShell name="Styles">
       <div className="onr-styles-group">
         {/* Style previews stacked 2 visible + scroll */}
         <div className="onr-styles-previews">
           {visibleStyles.map((style) => (
-            <div
+            <RibbonButton
               key={style.name}
-              className={`onr-btn-sm onr-style-preview ${levelClass(style.level)}`}
+              className={`onr-style-preview ${levelClass(style.level)}`}
               onClick={() => handleStyleClick(style.level)}
               data-cmd={`style-${style.name.toLowerCase().replace(/\s+/g, '-')}`}
               title={`Apply ${style.name}`}
             >
               {style.name}
-            </div>
+            </RibbonButton>
           ))}
         </div>
 
         {/* Scroll arrows */}
         <div className="onr-styles-scroll">
-          <div
-            className="onr-btn-sm onr-scroll-arrow"
+          <RibbonButton
+            className="onr-scroll-arrow"
             title="Previous styles"
             onClick={handleScrollUp}
             data-cmd="styles-prev"
           >
             ▲
-          </div>
-          <div
-            className="onr-btn-sm onr-scroll-arrow"
+          </RibbonButton>
+          <RibbonButton
+            className="onr-scroll-arrow"
             title="Next styles"
             onClick={handleScrollDown}
             data-cmd="styles-next"
           >
             ▼
-          </div>
-          <div
-            className="onr-btn-sm onr-scroll-expand"
+          </RibbonButton>
+          <RibbonButton
+            className="onr-scroll-expand"
             title="Expand"
-            onClick={() => {}}
+            onClick={handleExpandStyles}
             data-cmd="styles-expand"
           >
             ▾
-          </div>
+          </RibbonButton>
         </div>
       </div>
-      <div className="onr-group-name">Styles</div>
-    </div>
+    </GroupShell>
   );
 }
