@@ -8,6 +8,7 @@ import {
   NUMBER_PRESET_NONE_ID,
   LIST_STYLE_ELEMENT_ID,
   READING_VIEW_SCOPES,
+  REQUIRED_BULLET_DEPTH_COUNT,
 } from '../../tabs/home/basic-text/list-buttons/constants';
 import { usePlugin } from '../context/PluginContext';
 
@@ -25,6 +26,9 @@ const DEPTH_SELECTORS: [string, string, string, string] = [
   ':is(ul ul ul ul) > li',
 ];
 
+/** Two-space visual padding appended after each bullet symbol in CSS marker content. */
+const MARKER_SYMBOL_PADDING = '  ';
+
 /** Builds the full CSS override string for the given bullet and number preset IDs. */
 function buildCssString(bulletPresetId: string, numberPresetId: string): string {
   const parts: string[] = [];
@@ -32,8 +36,8 @@ function buildCssString(bulletPresetId: string, numberPresetId: string): string 
   if (bulletPresetId !== BULLET_PRESET_NONE_ID) {
     const bulletPreset = BULLET_PRESETS.find((preset) => preset.id === bulletPresetId);
 
-    // Only emit rules when the preset has exactly 4 level symbols defined
-    if (bulletPreset && bulletPreset.levels.length === 4) {
+    // Only emit rules when the preset has exactly the required number of level symbols defined
+    if (bulletPreset && bulletPreset.levels.length === REQUIRED_BULLET_DEPTH_COUNT) {
       const levels = bulletPreset.levels as [string, string, string, string];
 
       for (const scope of READING_VIEW_SCOPES) {
@@ -41,7 +45,7 @@ function buildCssString(bulletPresetId: string, numberPresetId: string): string 
           const symbol = levels[index];
           parts.push(`${scope} ${depthSelector} { list-style-type: none; }`);
           // Two spaces after symbol provides visual padding before the list item text
-          parts.push(`${scope} ${depthSelector}::marker { content: "${symbol}  "; }`);
+          parts.push(`${scope} ${depthSelector}::marker { content: "${symbol}${MARKER_SYMBOL_PADDING}"; }`);
         });
       }
     }

@@ -8,6 +8,8 @@ import { useListStyleInjection } from '../useListStyleInjection';
 import {
   DEFAULT_LIST_STYLE_SETTINGS,
   LIST_STYLE_ELEMENT_ID,
+  BULLET_PRESET_NONE_ID,
+  NUMBER_PRESET_NONE_ID,
 } from '../../../tabs/home/basic-text/list-buttons/constants';
 
 // ============================================================
@@ -81,7 +83,7 @@ describe('useListStyleInjection — initial load', () => {
 
 describe('useListStyleInjection — CSS injection on mount', () => {
   it('injects a <style id="onr-list-style"> into document.head after mounting with classic bullets', async () => {
-    const mockPlugin = createMockPlugin({ bulletPresetId: 'classic', numberPresetId: 'none' });
+    const mockPlugin = createMockPlugin({ bulletPresetId: 'classic', numberPresetId: NUMBER_PRESET_NONE_ID });
     await renderAndFlush(mockPlugin);
 
     const styleElement = document.getElementById(LIST_STYLE_ELEMENT_ID);
@@ -90,7 +92,7 @@ describe('useListStyleInjection — CSS injection on mount', () => {
   });
 
   it('injected CSS contains the L1 classic symbol (●) for .markdown-preview-view scope', async () => {
-    const mockPlugin = createMockPlugin({ bulletPresetId: 'classic', numberPresetId: 'none' });
+    const mockPlugin = createMockPlugin({ bulletPresetId: 'classic', numberPresetId: NUMBER_PRESET_NONE_ID });
     await renderAndFlush(mockPlugin);
 
     const cssText = document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
@@ -99,7 +101,7 @@ describe('useListStyleInjection — CSS injection on mount', () => {
   });
 
   it('injected CSS contains the L2 classic symbol (○) for .markdown-preview-view scope', async () => {
-    const mockPlugin = createMockPlugin({ bulletPresetId: 'classic', numberPresetId: 'none' });
+    const mockPlugin = createMockPlugin({ bulletPresetId: 'classic', numberPresetId: NUMBER_PRESET_NONE_ID });
     await renderAndFlush(mockPlugin);
 
     const cssText = document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
@@ -107,7 +109,7 @@ describe('useListStyleInjection — CSS injection on mount', () => {
   });
 
   it('injected CSS does NOT contain bullet symbols when bulletPresetId is "none"', async () => {
-    const mockPlugin = createMockPlugin({ bulletPresetId: 'none', numberPresetId: 'none' });
+    const mockPlugin = createMockPlugin({ bulletPresetId: BULLET_PRESET_NONE_ID, numberPresetId: NUMBER_PRESET_NONE_ID });
     await renderAndFlush(mockPlugin);
 
     const cssText = document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
@@ -116,7 +118,7 @@ describe('useListStyleInjection — CSS injection on mount', () => {
   });
 
   it('injected CSS contains list-style-type: decimal when numberPresetId is "decimal-period"', async () => {
-    const mockPlugin = createMockPlugin({ bulletPresetId: 'none', numberPresetId: 'decimal-period' });
+    const mockPlugin = createMockPlugin({ bulletPresetId: BULLET_PRESET_NONE_ID, numberPresetId: 'decimal-period' });
     await renderAndFlush(mockPlugin);
 
     const cssText = document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
@@ -124,7 +126,7 @@ describe('useListStyleInjection — CSS injection on mount', () => {
   });
 
   it('injected CSS contains the counter(list-item, decimal) expression when numberPresetId is "decimal-paren"', async () => {
-    const mockPlugin = createMockPlugin({ bulletPresetId: 'none', numberPresetId: 'decimal-paren' });
+    const mockPlugin = createMockPlugin({ bulletPresetId: BULLET_PRESET_NONE_ID, numberPresetId: 'decimal-paren' });
     await renderAndFlush(mockPlugin);
 
     const cssText = document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
@@ -138,7 +140,7 @@ describe('useListStyleInjection — CSS injection on mount', () => {
 
 describe('useListStyleInjection — setBulletPreset', () => {
   it('updates the returned bulletPresetId to the new preset ID', async () => {
-    const mockPlugin = createMockPlugin({ bulletPresetId: 'classic', numberPresetId: 'none' });
+    const mockPlugin = createMockPlugin({ bulletPresetId: 'classic', numberPresetId: NUMBER_PRESET_NONE_ID });
     const { result } = await renderAndFlush(mockPlugin);
 
     act(() => {
@@ -149,7 +151,7 @@ describe('useListStyleInjection — setBulletPreset', () => {
   });
 
   it('updates the injected CSS to contain the L1 diamond symbol (◆)', async () => {
-    const mockPlugin = createMockPlugin({ bulletPresetId: 'classic', numberPresetId: 'none' });
+    const mockPlugin = createMockPlugin({ bulletPresetId: 'classic', numberPresetId: NUMBER_PRESET_NONE_ID });
     const { result } = await renderAndFlush(mockPlugin);
 
     act(() => {
@@ -175,11 +177,11 @@ describe('useListStyleInjection — setBulletPreset', () => {
   });
 
   it('removes bullet CSS (no ◆ or ●) when setBulletPreset is called with "none"', async () => {
-    const mockPlugin = createMockPlugin({ bulletPresetId: 'classic', numberPresetId: 'none' });
+    const mockPlugin = createMockPlugin({ bulletPresetId: 'classic', numberPresetId: NUMBER_PRESET_NONE_ID });
     const { result } = await renderAndFlush(mockPlugin);
 
     act(() => {
-      result.current.setBulletPreset('none');
+      result.current.setBulletPreset(BULLET_PRESET_NONE_ID);
     });
 
     const cssText = document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
@@ -194,7 +196,7 @@ describe('useListStyleInjection — setBulletPreset', () => {
 
 describe('useListStyleInjection — setNumberPreset', () => {
   it('updates the returned numberPresetId to the new preset ID', async () => {
-    const mockPlugin = createMockPlugin({ bulletPresetId: 'none', numberPresetId: 'none' });
+    const mockPlugin = createMockPlugin({ bulletPresetId: BULLET_PRESET_NONE_ID, numberPresetId: NUMBER_PRESET_NONE_ID });
     const { result } = await renderAndFlush(mockPlugin);
 
     act(() => {
@@ -205,7 +207,7 @@ describe('useListStyleInjection — setNumberPreset', () => {
   });
 
   it('injects list-style-type: decimal in the CSS after setNumberPreset("decimal-period")', async () => {
-    const mockPlugin = createMockPlugin({ bulletPresetId: 'none', numberPresetId: 'none' });
+    const mockPlugin = createMockPlugin({ bulletPresetId: BULLET_PRESET_NONE_ID, numberPresetId: NUMBER_PRESET_NONE_ID });
     const { result } = await renderAndFlush(mockPlugin);
 
     act(() => {
@@ -217,11 +219,11 @@ describe('useListStyleInjection — setNumberPreset', () => {
   });
 
   it('removes number CSS when setNumberPreset is called with "none"', async () => {
-    const mockPlugin = createMockPlugin({ bulletPresetId: 'none', numberPresetId: 'decimal-period' });
+    const mockPlugin = createMockPlugin({ bulletPresetId: BULLET_PRESET_NONE_ID, numberPresetId: 'decimal-period' });
     const { result } = await renderAndFlush(mockPlugin);
 
     act(() => {
-      result.current.setNumberPreset('none');
+      result.current.setNumberPreset(NUMBER_PRESET_NONE_ID);
     });
 
     const cssText = document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
@@ -229,7 +231,7 @@ describe('useListStyleInjection — setNumberPreset', () => {
   });
 
   it('calls plugin.saveData with the new numberPresetId and current bulletPresetId', async () => {
-    const mockPlugin = createMockPlugin({ bulletPresetId: 'classic', numberPresetId: 'none' });
+    const mockPlugin = createMockPlugin({ bulletPresetId: 'classic', numberPresetId: NUMBER_PRESET_NONE_ID });
     const { result } = await renderAndFlush(mockPlugin);
 
     act(() => {

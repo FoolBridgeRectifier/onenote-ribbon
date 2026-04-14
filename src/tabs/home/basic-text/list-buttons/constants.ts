@@ -12,6 +12,9 @@ export const BULLET_PRESET_NONE_ID = 'none';
 /** ID used when no override is active for number style. */
 export const NUMBER_PRESET_NONE_ID = 'none';
 
+/** Number of nesting depths each bullet preset must define (L1 → L4). */
+export const REQUIRED_BULLET_DEPTH_COUNT = 4;
+
 /** Default settings applied on first load (no overrides). */
 export const DEFAULT_LIST_STYLE_SETTINGS = {
   bulletPresetId: BULLET_PRESET_NONE_ID,
