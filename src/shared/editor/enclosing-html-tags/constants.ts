@@ -10,9 +10,27 @@ export const MARKDOWN_TAG_PATTERN_FLAGS = 'g';
 
 export const MARKDOWN_TAG_PATTERN_DEFINITIONS: MarkdownTagPatternDefinition[] =
   [
+    // Combined bold+italic *** must come before separate ** and * patterns
+    // so the triple-asterisk is matched as a unit rather than partially consumed.
+    // Bold claims the outer 2 asterisks; italic claims the inner 1.
     {
       tagName: 'bold',
-      patternSource: '\\*\\*(?=\\S)([\\s\\S]*?\\S)\\*\\*',
+      patternSource: '\\*\\*\\*(?=\\S)([\\s\\S]*?\\S)\\*\\*\\*',
+      patternFlags: MARKDOWN_TAG_PATTERN_FLAGS,
+      openingDelimiterLength: 2,
+      closingDelimiterLength: 2,
+    },
+    {
+      tagName: 'italic',
+      patternSource: '\\*\\*\\*(?=\\S)([\\s\\S]*?\\S)\\*\\*\\*',
+      patternFlags: MARKDOWN_TAG_PATTERN_FLAGS,
+      openingDelimiterLength: 1,
+      closingDelimiterLength: 1,
+      delimiterInset: 2,
+    },
+    {
+      tagName: 'bold',
+      patternSource: '(?<!\\*)\\*\\*(?!\\*)(?=\\S)([\\s\\S]*?\\S)(?<!\\*)\\*\\*(?!\\*)',
       patternFlags: MARKDOWN_TAG_PATTERN_FLAGS,
       openingDelimiterLength: 2,
       closingDelimiterLength: 2,

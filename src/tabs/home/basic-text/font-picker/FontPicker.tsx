@@ -4,6 +4,7 @@ import { useApp } from '../../../../shared/context/AppContext';
 import { Dropdown } from '../../../../shared/components/dropdown/Dropdown';
 import { RibbonButton } from '../../../../shared/components/ribbon-button/RibbonButton';
 import { applyFontFamily, applyFontSize } from './helpers';
+import type { EditorState } from '../../../../shared/hooks/useEditorState';
 
 const FONTS = [
   'Arial',
@@ -42,17 +43,16 @@ const SIZES = [
   '72',
 ];
 
-const DEFAULT_FONT_LABEL = 'Font';
-const DEFAULT_SIZE_LABEL = '11';
+interface FontPickerProps {
+  editorState: EditorState;
+}
 
-export function FontPicker() {
+export function FontPicker({ editorState }: FontPickerProps) {
   const app = useApp();
   const fontAnchorRef = useRef<HTMLDivElement>(null);
   const sizeAnchorRef = useRef<HTMLDivElement>(null);
   const [fontMenuOpen, setFontMenuOpen] = useState(false);
   const [sizeMenuOpen, setSizeMenuOpen] = useState(false);
-  const [selectedFont, setSelectedFont] = useState<string | null>(null);
-  const [selectedSize, setSelectedSize] = useState<string | null>(null);
 
   const getEditor = () => app.workspace.activeEditor?.editor;
 
@@ -61,7 +61,6 @@ export function FontPicker() {
     if (!editor) return;
 
     applyFontFamily(editor, font);
-    setSelectedFont(font);
     setFontMenuOpen(false);
   };
 
@@ -70,9 +69,14 @@ export function FontPicker() {
     if (!editor) return;
 
     applyFontSize(editor, parseInt(size, 10));
-    setSelectedSize(size);
     setSizeMenuOpen(false);
   };
+
+  // Display font/size from cursor position via editorState
+  const displayedFont = editorState.fontFamily === 'default'
+    ? 'Font'
+    : editorState.fontFamily;
+  const displayedSize = editorState.fontSize;
 
   return (
     <>
@@ -84,7 +88,7 @@ export function FontPicker() {
         data-cmd="font-family"
       >
         <span className="onr-picker-label">
-          {selectedFont ?? DEFAULT_FONT_LABEL}
+          {displayedFont}
         </span>
         <span className="onr-picker-caret">▾</span>
       </RibbonButton>
@@ -107,7 +111,7 @@ export function FontPicker() {
         data-cmd="font-size"
       >
         <span className="onr-picker-label">
-          {selectedSize ?? DEFAULT_SIZE_LABEL}
+          {displayedSize}
         </span>
         <span className="onr-picker-caret">▾</span>
       </RibbonButton>

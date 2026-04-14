@@ -43,4 +43,8 @@ export interface MarkdownTagPatternDefinition {
   patternFlags: string;
   openingDelimiterLength: number;
   closingDelimiterLength: number;
+  // Offset from the match boundary inward where this tag's delimiter begins.
+  // Used for combined patterns like *** where bold claims the outer 2 chars
+  // (inset=0) and italic claims the inner 1 char (inset=2).
+  delimiterInset?: number;
 }

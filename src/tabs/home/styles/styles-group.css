@@ -18,14 +18,14 @@
 .onr-btn-sm.onr-style-preview {
   width: 130px;
   min-height: 28px;
-  background: #1a1a2e;
-  border: 1px solid #555;
+  background: var(--style-preview-bg);
+  border: 1px solid var(--style-preview-border);
   border-radius: 2px;
   flex-direction: row;
   justify-content: flex-start;
   padding: 2px 8px;
   gap: 0;
-  color: #5b9bd5;
+  color: var(--style-preview-text);
   font-weight: 700;
   font-size: 11px;
 }
@@ -62,4 +62,10 @@
   min-height: 14px;
   padding: 0;
   font-size: 9px;
+}
+
+/* Active item in styles dropdown */
+.onr-styles-dropdown .onr-dd-item-active {
+  background: var(--btn-hover-bg);
+  font-weight: 600;
 }

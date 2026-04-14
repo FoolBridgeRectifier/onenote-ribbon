@@ -25,6 +25,11 @@
   --icon-orange: #c45911;
   --icon-red: #a80000;
   --icon-teal: #006b6b;
+
+  /* Style preview tokens (heading gallery in Styles group) */
+  --style-preview-bg: #1a1a2e;
+  --style-preview-border: #555555;
+  --style-preview-text: #5b9bd5;
 }
 
 /* ── RIBBON ROOT — scopes all plugin styles ── */

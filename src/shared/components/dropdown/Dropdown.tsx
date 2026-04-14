@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import type { HTMLAttributes, ReactNode } from 'react';
 import type { DropdownItem } from './interfaces.ts';
 
-import './dropdown.css';
+import './Dropdown.css';
 
 type DropdownProps = {
   anchor: HTMLElement | null;
@@ -62,6 +62,14 @@ export function Dropdown({
     onClose();
   };
 
+  // Prevent mousedown from stealing focus from the editor.
+  // Without this, clicking any dropdown element blurs the editor
+  // and collapses the selection before the click handler runs.
+  const preventEditorBlur = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
   return createPortal(
     <div
       ref={dropdownElementRef}
@@ -70,6 +78,7 @@ export function Dropdown({
         top: `${top}px`,
         left: `${left}px`,
       }}
+      onMouseDown={preventEditorBlur}
       {...restProps}
     >
       {children ??

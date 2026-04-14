@@ -16,3 +16,14 @@
 .onr-align-caret {
   font-size: 8px;
 }
+
+/* Active item in align dropdown */
+.onr-align-dropdown .onr-dd-item-active {
+  background: var(--btn-hover-bg);
+  font-weight: 600;
+}
+
+.onr-align-dropdown .onr-dd-item .onr-icon-sm {
+  width: 14px;
+  height: 14px;
+}

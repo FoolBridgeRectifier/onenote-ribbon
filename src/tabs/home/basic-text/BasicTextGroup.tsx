@@ -10,7 +10,14 @@ import {
   NumberedListIcon,
   OutdentIcon,
 } from '../../../assets/icons';
-import { clearFormatting } from './helpers';
+import { toggleTagInEditor, removeAllTagsInEditor } from '../../../shared/editor/styling-engine/editorIntegration';
+import {
+  UNDERLINE_TAG,
+  BOLD_MD_TAG,
+  ITALIC_MD_TAG,
+  STRIKETHROUGH_MD_TAG,
+} from '../../../shared/editor/styling-engine/constants';
+import { useEditorState } from '../../../shared/hooks/useEditorState';
 import { FontPicker } from './font-picker/FontPicker';
 import { HighlightTextColor } from './highlight-text-color/HighlightTextColor';
 import { ScriptButtons } from './script-buttons/ScriptButtons';
@@ -18,26 +25,32 @@ import { AlignButton } from './align-button/AlignButton';
 
 export function BasicTextGroup() {
   const app = useApp();
+  const editorState = useEditorState(app);
 
   const getEditor = () => app.workspace.activeEditor?.editor;
 
   const handleBold = () => {
-    (app as any).commands.executeCommandById('editor:toggle-bold');
+    const editor = getEditor();
+    if (!editor) return;
+    toggleTagInEditor(editor, BOLD_MD_TAG);
   };
 
   const handleItalic = () => {
-    (app as any).commands.executeCommandById('editor:toggle-italic');
+    const editor = getEditor();
+    if (!editor) return;
+    toggleTagInEditor(editor, ITALIC_MD_TAG);
   };
 
   const handleUnderline = () => {
     const editor = getEditor();
     if (!editor) return;
-    const selection = editor.getSelection();
-    editor.replaceSelection(`<u>${selection}</u>`);
+    toggleTagInEditor(editor, UNDERLINE_TAG);
   };
 
   const handleStrikethrough = () => {
-    (app as any).commands.executeCommandById('editor:toggle-strikethrough');
+    const editor = getEditor();
+    if (!editor) return;
+    toggleTagInEditor(editor, STRIKETHROUGH_MD_TAG);
   };
 
   const handleBulletList = () => {
@@ -59,19 +72,13 @@ export function BasicTextGroup() {
   const handleClearInline = () => {
     const editor = getEditor();
     if (!editor) return;
-    const selection = editor.getSelection();
-    if (!selection) return;
-    const cleaned = clearFormatting(selection, { preserveHeadings: true });
-    editor.replaceSelection(cleaned);
+    removeAllTagsInEditor(editor, { preserveLinePrefix: true });
   };
 
   const handleClearAllFormatting = () => {
     const editor = getEditor();
     if (!editor) return;
-    const selection = editor.getSelection();
-    if (!selection) return;
-    const cleaned = clearFormatting(selection, { preserveHeadings: false });
-    editor.replaceSelection(cleaned);
+    removeAllTagsInEditor(editor, { preserveLinePrefix: false });
   };
 
   return (
@@ -79,12 +86,13 @@ export function BasicTextGroup() {
       <div className="onr-basic-text-inner">
         {/* Row 1: Font, size, bullets, lists, indent, clear */}
         <div className="onr-basic-text-row1">
-          <FontPicker />
+          <FontPicker editorState={editorState} />
 
           {/* Bullet list */}
           <RibbonButton
             className="onr-format-btn"
             title="Bullet list"
+            active={editorState.bulletList}
             onClick={handleBulletList}
             data-cmd="bullet-list"
           >
@@ -96,6 +104,7 @@ export function BasicTextGroup() {
           <RibbonButton
             className="onr-format-btn"
             title="Numbered list"
+            active={editorState.numberedList}
             onClick={handleNumberedList}
             data-cmd="numbered-list"
           >
@@ -137,6 +146,7 @@ export function BasicTextGroup() {
           <RibbonButton
             className="onr-format-btn onr-format-bold"
             title="Bold"
+            active={editorState.bold}
             onClick={handleBold}
             data-cmd="bold"
           >
@@ -147,6 +157,7 @@ export function BasicTextGroup() {
           <RibbonButton
             className="onr-format-btn onr-format-italic"
             title="Italic"
+            active={editorState.italic}
             onClick={handleItalic}
             data-cmd="italic"
           >
@@ -157,6 +168,7 @@ export function BasicTextGroup() {
           <RibbonButton
             className="onr-format-btn onr-format-underline"
             title="Underline"
+            active={editorState.underline}
             onClick={handleUnderline}
             data-cmd="underline"
           >
@@ -167,21 +179,25 @@ export function BasicTextGroup() {
           <RibbonButton
             className="onr-format-btn"
             title="Strikethrough"
+            active={editorState.strikethrough}
             onClick={handleStrikethrough}
             data-cmd="strikethrough"
           >
             <s className="onr-strikethrough-text">ab</s>
           </RibbonButton>
 
-          <ScriptButtons />
+          <ScriptButtons
+            subscript={editorState.subscript}
+            superscript={editorState.superscript}
+          />
 
           <div className="onr-divider" />
 
-          <HighlightTextColor />
+          <HighlightTextColor editorState={editorState} />
 
           <div className="onr-divider" />
 
-          <AlignButton />
+          <AlignButton editorState={editorState} />
 
           {/* Clear inline */}
           <RibbonButton

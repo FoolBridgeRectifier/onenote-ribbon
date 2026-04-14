@@ -1,28 +1,70 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './styles-group.css';
 import { useApp } from '../../../shared/context/AppContext';
+import { useEditorState } from '../../../shared/hooks/useEditorState';
 import { GroupShell } from '../../../shared/components/group-shell/GroupShell';
 import { RibbonButton } from '../../../shared/components/ribbon-button/RibbonButton';
-import { STYLES_LIST } from './styles-data';
+import { Dropdown } from '../../../shared/components/dropdown/Dropdown';
+import { STYLES_LIST, StyleEntry } from './styles-data';
 
 export function StylesGroup() {
   const app = useApp();
+  const editorState = useEditorState(app);
+  const expandAnchorRef = useRef<HTMLDivElement>(null);
   const [stylesOffset, setStylesOffset] = useState(0);
+  const [expandOpen, setExpandOpen] = useState(false);
 
   const getEditor = () => app.workspace.activeEditor?.editor;
 
-  const handleStyleClick = (level: number) => {
-    if (level === 0) {
+  // Determine which style is currently active based on editor state
+  const isStyleActive = (style: StyleEntry) => {
+    if (style.level > 0) return editorState.headLevel === style.level;
+    if (style.level === 0 && !style.type) return editorState.headLevel === 0;
+    return false;
+  };
+
+  // Auto-scroll the visible style window to keep the active heading in view
+  useEffect(() => {
+    const activeIndex = STYLES_LIST.findIndex((style) => isStyleActive(style));
+
+    if (activeIndex === -1) return;
+
+    // If active style is above visible window, scroll up to show it
+    if (activeIndex < stylesOffset) {
+      setStylesOffset(activeIndex);
+    }
+
+    // If active style is below visible window, scroll down to show it
+    if (activeIndex > stylesOffset + 1) {
+      setStylesOffset(Math.min(activeIndex, STYLES_LIST.length - 2));
+    }
+  }, [editorState.headLevel]);
+
+  const handleStyleClick = (style: StyleEntry) => {
+    if (style.type === 'quote') {
+      (app as any).commands.executeCommandById('editor:toggle-blockquote');
+      return;
+    }
+
+    if (style.type === 'code') {
+      (app as any).commands.executeCommandById('editor:toggle-code');
+      return;
+    }
+
+    if (style.level === 0) {
+      // Normal — strip heading prefix
       const editor = getEditor();
       if (!editor) return;
       const cursor = editor.getCursor();
       const line = editor.getLine(cursor.line);
       editor.setLine(cursor.line, line.replace(/^#+\s/, ''));
-    } else {
-      (app as any).commands.executeCommandById(
-        `editor:toggle-heading-${level}`,
-      );
+      return;
     }
+
+    // Heading 1-6 — Obsidian uses "set-heading" not "toggle-heading"
+    (app as any).commands.executeCommandById(
+      `editor:set-heading-${style.level}`,
+    );
   };
 
   const handleScrollUp = () => {
@@ -34,7 +76,7 @@ export function StylesGroup() {
   };
 
   const handleExpandStyles = () => {
-    // Expanded styles panel behavior is not implemented yet.
+    setExpandOpen(!expandOpen);
   };
 
   const visibleStyles = STYLES_LIST.slice(stylesOffset, stylesOffset + 2);
@@ -54,7 +96,8 @@ export function StylesGroup() {
             <RibbonButton
               key={style.name}
               className={`onr-style-preview ${levelClass(style.level)}`}
-              onClick={() => handleStyleClick(style.level)}
+              active={isStyleActive(style)}
+              onClick={() => handleStyleClick(style)}
               data-cmd={`style-${style.name.toLowerCase().replace(/\s+/g, '-')}`}
               title={`Apply ${style.name}`}
             >
@@ -82,6 +125,7 @@ export function StylesGroup() {
             ▼
           </RibbonButton>
           <RibbonButton
+            ref={expandAnchorRef}
             className="onr-scroll-expand"
             title="Expand"
             onClick={handleExpandStyles}
@@ -89,6 +133,29 @@ export function StylesGroup() {
           >
             ▾
           </RibbonButton>
+
+          {expandOpen && expandAnchorRef.current && (
+            <Dropdown
+              anchor={expandAnchorRef.current}
+              onClose={() => setExpandOpen(false)}
+              className="onr-styles-dropdown"
+            >
+              {STYLES_LIST.map((style) => (
+                <div
+                  key={style.name}
+                  className={`onr-dd-item${isStyleActive(style) ? ' onr-dd-item-active' : ''}`}
+                  onClick={() => {
+                    handleStyleClick(style);
+                    setExpandOpen(false);
+                  }}
+                >
+                  <span className={`onr-dd-label ${levelClass(style.level)}`}>
+                    {style.name}
+                  </span>
+                </div>
+              ))}
+            </Dropdown>
+          )}
         </div>
       </div>
     </GroupShell>

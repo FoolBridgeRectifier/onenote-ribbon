@@ -4,6 +4,7 @@ import { useApp } from '../../../shared/context/AppContext';
 import { GroupShell } from '../../../shared/components/group-shell/GroupShell';
 import { RibbonButton } from '../../../shared/components/ribbon-button/RibbonButton';
 import { PasteOptionsDropdown } from './paste-options/PasteOptionsDropdown';
+import { useFormatPainter } from '../../../shared/hooks/useFormatPainter';
 import {
   CopyIcon,
   CutIcon,
@@ -17,6 +18,7 @@ export function ClipboardGroup() {
   const app = useApp();
   const pasteAnchorRef = useRef<HTMLDivElement>(null);
   const [pasteMenuOpen, setPasteMenuOpen] = useState(false);
+  const formatPainter = useFormatPainter(app);
 
   const getEditor = () => app.workspace.activeEditor?.editor;
 
@@ -119,7 +121,9 @@ export function ClipboardGroup() {
             className="onr-clipboard-item"
             icon={<FormatPainterIcon className="onr-icon-sm" />}
             label="Format Painter"
-            onClick={() => {}}
+            active={formatPainter.state.mode !== 'idle'}
+            onClick={formatPainter.handleSingleClick}
+            onDoubleClick={formatPainter.handleDoubleClick}
             data-cmd="format-painter"
           />
         </div>
