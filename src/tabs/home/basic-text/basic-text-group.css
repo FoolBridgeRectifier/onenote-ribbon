@@ -64,8 +64,8 @@
   flex-shrink: 0;
 }
 
-/* Clear inline formatting button */
-.onr-btn-sm.onr-clear-inline-btn {
+/* Delete element button */
+.onr-btn-sm.onr-delete-element-btn {
   min-height: 22px;
   width: 22px;
 }

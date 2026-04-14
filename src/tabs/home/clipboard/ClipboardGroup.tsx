@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import type { MouseEvent } from 'react';
 import './clipboard-group.css';
 import { useApp } from '../../../shared/context/AppContext';
 import { GroupShell } from '../../../shared/components/group-shell/GroupShell';
@@ -47,6 +48,14 @@ export function ClipboardGroup() {
     if (!editor) return;
 
     document.execCommand('copy');
+  };
+
+  const handleFormatPainterClick = (event: MouseEvent<HTMLDivElement>) => {
+    formatPainter.handleSingleClick(event.detail);
+  };
+
+  const handleFormatPainterDoubleClick = () => {
+    formatPainter.handleDoubleClick();
   };
 
   return (
@@ -122,8 +131,8 @@ export function ClipboardGroup() {
             icon={<FormatPainterIcon className="onr-icon-sm" />}
             label="Format Painter"
             active={formatPainter.state.mode !== 'idle'}
-            onClick={formatPainter.handleSingleClick}
-            onDoubleClick={formatPainter.handleDoubleClick}
+            onClick={handleFormatPainterClick}
+            onDoubleClick={handleFormatPainterDoubleClick}
             data-cmd="format-painter"
           />
         </div>

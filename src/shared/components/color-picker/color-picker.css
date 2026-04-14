@@ -81,6 +81,9 @@
 }
 
 .onr-cp-apply-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 11px;
   padding: 3px 8px;
   cursor: pointer;

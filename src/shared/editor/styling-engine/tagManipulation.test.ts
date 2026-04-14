@@ -12,13 +12,11 @@ import { HtmlTagRange } from '../enclosing-html-tags/interfaces';
 import { ProtectedRange } from './interfaces';
 
 describe('tagManipulation', () => {
-
   // ============================================================
   // wrapTextWithTag
   // ============================================================
 
   describe('wrapTextWithTag', () => {
-
     it('wraps with <u> tag producing two insertion replacements in last-to-first order', () => {
       // "some text" at offsets 0..9
       const replacements = wrapTextWithTag(0, 9, UNDERLINE_TAG);
@@ -57,6 +55,18 @@ describe('tagManipulation', () => {
         replacementText: '**',
       });
     });
+
+    it('uses a single insertion for cursor-only wrapping to avoid reversed close/open order', () => {
+      const replacements = wrapTextWithTag(5, 5, UNDERLINE_TAG);
+
+      expect(replacements).toEqual([
+        {
+          fromOffset: 5,
+          toOffset: 5,
+          replacementText: '<u></u>',
+        },
+      ]);
+    });
   });
 
   // ============================================================
@@ -64,7 +74,6 @@ describe('tagManipulation', () => {
   // ============================================================
 
   describe('unwrapTag', () => {
-
     it('unwraps <u>text</u> producing two deletion replacements in last-to-first order', () => {
       // "<u>text</u>" — opening <u> is 0..3, closing </u> is 7..11
       const tagRange: HtmlTagRange = {
@@ -125,7 +134,6 @@ describe('tagManipulation', () => {
   // ============================================================
 
   describe('buildSpanTagDefinition', () => {
-
     it('builds correct TagDefinition for color:red', () => {
       const result = buildSpanTagDefinition('color', 'red');
 
@@ -168,27 +176,37 @@ describe('tagManipulation', () => {
   // ============================================================
 
   describe('extractStylePropertyFromOpeningTag', () => {
-
     it('extracts property from <span style="color:red">', () => {
-      const result = extractStylePropertyFromOpeningTag('<span style="color:red">');
+      const result = extractStylePropertyFromOpeningTag(
+        '<span style="color:red">',
+      );
 
       expect(result).toEqual({ propertyName: 'color', propertyValue: 'red' });
     });
 
     it('handles space after colon in style value', () => {
-      const result = extractStylePropertyFromOpeningTag('<span style="color: red">');
+      const result = extractStylePropertyFromOpeningTag(
+        '<span style="color: red">',
+      );
 
       expect(result).toEqual({ propertyName: 'color', propertyValue: 'red' });
     });
 
     it('extracts font-size property correctly', () => {
-      const result = extractStylePropertyFromOpeningTag('<span style="font-size: 14pt">');
+      const result = extractStylePropertyFromOpeningTag(
+        '<span style="font-size: 14pt">',
+      );
 
-      expect(result).toEqual({ propertyName: 'font-size', propertyValue: '14pt' });
+      expect(result).toEqual({
+        propertyName: 'font-size',
+        propertyValue: '14pt',
+      });
     });
 
     it('returns null for tag with no style attribute', () => {
-      const result = extractStylePropertyFromOpeningTag('<span class="custom">');
+      const result = extractStylePropertyFromOpeningTag(
+        '<span class="custom">',
+      );
 
       expect(result).toBeNull();
     });
@@ -205,7 +223,6 @@ describe('tagManipulation', () => {
   // ============================================================
 
   describe('replaceOpeningTagAttribute', () => {
-
     it('replaces color:red with color:blue', () => {
       const sourceText = '<span style="color: red">hello</span>';
       const tagRange: HtmlTagRange = {
@@ -216,7 +233,12 @@ describe('tagManipulation', () => {
         closingTagEndOffset: 37,
       };
 
-      const replacement = replaceOpeningTagAttribute(sourceText, tagRange, 'color', 'blue');
+      const replacement = replaceOpeningTagAttribute(
+        sourceText,
+        tagRange,
+        'color',
+        'blue',
+      );
 
       expect(replacement).toEqual({
         fromOffset: 0,
@@ -226,7 +248,8 @@ describe('tagManipulation', () => {
     });
 
     it('replaces font-size:12pt with font-size:16pt', () => {
-      const sourceText = 'prefix <span style="font-size: 12pt">text</span> suffix';
+      const sourceText =
+        'prefix <span style="font-size: 12pt">text</span> suffix';
       const tagRange: HtmlTagRange = {
         tagName: 'span',
         openingTagStartOffset: 7,
@@ -235,7 +258,12 @@ describe('tagManipulation', () => {
         closingTagEndOffset: 48,
       };
 
-      const replacement = replaceOpeningTagAttribute(sourceText, tagRange, 'font-size', '16pt');
+      const replacement = replaceOpeningTagAttribute(
+        sourceText,
+        tagRange,
+        'font-size',
+        '16pt',
+      );
 
       expect(replacement).toEqual({
         fromOffset: 7,
@@ -250,7 +278,6 @@ describe('tagManipulation', () => {
   // ============================================================
 
   describe('findOverlappingTagRanges', () => {
-
     it('returns a matching tag that overlaps the selection', () => {
       // "<u>some text</u>" — content range is 3..12
       const tagRange: HtmlTagRange = {
@@ -321,7 +348,6 @@ describe('tagManipulation', () => {
   // ============================================================
 
   describe('splitFormattingAroundProtectedRanges', () => {
-
     it('wraps around a single wikilink in the middle of the selection', () => {
       // "Visit [[My Note]] for details"
       // Selection: 0..29, protected [[My Note]] at relative 6..18
@@ -330,7 +356,10 @@ describe('tagManipulation', () => {
       ];
 
       const replacements = splitFormattingAroundProtectedRanges(
-        0, 29, protectedRanges, UNDERLINE_TAG,
+        0,
+        29,
+        protectedRanges,
+        UNDERLINE_TAG,
       );
 
       // Gap 1: absolute 0..6 ("Visit ") → closing at 6, opening at 0
@@ -371,7 +400,10 @@ describe('tagManipulation', () => {
       ];
 
       const replacements = splitFormattingAroundProtectedRanges(
-        0, 20, protectedRanges, UNDERLINE_TAG,
+        0,
+        20,
+        protectedRanges,
+        UNDERLINE_TAG,
       );
 
       // No gap before (0..0 is zero-width), gap after: absolute 8..20
@@ -398,7 +430,10 @@ describe('tagManipulation', () => {
       ];
 
       const replacements = splitFormattingAroundProtectedRanges(
-        0, 20, protectedRanges, UNDERLINE_TAG,
+        0,
+        20,
+        protectedRanges,
+        UNDERLINE_TAG,
       );
 
       // Gap before: absolute 0..12, no gap after (20..20 is zero-width)
@@ -426,7 +461,10 @@ describe('tagManipulation', () => {
       ];
 
       const replacements = splitFormattingAroundProtectedRanges(
-        0, 19, protectedRanges, UNDERLINE_TAG,
+        0,
+        19,
+        protectedRanges,
+        UNDERLINE_TAG,
       );
 
       // Gap 1: 0..2 ("A "), Gap 2: 8..11 (" B "), Gap 3: 17..19 (" C")
@@ -443,7 +481,10 @@ describe('tagManipulation', () => {
 
     it('wraps entire selection when there are no protected ranges', () => {
       const replacements = splitFormattingAroundProtectedRanges(
-        5, 15, [], UNDERLINE_TAG,
+        5,
+        15,
+        [],
+        UNDERLINE_TAG,
       );
 
       expect(replacements).toHaveLength(2);
@@ -470,7 +511,10 @@ describe('tagManipulation', () => {
       ];
 
       const replacements = splitFormattingAroundProtectedRanges(
-        0, 15, protectedRanges, UNDERLINE_TAG,
+        0,
+        15,
+        protectedRanges,
+        UNDERLINE_TAG,
       );
 
       // No gap before (0..0), no gap between (5..5), gap after: 10..15

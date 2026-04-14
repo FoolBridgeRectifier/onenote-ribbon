@@ -14,6 +14,17 @@ export function wrapTextWithTag(
   selectionEndOffset: number,
   tagDefinition: TagDefinition,
 ): TextReplacement[] {
+  if (selectionStartOffset === selectionEndOffset) {
+    return [
+      {
+        fromOffset: selectionStartOffset,
+        toOffset: selectionStartOffset,
+        replacementText:
+          tagDefinition.openingMarkup + tagDefinition.closingMarkup,
+      },
+    ];
+  }
+
   const closingInsertion: TextReplacement = {
     fromOffset: selectionEndOffset,
     toOffset: selectionEndOffset,
@@ -115,7 +126,8 @@ export function replaceOpeningTagAttribute(
   cssProperty: string,
   newCssValue: string,
 ): TextReplacement {
-  const newOpeningTag = '<span style="' + cssProperty + ': ' + newCssValue + '">';
+  const newOpeningTag =
+    '<span style="' + cssProperty + ': ' + newCssValue + '">';
 
   return {
     fromOffset: tagRange.openingTagStartOffset,
@@ -151,7 +163,8 @@ export function findOverlappingTagRanges(
     const contentEnd = tagRange.closingTagStartOffset;
 
     // Two ranges overlap when each starts before the other ends
-    const hasOverlap = contentStart < selectionEndOffset && selectionStartOffset < contentEnd;
+    const hasOverlap =
+      contentStart < selectionEndOffset && selectionStartOffset < contentEnd;
 
     if (hasOverlap) {
       overlapping.push(tagRange);
@@ -178,7 +191,11 @@ export function splitFormattingAroundProtectedRanges(
   tagDefinition: TagDefinition,
 ): TextReplacement[] {
   if (protectedRanges.length === 0) {
-    return wrapTextWithTag(selectionStartOffset, selectionEndOffset, tagDefinition);
+    return wrapTextWithTag(
+      selectionStartOffset,
+      selectionEndOffset,
+      tagDefinition,
+    );
   }
 
   const sortedRanges = [...protectedRanges].sort(
@@ -191,7 +208,8 @@ export function splitFormattingAroundProtectedRanges(
   const gaps: Array<{ absoluteStart: number; absoluteEnd: number }> = [];
 
   // Gap before the first protected range
-  const firstProtectedAbsoluteStart = selectionStartOffset + sortedRanges[0].startOffset;
+  const firstProtectedAbsoluteStart =
+    selectionStartOffset + sortedRanges[0].startOffset;
   if (firstProtectedAbsoluteStart > selectionStartOffset) {
     gaps.push({
       absoluteStart: selectionStartOffset,
@@ -201,8 +219,10 @@ export function splitFormattingAroundProtectedRanges(
 
   // Gaps between consecutive protected ranges
   for (let gapIndex = 0; gapIndex < sortedRanges.length - 1; gapIndex++) {
-    const currentRangeAbsoluteEnd = selectionStartOffset + sortedRanges[gapIndex].endOffset;
-    const nextRangeAbsoluteStart = selectionStartOffset + sortedRanges[gapIndex + 1].startOffset;
+    const currentRangeAbsoluteEnd =
+      selectionStartOffset + sortedRanges[gapIndex].endOffset;
+    const nextRangeAbsoluteStart =
+      selectionStartOffset + sortedRanges[gapIndex + 1].startOffset;
 
     if (nextRangeAbsoluteStart > currentRangeAbsoluteEnd) {
       gaps.push({
@@ -214,7 +234,8 @@ export function splitFormattingAroundProtectedRanges(
 
   // Gap after the last protected range
   const lastSortedRange = sortedRanges[sortedRanges.length - 1];
-  const lastProtectedAbsoluteEnd = selectionStartOffset + lastSortedRange.endOffset;
+  const lastProtectedAbsoluteEnd =
+    selectionStartOffset + lastSortedRange.endOffset;
   if (lastProtectedAbsoluteEnd < selectionEndOffset) {
     gaps.push({
       absoluteStart: lastProtectedAbsoluteEnd,
@@ -225,12 +246,19 @@ export function splitFormattingAroundProtectedRanges(
   // Generate wrap replacements for each gap
   for (let gapIndex = 0; gapIndex < gaps.length; gapIndex++) {
     const gap = gaps[gapIndex];
-    const wrapReplacements = wrapTextWithTag(gap.absoluteStart, gap.absoluteEnd, tagDefinition);
+    const wrapReplacements = wrapTextWithTag(
+      gap.absoluteStart,
+      gap.absoluteEnd,
+      tagDefinition,
+    );
     allReplacements.push(...wrapReplacements);
   }
 
   // Sort all replacements in last-to-first offset order for safe sequential apply
-  allReplacements.sort((replacementA, replacementB) => replacementB.fromOffset - replacementA.fromOffset);
+  allReplacements.sort(
+    (replacementA, replacementB) =>
+      replacementB.fromOffset - replacementA.fromOffset,
+  );
 
   return allReplacements;
 }

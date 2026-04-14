@@ -40,7 +40,9 @@ import { extractSpanAndDivState } from '../../../hooks/useEditorState';
  * Creates a mock editor that satisfies the ObsidianEditor interface.
  * Wraps MockEditor to add getCursor(which) and transaction() support.
  */
-function createTestEditor(content: string): ObsidianEditor & { transaction: jest.Mock } {
+function createTestEditor(
+  content: string,
+): ObsidianEditor & { transaction: jest.Mock } {
   const innerEditor = new MockEditor();
   innerEditor.setValue(content);
 
@@ -50,15 +52,13 @@ function createTestEditor(content: string): ObsidianEditor & { transaction: jest
   /**
    * Applies transaction changes in reverse document order to avoid position shifts.
    */
-  const applyTransaction = (
-    spec: {
-      changes: Array<{
-        from: { line: number; ch: number };
-        to: { line: number; ch: number };
-        text: string;
-      }>;
-    },
-  ): void => {
+  const applyTransaction = (spec: {
+    changes: Array<{
+      from: { line: number; ch: number };
+      to: { line: number; ch: number };
+      text: string;
+    }>;
+  }): void => {
     const sortedChanges = [...spec.changes].sort((changeA, changeB) => {
       if (changeA.from.line !== changeB.from.line) {
         return changeB.from.line - changeA.from.line;
@@ -76,7 +76,10 @@ function createTestEditor(content: string): ObsidianEditor & { transaction: jest
       return innerEditor.getValue();
     },
 
-    getCursor(which?: 'from' | 'to' | 'head' | 'anchor'): { line: number; ch: number } {
+    getCursor(which?: 'from' | 'to' | 'head' | 'anchor'): {
+      line: number;
+      ch: number;
+    } {
       if (which === 'from' && selectionFrom !== null) {
         return { ...selectionFrom };
       }
@@ -94,7 +97,10 @@ function createTestEditor(content: string): ObsidianEditor & { transaction: jest
       innerEditor.setCursor(position);
     },
 
-    setSelection(from: { line: number; ch: number }, to: { line: number; ch: number }): void {
+    setSelection(
+      from: { line: number; ch: number },
+      to: { line: number; ch: number },
+    ): void {
       selectionFrom = { ...from };
       selectionTo = { ...to };
       innerEditor.setSelection(from, to);
@@ -109,7 +115,9 @@ function createTestEditor(content: string): ObsidianEditor & { transaction: jest
  * After toggleTagInEditor/addTagInEditor mutate the underlying content,
  * we need to rebuild the editor so subsequent operations see the new text.
  */
-function rebuildEditor(editor: ObsidianEditor): ObsidianEditor & { transaction: jest.Mock } {
+function rebuildEditor(
+  editor: ObsidianEditor,
+): ObsidianEditor & { transaction: jest.Mock } {
   return createTestEditor(editor.getValue());
 }
 
@@ -117,15 +125,14 @@ function rebuildEditor(editor: ObsidianEditor): ObsidianEditor & { transaction: 
  * Helper: select a substring within a single-line editor.
  * Searches for the substring in the editor's content and sets the selection.
  */
-function selectSubstring(
-  editor: ObsidianEditor,
-  substring: string,
-): void {
+function selectSubstring(editor: ObsidianEditor, substring: string): void {
   const content = editor.getValue();
   const startIndex = content.indexOf(substring);
 
   if (startIndex === -1) {
-    throw new Error(`Substring "${substring}" not found in content "${content}"`);
+    throw new Error(
+      `Substring "${substring}" not found in content "${content}"`,
+    );
   }
 
   // Convert flat offset to line/ch — simple approach for single-line text
@@ -135,7 +142,10 @@ function selectSubstring(
   for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
     const lineLength = lines[lineIndex].length;
 
-    if (startIndex >= currentOffset && startIndex <= currentOffset + lineLength) {
+    if (
+      startIndex >= currentOffset &&
+      startIndex <= currentOffset + lineLength
+    ) {
       const startCh = startIndex - currentOffset;
       const endOffset = startIndex + substring.length;
 
@@ -175,7 +185,6 @@ function selectSubstring(
 // ============================================================
 
 describe('Group 1: Sequential editor operations', () => {
-
   it('Bold → Italic → Underline produces triple-stacked formatting', () => {
     let editor = createTestEditor('hello');
     editor.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 5 });
@@ -305,7 +314,6 @@ describe('Group 1: Sequential editor operations', () => {
 // ============================================================
 
 describe('Group 2: Copy format + apply format pipeline', () => {
-
   it('copies bold+italic tag definitions from formatted text', () => {
     const editor = createTestEditor('<b><i>styled text</i></b>');
     // Cursor inside "styled text"
@@ -324,7 +332,9 @@ describe('Group 2: Copy format + apply format pipeline', () => {
   });
 
   it('copies underline + font color from formatted text', () => {
-    const editor = createTestEditor('<u><span style="color: red">colored</span></u>');
+    const editor = createTestEditor(
+      '<u><span style="color: red">colored</span></u>',
+    );
     selectSubstring(editor, 'colored');
 
     const copiedFormat = copyFormatFromEditor(editor);
@@ -386,7 +396,6 @@ describe('Group 2: Copy format + apply format pipeline', () => {
 // ============================================================
 
 describe('Group 3: removeAllTags on complex formatting', () => {
-
   it('removes all nested tags: bold + italic + underline + font-color', () => {
     const editor = createTestEditor(
       '<span style="color: red"><u><b><i>text</i></b></u></span>',
@@ -458,7 +467,6 @@ describe('Group 3: removeAllTags on complex formatting', () => {
 // ============================================================
 
 describe('Group 4: Editor state derivation via tag finder + extractSpanAndDivState', () => {
-
   const defaults = { defaultFontFamily: 'default', defaultFontSize: '16' };
 
   it('detects bold + italic + underline — all three booleans true', () => {
@@ -475,7 +483,8 @@ describe('Group 4: Editor state derivation via tag finder + extractSpanAndDivSta
   });
 
   it('detects font color span + highlight background span', () => {
-    const sourceText = '<span style="background: yellow"><span style="color: red">text</span></span>';
+    const sourceText =
+      '<span style="background: yellow"><span style="color: red">text</span></span>';
     const finder = createEnclosingHtmlTagFinder(sourceText);
     const tagRanges = finder.getEnclosingTagRanges({
       cursorPosition: { line: 0, ch: 62 },
@@ -493,7 +502,8 @@ describe('Group 4: Editor state derivation via tag finder + extractSpanAndDivSta
   });
 
   it('detects font-family + font-size spans', () => {
-    const sourceText = '<span style="font-family: \'Courier\'"><span style="font-size: 20pt">text</span></span>';
+    const sourceText =
+      '<span style="font-family: \'Courier\'"><span style="font-size: 20pt">text</span></span>';
     const finder = createEnclosingHtmlTagFinder(sourceText);
     const tagRanges = finder.getEnclosingTagRanges({
       cursorPosition: { line: 0, ch: 72 },
@@ -642,7 +652,6 @@ describe('Group 4: Editor state derivation via tag finder + extractSpanAndDivSta
 // ============================================================
 
 describe('Group 5: Format interactions with protected ranges', () => {
-
   it('bold on "hello [[link]] world" splits formatting around wikilink', () => {
     const editor = createTestEditor('hello [[link]] world');
     editor.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 20 });
@@ -728,7 +737,6 @@ describe('Group 5: Format interactions with protected ranges', () => {
 // ============================================================
 
 describe('Additional integration scenarios', () => {
-
   it('toggle bold on, then toggle bold off restores original text', () => {
     let editor = createTestEditor('roundtrip');
     editor.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 9 });
@@ -836,6 +844,24 @@ describe('Additional integration scenarios', () => {
     expect(editor.getValue()).toBe('2');
   });
 
+  it('switches subscript to superscript instead of nesting both', () => {
+    const editor = createTestEditor('<sub>2</sub>');
+    selectSubstring(editor, '2');
+
+    toggleTagInEditor(editor, SUPERSCRIPT_TAG);
+
+    expect(editor.getValue()).toBe('<sup>2</sup>');
+  });
+
+  it('switches superscript to subscript instead of nesting both', () => {
+    const editor = createTestEditor('<sup>2</sup>');
+    selectSubstring(editor, '2');
+
+    toggleTagInEditor(editor, SUBSCRIPT_TAG);
+
+    expect(editor.getValue()).toBe('<sub>2</sub>');
+  });
+
   it('font color can be removed via removeTag with matching span definition', () => {
     const fontColorTag = buildSpanTagDefinition('color', 'red');
 
@@ -855,12 +881,16 @@ describe('Additional integration scenarios', () => {
     editor.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 12 });
 
     addTagInEditor(editor, yellowHighlight);
-    expect(editor.getValue()).toBe('<span style="background: yellow">highlight me</span>');
+    expect(editor.getValue()).toBe(
+      '<span style="background: yellow">highlight me</span>',
+    );
 
     editor = rebuildEditor(editor);
     selectSubstring(editor, 'highlight me');
     addTagInEditor(editor, greenHighlight);
 
-    expect(editor.getValue()).toBe('<span style="background: green">highlight me</span>');
+    expect(editor.getValue()).toBe(
+      '<span style="background: green">highlight me</span>',
+    );
   });
 });

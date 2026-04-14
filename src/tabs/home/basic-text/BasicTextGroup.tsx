@@ -10,7 +10,10 @@ import {
   NumberedListIcon,
   OutdentIcon,
 } from '../../../assets/icons';
-import { toggleTagInEditor, removeAllTagsInEditor } from '../../../shared/editor/styling-engine/editorIntegration';
+import {
+  toggleTagInEditor,
+  removeAllTagsInEditor,
+} from '../../../shared/editor/styling-engine/editorIntegration';
 import {
   UNDERLINE_TAG,
   BOLD_MD_TAG,
@@ -69,10 +72,10 @@ export function BasicTextGroup() {
     (app as any).commands.executeCommandById('editor:indent-list');
   };
 
-  const handleClearInline = () => {
+  const handleDeleteElement = () => {
     const editor = getEditor();
     if (!editor) return;
-    removeAllTagsInEditor(editor, { preserveLinePrefix: true });
+    editor.replaceSelection('');
   };
 
   const handleClearAllFormatting = () => {
@@ -140,7 +143,7 @@ export function BasicTextGroup() {
           />
         </div>
 
-        {/* Row 2: B I U S x₂ x² | Highlight | Font color | Align | Clear inline */}
+        {/* Row 2: B I U S x₂ x² | Highlight | Font color | Align | Delete element */}
         <div className="onr-basic-text-row2">
           {/* Bold */}
           <RibbonButton
@@ -199,13 +202,13 @@ export function BasicTextGroup() {
 
           <AlignButton editorState={editorState} />
 
-          {/* Clear inline */}
+          {/* Delete element */}
           <RibbonButton
-            className="onr-clear-inline-btn"
+            className="onr-delete-element-btn"
             icon={<ClearInlineIcon className="onr-icon-sm" />}
-            title="Clear inline formatting"
-            onClick={handleClearInline}
-            data-cmd="clear-inline"
+            title="Delete element"
+            onClick={handleDeleteElement}
+            data-cmd="delete-element"
           />
         </div>
       </div>

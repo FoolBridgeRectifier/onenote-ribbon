@@ -21,13 +21,20 @@ import {
 } from './constants';
 
 import { buildSpanTagDefinition } from './tagManipulation';
-import { StylingContext, TextReplacement, RemoveAllTagsOptions } from './interfaces';
+import {
+  StylingContext,
+  TextReplacement,
+  RemoveAllTagsOptions,
+} from './interfaces';
 
 // ============================================================
 // Test Helpers
 // ============================================================
 
-function applyReplacements(sourceText: string, replacements: TextReplacement[]): string {
+function applyReplacements(
+  sourceText: string,
+  replacements: TextReplacement[],
+): string {
   let result = sourceText;
 
   // Replacements are already in last-to-first order
@@ -59,11 +66,9 @@ function createContext(
 // ============================================================
 
 describe('toggleTag', () => {
-
   // --- Removal cases (tag already present) ---
 
   describe('removing existing tags', () => {
-
     it('removes <u> tags when selecting the underlined content', () => {
       const sourceText = '<u>hello</u>';
       const context = createContext(sourceText, 3, 8);
@@ -104,6 +109,30 @@ describe('toggleTag', () => {
       expect(applyReplacements(sourceText, result.replacements)).toBe('3');
     });
 
+    it('switches subscript to superscript instead of nesting both tags', () => {
+      const sourceText = '<sub>2</sub>';
+      const context = createContext(sourceText, 5, 6);
+
+      const result = toggleTag(context, SUPERSCRIPT_TAG);
+
+      expect(result.isNoOp).toBe(false);
+      expect(applyReplacements(sourceText, result.replacements)).toBe(
+        '<sup>2</sup>',
+      );
+    });
+
+    it('switches superscript to subscript instead of nesting both tags', () => {
+      const sourceText = '<sup>2</sup>';
+      const context = createContext(sourceText, 5, 6);
+
+      const result = toggleTag(context, SUBSCRIPT_TAG);
+
+      expect(result.isNoOp).toBe(false);
+      expect(applyReplacements(sourceText, result.replacements)).toBe(
+        '<sub>2</sub>',
+      );
+    });
+
     it('removes * delimiters when toggling italic on italic text', () => {
       const sourceText = '*italic*';
       const context = createContext(sourceText, 1, 7);
@@ -131,7 +160,9 @@ describe('toggleTag', () => {
       const result = toggleTag(context, HIGHLIGHT_MD_TAG);
 
       expect(result.isNoOp).toBe(false);
-      expect(applyReplacements(sourceText, result.replacements)).toBe('highlight');
+      expect(applyReplacements(sourceText, result.replacements)).toBe(
+        'highlight',
+      );
     });
 
     it('removes outer <b> tag when selecting text inside nested <b><i>text</i></b>', () => {
@@ -142,7 +173,9 @@ describe('toggleTag', () => {
       const result = toggleTag(context, BOLD_HTML_TAG);
 
       expect(result.isNoOp).toBe(false);
-      expect(applyReplacements(sourceText, result.replacements)).toBe('<i>text</i>');
+      expect(applyReplacements(sourceText, result.replacements)).toBe(
+        '<i>text</i>',
+      );
     });
 
     it('removes <u> tags when selection includes the delimiters (Ctrl+A / delimiter-inclusive)', () => {
@@ -185,14 +218,15 @@ describe('toggleTag', () => {
       const result = toggleTag(context, ITALIC_MD_TAG);
 
       expect(result.isNoOp).toBe(false);
-      expect(applyReplacements(sourceText, result.replacements)).toBe('**both**');
+      expect(applyReplacements(sourceText, result.replacements)).toBe(
+        '**both**',
+      );
     });
   });
 
   // --- Addition cases (tag not present) ---
 
   describe('adding new tags', () => {
-
     it('wraps plain text with <u> when toggling underline', () => {
       const sourceText = 'hello';
       const context = createContext(sourceText, 0, 5);
@@ -200,7 +234,9 @@ describe('toggleTag', () => {
       const result = toggleTag(context, UNDERLINE_TAG);
 
       expect(result.isNoOp).toBe(false);
-      expect(applyReplacements(sourceText, result.replacements)).toBe('<u>hello</u>');
+      expect(applyReplacements(sourceText, result.replacements)).toBe(
+        '<u>hello</u>',
+      );
     });
 
     it('wraps plain text with ** when toggling bold in MD domain', () => {
@@ -210,7 +246,9 @@ describe('toggleTag', () => {
       const result = toggleTag(context, BOLD_MD_TAG);
 
       expect(result.isNoOp).toBe(false);
-      expect(applyReplacements(sourceText, result.replacements)).toBe('**hello**');
+      expect(applyReplacements(sourceText, result.replacements)).toBe(
+        '**hello**',
+      );
     });
 
     it('wraps plain text with * when toggling italic in MD domain', () => {
@@ -220,7 +258,9 @@ describe('toggleTag', () => {
       const result = toggleTag(context, ITALIC_MD_TAG);
 
       expect(result.isNoOp).toBe(false);
-      expect(applyReplacements(sourceText, result.replacements)).toBe('*hello*');
+      expect(applyReplacements(sourceText, result.replacements)).toBe(
+        '*hello*',
+      );
     });
 
     it('wraps plain text with <sub> when toggling subscript', () => {
@@ -230,14 +270,15 @@ describe('toggleTag', () => {
       const result = toggleTag(context, SUBSCRIPT_TAG);
 
       expect(result.isNoOp).toBe(false);
-      expect(applyReplacements(sourceText, result.replacements)).toBe('H<sub>2</sub>O');
+      expect(applyReplacements(sourceText, result.replacements)).toBe(
+        'H<sub>2</sub>O',
+      );
     });
   });
 
   // --- Domain conversion cases ---
 
   describe('domain conversion', () => {
-
     it('converts MD bold to HTML and wraps with <u> when adding underline inside **bold**', () => {
       const sourceText = '**bold**';
       // Selecting "bold" at offsets 2-6
@@ -307,7 +348,6 @@ describe('toggleTag', () => {
   // --- Inert zone cases ---
 
   describe('inert zones', () => {
-
     it('returns isNoOp for selection inside a code block', () => {
       const sourceText = '```\nconst x = 1;\n```';
       // Selecting inside the code block at offsets 4-17
@@ -343,7 +383,6 @@ describe('toggleTag', () => {
   // --- Protected range cases ---
 
   describe('protected ranges', () => {
-
     it('splits formatting around a wikilink in the selection', () => {
       const sourceText = 'Visit [[Note]] here';
       // Selecting the full text 0-19
@@ -373,7 +412,6 @@ describe('toggleTag', () => {
   // --- Line prefix handling ---
 
   describe('line prefix handling', () => {
-
     it('wraps content after heading prefix when selection starts at content', () => {
       const sourceText = '## My Title';
       // Selecting "My Title" at offsets 3-11
@@ -407,7 +445,6 @@ describe('toggleTag', () => {
 // ============================================================
 
 describe('removeTag', () => {
-
   it('removes <u> tags when they enclose the selection', () => {
     const sourceText = '<u>hello</u>';
     const context = createContext(sourceText, 3, 8);
@@ -468,7 +505,6 @@ describe('removeTag', () => {
 // ============================================================
 
 describe('removeAllTags', () => {
-
   it('removes both <u> and <b> tags from nested content', () => {
     const sourceText = '<u><b>hello</b></u>';
     // "hello" is at offsets 6-11
@@ -557,7 +593,6 @@ describe('removeAllTags', () => {
 // ============================================================
 
 describe('addTag', () => {
-
   it('wraps plain text with <u> when adding underline', () => {
     const sourceText = 'hello world';
     const context = createContext(sourceText, 0, 11);
@@ -565,7 +600,9 @@ describe('addTag', () => {
     const result = addTag(context, UNDERLINE_TAG);
 
     expect(result.isNoOp).toBe(false);
-    expect(applyReplacements(sourceText, result.replacements)).toBe('<u>hello world</u>');
+    expect(applyReplacements(sourceText, result.replacements)).toBe(
+      '<u>hello world</u>',
+    );
   });
 
   it('replaces color attribute when adding color to already colored text', () => {
@@ -641,7 +678,6 @@ describe('addTag', () => {
 // ============================================================
 
 describe('copyFormat', () => {
-
   it('returns tag definitions for both enclosing tags and html domain', () => {
     const sourceText = '<u><b>text</b></u>';
     // "text" at offsets 6-10
@@ -650,7 +686,9 @@ describe('copyFormat', () => {
     expect(result.domain).toBe('html');
     expect(result.tagDefinitions.length).toBeGreaterThanOrEqual(2);
 
-    const tagNames = result.tagDefinitions.map((tagDefinition) => tagDefinition.tagName);
+    const tagNames = result.tagDefinitions.map(
+      (tagDefinition) => tagDefinition.tagName,
+    );
     expect(tagNames).toContain('b');
     expect(tagNames).toContain('u');
   });
@@ -672,7 +710,9 @@ describe('copyFormat', () => {
     expect(result.domain).toBe('markdown');
     expect(result.tagDefinitions.length).toBeGreaterThanOrEqual(1);
 
-    const tagNames = result.tagDefinitions.map((tagDefinition) => tagDefinition.tagName);
+    const tagNames = result.tagDefinitions.map(
+      (tagDefinition) => tagDefinition.tagName,
+    );
     expect(tagNames).toContain('bold');
   });
 
@@ -699,7 +739,9 @@ describe('copyFormat', () => {
     expect(result.domain).toBe('html');
     expect(result.tagDefinitions.length).toBeGreaterThanOrEqual(3);
 
-    const tagNames = result.tagDefinitions.map((tagDefinition) => tagDefinition.tagName);
+    const tagNames = result.tagDefinitions.map(
+      (tagDefinition) => tagDefinition.tagName,
+    );
     expect(tagNames).toContain('b');
     expect(tagNames).toContain('span');
     expect(tagNames).toContain('u');
@@ -711,7 +753,6 @@ describe('copyFormat', () => {
 // ============================================================
 
 describe('edge cases', () => {
-
   it('handles zero-width selection (cursor) for toggleTag', () => {
     const sourceText = '<u>hello</u>';
     // Cursor at offset 5 (inside "hello")
@@ -750,7 +791,6 @@ describe('edge cases', () => {
 // ============================================================
 
 describe('toggleTag — line prefix preservation', () => {
-
   it('preserves bullet prefix and underlines content', () => {
     const sourceText = '- item text';
     // "item text" starts at offset 2
@@ -853,7 +893,6 @@ describe('toggleTag — line prefix preservation', () => {
 // ============================================================
 
 describe('toggleTag — domain conversion extras', () => {
-
   it('converts MD strikethrough to HTML and wraps with <u> when adding underline', () => {
     const sourceText = '~~struck~~';
     // "struck" at offsets 2-8
@@ -884,7 +923,6 @@ describe('toggleTag — domain conversion extras', () => {
 // ============================================================
 
 describe('toggleTag — span toggle-off', () => {
-
   it('removes color span when toggling same color span tag', () => {
     const sourceText = '<span style="color: red">text</span>';
     // "text" at offsets 25-29
@@ -904,7 +942,6 @@ describe('toggleTag — span toggle-off', () => {
 // ============================================================
 
 describe('toggleTag — atomic token extras', () => {
-
   it('splits bold formatting around a markdown link', () => {
     const sourceText = 'See [link](url) end';
     // Select full text 0-19
@@ -947,7 +984,6 @@ describe('toggleTag — atomic token extras', () => {
 // ============================================================
 
 describe('removeAllTags — extras', () => {
-
   it('removes <u> tags from heading content with preserveLinePrefix option', () => {
     const sourceText = '## <u>Title</u>';
     // Select "Title" inside the <u> tags: "<u>" starts at offset 3, "Title" at offset 6, ends at 11
@@ -1004,7 +1040,6 @@ describe('removeAllTags — extras', () => {
 // ============================================================
 
 describe('toggleTag — cursor-only insertion', () => {
-
   it('inserts empty underline tag pair at cursor position in plain text', () => {
     const sourceText = 'hello world';
     // Zero-width cursor at offset 5
@@ -1037,7 +1072,6 @@ describe('toggleTag — cursor-only insertion', () => {
 // ============================================================
 
 describe('toggleTag — inert zone: inline math', () => {
-
   it('returns isNoOp for cursor inside inline math $...$', () => {
     const sourceText = '$x^2$';
     // Zero-width cursor at offset 1 (inside the $ delimiters)
@@ -1055,7 +1089,6 @@ describe('toggleTag — inert zone: inline math', () => {
 // ============================================================
 
 describe('toggleTag — adjacent protected tokens with no gap', () => {
-
   it('produces no wraps when two wikilinks are directly adjacent', () => {
     const sourceText = '[[A]][[B]]';
     // Select full text 0-10
@@ -1074,7 +1107,6 @@ describe('toggleTag — adjacent protected tokens with no gap', () => {
 // ============================================================
 
 describe('removeTag — cursor-only (zero-width selection)', () => {
-
   it('removes enclosing <u> tags when cursor is inside the content', () => {
     const sourceText = '<u>text</u>';
     // Cursor at offset 4 (inside "text": t=3, e=4, x=5, t=6)
@@ -1103,7 +1135,6 @@ describe('removeTag — cursor-only (zero-width selection)', () => {
 // ============================================================
 
 describe('addTag — cursor-only (zero-width selection)', () => {
-
   it('inserts empty <u></u> tag pair at cursor position in plain text', () => {
     const sourceText = 'hello world';
     // Zero-width cursor at offset 5
@@ -1122,7 +1153,6 @@ describe('addTag — cursor-only (zero-width selection)', () => {
 // ============================================================
 
 describe('removeAllTags — mixed-content full selection', () => {
-
   it('removes both MD bold and HTML underline when full text is selected', () => {
     const sourceText = '**bold** and <u>underline</u>';
     // Select full text

@@ -144,14 +144,13 @@ export function HighlightTextColor({ editorState }: HighlightTextColorProps) {
           <div className="onr-highlight-swatch" style={{ backgroundColor: lastHighlightColor }} />
         </RibbonButton>
 
-        <div
-          className="onr-highlight-caret"
+        <RibbonButton
+          size="small"
+          className="onr-caret-btn"
           onClick={() => setHighlightDropdownOpen(!highlightDropdownOpen)}
-          role="button"
-          tabIndex={0}
         >
           ▾
-        </div>
+        </RibbonButton>
       </div>
 
       {highlightDropdownOpen && highlightAnchorRef.current && (
@@ -182,14 +181,13 @@ export function HighlightTextColor({ editorState }: HighlightTextColorProps) {
           <div className="onr-color-swatch" style={{ backgroundColor: lastFontColor }} />
         </RibbonButton>
 
-        <div
-          className="onr-color-caret"
+        <RibbonButton
+          size="small"
+          className="onr-caret-btn"
           onClick={() => setFontColorDropdownOpen(!fontColorDropdownOpen)}
-          role="button"
-          tabIndex={0}
         >
           ▾
-        </div>
+        </RibbonButton>
       </div>
 
       {fontColorDropdownOpen && fontColorAnchorRef.current && (

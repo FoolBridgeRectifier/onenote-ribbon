@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import type { HTMLAttributes, ReactNode } from 'react';
 import type { DropdownItem } from './interfaces.ts';
 
-import './Dropdown.css';
+import './dropdown.css';
 
 type DropdownProps = {
   anchor: HTMLElement | null;

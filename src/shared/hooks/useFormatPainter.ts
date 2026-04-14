@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { App } from 'obsidian';
-import { copyFormatFromEditor, addTagInEditor } from '../editor/styling-engine/editorIntegration';
+import {
+  copyFormatFromEditor,
+  addTagInEditor,
+} from '../editor/styling-engine/editorIntegration';
 import type { CopiedFormat } from '../editor/styling-engine/interfaces';
 
 export type FormatPainterMode = 'idle' | 'armed' | 'locked';
@@ -12,10 +15,12 @@ export interface FormatPainterState {
 
 interface UseFormatPainterResult {
   state: FormatPainterState;
-  handleSingleClick: () => void;
+  handleSingleClick: (clickCount?: number) => void;
   handleDoubleClick: () => void;
   cancel: () => void;
 }
+
+const APPLY_AFTER_EDITOR_CLICK_DELAY_MILLISECONDS = 50;
 
 /**
  * Format painter state machine hook (OneNote-style).
@@ -29,6 +34,10 @@ export function useFormatPainter(app: App): UseFormatPainterResult {
     mode: 'idle',
     copiedFormat: null,
   });
+
+  const pendingApplyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   const stateRef = useRef(state);
   stateRef.current = state;
@@ -68,22 +77,43 @@ export function useFormatPainter(app: App): UseFormatPainterResult {
     setState({ mode: 'idle', copiedFormat: null });
   }, []);
 
-  const handleSingleClick = useCallback(() => {
-    if (stateRef.current.mode !== 'idle') {
-      // If already active, cancel
-      cancel();
-      return;
-    }
+  const handleSingleClick = useCallback(
+    (clickCount: number = 1) => {
+      if (clickCount > 1) {
+        return;
+      }
 
-    const format = copyCurrentFormat();
-    if (!format || format.tagDefinitions.length === 0) return;
+      if (stateRef.current.mode !== 'idle') {
+        // If already active, cancel
+        cancel();
+        return;
+      }
 
-    setState({ mode: 'armed', copiedFormat: format });
-  }, [copyCurrentFormat, cancel]);
+      const format = copyCurrentFormat();
+      if (!format || format.tagDefinitions.length === 0) {
+        return;
+      }
+
+      setState({ mode: 'armed', copiedFormat: format });
+    },
+    [copyCurrentFormat, cancel],
+  );
 
   const handleDoubleClick = useCallback(() => {
     if (stateRef.current.mode === 'locked') {
       cancel();
+      return;
+    }
+
+    if (
+      stateRef.current.mode === 'armed' &&
+      stateRef.current.copiedFormat &&
+      stateRef.current.copiedFormat.tagDefinitions.length > 0
+    ) {
+      setState({
+        mode: 'locked',
+        copiedFormat: stateRef.current.copiedFormat,
+      });
       return;
     }
 
@@ -94,7 +124,6 @@ export function useFormatPainter(app: App): UseFormatPainterResult {
   }, [copyCurrentFormat, cancel]);
 
   // Listen for editor clicks when armed/locked to apply format
-  const pendingApplyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (state.mode === 'idle') return;
@@ -111,7 +140,7 @@ export function useFormatPainter(app: App): UseFormatPainterResult {
         if (currentState.mode === 'armed') {
           setState({ mode: 'idle', copiedFormat: null });
         }
-      }, 50);
+      }, APPLY_AFTER_EDITOR_CLICK_DELAY_MILLISECONDS);
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {

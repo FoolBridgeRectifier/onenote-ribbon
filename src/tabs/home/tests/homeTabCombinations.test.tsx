@@ -61,9 +61,7 @@ const mockApp = {
 
 function renderWithMockApp(component: React.ReactElement) {
   return render(
-    <AppContext.Provider value={mockApp}>
-      {component}
-    </AppContext.Provider>,
+    <AppContext.Provider value={mockApp}>{component}</AppContext.Provider>,
   );
 }
 
@@ -75,7 +73,10 @@ import { TagsGroup } from '../tags/TagsGroup';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
-function queryByCmd(container: HTMLElement, command: string): HTMLElement | null {
+function queryByCmd(
+  container: HTMLElement,
+  command: string,
+): HTMLElement | null {
   return container.querySelector(`[data-cmd="${command}"]`);
 }
 
@@ -117,7 +118,7 @@ describe('BasicTextGroup button rendering', () => {
     'outdent',
     'indent',
     'clear-all',
-    'clear-inline',
+    'delete-element',
     'highlight',
     'font-color',
     'align',
@@ -125,13 +126,10 @@ describe('BasicTextGroup button rendering', () => {
     'font-size',
   ];
 
-  it.each(BASIC_COMMANDS)(
-    'renders a button with data-cmd="%s"',
-    (command) => {
-      const { container } = renderWithMockApp(<BasicTextGroup />);
-      expect(queryByCmd(container, command)).not.toBeNull();
-    },
-  );
+  it.each(BASIC_COMMANDS)('renders a button with data-cmd="%s"', (command) => {
+    const { container } = renderWithMockApp(<BasicTextGroup />);
+    expect(queryByCmd(container, command)).not.toBeNull();
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -256,9 +254,15 @@ describe('Combination states', () => {
     resetEditorState({ bold: true, italic: true, underline: true });
     const { container } = renderWithMockApp(<BasicTextGroup />);
 
-    expect(getByCmd(container, 'bold').classList.contains('onr-active')).toBe(true);
-    expect(getByCmd(container, 'italic').classList.contains('onr-active')).toBe(true);
-    expect(getByCmd(container, 'underline').classList.contains('onr-active')).toBe(true);
+    expect(getByCmd(container, 'bold').classList.contains('onr-active')).toBe(
+      true,
+    );
+    expect(getByCmd(container, 'italic').classList.contains('onr-active')).toBe(
+      true,
+    );
+    expect(
+      getByCmd(container, 'underline').classList.contains('onr-active'),
+    ).toBe(true);
   });
 
   it('All fields false → no buttons have onr-active', () => {
@@ -276,34 +280,62 @@ describe('Combination states', () => {
     resetEditorState({ bold: true, highlight: true });
     const { container } = renderWithMockApp(<BasicTextGroup />);
 
-    expect(getByCmd(container, 'bold').classList.contains('onr-active')).toBe(true);
-    expect(getByCmd(container, 'highlight').classList.contains('onr-active')).toBe(true);
+    expect(getByCmd(container, 'bold').classList.contains('onr-active')).toBe(
+      true,
+    );
+    expect(
+      getByCmd(container, 'highlight').classList.contains('onr-active'),
+    ).toBe(true);
 
-    expect(getByCmd(container, 'italic').classList.contains('onr-active')).toBe(false);
-    expect(getByCmd(container, 'underline').classList.contains('onr-active')).toBe(false);
-    expect(getByCmd(container, 'strikethrough').classList.contains('onr-active')).toBe(false);
-    expect(getByCmd(container, 'subscript').classList.contains('onr-active')).toBe(false);
-    expect(getByCmd(container, 'superscript').classList.contains('onr-active')).toBe(false);
+    expect(getByCmd(container, 'italic').classList.contains('onr-active')).toBe(
+      false,
+    );
+    expect(
+      getByCmd(container, 'underline').classList.contains('onr-active'),
+    ).toBe(false);
+    expect(
+      getByCmd(container, 'strikethrough').classList.contains('onr-active'),
+    ).toBe(false);
+    expect(
+      getByCmd(container, 'subscript').classList.contains('onr-active'),
+    ).toBe(false);
+    expect(
+      getByCmd(container, 'superscript').classList.contains('onr-active'),
+    ).toBe(false);
   });
 
   it('Subscript + Superscript both active at once', () => {
     resetEditorState({ subscript: true, superscript: true });
     const { container } = renderWithMockApp(<BasicTextGroup />);
 
-    expect(getByCmd(container, 'subscript').classList.contains('onr-active')).toBe(true);
-    expect(getByCmd(container, 'superscript').classList.contains('onr-active')).toBe(true);
+    expect(
+      getByCmd(container, 'subscript').classList.contains('onr-active'),
+    ).toBe(true);
+    expect(
+      getByCmd(container, 'superscript').classList.contains('onr-active'),
+    ).toBe(true);
   });
 
   it('Bullet list + Bold + fontColor → three buttons active', () => {
     resetEditorState({ bulletList: true, bold: true, fontColor: '#000' });
     const { container } = renderWithMockApp(<BasicTextGroup />);
 
-    expect(getByCmd(container, 'bullet-list').classList.contains('onr-active')).toBe(true);
-    expect(getByCmd(container, 'bold').classList.contains('onr-active')).toBe(true);
-    expect(getByCmd(container, 'font-color').classList.contains('onr-active')).toBe(true);
+    expect(
+      getByCmd(container, 'bullet-list').classList.contains('onr-active'),
+    ).toBe(true);
+    expect(getByCmd(container, 'bold').classList.contains('onr-active')).toBe(
+      true,
+    );
+    expect(
+      getByCmd(container, 'font-color').classList.contains('onr-active'),
+    ).toBe(true);
 
-    expect(getByCmd(container, 'italic').classList.contains('onr-active')).toBe(false);
-    expect(getByCmd(container, 'numbered-list').classList.contains('onr-active')).toBe(false);
+    expect(getByCmd(container, 'italic').classList.contains('onr-active')).toBe(
+      false,
+    );
+    expect(
+      getByCmd(container, 'numbered-list').classList.contains('onr-active'),
+    ).toBe(false);
   });
 
   it('Center align + Italic + highlightColor → three buttons active', () => {
@@ -314,9 +346,15 @@ describe('Combination states', () => {
     });
     const { container } = renderWithMockApp(<BasicTextGroup />);
 
-    expect(getByCmd(container, 'align').classList.contains('onr-active')).toBe(true);
-    expect(getByCmd(container, 'italic').classList.contains('onr-active')).toBe(true);
-    expect(getByCmd(container, 'highlight').classList.contains('onr-active')).toBe(true);
+    expect(getByCmd(container, 'align').classList.contains('onr-active')).toBe(
+      true,
+    );
+    expect(getByCmd(container, 'italic').classList.contains('onr-active')).toBe(
+      true,
+    );
+    expect(
+      getByCmd(container, 'highlight').classList.contains('onr-active'),
+    ).toBe(true);
   });
 });
 
@@ -397,9 +435,7 @@ describe('FontPicker dropdown', () => {
     expect(dropdownItems.length).toBeGreaterThan(0);
 
     // Verify known fonts appear
-    const itemTexts = Array.from(dropdownItems).map(
-      (item) => item.textContent,
-    );
+    const itemTexts = Array.from(dropdownItems).map((item) => item.textContent);
     expect(itemTexts).toContain('Arial');
     expect(itemTexts).toContain('Courier New');
   });
@@ -415,9 +451,7 @@ describe('FontPicker dropdown', () => {
     const dropdownItems = document.body.querySelectorAll('.onr-dd-item');
     expect(dropdownItems.length).toBeGreaterThan(0);
 
-    const itemTexts = Array.from(dropdownItems).map(
-      (item) => item.textContent,
-    );
+    const itemTexts = Array.from(dropdownItems).map((item) => item.textContent);
     expect(itemTexts).toContain('12');
     expect(itemTexts).toContain('24');
     expect(itemTexts).toContain('72');
@@ -438,8 +472,8 @@ describe('Align dropdown', () => {
     await user.click(alignButton);
 
     const dropdownItems = document.body.querySelectorAll('.onr-dd-item');
-    const itemTexts = Array.from(dropdownItems).map(
-      (item) => item.textContent?.trim(),
+    const itemTexts = Array.from(dropdownItems).map((item) =>
+      item.textContent?.trim(),
     );
 
     expect(itemTexts).toContain('Align Left');
@@ -520,8 +554,8 @@ describe('StylesGroup active states', () => {
     await user.click(expandButton);
 
     const dropdownItems = document.body.querySelectorAll('.onr-dd-item');
-    const itemTexts = Array.from(dropdownItems).map(
-      (item) => item.textContent?.trim(),
+    const itemTexts = Array.from(dropdownItems).map((item) =>
+      item.textContent?.trim(),
     );
 
     expect(itemTexts).toContain('Normal');
@@ -563,13 +597,10 @@ describe('TagsGroup button rendering', () => {
     'find-tags',
   ];
 
-  it.each(TAG_COMMANDS)(
-    'renders a button with data-cmd="%s"',
-    (command) => {
-      const { container } = renderWithMockApp(<TagsGroup />);
-      expect(queryByCmd(container, command)).not.toBeNull();
-    },
-  );
+  it.each(TAG_COMMANDS)('renders a button with data-cmd="%s"', (command) => {
+    const { container } = renderWithMockApp(<TagsGroup />);
+    expect(queryByCmd(container, command)).not.toBeNull();
+  });
 
   it('more-tags dropdown shows Quote and Code options', async () => {
     const user = userEvent.setup();
@@ -579,8 +610,8 @@ describe('TagsGroup button rendering', () => {
     await user.click(moreButton);
 
     const dropdownItems = document.body.querySelectorAll('.onr-dd-item');
-    const itemTexts = Array.from(dropdownItems).map(
-      (item) => item.textContent?.trim(),
+    const itemTexts = Array.from(dropdownItems).map((item) =>
+      item.textContent?.trim(),
     );
 
     expect(itemTexts).toContain('Quote');
@@ -597,7 +628,7 @@ describe('Non-active buttons', () => {
     'outdent',
     'indent',
     'clear-all',
-    'clear-inline',
+    'delete-element',
   ];
 
   it.each(ALWAYS_INACTIVE_COMMANDS)(

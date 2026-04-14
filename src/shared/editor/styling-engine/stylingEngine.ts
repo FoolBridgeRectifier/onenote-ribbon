@@ -48,7 +48,10 @@ import { HtmlTagRange } from '../enclosing-html-tags/interfaces';
 /**
  * Comparator: sorts tag ranges by content width (inner-to-outer).
  */
-function compareByContentWidth(rangeA: HtmlTagRange, rangeB: HtmlTagRange): number {
+function compareByContentWidth(
+  rangeA: HtmlTagRange,
+  rangeB: HtmlTagRange,
+): number {
   const widthA = rangeA.closingTagStartOffset - rangeA.openingTagEndOffset;
   const widthB = rangeB.closingTagStartOffset - rangeB.openingTagEndOffset;
   return widthA - widthB;
@@ -159,7 +162,12 @@ function findDelimiterInclusiveMatch(
     allTagRanges,
     sourceText,
     tagDefinition,
-    (tagRange) => tagSpanIsWithinSelection(tagRange, selectionStartOffset, selectionEndOffset),
+    (tagRange) =>
+      tagSpanIsWithinSelection(
+        tagRange,
+        selectionStartOffset,
+        selectionEndOffset,
+      ),
   );
 
   if (matchingRanges.length === 0) {
@@ -199,7 +207,8 @@ function findEnclosingMatchingTag(
     allTagRanges,
     sourceText,
     tagDefinition,
-    (tagRange) => tagEnclosesSelection(tagRange, selectionStartOffset, selectionEndOffset),
+    (tagRange) =>
+      tagEnclosesSelection(tagRange, selectionStartOffset, selectionEndOffset),
   );
 
   if (matchingRanges.length === 0) {
@@ -271,16 +280,23 @@ function findAllTagsWithinSelection(
   selectionEndOffset: number,
 ): HtmlTagRange[] {
   return filterTagRangesByGeometry(allTagRanges, (tagRange) =>
-    tagSpanIsWithinSelection(tagRange, selectionStartOffset, selectionEndOffset),
+    tagSpanIsWithinSelection(
+      tagRange,
+      selectionStartOffset,
+      selectionEndOffset,
+    ),
   );
 }
 
 /**
  * Sorts replacements by fromOffset descending (last-to-first) for safe sequential application.
  */
-function sortReplacementsLastToFirst(replacements: TextReplacement[]): TextReplacement[] {
+function sortReplacementsLastToFirst(
+  replacements: TextReplacement[],
+): TextReplacement[] {
   return [...replacements].sort(
-    (replacementA, replacementB) => replacementB.fromOffset - replacementA.fromOffset,
+    (replacementA, replacementB) =>
+      replacementB.fromOffset - replacementA.fromOffset,
   );
 }
 
@@ -289,7 +305,9 @@ function sortReplacementsLastToFirst(replacements: TextReplacement[]): TextRepla
  * Keeps the first occurrence (which is the one from the innermost tag due to sort order).
  * Guards against malformed markup like `<b><b>text</b></b>` producing overlapping deletions.
  */
-function deduplicateReplacements(replacements: TextReplacement[]): TextReplacement[] {
+function deduplicateReplacements(
+  replacements: TextReplacement[],
+): TextReplacement[] {
   const seen = new Set<string>();
   const deduplicated: TextReplacement[] = [];
 
@@ -326,6 +344,39 @@ function resolveTagForDomain(
   return tagDefinition;
 }
 
+function resolveMutuallyExclusiveScriptTag(
+  tagDefinition: TagDefinition,
+): TagDefinition | null {
+  if (tagDefinition.tagName === SUBSCRIPT_TAG.tagName) {
+    return SUPERSCRIPT_TAG;
+  }
+
+  if (tagDefinition.tagName === SUPERSCRIPT_TAG.tagName) {
+    return SUBSCRIPT_TAG;
+  }
+
+  return null;
+}
+
+function buildTagMarkupSwapReplacements(
+  tagRange: HtmlTagRange,
+  replacementTagDefinition: TagDefinition,
+): TextReplacement[] {
+  const closingTagReplacement: TextReplacement = {
+    fromOffset: tagRange.closingTagStartOffset,
+    toOffset: tagRange.closingTagEndOffset,
+    replacementText: replacementTagDefinition.closingMarkup,
+  };
+
+  const openingTagReplacement: TextReplacement = {
+    fromOffset: tagRange.openingTagStartOffset,
+    toOffset: tagRange.openingTagEndOffset,
+    replacementText: replacementTagDefinition.openingMarkup,
+  };
+
+  return [closingTagReplacement, openingTagReplacement];
+}
+
 // ============================================================
 // Domain Conversion: MD tokens to HTML
 // ============================================================
@@ -348,7 +399,9 @@ function buildDomainConversionReplacements(
   for (let rangeIndex = 0; rangeIndex < allTagRanges.length; rangeIndex++) {
     const tagRange = allTagRanges[rangeIndex];
 
-    if (!tagEnclosesSelection(tagRange, selectionStartOffset, selectionEndOffset)) {
+    if (
+      !tagEnclosesSelection(tagRange, selectionStartOffset, selectionEndOffset)
+    ) {
       continue;
     }
 
@@ -360,16 +413,26 @@ function buildDomainConversionReplacements(
 
   if (enclosingMarkdownRanges.length === 0) {
     // No MD tags to convert — just wrap the selection directly
-    return wrapTextWithTag(selectionStartOffset, selectionEndOffset, tagDefinition);
+    return wrapTextWithTag(
+      selectionStartOffset,
+      selectionEndOffset,
+      tagDefinition,
+    );
   }
 
   // Find the outermost MD tag range to determine the full region to replace
   let outermostRange = enclosingMarkdownRanges[0];
 
-  for (let rangeIndex = 1; rangeIndex < enclosingMarkdownRanges.length; rangeIndex++) {
+  for (
+    let rangeIndex = 1;
+    rangeIndex < enclosingMarkdownRanges.length;
+    rangeIndex++
+  ) {
     const candidate = enclosingMarkdownRanges[rangeIndex];
 
-    if (candidate.openingTagStartOffset < outermostRange.openingTagStartOffset) {
+    if (
+      candidate.openingTagStartOffset < outermostRange.openingTagStartOffset
+    ) {
       outermostRange = candidate;
     }
   }
@@ -383,13 +446,16 @@ function buildDomainConversionReplacements(
   const convertedText = convertMarkdownTokensToHtml(regionText);
 
   // Wrap the converted text with the target HTML tag
-  const wrappedText = tagDefinition.openingMarkup + convertedText + tagDefinition.closingMarkup;
+  const wrappedText =
+    tagDefinition.openingMarkup + convertedText + tagDefinition.closingMarkup;
 
-  return [{
-    fromOffset: regionStart,
-    toOffset: regionEnd,
-    replacementText: wrappedText,
-  }];
+  return [
+    {
+      fromOffset: regionStart,
+      toOffset: regionEnd,
+      replacementText: wrappedText,
+    },
+  ];
 }
 
 // ============================================================
@@ -407,7 +473,13 @@ function buildWrapReplacements(
   tagDefinition: TagDefinition,
   effectiveTag: TagDefinition,
   domainResult: { domain: FormattingDomain; hasMarkdownTokens: boolean },
-  structureContext: { protectedRanges: { startOffset: number; endOffset: number; tokenType: string }[] },
+  structureContext: {
+    protectedRanges: {
+      startOffset: number;
+      endOffset: number;
+      tokenType: string;
+    }[];
+  },
   allTagRanges: HtmlTagRange[] | null,
 ): StylingResult {
   // Domain conversion: adding HTML tag in MD domain with MD tokens present
@@ -436,8 +508,12 @@ function buildWrapReplacements(
 
       if (selectionStartOffset < selectionEndOffset) {
         // Selection exists — find the original selected text within the replacement
-        const selectedText = sourceText.slice(selectionStartOffset, selectionEndOffset);
-        const selectedTextPosition = replacement.replacementText.indexOf(selectedText);
+        const selectedText = sourceText.slice(
+          selectionStartOffset,
+          selectionEndOffset,
+        );
+        const selectedTextPosition =
+          replacement.replacementText.indexOf(selectedText);
 
         if (selectedTextPosition !== -1) {
           newSelectionStart = replacement.fromOffset + selectedTextPosition;
@@ -445,7 +521,8 @@ function buildWrapReplacements(
         }
       } else {
         // Cursor only — place cursor after the outermost opening markup
-        newSelectionStart = replacement.fromOffset + tagDefinition.openingMarkup.length;
+        newSelectionStart =
+          replacement.fromOffset + tagDefinition.openingMarkup.length;
         newSelectionEnd = newSelectionStart;
       }
     }
@@ -583,6 +660,46 @@ export function toggleTag(
         const replacements = unwrapTag(htmlDelimiterMatch);
         return { replacements, isNoOp: false };
       }
+    }
+  }
+
+  const mutuallyExclusiveScriptTag =
+    resolveMutuallyExclusiveScriptTag(tagDefinition);
+
+  if (mutuallyExclusiveScriptTag !== null) {
+    const mutuallyExclusiveMatch = findEnclosingMatchingTag(
+      allTagRanges,
+      sourceText,
+      selectionStartOffset,
+      selectionEndOffset,
+      mutuallyExclusiveScriptTag,
+    );
+
+    if (mutuallyExclusiveMatch !== null) {
+      const replacements = buildTagMarkupSwapReplacements(
+        mutuallyExclusiveMatch,
+        tagDefinition,
+      );
+
+      return { replacements, isNoOp: false };
+    }
+
+    const delimiterInclusiveMutuallyExclusiveMatch =
+      findDelimiterInclusiveMatch(
+        allTagRanges,
+        sourceText,
+        selectionStartOffset,
+        selectionEndOffset,
+        mutuallyExclusiveScriptTag,
+      );
+
+    if (delimiterInclusiveMutuallyExclusiveMatch !== null) {
+      const replacements = buildTagMarkupSwapReplacements(
+        delimiterInclusiveMutuallyExclusiveMatch,
+        tagDefinition,
+      );
+
+      return { replacements, isNoOp: false };
     }
   }
 
@@ -878,7 +995,9 @@ function tagRangeToTagDefinition(
   }
 
   // Check MD tag definitions
-  const markdownDefinition = MARKDOWN_TAG_NAME_DEFINITIONS.get(tagRange.tagName);
+  const markdownDefinition = MARKDOWN_TAG_NAME_DEFINITIONS.get(
+    tagRange.tagName,
+  );
 
   if (markdownDefinition) {
     return markdownDefinition;
@@ -893,7 +1012,10 @@ function tagRangeToTagDefinition(
     const extracted = extractStylePropertyFromOpeningTag(openingTagText);
 
     if (extracted !== null) {
-      return buildSpanTagDefinition(extracted.propertyName, extracted.propertyValue);
+      return buildSpanTagDefinition(
+        extracted.propertyName,
+        extracted.propertyValue,
+      );
     }
   }
 
