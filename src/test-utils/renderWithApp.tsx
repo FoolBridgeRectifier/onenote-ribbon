@@ -1,5 +1,7 @@
 import React from 'react';
 import { render, RenderOptions } from '@testing-library/react';
+import { App } from 'obsidian';
+import { Plugin } from 'obsidian';
 import { AppContext } from '../shared/context/AppContext';
 import { PluginContext } from '../shared/context/PluginContext';
 import type { MockApp, MockPlugin } from './mockApp';
@@ -16,15 +18,17 @@ export function renderWithApp(
   const { plugin, ...renderOptions } = options ?? {};
 
   const wrapper = ({ children }: { children: React.ReactNode }) => {
+    // MockApp satisfies the App interface surface used by components at runtime.
     const appProvided = (
-      <AppContext.Provider value={app as any}>
+      <AppContext.Provider value={app as unknown as App}>
         {children}
       </AppContext.Provider>
     );
 
     if (plugin) {
+      // MockPlugin satisfies the Plugin interface surface used by hooks at runtime.
       return (
-        <PluginContext.Provider value={plugin as any}>
+        <PluginContext.Provider value={plugin as unknown as Plugin}>
           {appProvided}
         </PluginContext.Provider>
       );
