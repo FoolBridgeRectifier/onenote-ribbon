@@ -26,7 +26,7 @@ export const DEFAULT_LIST_STYLE_SETTINGS = {
  * Each preset defines Unicode symbols for 4 nesting levels (L1 → L4).
  */
 export const BULLET_PRESETS: BulletPreset[] = [
-  { id: 'none',      label: 'None',      levels: [] },
+  { id: BULLET_PRESET_NONE_ID, label: 'None',      levels: [] },
   { id: 'classic',   label: 'Classic',   levels: ['●', '○', '■', '□'] },
   { id: 'diamond',   label: 'Diamond',   levels: ['◆', '◇', '●', '○'] },
   { id: 'arrow',     label: 'Arrow',     levels: ['→', '▸', '–', '·'] },
@@ -43,7 +43,7 @@ export const BULLET_PRESETS: BulletPreset[] = [
  */
 export const NUMBER_PRESETS: NumberPreset[] = [
   // Row 1: None + period-suffix styles
-  { id: 'none',                 label: 'None',           markerContent: '' },
+  { id: NUMBER_PRESET_NONE_ID,  label: 'None',           markerContent: '' },
   { id: 'decimal-period',       label: '1. 2. 3.',       markerContent: '', cssListStyleType: 'decimal' },
   { id: 'lower-alpha-period',   label: 'a. b. c.',       markerContent: '', cssListStyleType: 'lower-alpha' },
   { id: 'upper-alpha-period',   label: 'A. B. C.',       markerContent: '', cssListStyleType: 'upper-alpha' },
