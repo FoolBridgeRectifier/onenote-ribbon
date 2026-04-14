@@ -84,3 +84,91 @@
   min-height: 58px;
   justify-content: flex-start;
 }
+
+/* ── Tags dropdown (full OneNote tag list) ────────────────────────────────── */
+
+/* Override the default min-width; the tag list is wider. */
+.onr-overlay-dropdown.onr-tags-dropdown {
+  min-width: 220px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+/* Each tag row: icon + label + swatch */
+.onr-tags-dd-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--transition-fast);
+}
+
+.onr-tags-dd-item:hover {
+  background: var(--btn-hover-bg);
+}
+
+/* Disabled footer items (e.g. "Remove Tag" when nothing is selected) */
+.onr-tags-dd-item--disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.onr-tags-dd-item--disabled:hover {
+  background: transparent;
+}
+
+/* Icon wrapper — coloured tag icon SVG sits here */
+.onr-tags-dd-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/*
+ * SVG inside the dropdown tag icons.
+ * Override the global ribbon SVG rule so internal fills render correctly.
+ */
+.onr-tags-dd-icon svg.onr-tag-dd-icon-svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: none;
+}
+
+/* Ensure text inside these SVGs keeps its font properties */
+.onr-tags-dd-icon svg.onr-tag-dd-icon-svg text {
+  stroke: none;
+}
+
+/* Tag label */
+.onr-tags-dd-label {
+  flex: 1;
+  font-size: 11px;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+/* Right-side category color swatch */
+.onr-tags-dd-swatch {
+  width: 14px;
+  height: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  flex-shrink: 0;
+  border-radius: 1px;
+}
+
+/* Horizontal rule between tag groups and footer actions */
+.onr-tags-dd-separator {
+  height: 1px;
+  background: var(--ribbon-border);
+  margin: 4px 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onr-tags-dd-item {
+    transition: none;
+  }
+}

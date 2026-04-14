@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+
 import './tags-group.css';
 import { useApp } from '../../../shared/context/AppContext';
 import { GroupShell } from '../../../shared/components/group-shell/GroupShell';
@@ -11,6 +12,11 @@ import {
   TodoTagButtonIcon,
   TodoTagIcon,
 } from '../../../assets/icons';
+import { applyTag } from './tag-apply/applyTag';
+import { isTagSeparator } from './interfaces';
+import type { TagDefinition } from './interfaces';
+import { ALL_TAGS } from './tags-data';
+import { EDITOR_COMMAND_TOGGLE_CHECKLIST } from './constants';
 
 export function TagsGroup() {
   const app = useApp();
@@ -19,38 +25,34 @@ export function TagsGroup() {
 
   const getEditor = () => app.workspace.activeEditor?.editor;
 
+  const executeCommand = (commandId: string) => {
+    (app as any).commands.executeCommandById(commandId);
+  };
+
   const handleTodo = () => {
-    (app as any).commands.executeCommandById('editor:toggle-checklist-status');
+    executeCommand(EDITOR_COMMAND_TOGGLE_CHECKLIST);
   };
 
   const handleImportant = () => {
     const editor = getEditor();
     if (!editor) return;
-    const cursor = editor.getCursor();
-    editor.setLine(
-      cursor.line,
-      `> [!important]\n> ${editor.getLine(cursor.line)}`,
-    );
+    applyTag(editor as any, { type: 'callout', calloutType: 'important' }, executeCommand);
   };
 
   const handleQuestion = () => {
     const editor = getEditor();
     if (!editor) return;
-    const cursor = editor.getCursor();
-    editor.setLine(
-      cursor.line,
-      `> [!question]\n> ${editor.getLine(cursor.line)}`,
-    );
+    applyTag(editor as any, { type: 'callout', calloutType: 'question' }, executeCommand);
   };
 
   const handleFindTags = () => {
-    (app as any).commands.executeCommandById('global-search:open');
-    const searchBox = document.querySelector(
+    executeCommand('global-search:open');
+    const searchInputElement = document.querySelector(
       'input[placeholder*="Search"]',
-    ) as HTMLInputElement;
-    if (searchBox) {
-      searchBox.value = '#';
-      searchBox.dispatchEvent(new Event('input', { bubbles: true }));
+    ) as HTMLInputElement | null;
+    if (searchInputElement) {
+      searchInputElement.value = '#';
+      searchInputElement.dispatchEvent(new Event('input', { bubbles: true }));
     }
   };
 
@@ -61,12 +63,20 @@ export function TagsGroup() {
     editor.replaceSelection(`#todo ${selection}`);
   };
 
+  const handleTagDropdownSelect = (tagDefinition: TagDefinition) => {
+    if (tagDefinition.isDisabled) return;
+
+    const editor = getEditor();
+    applyTag(editor as any, tagDefinition.action, executeCommand);
+    setMoreMenuOpen(false);
+  };
+
   return (
     <GroupShell name="Tags">
       <div className="onr-tags-group">
-        {/* Stacked tag rows */}
+
+        {/* Three visible tag rows pinned to the ribbon surface */}
         <div className="onr-tags-stack">
-          {/* To Do row */}
           <RibbonButton
             className="onr-tag-row"
             onClick={handleTodo}
@@ -82,7 +92,6 @@ export function TagsGroup() {
             <div className="onr-tag-swatch" />
           </RibbonButton>
 
-          {/* Important row */}
           <RibbonButton
             className="onr-tag-row"
             onClick={handleImportant}
@@ -94,7 +103,6 @@ export function TagsGroup() {
             <div className="onr-tag-swatch" />
           </RibbonButton>
 
-          {/* Question row */}
           <RibbonButton
             className="onr-tag-row"
             onClick={handleQuestion}
@@ -107,7 +115,7 @@ export function TagsGroup() {
           </RibbonButton>
         </div>
 
-        {/* More arrow with dropdown */}
+        {/* Narrow accordion trigger — opens the full OneNote tag list */}
         <div className="onr-tags-more">
           <RibbonButton
             ref={moreButtonRef}
@@ -118,27 +126,50 @@ export function TagsGroup() {
           >
             ▾
           </RibbonButton>
+
           {moreMenuOpen && moreButtonRef.current && (
             <Dropdown
               anchor={moreButtonRef.current}
-              items={[
-                {
-                  label: 'Quote',
-                  onClick: () => {
-                    (app as any).commands.executeCommandById('editor:toggle-blockquote');
-                    setMoreMenuOpen(false);
-                  },
-                },
-                {
-                  label: 'Code',
-                  onClick: () => {
-                    (app as any).commands.executeCommandById('editor:toggle-code');
-                    setMoreMenuOpen(false);
-                  },
-                },
-              ]}
+              className="onr-tags-dropdown"
               onClose={() => setMoreMenuOpen(false)}
-            />
+            >
+              {ALL_TAGS.map((tagOrSeparator, index) => {
+                if (isTagSeparator(tagOrSeparator)) {
+                  return <div key={index} className="onr-tags-dd-separator" />;
+                }
+
+                const tagDefinition = tagOrSeparator;
+                const dataCommand = `tag-${tagDefinition.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+
+                return (
+                  <div
+                    key={index}
+                    className={
+                      tagDefinition.isDisabled
+                        ? 'onr-tags-dd-item onr-tags-dd-item--disabled'
+                        : 'onr-tags-dd-item'
+                    }
+                    onClick={() => handleTagDropdownSelect(tagDefinition)}
+                    data-cmd={dataCommand}
+                    title={tagDefinition.label}
+                  >
+                    {/* Small colored tag icon */}
+                    <span className="onr-tags-dd-icon">{tagDefinition.icon}</span>
+
+                    {/* Tag label text */}
+                    <span className="onr-tags-dd-label">{tagDefinition.label}</span>
+
+                    {/* Right-side category color swatch */}
+                    {tagDefinition.swatchColor !== 'transparent' && (
+                      <span
+                        className="onr-tags-dd-swatch"
+                        style={{ backgroundColor: tagDefinition.swatchColor }}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </Dropdown>
           )}
         </div>
 

@@ -9,9 +9,8 @@ jest.mock('../../../shared/hooks/useFormatPainter', () => ({
   useFormatPainter: jest.fn(),
 }));
 
-const mockedUseFormatPainter = useFormatPainter as jest.MockedFunction<
-  typeof useFormatPainter
->;
+const mockedUseFormatPainter =
+  useFormatPainter as jest.MockedFunction<typeof useFormatPainter>;
 
 describe('ClipboardGroup format painter interactions (integration)', () => {
   const handleSingleClick = jest.fn();

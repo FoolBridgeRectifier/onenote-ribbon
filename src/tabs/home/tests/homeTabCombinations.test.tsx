@@ -602,20 +602,24 @@ describe('TagsGroup button rendering', () => {
     expect(queryByCmd(container, command)).not.toBeNull();
   });
 
-  it('more-tags dropdown shows Quote and Code options', async () => {
+  it('more-tags dropdown shows the full OneNote tag list', async () => {
     const user = userEvent.setup();
     renderWithMockApp(<TagsGroup />);
 
     const moreButton = screen.getByTitle('More tags');
     await user.click(moreButton);
 
-    const dropdownItems = document.body.querySelectorAll('.onr-dd-item');
+    const dropdownItems = document.body.querySelectorAll('.onr-tags-dd-item');
     const itemTexts = Array.from(dropdownItems).map((item) =>
-      item.textContent?.trim(),
+      item.querySelector('.onr-tags-dd-label')?.textContent?.trim(),
     );
 
-    expect(itemTexts).toContain('Quote');
-    expect(itemTexts).toContain('Code');
+    expect(itemTexts).toContain('To Do');
+    expect(itemTexts).toContain('Important');
+    expect(itemTexts).toContain('Question');
+    expect(itemTexts).toContain('Critical');
+    expect(itemTexts).toContain('Highlight');
+    expect(itemTexts).toContain('Customize Tags…');
   });
 });
 
