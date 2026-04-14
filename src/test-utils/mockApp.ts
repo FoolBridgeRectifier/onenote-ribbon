@@ -86,3 +86,25 @@ export function createAppWithEditor(content = ''): {
   const app = createMockApp(editor);
   return { app, editor };
 }
+
+export interface MockPlugin {
+  loadData: jest.Mock<Promise<unknown>, []>;
+  saveData: jest.Mock<Promise<void>, [unknown]>;
+}
+
+/**
+ * Creates a mock Obsidian Plugin with stubbed loadData / saveData.
+ *
+ * @param initialData  Data that loadData will resolve with on first call.
+ */
+export function createMockPlugin(initialData: unknown = {}): MockPlugin {
+  let storedData = initialData;
+
+  return {
+    loadData: jest.fn(() => Promise.resolve(storedData)),
+    saveData: jest.fn((newData: unknown) => {
+      storedData = newData;
+      return Promise.resolve();
+    }),
+  };
+}

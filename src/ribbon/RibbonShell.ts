@@ -1,14 +1,15 @@
-import { App } from 'obsidian';
+import { App, Plugin } from 'obsidian';
 import { createRoot, Root } from 'react-dom/client';
 import { createElement } from 'react';
 import { AppContext } from '../shared/context/AppContext';
+import { PluginContext } from '../shared/context/PluginContext';
 import { RibbonApp } from './RibbonApp';
 
 export class RibbonShell {
   private rootElement!: HTMLElement;
   private root!: Root;
 
-  constructor(private app: App) {}
+  constructor(private app: App, private plugin: Plugin) {}
 
   mount(): void {
     document.getElementById('onenote-ribbon-root')?.remove();
@@ -34,9 +35,13 @@ export class RibbonShell {
     this.root = createRoot(this.rootElement);
     this.root.render(
       createElement(
-        AppContext.Provider,
-        { value: this.app },
-        createElement(RibbonApp),
+        PluginContext.Provider,
+        { value: this.plugin },
+        createElement(
+          AppContext.Provider,
+          { value: this.app },
+          createElement(RibbonApp),
+        ),
       ),
     );
   }
