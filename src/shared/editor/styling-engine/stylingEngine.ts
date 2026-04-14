@@ -425,7 +425,37 @@ function buildWrapReplacements(
       tagRanges,
     );
 
-    return { replacements: sortReplacementsLastToFirst(replacements), isNoOp: false };
+    // After domain conversion the entire region is replaced, so
+    // CodeMirror's default cursor lands outside the formatted text.
+    // Compute new selection so the cursor stays inside the content.
+    let newSelectionStart: number | undefined;
+    let newSelectionEnd: number | undefined;
+
+    if (replacements.length === 1) {
+      const replacement = replacements[0];
+
+      if (selectionStartOffset < selectionEndOffset) {
+        // Selection exists — find the original selected text within the replacement
+        const selectedText = sourceText.slice(selectionStartOffset, selectionEndOffset);
+        const selectedTextPosition = replacement.replacementText.indexOf(selectedText);
+
+        if (selectedTextPosition !== -1) {
+          newSelectionStart = replacement.fromOffset + selectedTextPosition;
+          newSelectionEnd = newSelectionStart + selectedText.length;
+        }
+      } else {
+        // Cursor only — place cursor after the outermost opening markup
+        newSelectionStart = replacement.fromOffset + tagDefinition.openingMarkup.length;
+        newSelectionEnd = newSelectionStart;
+      }
+    }
+
+    return {
+      replacements: sortReplacementsLastToFirst(replacements),
+      isNoOp: false,
+      newSelectionStart,
+      newSelectionEnd,
+    };
   }
 
   // If structure has protected ranges, split formatting around them
@@ -518,6 +548,42 @@ export function toggleTag(
   if (delimiterInclusiveMatch !== null) {
     const replacements = unwrapTag(delimiterInclusiveMatch);
     return { replacements, isNoOp: false };
+  }
+
+  // Step 7c: Check for HTML equivalent of a markdown tag.
+  // After domain conversion, **text** becomes <b>text</b>. The button still
+  // passes the MD tag definition (tagName: 'bold'), so steps 6/7b miss the
+  // <b> tag. Look up the HTML equivalent and try to remove that instead.
+  if (tagDefinition.domain === 'markdown') {
+    const htmlEquivalent = MARKDOWN_TO_HTML_TAG_MAP.get(tagDefinition.tagName);
+
+    if (htmlEquivalent) {
+      const htmlMatch = findEnclosingMatchingTag(
+        allTagRanges,
+        sourceText,
+        selectionStartOffset,
+        selectionEndOffset,
+        htmlEquivalent,
+      );
+
+      if (htmlMatch !== null) {
+        const replacements = unwrapTag(htmlMatch);
+        return { replacements, isNoOp: false };
+      }
+
+      const htmlDelimiterMatch = findDelimiterInclusiveMatch(
+        allTagRanges,
+        sourceText,
+        selectionStartOffset,
+        selectionEndOffset,
+        htmlEquivalent,
+      );
+
+      if (htmlDelimiterMatch !== null) {
+        const replacements = unwrapTag(htmlDelimiterMatch);
+        return { replacements, isNoOp: false };
+      }
+    }
   }
 
   // Step 8: Tag is absent — add it

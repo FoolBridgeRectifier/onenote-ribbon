@@ -4,6 +4,7 @@ import { AlignLeftIcon, AlignCenterIcon, AlignRightIcon } from '../../../../asse
 import { useApp } from '../../../../shared/context/AppContext';
 import { RibbonButton } from '../../../../shared/components/ribbon-button/RibbonButton';
 import { Dropdown } from '../../../../shared/components/dropdown/Dropdown';
+import { convertMarkdownTokensToHtml } from '../../../../shared/editor/styling-engine/markdownToHtmlConversion';
 import type { EditorState } from '../../../../shared/hooks/useEditorState';
 
 type TextAlign = 'left' | 'center' | 'right';
@@ -61,18 +62,22 @@ function applyAlignment(
   }
 
   if (alignMatch) {
-    // Already wrapped — replace the alignment value, preserve heading prefix
+    // Already wrapped — replace the alignment value, preserve heading prefix.
+    // Re-convert inner content to catch any markdown tokens that may remain.
     const headingPrefix = alignMatch[1] ?? '';
+    const convertedContent = convertMarkdownTokensToHtml(alignMatch[3]);
     editor.setLine(
       cursor.line,
-      `${headingPrefix}<div style="text-align: ${alignment}">${alignMatch[3]}</div>`,
+      `${headingPrefix}<div style="text-align: ${alignment}">${convertedContent}</div>`,
     );
   } else {
-    // Not yet wrapped — extract heading prefix so it stays outside the div
+    // Not yet wrapped — extract heading prefix so it stays outside the div.
+    // Markdown tokens don't render inside HTML blocks, so convert to HTML equivalents.
     const { prefix, content } = splitHeadingPrefix(lineText);
+    const convertedContent = convertMarkdownTokensToHtml(content);
     editor.setLine(
       cursor.line,
-      `${prefix}<div style="text-align: ${alignment}">${content}</div>`,
+      `${prefix}<div style="text-align: ${alignment}">${convertedContent}</div>`,
     );
   }
 }
