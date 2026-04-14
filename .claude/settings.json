@@ -19,18 +19,6 @@
           }
         ]
       }
-    ],
-    "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node scripts/hooks/stopObsidianMcpCheck.cjs",
-            "timeout": 15
-          }
-        ]
-      }
     ]
   }
 }

@@ -26,10 +26,17 @@
   --icon-red: #a80000;
   --icon-teal: #006b6b;
 
-  /* Style preview tokens (heading gallery in Styles group) */
+  /* ── STYLES GALLERY TOKENS ──
+   * The style preview BUTTONS in the ribbon are an intentional dark "mini-document"
+   * thumbnail widget — distinct from the warm-gray ribbon button system.
+   * The expand dropdown uses the standard ribbon light background instead. */
   --style-preview-bg: #1a1a2e;
   --style-preview-border: #555555;
-  --style-preview-text: #5b9bd5;
+  --style-preview-text: #5b9bd5;       /* OneNote heading blue */
+  --style-preview-text-plain: #ffffff; /* Normal / non-heading text on dark bg */
+  --style-preview-active-bg: #2d3a5e;  /* Active preview button — lighter navy */
+  /* Active border uses the strong focus-ring blue — visible on both dark and light backgrounds */
+  --style-preview-active-border: var(--btn-focus-ring);
 }
 
 /* ── RIBBON ROOT — scopes all plugin styles ── */

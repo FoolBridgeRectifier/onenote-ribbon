@@ -505,8 +505,10 @@ describe('Group 4: Editor state derivation via tag finder + extractSpanAndDivSta
     const sourceText =
       '<span style="font-family: \'Courier\'"><span style="font-size: 20pt">text</span></span>';
     const finder = createEnclosingHtmlTagFinder(sourceText);
+    // Cursor at ch:70 places it inside "text" (positions 68-71), safely within both nested spans.
+    // ch:72 would land on the closing </span> boundary and miss the inner span.
     const tagRanges = finder.getEnclosingTagRanges({
-      cursorPosition: { line: 0, ch: 72 },
+      cursorPosition: { line: 0, ch: 70 },
     });
 
     const spanState = extractSpanAndDivState(
@@ -537,6 +539,40 @@ describe('Group 4: Editor state derivation via tag finder + extractSpanAndDivSta
     expect(spanState.textAlign).toBe('center');
   });
 
+  it('detects text-align from alignment span with display:inline-block', () => {
+    const sourceText = '<span style="display:inline-block;width:100%;vertical-align:top;text-align: center">centered text</span>';
+    const finder = createEnclosingHtmlTagFinder(sourceText);
+    const tagRanges = finder.getEnclosingTagRanges({
+      cursorPosition: { line: 0, ch: 88 },
+    });
+
+    const spanState = extractSpanAndDivState(
+      tagRanges,
+      sourceText,
+      defaults.defaultFontFamily,
+      defaults.defaultFontSize,
+    );
+
+    expect(spanState.textAlign).toBe('center');
+  });
+
+  it('detects text-align from alignment span inside heading', () => {
+    const sourceText = '## <span style="display:inline-block;width:100%;vertical-align:top;text-align: right">heading text</span>';
+    const finder = createEnclosingHtmlTagFinder(sourceText);
+    const tagRanges = finder.getEnclosingTagRanges({
+      cursorPosition: { line: 0, ch: 92 },
+    });
+
+    const spanState = extractSpanAndDivState(
+      tagRanges,
+      sourceText,
+      defaults.defaultFontFamily,
+      defaults.defaultFontSize,
+    );
+
+    expect(spanState.textAlign).toBe('right');
+  });
+
   it('detects heading level from ## prefix', () => {
     const sourceText = '## heading text';
     const finder = createEnclosingHtmlTagFinder(sourceText);
@@ -545,8 +581,9 @@ describe('Group 4: Editor state derivation via tag finder + extractSpanAndDivSta
     });
     const tagNames = tagRanges.map((range) => range.tagName);
 
-    // ## is detected as a heading tag by the enclosing tag finder
-    expect(tagNames).toContain('heading');
+    // The enclosing HTML tag finder only detects HTML tags (<span>, <u>, etc.),
+    // not markdown heading syntax (##). Heading detection is line-level via regex.
+    expect(tagNames).toEqual([]);
 
     // Verify line-level detection: heading regex
     const headMatch = sourceText.match(/^(#{1,6})\s/);
@@ -581,8 +618,9 @@ describe('Group 4: Editor state derivation via tag finder + extractSpanAndDivSta
     });
     const tagNames = tagRanges.map((range) => range.tagName);
 
-    // Should detect heading, underline, and span
-    expect(tagNames).toContain('heading');
+    // Should detect underline and span HTML tags.
+    // The enclosing HTML tag finder does not detect markdown heading syntax (##) —
+    // heading level is detected separately via line-level regex (see below).
     expect(tagNames).toContain('u');
     expect(tagNames).toContain('span');
 

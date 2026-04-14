@@ -5,7 +5,10 @@ import {
   EnclosingHtmlTagFinder,
   HtmlTagRange,
 } from '../editor/enclosing-html-tags/enclosingHtmlTags';
-import { extractStylePropertyFromOpeningTag } from '../editor/styling-engine/tagManipulation';
+import {
+  extractStylePropertyFromOpeningTag,
+  extractAllStyleProperties,
+} from '../editor/styling-engine/tagManipulation';
 
 export interface EditorState {
   bold: boolean;
@@ -100,23 +103,35 @@ export function extractSpanAndDivState(
         tagRange.openingTagStartOffset,
         tagRange.openingTagEndOffset,
       );
-      const styleProperty = extractStylePropertyFromOpeningTag(openingTagText);
 
-      if (!styleProperty) {
-        continue;
+      // Use multi-property extraction to handle alignment spans
+      // (e.g. <span style="display:inline-block;width:100%;vertical-align:top;text-align:center">) alongside
+      // single-property formatting spans (e.g. <span style="color: red">).
+      const allProperties = extractAllStyleProperties(openingTagText);
+
+      for (
+        let propertyIndex = 0;
+        propertyIndex < allProperties.length;
+        propertyIndex += 1
+      ) {
+        const styleProperty = allProperties[propertyIndex];
+
+        if (styleProperty.propertyName === 'color') {
+          fontColor = styleProperty.propertyValue;
+        } else if (styleProperty.propertyName === 'background') {
+          highlightColor = styleProperty.propertyValue;
+        } else if (styleProperty.propertyName === 'font-family') {
+          fontFamily = styleProperty.propertyValue.replace(/'/g, '');
+        } else if (styleProperty.propertyName === 'font-size') {
+          fontSize = styleProperty.propertyValue.replace('pt', '');
+        } else if (styleProperty.propertyName === 'text-align') {
+          if (VALID_TEXT_ALIGN_VALUES.has(styleProperty.propertyValue)) {
+            textAlign = styleProperty.propertyValue as 'left' | 'center' | 'right' | 'justify';
+          }
+        }
       }
 
-      if (styleProperty.propertyName === 'color') {
-        fontColor = styleProperty.propertyValue;
-      } else if (styleProperty.propertyName === 'background') {
-        highlightColor = styleProperty.propertyValue;
-      } else if (styleProperty.propertyName === 'font-family') {
-        fontFamily = styleProperty.propertyValue.replace(/'/g, '');
-      } else if (styleProperty.propertyName === 'font-size') {
-        fontSize = styleProperty.propertyValue.replace('pt', '');
-      }
-
-    // A tag range is either a span or a div, never both
+    // Legacy: detect text-align from <div> tags for backward compatibility
     } else if (tagRange.tagName === 'div') {
       const openingTagText = sourceText.slice(
         tagRange.openingTagStartOffset,

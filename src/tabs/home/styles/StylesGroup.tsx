@@ -6,6 +6,7 @@ import { GroupShell } from '../../../shared/components/group-shell/GroupShell';
 import { RibbonButton } from '../../../shared/components/ribbon-button/RibbonButton';
 import { Dropdown } from '../../../shared/components/dropdown/Dropdown';
 import { STYLES_LIST, StyleEntry } from './styles-data';
+import { ClearFormattingIcon } from '../../../assets/icons';
 
 export function StylesGroup() {
   const app = useApp();
@@ -79,11 +80,32 @@ export function StylesGroup() {
     setExpandOpen(!expandOpen);
   };
 
+  const handleClearFormatting = () => {
+    const editor = getEditor();
+    if (!editor) return;
+
+    // Clear heading if present
+    const cursor = editor.getCursor();
+    const line = editor.getLine(cursor.line);
+    const clearedLine = line.replace(/^#+\s/, '');
+    editor.setLine(cursor.line, clearedLine);
+
+    // Close dropdown
+    setExpandOpen(false);
+  };
+
   const visibleStyles = STYLES_LIST.slice(stylesOffset, stylesOffset + 2);
 
-  const levelClass = (level: number) => {
-    if (level === 1) return 'onr-style-h1';
-    if (level === 2) return 'onr-style-h2';
+  const levelClass = (style: StyleEntry) => {
+    if (style.level === 0 && !style.type) return 'onr-style-normal';
+    if (style.level === 1) return 'onr-style-h1';
+    if (style.level === 2) return 'onr-style-h2';
+    if (style.level === 3) return 'onr-style-h3';
+    if (style.level === 4) return 'onr-style-h4';
+    if (style.level === 5) return 'onr-style-h5';
+    if (style.level === 6) return 'onr-style-h6';
+    if (style.type === 'quote') return 'onr-style-quote';
+    if (style.type === 'code') return 'onr-style-code';
     return '';
   };
 
@@ -95,7 +117,7 @@ export function StylesGroup() {
           {visibleStyles.map((style) => (
             <RibbonButton
               key={style.name}
-              className={`onr-style-preview ${levelClass(style.level)}`}
+              className={`onr-style-preview ${levelClass(style)}`}
               active={isStyleActive(style)}
               onClick={() => handleStyleClick(style)}
               data-cmd={`style-${style.name.toLowerCase().replace(/\s+/g, '-')}`}
@@ -140,6 +162,7 @@ export function StylesGroup() {
               onClose={() => setExpandOpen(false)}
               className="onr-styles-dropdown"
             >
+              <div className="onr-styles-dropdown-header">Styles</div>
               {STYLES_LIST.map((style) => (
                 <div
                   key={style.name}
@@ -149,11 +172,18 @@ export function StylesGroup() {
                     setExpandOpen(false);
                   }}
                 >
-                  <span className={`onr-dd-label ${levelClass(style.level)}`}>
+                  <span className={`onr-dd-label ${levelClass(style)}`}>
                     {style.name}
                   </span>
                 </div>
               ))}
+              <div
+                className="onr-clear-formatting-btn"
+                onClick={handleClearFormatting}
+              >
+                <ClearFormattingIcon className="onr-clear-formatting-icon" />
+                <span>Clear Formatting</span>
+              </div>
             </Dropdown>
           )}
         </div>

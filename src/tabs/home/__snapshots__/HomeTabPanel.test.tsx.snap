@@ -396,19 +396,19 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
             viewBox="0 0 24 24"
           >
             <path
-              d="M20 5H9l-7 7 7 7h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"
+              d="M4 14l10-10 6 6-10 10H4v-6z"
             />
             <line
-              x1="18"
-              x2="12"
+              x1="9"
+              x2="15"
               y1="9"
               y2="15"
             />
             <line
-              x1="12"
-              x2="18"
-              y1="9"
-              y2="15"
+              x1="4"
+              x2="20"
+              y1="20"
+              y2="20"
             />
           </svg>
         </div>
@@ -453,24 +453,32 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
           data-cmd="subscript"
           title="Subscript"
         >
-          x
-          <sub
-            class="onr-sub-text"
+          <span
+            class="onr-script-symbol"
           >
-            2
-          </sub>
+            x
+            <sub
+              class="onr-sub-text"
+            >
+              2
+            </sub>
+          </span>
         </div>
         <div
           class="onr-btn-sm onr-format-btn onr-format-sup"
           data-cmd="superscript"
           title="Superscript"
         >
-          x
-          <sup
-            class="onr-sup-text"
+          <span
+            class="onr-script-symbol"
           >
-            2
-          </sup>
+            x
+            <sup
+              class="onr-sup-text"
+            >
+              2
+            </sup>
+          </span>
         </div>
         <div
           class="onr-divider"
@@ -610,7 +618,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
         class="onr-styles-previews"
       >
         <div
-          class="onr-btn-sm onr-active onr-style-preview "
+          class="onr-btn-sm onr-active onr-style-preview onr-style-normal"
           data-cmd="style-normal"
           title="Apply Normal"
         >
@@ -3297,8 +3305,37 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                 {
                   "children": [
                     {
-                      "children": [],
-                      "className": "onr-sub-text",
+                      "children": [
+                        {
+                          "children": [],
+                          "className": "onr-sub-text",
+                          "computedCss": {
+                            "background-color": "rgba(0, 0, 0, 0)",
+                            "border-block-end-color": "var(--text-primary)",
+                            "border-block-start-color": "var(--text-primary)",
+                            "border-bottom-color": "var(--text-primary)",
+                            "border-inline-end-color": "var(--text-primary)",
+                            "border-inline-start-color": "var(--text-primary)",
+                            "border-left-color": "var(--text-primary)",
+                            "border-right-color": "var(--text-primary)",
+                            "border-top-color": "var(--text-primary)",
+                            "caret-color": "auto",
+                            "color": "var(--text-primary)",
+                            "display": "inline-block",
+                            "font-size": "6px",
+                            "margin-left": "-3px",
+                            "pointer-events": "auto",
+                            "position": "relative",
+                            "top": "2px",
+                            "vertical-align": "sub",
+                            "visibility": "visible",
+                          },
+                          "dataAttributes": {},
+                          "tagName": "sub",
+                          "textContent": "2",
+                        },
+                      ],
+                      "className": "onr-script-symbol",
                       "computedCss": {
                         "background-color": "rgba(0, 0, 0, 0)",
                         "border-block-end-color": "var(--text-primary)",
@@ -3311,17 +3348,15 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                         "border-top-color": "var(--text-primary)",
                         "caret-color": "auto",
                         "color": "var(--text-primary)",
-                        "display": "inline",
-                        "font-size": "7px",
+                        "display": "inline-block",
+                        "line-height": "1",
                         "pointer-events": "auto",
-                        "position": "relative",
-                        "top": "2px",
-                        "vertical-align": "sub",
                         "visibility": "visible",
+                        "white-space": "nowrap",
                       },
                       "dataAttributes": {},
-                      "tagName": "sub",
-                      "textContent": "2",
+                      "tagName": "span",
+                      "textContent": "x2",
                     },
                   ],
                   "className": "onr-btn-sm onr-format-btn onr-format-sub",
@@ -3348,6 +3383,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                     "font-size": "10px",
                     "gap": "1px",
                     "justify-content": "center",
+                    "letter-spacing": "-2px",
                     "min-height": "22px",
                     "padding": "2px",
                     "pointer-events": "auto",
@@ -3366,8 +3402,37 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                 {
                   "children": [
                     {
-                      "children": [],
-                      "className": "onr-sup-text",
+                      "children": [
+                        {
+                          "children": [],
+                          "className": "onr-sup-text",
+                          "computedCss": {
+                            "background-color": "rgba(0, 0, 0, 0)",
+                            "border-block-end-color": "var(--text-primary)",
+                            "border-block-start-color": "var(--text-primary)",
+                            "border-bottom-color": "var(--text-primary)",
+                            "border-inline-end-color": "var(--text-primary)",
+                            "border-inline-start-color": "var(--text-primary)",
+                            "border-left-color": "var(--text-primary)",
+                            "border-right-color": "var(--text-primary)",
+                            "border-top-color": "var(--text-primary)",
+                            "caret-color": "auto",
+                            "color": "var(--text-primary)",
+                            "display": "inline-block",
+                            "font-size": "6px",
+                            "margin-left": "-3px",
+                            "pointer-events": "auto",
+                            "position": "relative",
+                            "top": "-3px",
+                            "vertical-align": "super",
+                            "visibility": "visible",
+                          },
+                          "dataAttributes": {},
+                          "tagName": "sup",
+                          "textContent": "2",
+                        },
+                      ],
+                      "className": "onr-script-symbol",
                       "computedCss": {
                         "background-color": "rgba(0, 0, 0, 0)",
                         "border-block-end-color": "var(--text-primary)",
@@ -3380,17 +3445,15 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                         "border-top-color": "var(--text-primary)",
                         "caret-color": "auto",
                         "color": "var(--text-primary)",
-                        "display": "inline",
-                        "font-size": "7px",
+                        "display": "inline-block",
+                        "line-height": "1",
                         "pointer-events": "auto",
-                        "position": "relative",
-                        "top": "-4px",
-                        "vertical-align": "super",
                         "visibility": "visible",
+                        "white-space": "nowrap",
                       },
                       "dataAttributes": {},
-                      "tagName": "sup",
-                      "textContent": "2",
+                      "tagName": "span",
+                      "textContent": "x2",
                     },
                   ],
                   "className": "onr-btn-sm onr-format-btn onr-format-sup",
@@ -3417,6 +3480,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                     "font-size": "10px",
                     "gap": "1px",
                     "justify-content": "center",
+                    "letter-spacing": "-2px",
                     "min-height": "22px",
                     "padding": "2px",
                     "pointer-events": "auto",
@@ -3633,7 +3697,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
     border-color var(--transition-fast)",
                         "user-select": "none",
                         "visibility": "visible",
-                        "width": "auto",
+                        "width": "22px",
                       },
                       "dataAttributes": {},
                       "tagName": "div",
@@ -3821,7 +3885,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
     border-color var(--transition-fast)",
                         "user-select": "none",
                         "visibility": "visible",
-                        "width": "auto",
+                        "width": "22px",
                       },
                       "dataAttributes": {},
                       "tagName": "div",
@@ -4264,29 +4328,29 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
               "children": [
                 {
                   "children": [],
-                  "className": "onr-btn-sm onr-active onr-style-preview ",
+                  "className": "onr-btn-sm onr-active onr-style-preview onr-style-normal",
                   "computedCss": {
                     "align-items": "center",
-                    "background": "var(--style-preview-bg)",
+                    "background": "var(--style-preview-active-bg)",
                     "background-color": "rgba(0, 0, 0, 0)",
-                    "border": "1px solid var(--style-preview-border)",
-                    "border-block-end-color": "var(--style-preview-text)",
-                    "border-block-start-color": "var(--style-preview-text)",
+                    "border": "2px solid var(--style-preview-active-border)",
+                    "border-block-end-color": "var(--style-preview-text-plain)",
+                    "border-block-start-color": "var(--style-preview-text-plain)",
                     "border-bottom-color": "rgba(0, 0, 0, 0)",
-                    "border-inline-end-color": "var(--style-preview-text)",
-                    "border-inline-start-color": "var(--style-preview-text)",
+                    "border-inline-end-color": "var(--style-preview-text-plain)",
+                    "border-inline-start-color": "var(--style-preview-text-plain)",
                     "border-left-color": "rgba(0, 0, 0, 0)",
-                    "border-radius": "2px",
+                    "border-radius": "var(--radius-sm)",
                     "border-right-color": "rgba(0, 0, 0, 0)",
                     "border-top-color": "rgba(0, 0, 0, 0)",
                     "caret-color": "auto",
-                    "color": "var(--style-preview-text)",
+                    "color": "var(--style-preview-text-plain)",
                     "cursor": "pointer",
                     "display": "flex",
                     "flex-direction": "row",
                     "flex-shrink": "0",
                     "font-size": "11px",
-                    "font-weight": "700",
+                    "font-weight": "400",
                     "gap": "0",
                     "justify-content": "flex-start",
                     "min-height": "28px",
@@ -4318,7 +4382,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                     "border-inline-end-color": "var(--style-preview-text)",
                     "border-inline-start-color": "var(--style-preview-text)",
                     "border-left-color": "rgba(0, 0, 0, 0)",
-                    "border-radius": "2px",
+                    "border-radius": "var(--radius-sm)",
                     "border-right-color": "rgba(0, 0, 0, 0)",
                     "border-top-color": "rgba(0, 0, 0, 0)",
                     "caret-color": "auto",

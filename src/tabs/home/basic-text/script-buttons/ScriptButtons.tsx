@@ -35,7 +35,9 @@ export function ScriptButtons({ subscript, superscript }: ScriptButtonsProps) {
         onClick={handleSubscript}
         data-cmd="subscript"
       >
-        x<sub className="onr-sub-text">2</sub>
+        <span className="onr-script-symbol">
+          x<sub className="onr-sub-text">2</sub>
+        </span>
       </RibbonButton>
 
       <RibbonButton
@@ -45,7 +47,9 @@ export function ScriptButtons({ subscript, superscript }: ScriptButtonsProps) {
         onClick={handleSuperscript}
         data-cmd="superscript"
       >
-        x<sup className="onr-sup-text">2</sup>
+        <span className="onr-script-symbol">
+          x<sup className="onr-sup-text">2</sup>
+        </span>
       </RibbonButton>
     </>
   );

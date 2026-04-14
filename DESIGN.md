@@ -82,7 +82,6 @@ No hex literals in component CSS. All color values flow through `var(--...)` tok
 
 **Current gaps (known token violations to fix):**
 
-- `styles-group.css` — `.onr-style-preview` hardcodes `background: #1a1a2e`, `border-color: #555`, `color: #5b9bd5`.
 - `tags-group.css` — `.onr-tag-label` uses `color: #222`, `.onr-tag-swatch` uses `border: #999`.
 - `clipboard-group.css` — `.onr-paste-dropdown` uses `border-top: 1px solid #d0d0d0`.
 - `highlight-text-color.css` — swatch colors (`#ffff00`, `#ff0000`) are functional/intentional; `#222` and `#666` in label/caret colors should use tokens.

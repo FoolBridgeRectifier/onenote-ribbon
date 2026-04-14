@@ -90,8 +90,20 @@ const fontTimesNewRoman = buildSpanTagDefinition('font-family', 'Times New Roman
 // Alignment Helpers (extracted from AlignButton logic)
 // ============================================================
 
-const ALIGN_DIV_PATTERN = /^(#{1,6}\s)?<div style="text-align:\s*(\w+)">(.*)<\/div>$/;
+const ALIGN_SPAN_PATTERN = /^(#{1,6}\s)?<span style="display:inline-block;width:100%;vertical-align:top;text-align:\s*(\w+)">(.*)<\/span>$/;
+const LEGACY_ALIGN_INLINE_BLOCK_SPAN_PATTERN = /^(#{1,6}\s)?<span style="display:inline-block;width:100%;text-align:\s*(\w+)">(.*)<\/span>$/;
+const LEGACY_ALIGN_DIV_PATTERN = /^(#{1,6}\s)?<div style="text-align:\s*(\w+)">(.*)<\/div>$/;
+const LEGACY_ALIGN_BLOCK_SPAN_PATTERN = /^(#{1,6}\s)?<span style="display:block;text-align:\s*(\w+)">(.*)<\/span>$/;
 const HEADING_PREFIX_PATTERN = /^(#{1,6}\s)/;
+
+function matchAlignWrapper(lineText: string): RegExpMatchArray | null {
+  return (
+    lineText.match(ALIGN_SPAN_PATTERN) ??
+    lineText.match(LEGACY_ALIGN_INLINE_BLOCK_SPAN_PATTERN) ??
+    lineText.match(LEGACY_ALIGN_BLOCK_SPAN_PATTERN) ??
+    lineText.match(LEGACY_ALIGN_DIV_PATTERN)
+  );
+}
 
 function splitHeadingPrefix(lineText: string): { prefix: string; content: string } {
   const headingMatch = lineText.match(HEADING_PREFIX_PATTERN);
@@ -108,7 +120,7 @@ function splitHeadingPrefix(lineText: string): { prefix: string; content: string
  * Operates on a single line string and returns the transformed line.
  */
 function applyAlignmentToLine(lineText: string, alignment: 'left' | 'center' | 'right'): string {
-  const alignMatch = lineText.match(ALIGN_DIV_PATTERN);
+  const alignMatch = matchAlignWrapper(lineText);
 
   if (alignment === 'left') {
     if (alignMatch) {
@@ -121,11 +133,11 @@ function applyAlignmentToLine(lineText: string, alignment: 'left' | 'center' | '
 
   if (alignMatch) {
     const headingPrefix = alignMatch[1] ?? '';
-    return `${headingPrefix}<div style="text-align: ${alignment}">${alignMatch[3]}</div>`;
+    return `${headingPrefix}<span style="display:inline-block;width:100%;vertical-align:top;text-align: ${alignment}">${alignMatch[3]}</span>`;
   }
 
   const { prefix, content } = splitHeadingPrefix(lineText);
-  return `${prefix}<div style="text-align: ${alignment}">${content}</div>`;
+  return `${prefix}<span style="display:inline-block;width:100%;vertical-align:top;text-align: ${alignment}">${content}</span>`;
 }
 
 // ============================================================
@@ -400,46 +412,46 @@ describe('Group 4: Highlight color operations (span-based)', () => {
 });
 
 // ============================================================
-// Group 5: Alignment (div wrapping pattern)
+// Group 5: Alignment (span wrapping pattern)
 // ============================================================
 
-describe('Group 5: Alignment (div wrapping)', () => {
+describe('Group 5: Alignment (span wrapping)', () => {
 
   it('plain text + center align', () => {
     const result = applyAlignmentToLine('some text', 'center');
-    expect(result).toBe('<div style="text-align: center">some text</div>');
+    expect(result).toBe('<span style="display:inline-block;width:100%;vertical-align:top;text-align: center">some text</span>');
   });
 
-  it('heading + center align → prefix preserved outside div', () => {
+  it('heading + center align → prefix preserved outside span', () => {
     const result = applyAlignmentToLine('## My Heading', 'center');
-    expect(result).toBe('## <div style="text-align: center">My Heading</div>');
+    expect(result).toBe('## <span style="display:inline-block;width:100%;vertical-align:top;text-align: center">My Heading</span>');
   });
 
   it('already aligned center + right → replaces to right', () => {
     const centered = applyAlignmentToLine('some text', 'center');
     const result = applyAlignmentToLine(centered, 'right');
 
-    expect(result).toBe('<div style="text-align: right">some text</div>');
+    expect(result).toBe('<span style="display:inline-block;width:100%;vertical-align:top;text-align: right">some text</span>');
     expect(result).not.toContain('center');
   });
 
-  it('already aligned + left → removes div (left is default)', () => {
+  it('already aligned + left → removes span (left is default)', () => {
     const centered = applyAlignmentToLine('some text', 'center');
     const result = applyAlignmentToLine(centered, 'left');
 
     expect(result).toBe('some text');
-    expect(result).not.toContain('<div');
+    expect(result).not.toContain('<span');
   });
 
-  it('heading with alignment → heading prefix preserved outside div', () => {
+  it('heading with alignment → heading prefix preserved outside span', () => {
     const centered = applyAlignmentToLine('## My Heading', 'center');
-    expect(centered).toBe('## <div style="text-align: center">My Heading</div>');
+    expect(centered).toBe('## <span style="display:inline-block;width:100%;vertical-align:top;text-align: center">My Heading</span>');
 
     // Change to right
     const rightAligned = applyAlignmentToLine(centered, 'right');
-    expect(rightAligned).toBe('## <div style="text-align: right">My Heading</div>');
+    expect(rightAligned).toBe('## <span style="display:inline-block;width:100%;vertical-align:top;text-align: right">My Heading</span>');
 
-    // Back to left removes the div but keeps heading prefix
+    // Back to left removes the span but keeps heading prefix
     const leftAligned = applyAlignmentToLine(rightAligned, 'left');
     expect(leftAligned).toBe('## My Heading');
   });
@@ -450,13 +462,43 @@ describe('Group 5: Alignment (div wrapping)', () => {
       const lineText = `${prefix}Title`;
       const result = applyAlignmentToLine(lineText, 'center');
 
-      expect(result).toBe(`${prefix}<div style="text-align: center">Title</div>`);
+      expect(result).toBe(`${prefix}<span style="display:inline-block;width:100%;vertical-align:top;text-align: center">Title</span>`);
     }
   });
 
   it('plain text left alignment on unaligned text is a no-op', () => {
     const result = applyAlignmentToLine('plain text', 'left');
     expect(result).toBe('plain text');
+  });
+
+  it('legacy div alignment is read and migrated to span on change', () => {
+    const legacyLine = '<div style="text-align: center">old content</div>';
+    const result = applyAlignmentToLine(legacyLine, 'right');
+    expect(result).toBe('<span style="display:inline-block;width:100%;vertical-align:top;text-align: right">old content</span>');
+  });
+
+  it('legacy div alignment is unwrapped on left', () => {
+    const legacyLine = '## <div style="text-align: center">old heading</div>';
+    const result = applyAlignmentToLine(legacyLine, 'left');
+    expect(result).toBe('## old heading');
+  });
+
+  it('legacy display:block span is read and migrated to inline-block on change', () => {
+    const legacyLine = '<span style="display:block;text-align: center">old content</span>';
+    const result = applyAlignmentToLine(legacyLine, 'right');
+    expect(result).toBe('<span style="display:inline-block;width:100%;vertical-align:top;text-align: right">old content</span>');
+  });
+
+  it('legacy display:block span is unwrapped on left', () => {
+    const legacyLine = '## <span style="display:block;text-align: center">old heading</span>';
+    const result = applyAlignmentToLine(legacyLine, 'left');
+    expect(result).toBe('## old heading');
+  });
+
+  it('legacy inline-block span without vertical-align is migrated on change', () => {
+    const legacyLine = '<span style="display:inline-block;width:100%;text-align: center">old content</span>';
+    const result = applyAlignmentToLine(legacyLine, 'right');
+    expect(result).toBe('<span style="display:inline-block;width:100%;vertical-align:top;text-align: right">old content</span>');
   });
 });
 

@@ -15,11 +15,35 @@ const ALIGNMENT_OPTIONS: Array<{ value: TextAlign; label: string }> = [
   { value: 'right', label: 'Align Right' },
 ];
 
-// Matches <div style="text-align: VALUE"> ... </div>, optionally preceded by a heading prefix
-const ALIGN_DIV_PATTERN = /^(#{1,6}\s)?<div style="text-align:\s*(\w+)">(.*)<\/div>$/;
+// Matches alignment spans: <span style="display:inline-block;width:100%;vertical-align:top;text-align: VALUE"> ... </span>
+// optionally preceded by a heading prefix.
+const ALIGN_SPAN_PATTERN = /^(#{1,6}\s)?<span style="display:inline-block;width:100%;vertical-align:top;text-align:\s*(\w+)">(.*)<\/span>$/;
+
+// Legacy: matches old <div style="text-align: VALUE"> for backward-compatible reading
+const LEGACY_ALIGN_DIV_PATTERN = /^(#{1,6}\s)?<div style="text-align:\s*(\w+)">(.*)<\/div>$/;
+
+// Legacy: matches old inline-block span WITHOUT vertical-align:top for backward-compatible reading
+const LEGACY_ALIGN_INLINE_BLOCK_SPAN_PATTERN = /^(#{1,6}\s)?<span style="display:inline-block;width:100%;text-align:\s*(\w+)">(.*)<\/span>$/;
+
+// Legacy: matches old display:block span format for backward-compatible reading
+const LEGACY_ALIGN_BLOCK_SPAN_PATTERN = /^(#{1,6}\s)?<span style="display:block;text-align:\s*(\w+)">(.*)<\/span>$/;
 
 // Matches a heading prefix (e.g., "## ") at the start of a line
 const HEADING_PREFIX_PATTERN = /^(#{1,6}\s)/;
+
+/**
+ * Tries to match the line against both the new span pattern and the
+ * legacy div pattern. Returns the match (with identical capture groups)
+ * or null if neither matches.
+ */
+function matchAlignWrapper(lineText: string): RegExpMatchArray | null {
+  return (
+    lineText.match(ALIGN_SPAN_PATTERN) ??
+    lineText.match(LEGACY_ALIGN_INLINE_BLOCK_SPAN_PATTERN) ??
+    lineText.match(LEGACY_ALIGN_BLOCK_SPAN_PATTERN) ??
+    lineText.match(LEGACY_ALIGN_DIV_PATTERN)
+  );
+}
 
 function getAlignIcon(alignment: TextAlign) {
   if (alignment === 'center') return <AlignCenterIcon className="onr-icon-sm" />;
@@ -29,7 +53,7 @@ function getAlignIcon(alignment: TextAlign) {
 
 /**
  * Splits a line into its heading prefix (e.g., "## ") and the remaining content.
- * Preserves the heading prefix outside any alignment div to avoid breaking
+ * Preserves the heading prefix outside any alignment wrapper to avoid breaking
  * markdown heading syntax.
  */
 function splitHeadingPrefix(lineText: string): { prefix: string; content: string } {
@@ -50,10 +74,10 @@ function applyAlignment(
 
   const cursor = editor.getCursor();
   const lineText = editor.getLine(cursor.line);
-  const alignMatch = lineText.match(ALIGN_DIV_PATTERN);
+  const alignMatch = matchAlignWrapper(lineText);
 
   if (alignment === 'left') {
-    // Left alignment means unwrap the div if present
+    // Left alignment means unwrap the span/div if present
     if (alignMatch) {
       const headingPrefix = alignMatch[1] ?? '';
       editor.setLine(cursor.line, headingPrefix + alignMatch[3]);
@@ -68,16 +92,16 @@ function applyAlignment(
     const convertedContent = convertMarkdownTokensToHtml(alignMatch[3]);
     editor.setLine(
       cursor.line,
-      `${headingPrefix}<div style="text-align: ${alignment}">${convertedContent}</div>`,
+      `${headingPrefix}<span style="display:inline-block;width:100%;vertical-align:top;text-align: ${alignment}">${convertedContent}</span>`,
     );
   } else {
-    // Not yet wrapped — extract heading prefix so it stays outside the div.
+    // Not yet wrapped — extract heading prefix so it stays outside the span.
     // Markdown tokens don't render inside HTML blocks, so convert to HTML equivalents.
     const { prefix, content } = splitHeadingPrefix(lineText);
     const convertedContent = convertMarkdownTokensToHtml(content);
     editor.setLine(
       cursor.line,
-      `${prefix}<div style="text-align: ${alignment}">${convertedContent}</div>`,
+      `${prefix}<span style="display:inline-block;width:100%;vertical-align:top;text-align: ${alignment}">${convertedContent}</span>`,
     );
   }
 }

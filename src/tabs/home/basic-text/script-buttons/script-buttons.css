@@ -2,21 +2,31 @@
 .onr-btn-sm.onr-format-sub,
 .onr-btn-sm.onr-format-sup {
   font-size: 10px;
+  letter-spacing: -2px;
+}
+
+/* Wrapper for script symbols to ensure tight grouping */
+.onr-script-symbol {
+  display: inline-block;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 /* Smaller text rendered inside the sub/sup buttons.
    Forces display:inline because Obsidian's global CSS resets sub/sup to display:block.
    Uses position:relative + top instead of vertical-align for the same reason. */
 .onr-sub-text {
-  font-size: 7px;
-  display: inline;
+  font-size: 6px;
+  display: inline-block;
   position: relative;
   top: 2px;
+  margin-left: -3px;
 }
 
 .onr-sup-text {
-  font-size: 7px;
-  display: inline;
+  font-size: 6px;
+  display: inline-block;
   position: relative;
-  top: -4px;
+  top: -3px;
+  margin-left: -3px;
 }

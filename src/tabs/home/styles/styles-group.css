@@ -1,4 +1,6 @@
-/* Styles group: previews column + scroll arrows column */
+/* ── STYLES GROUP LAYOUT ── */
+
+/* Outer flex row: preview column + scroll arrows column */
 .onr-styles-group {
   display: flex;
   align-items: stretch;
@@ -6,7 +8,7 @@
   flex: 1;
 }
 
-/* Column of style preview buttons */
+/* Column of two visible preview buttons */
 .onr-styles-previews {
   display: flex;
   flex-direction: column;
@@ -14,32 +16,86 @@
   width: 130px;
 }
 
-/* Individual heading style preview button */
+/* ── PREVIEW BUTTONS ──
+ * The style gallery is an intentional dark "mini-document" thumbnail widget —
+ * intentionally distinct from the warm-gray ribbon button system.
+ * All color values flow through --style-preview-* tokens defined in styles.css. */
 .onr-btn-sm.onr-style-preview {
   width: 130px;
   min-height: 28px;
   background: var(--style-preview-bg);
   border: 1px solid var(--style-preview-border);
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   flex-direction: row;
   justify-content: flex-start;
   padding: 2px 8px;
   gap: 0;
+
+  /* Default text style is heading blue — overridden per variant below */
   color: var(--style-preview-text);
   font-weight: 700;
   font-size: 11px;
+
+  /* Prevent inherited focus rings from doubling up with the active border */
+  outline: none;
+  box-shadow: none;
+
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
 }
 
-.onr-style-h1 {
-  font-size: 15px;
-  letter-spacing: -0.5px;
+/* Hover: step up to the active shade — dark enough to keep blue text readable */
+.onr-btn-sm.onr-style-preview:hover {
+  background: var(--style-preview-active-bg);
 }
 
-.onr-style-h2 {
-  font-size: 13px;
+/* Active: 2px border so it matches the dropdown active-item weight */
+.onr-btn-sm.onr-style-preview.onr-active {
+  background: var(--style-preview-active-bg);
+  border: 2px solid var(--style-preview-active-border);
+  box-shadow: none;
+  outline: none;
 }
 
-/* Column of up/down/expand arrow buttons */
+/* Preview buttons suppress focus ring — the active border is their visual indicator.
+ * 3-class specificity beats ribbon-button.css's 1-class:focus-visible rule. */
+.onr-btn-sm.onr-style-preview:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Normal text: white, weight 400 — not a heading, so no blue or bold */
+.onr-btn-sm.onr-style-preview.onr-style-normal {
+  color: var(--style-preview-text-plain);
+  font-weight: 400;
+}
+
+/* Quote: italicised white — indicates block-quote formatting */
+.onr-btn-sm.onr-style-preview.onr-style-quote {
+  color: var(--style-preview-text-plain);
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* Code: monospace white — signals preformatted / code style */
+.onr-btn-sm.onr-style-preview.onr-style-code {
+  color: var(--style-preview-text-plain);
+  font-family: "Consolas", "Cascadia Code", monospace;
+  font-weight: 400;
+}
+
+/* ── HEADING SIZE CLASSES ──
+ * Applied to BOTH preview buttons and dropdown labels.
+ * H1 > H2 > H3 descend; H4 and H6 are italic to mirror Markdown conventions. */
+.onr-style-h1 { font-size: 15px; letter-spacing: -0.5px; }
+.onr-style-h2 { font-size: 13px; }
+.onr-style-h3 { font-size: 12px; }
+.onr-style-h4 { font-size: 12px; font-style: italic; }
+.onr-style-h5 { font-size: 11px; }
+.onr-style-h6 { font-size: 11px; font-style: italic; }
+
+/* ── SCROLL ARROW COLUMN ── */
 .onr-styles-scroll {
   display: flex;
   flex-direction: column;
@@ -48,7 +104,6 @@
   gap: 2px;
 }
 
-/* Up and down scroll arrows */
 .onr-btn-sm.onr-scroll-arrow {
   width: 16px;
   min-height: 28px;
@@ -56,7 +111,6 @@
   font-size: 9px;
 }
 
-/* Expand/collapse arrow */
 .onr-btn-sm.onr-scroll-expand {
   width: 16px;
   min-height: 14px;
@@ -64,8 +118,129 @@
   font-size: 9px;
 }
 
-/* Active item in styles dropdown */
-.onr-styles-dropdown .onr-dd-item-active {
+/* ── STYLES DROPDOWN ──
+ * Light ribbon background — dark navy is for the preview BUTTONS only.
+ * Each item shows its heading style (color + size) on the light base;
+ * the active selection uses a high-contrast blue tint that pops immediately. */
+.onr-styles-dropdown {
+  min-width: 240px;
+  max-height: 520px;
+  overflow-y: auto;
+  padding: 0 0 4px;
+}
+
+/* "Styles" header — uppercase ribbon label convention, separated by a hairline */
+.onr-styles-dropdown-header {
+  padding: 7px 12px 5px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--ribbon-border);
+  margin-bottom: 2px;
+  user-select: none;
+}
+
+/* Items: give heading rows enough height for the larger type sizes;
+ * a 3px left accent on hover signals interactivity without being heavy */
+.onr-styles-dropdown .onr-dd-item {
+  color: var(--style-preview-text);
+  min-height: 30px;
+  padding: 5px 12px 5px 15px;
+  border-left: 3px solid transparent;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.onr-styles-dropdown .onr-dd-item:hover {
   background: var(--btn-hover-bg);
-  font-weight: 600;
+  border-left-color: var(--btn-hover-border);
+}
+
+/* Labels bold by default — conveys heading weight */
+.onr-styles-dropdown .onr-dd-label {
+  font-weight: 700;
+  color: inherit;
+  line-height: 1.2;
+}
+
+/* ── HEADING SIZES — dramatic descending scale (bolder) ──
+ * Larger jumps between levels create clear visual hierarchy in the list. */
+.onr-styles-dropdown .onr-dd-label.onr-style-h1 { font-size: 22px; letter-spacing: -0.5px; }
+.onr-styles-dropdown .onr-dd-label.onr-style-h2 { font-size: 18px; }
+.onr-styles-dropdown .onr-dd-label.onr-style-h3 { font-size: 15px; }
+.onr-styles-dropdown .onr-dd-label.onr-style-h4 { font-size: 14px; font-style: italic; }
+.onr-styles-dropdown .onr-dd-label.onr-style-h5 { font-size: 13px; }
+.onr-styles-dropdown .onr-dd-label.onr-style-h6 { font-size: 12px; font-style: italic; }
+
+/* Non-heading variants — clearly subordinate to headings */
+.onr-styles-dropdown .onr-dd-label.onr-style-normal {
+  color: var(--text-primary);
+  font-weight: 400;
+  font-size: 11px;
+}
+
+.onr-styles-dropdown .onr-dd-label.onr-style-quote {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 11px;
+}
+
+.onr-styles-dropdown .onr-dd-label.onr-style-code {
+  color: var(--text-primary);
+  font-family: "Consolas", "Cascadia Code", monospace;
+  font-weight: 400;
+  font-size: 11px;
+}
+
+/* Active item: 2px strong-blue border + bright fill — pops clearly.
+ * --btn-focus-ring (#0078d4) contrasts against the light --btn-active-bg on the dropdown. */
+.onr-styles-dropdown .onr-dd-item-active {
+  background: var(--btn-active-bg);
+  border: 2px solid var(--btn-focus-ring);
+  border-radius: var(--radius-sm);
+  padding-left: 13px; /* compensate for 2px border vs 3px transparent left accent */
+}
+
+/* Active hover: keep consistent strong-blue border */
+.onr-styles-dropdown .onr-dd-item-active:hover {
+  background: var(--btn-active-bg);
+  border-color: var(--btn-focus-ring);
+}
+
+/* ── CLEAR FORMATTING ROW ── */
+.onr-clear-formatting-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-top: 1px solid var(--ribbon-border);
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 11px;
+  background: var(--ribbon-bg);
+  transition: background var(--transition-fast);
+}
+
+.onr-clear-formatting-btn:hover {
+  background: var(--btn-hover-bg);
+}
+
+/* Red icon matches OneNote's eraser-style Clear Formatting affordance */
+.onr-clear-formatting-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--icon-red);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onr-btn-sm.onr-style-preview,
+  .onr-styles-dropdown .onr-dd-item,
+  .onr-clear-formatting-btn {
+    transition: none;
+  }
 }

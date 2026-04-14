@@ -3,6 +3,7 @@ import {
   unwrapTag,
   buildSpanTagDefinition,
   extractStylePropertyFromOpeningTag,
+  extractAllStyleProperties,
   replaceOpeningTagAttribute,
   findOverlappingTagRanges,
   splitFormattingAroundProtectedRanges,
@@ -215,6 +216,54 @@ describe('tagManipulation', () => {
       const result = extractStylePropertyFromOpeningTag('<u>');
 
       expect(result).toBeNull();
+    });
+  });
+
+  // ============================================================
+  // extractAllStyleProperties
+  // ============================================================
+
+  describe('extractAllStyleProperties', () => {
+    it('extracts single property', () => {
+      const result = extractAllStyleProperties('<span style="color: red">');
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({ propertyName: 'color', propertyValue: 'red' });
+    });
+
+    it('extracts multiple properties from alignment span', () => {
+      const result = extractAllStyleProperties(
+        '<span style="display:inline-block;width:100%;vertical-align:top;text-align: center">',
+      );
+
+      expect(result).toHaveLength(4);
+      expect(result[0]).toEqual({ propertyName: 'display', propertyValue: 'inline-block' });
+      expect(result[1]).toEqual({ propertyName: 'width', propertyValue: '100%' });
+      expect(result[2]).toEqual({ propertyName: 'vertical-align', propertyValue: 'top' });
+      expect(result[3]).toEqual({ propertyName: 'text-align', propertyValue: 'center' });
+    });
+
+    it('handles trailing semicolons', () => {
+      const result = extractAllStyleProperties('<span style="color: blue;">');
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({ propertyName: 'color', propertyValue: 'blue' });
+    });
+
+    it('returns empty array for tag without style', () => {
+      const result = extractAllStyleProperties('<u>');
+
+      expect(result).toHaveLength(0);
+    });
+
+    it('trims whitespace from property names and values', () => {
+      const result = extractAllStyleProperties(
+        '<span style="  font-size : 14pt ; color : red  ">',
+      );
+
+      expect(result).toHaveLength(2);
+      expect(result[0]).toEqual({ propertyName: 'font-size', propertyValue: '14pt' });
+      expect(result[1]).toEqual({ propertyName: 'color', propertyValue: 'red' });
     });
   });
 
