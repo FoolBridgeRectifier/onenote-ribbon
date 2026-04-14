@@ -20,7 +20,7 @@ export function TagsGroup() {
   const getEditor = () => app.workspace.activeEditor?.editor;
 
   const handleTodo = () => {
-    (app as any).commands.executeCommandById('editor:toggle-todo');
+    (app as any).commands.executeCommandById('editor:toggle-checklist-status');
   };
 
   const handleImportant = () => {
@@ -125,12 +125,14 @@ export function TagsGroup() {
                 {
                   label: 'Quote',
                   onClick: () => {
+                    (app as any).commands.executeCommandById('editor:toggle-blockquote');
                     setMoreMenuOpen(false);
                   },
                 },
                 {
                   label: 'Code',
                   onClick: () => {
+                    (app as any).commands.executeCommandById('editor:toggle-code');
                     setMoreMenuOpen(false);
                   },
                 },

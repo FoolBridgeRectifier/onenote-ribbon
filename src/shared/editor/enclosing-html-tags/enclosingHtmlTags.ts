@@ -195,10 +195,14 @@ function createMarkdownTagRange(
   markdownPatternDefinition: MarkdownTagPatternDefinition,
   currentMatch: RegExpExecArray,
 ): HtmlTagRange {
-  const openingTagStartOffset = currentMatch.index;
+  const inset = markdownPatternDefinition.delimiterInset ?? 0;
+
+  const openingTagStartOffset = currentMatch.index + inset;
   const openingTagEndOffset =
     openingTagStartOffset + markdownPatternDefinition.openingDelimiterLength;
-  const closingTagEndOffset = currentMatch.index + currentMatch[0].length;
+
+  const closingTagEndOffset =
+    currentMatch.index + currentMatch[0].length - inset;
   const closingTagStartOffset =
     closingTagEndOffset - markdownPatternDefinition.closingDelimiterLength;
 

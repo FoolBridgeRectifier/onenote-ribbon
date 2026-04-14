@@ -210,7 +210,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
           <span
             class="onr-picker-label"
           >
-            11
+            16
           </span>
           <span
             class="onr-picker-caret"
@@ -476,24 +476,36 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
           class="onr-divider"
         />
         <div
-          class="onr-btn-sm onr-highlight-btn"
-          data-cmd="highlight"
-          title="Highlight"
+          class="onr-highlight-wrapper"
         >
-          <svg
-            class="onr-icon-sm"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M9 11l-6 6v3h3l6-6"
-            />
-            <path
-              d="M22 5.54a2 2 0 0 0-2.83-2.83l-11.3 11.3 2.83 2.83L22 5.54z"
-            />
-          </svg>
           <div
-            class="onr-highlight-swatch"
-          />
+            class="onr-btn-sm onr-highlight-btn"
+            data-cmd="highlight"
+            title="Highlight"
+          >
+            <svg
+              class="onr-icon-sm"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M9 11l-6 6v3h3l6-6"
+              />
+              <path
+                d="M22 5.54a2 2 0 0 0-2.83-2.83l-11.3 11.3 2.83 2.83L22 5.54z"
+              />
+            </svg>
+            <div
+              class="onr-highlight-swatch"
+              style="background-color: rgb(255, 255, 0);"
+            />
+          </div>
+          <div
+            class="onr-highlight-caret"
+            role="button"
+            tabindex="0"
+          >
+            ▾
+          </div>
         </div>
         <div
           class="onr-divider"
@@ -513,10 +525,13 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
             </span>
             <div
               class="onr-color-swatch"
+              style="background-color: rgb(255, 0, 0);"
             />
           </div>
           <div
             class="onr-color-caret"
+            role="button"
+            tabindex="0"
           >
             ▾
           </div>
@@ -599,7 +614,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
         class="onr-styles-previews"
       >
         <div
-          class="onr-btn-sm onr-style-preview "
+          class="onr-btn-sm onr-active onr-style-preview "
           data-cmd="style-normal"
           title="Apply Normal"
         >
@@ -2104,7 +2119,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                       },
                       "dataAttributes": {},
                       "tagName": "span",
-                      "textContent": "11",
+                      "textContent": "16",
                     },
                     {
                       "children": [],
@@ -2168,7 +2183,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                     "data-cmd": "font-size",
                   },
                   "tagName": "div",
-                  "textContent": "11▾",
+                  "textContent": "16▾",
                 },
                 {
                   "children": [
@@ -3086,7 +3101,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
               },
               "dataAttributes": {},
               "tagName": "div",
-              "textContent": "Font▾11▾▾▾",
+              "textContent": "Font▾16▾▾▾",
             },
             {
               "children": [
@@ -3454,8 +3469,53 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                     {
                       "children": [
                         {
-                          "children": [],
-                          "className": "",
+                          "children": [
+                            {
+                              "children": [],
+                              "className": "",
+                              "computedCss": {
+                                "background-color": "rgba(0, 0, 0, 0)",
+                                "border-block-end-color": "var(--text-primary)",
+                                "border-block-start-color": "var(--text-primary)",
+                                "border-bottom-color": "var(--text-primary)",
+                                "border-inline-end-color": "var(--text-primary)",
+                                "border-inline-start-color": "var(--text-primary)",
+                                "border-left-color": "var(--text-primary)",
+                                "border-right-color": "var(--text-primary)",
+                                "border-top-color": "var(--text-primary)",
+                                "caret-color": "auto",
+                                "color": "var(--text-primary)",
+                                "pointer-events": "auto",
+                                "visibility": "visible",
+                              },
+                              "dataAttributes": {},
+                              "tagName": "path",
+                              "textContent": "",
+                            },
+                            {
+                              "children": [],
+                              "className": "",
+                              "computedCss": {
+                                "background-color": "rgba(0, 0, 0, 0)",
+                                "border-block-end-color": "var(--text-primary)",
+                                "border-block-start-color": "var(--text-primary)",
+                                "border-bottom-color": "var(--text-primary)",
+                                "border-inline-end-color": "var(--text-primary)",
+                                "border-inline-start-color": "var(--text-primary)",
+                                "border-left-color": "var(--text-primary)",
+                                "border-right-color": "var(--text-primary)",
+                                "border-top-color": "var(--text-primary)",
+                                "caret-color": "auto",
+                                "color": "var(--text-primary)",
+                                "pointer-events": "auto",
+                                "visibility": "visible",
+                              },
+                              "dataAttributes": {},
+                              "tagName": "path",
+                              "textContent": "",
+                            },
+                          ],
+                          "className": "onr-icon-sm",
                           "computedCss": {
                             "background-color": "rgba(0, 0, 0, 0)",
                             "border-block-end-color": "var(--text-primary)",
@@ -3468,18 +3528,21 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                             "border-top-color": "var(--text-primary)",
                             "caret-color": "auto",
                             "color": "var(--text-primary)",
+                            "flex-shrink": "0",
+                            "height": "12px",
                             "pointer-events": "auto",
                             "visibility": "visible",
+                            "width": "12px",
                           },
                           "dataAttributes": {},
-                          "tagName": "path",
+                          "tagName": "svg",
                           "textContent": "",
                         },
                         {
                           "children": [],
-                          "className": "",
+                          "className": "onr-highlight-swatch",
                           "computedCss": {
-                            "background-color": "rgba(0, 0, 0, 0)",
+                            "background-color": "rgb(255, 255, 0)",
                             "border-block-end-color": "var(--text-primary)",
                             "border-block-start-color": "var(--text-primary)",
                             "border-bottom-color": "var(--text-primary)",
@@ -3490,103 +3553,114 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                             "border-top-color": "var(--text-primary)",
                             "caret-color": "auto",
                             "color": "var(--text-primary)",
+                            "display": "block",
+                            "height": "3px",
                             "pointer-events": "auto",
                             "visibility": "visible",
+                            "width": "14px",
                           },
                           "dataAttributes": {},
-                          "tagName": "path",
+                          "tagName": "div",
                           "textContent": "",
                         },
                       ],
-                      "className": "onr-icon-sm",
+                      "className": "onr-btn-sm onr-highlight-btn",
                       "computedCss": {
+                        "align-items": "center",
+                        "background": "transparent",
                         "background-color": "rgba(0, 0, 0, 0)",
+                        "border": "1px solid transparent",
                         "border-block-end-color": "var(--text-primary)",
                         "border-block-start-color": "var(--text-primary)",
-                        "border-bottom-color": "var(--text-primary)",
+                        "border-bottom-color": "rgba(0, 0, 0, 0)",
                         "border-inline-end-color": "var(--text-primary)",
                         "border-inline-start-color": "var(--text-primary)",
-                        "border-left-color": "var(--text-primary)",
-                        "border-right-color": "var(--text-primary)",
-                        "border-top-color": "var(--text-primary)",
+                        "border-left-color": "rgba(0, 0, 0, 0)",
+                        "border-radius": "var(--radius-sm)",
+                        "border-right-color": "rgba(0, 0, 0, 0)",
+                        "border-top-color": "rgba(0, 0, 0, 0)",
                         "caret-color": "auto",
                         "color": "var(--text-primary)",
+                        "cursor": "pointer",
+                        "display": "flex",
+                        "flex-direction": "column",
                         "flex-shrink": "0",
-                        "height": "12px",
+                        "font-size": "9px",
+                        "gap": "1px",
+                        "justify-content": "center",
+                        "min-height": "18px",
+                        "padding": "1px 2px",
                         "pointer-events": "auto",
+                        "transition": "background var(--transition-fast),
+    border-color var(--transition-fast)",
+                        "user-select": "none",
                         "visibility": "visible",
-                        "width": "12px",
+                        "width": "26px",
                       },
-                      "dataAttributes": {},
-                      "tagName": "svg",
+                      "dataAttributes": {
+                        "data-cmd": "highlight",
+                      },
+                      "tagName": "div",
                       "textContent": "",
                     },
                     {
                       "children": [],
-                      "className": "onr-highlight-swatch",
+                      "className": "onr-highlight-caret",
                       "computedCss": {
-                        "background": "rgb(255, 255, 0)",
-                        "background-color": "rgb(255, 255, 0)",
-                        "border": "1px solid rgb(204, 204, 204)",
-                        "border-block-end-color": "var(--text-primary)",
-                        "border-block-start-color": "var(--text-primary)",
-                        "border-bottom-color": "rgb(204, 204, 204)",
-                        "border-inline-end-color": "var(--text-primary)",
-                        "border-inline-start-color": "var(--text-primary)",
-                        "border-left-color": "rgb(204, 204, 204)",
-                        "border-right-color": "rgb(204, 204, 204)",
-                        "border-top-color": "rgb(204, 204, 204)",
+                        "align-items": "center",
+                        "background": "none",
+                        "background-color": "rgba(0, 0, 0, 0)",
+                        "border-block-end-color": "var(--text-secondary)",
+                        "border-block-start-color": "var(--text-secondary)",
+                        "border-bottom-color": "var(--text-secondary)",
+                        "border-inline-end-color": "var(--text-secondary)",
+                        "border-inline-start-color": "var(--text-secondary)",
+                        "border-left-color": "var(--text-secondary)",
+                        "border-right-color": "var(--text-secondary)",
+                        "border-top-color": "var(--text-secondary)",
                         "caret-color": "auto",
-                        "color": "var(--text-primary)",
-                        "display": "block",
-                        "height": "3px",
+                        "color": "var(--text-secondary)",
+                        "cursor": "pointer",
+                        "display": "flex",
+                        "font-size": "7px",
+                        "height": "10px",
+                        "justify-content": "center",
+                        "line-height": "1",
+                        "margin": "0px",
+                        "min-height": "0",
+                        "padding": "0px 1px",
                         "pointer-events": "auto",
                         "visibility": "visible",
-                        "width": "14px",
+                        "width": "auto",
                       },
                       "dataAttributes": {},
                       "tagName": "div",
-                      "textContent": "",
+                      "textContent": "▾",
                     },
                   ],
-                  "className": "onr-btn-sm onr-highlight-btn",
+                  "className": "onr-highlight-wrapper",
                   "computedCss": {
                     "align-items": "center",
-                    "background": "transparent",
                     "background-color": "rgba(0, 0, 0, 0)",
-                    "border": "1px solid transparent",
-                    "border-block-end-color": "var(--text-primary)",
-                    "border-block-start-color": "var(--text-primary)",
-                    "border-bottom-color": "rgba(0, 0, 0, 0)",
-                    "border-inline-end-color": "var(--text-primary)",
-                    "border-inline-start-color": "var(--text-primary)",
-                    "border-left-color": "rgba(0, 0, 0, 0)",
-                    "border-radius": "var(--radius-sm)",
-                    "border-right-color": "rgba(0, 0, 0, 0)",
-                    "border-top-color": "rgba(0, 0, 0, 0)",
+                    "border-block-end-color": "CanvasText",
+                    "border-block-start-color": "CanvasText",
+                    "border-bottom-color": "canvastext",
+                    "border-inline-end-color": "CanvasText",
+                    "border-inline-start-color": "CanvasText",
+                    "border-left-color": "canvastext",
+                    "border-right-color": "canvastext",
+                    "border-top-color": "canvastext",
                     "caret-color": "auto",
-                    "color": "var(--text-primary)",
-                    "cursor": "pointer",
+                    "color": "canvastext",
                     "display": "flex",
                     "flex-direction": "column",
-                    "flex-shrink": "0",
-                    "font-size": "9px",
-                    "gap": "1px",
-                    "justify-content": "center",
-                    "min-height": "18px",
-                    "padding": "1px 2px",
+                    "gap": "0",
                     "pointer-events": "auto",
-                    "transition": "background var(--transition-fast),
-    border-color var(--transition-fast)",
-                    "user-select": "none",
                     "visibility": "visible",
-                    "width": "26px",
                   },
-                  "dataAttributes": {
-                    "data-cmd": "highlight",
-                  },
+                  "dataAttributes": {},
                   "tagName": "div",
-                  "textContent": "",
+                  "textContent": "▾",
                 },
                 {
                   "children": [],
@@ -3625,16 +3699,16 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                           "className": "onr-color-label",
                           "computedCss": {
                             "background-color": "rgba(0, 0, 0, 0)",
-                            "border-block-end-color": "rgb(34, 34, 34)",
-                            "border-block-start-color": "rgb(34, 34, 34)",
-                            "border-bottom-color": "rgb(34, 34, 34)",
-                            "border-inline-end-color": "rgb(34, 34, 34)",
-                            "border-inline-start-color": "rgb(34, 34, 34)",
-                            "border-left-color": "rgb(34, 34, 34)",
-                            "border-right-color": "rgb(34, 34, 34)",
-                            "border-top-color": "rgb(34, 34, 34)",
+                            "border-block-end-color": "var(--text-primary)",
+                            "border-block-start-color": "var(--text-primary)",
+                            "border-bottom-color": "var(--text-primary)",
+                            "border-inline-end-color": "var(--text-primary)",
+                            "border-inline-start-color": "var(--text-primary)",
+                            "border-left-color": "var(--text-primary)",
+                            "border-right-color": "var(--text-primary)",
+                            "border-top-color": "var(--text-primary)",
                             "caret-color": "auto",
-                            "color": "rgb(34, 34, 34)",
+                            "color": "var(--text-primary)",
                             "font-size": "12px",
                             "font-weight": "700",
                             "line-height": "1",
@@ -3649,17 +3723,15 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                           "children": [],
                           "className": "onr-color-swatch",
                           "computedCss": {
-                            "background": "rgb(255, 0, 0)",
                             "background-color": "rgb(255, 0, 0)",
-                            "border": "1px solid rgb(204, 204, 204)",
                             "border-block-end-color": "var(--text-primary)",
                             "border-block-start-color": "var(--text-primary)",
-                            "border-bottom-color": "rgb(204, 204, 204)",
+                            "border-bottom-color": "var(--text-primary)",
                             "border-inline-end-color": "var(--text-primary)",
                             "border-inline-start-color": "var(--text-primary)",
-                            "border-left-color": "rgb(204, 204, 204)",
-                            "border-right-color": "rgb(204, 204, 204)",
-                            "border-top-color": "rgb(204, 204, 204)",
+                            "border-left-color": "var(--text-primary)",
+                            "border-right-color": "var(--text-primary)",
+                            "border-top-color": "var(--text-primary)",
                             "caret-color": "auto",
                             "color": "var(--text-primary)",
                             "display": "block",
@@ -3720,16 +3792,16 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                         "align-items": "center",
                         "background": "none",
                         "background-color": "rgba(0, 0, 0, 0)",
-                        "border-block-end-color": "rgb(102, 102, 102)",
-                        "border-block-start-color": "rgb(102, 102, 102)",
-                        "border-bottom-color": "rgb(102, 102, 102)",
-                        "border-inline-end-color": "rgb(102, 102, 102)",
-                        "border-inline-start-color": "rgb(102, 102, 102)",
-                        "border-left-color": "rgb(102, 102, 102)",
-                        "border-right-color": "rgb(102, 102, 102)",
-                        "border-top-color": "rgb(102, 102, 102)",
+                        "border-block-end-color": "var(--text-secondary)",
+                        "border-block-start-color": "var(--text-secondary)",
+                        "border-bottom-color": "var(--text-secondary)",
+                        "border-inline-end-color": "var(--text-secondary)",
+                        "border-inline-start-color": "var(--text-secondary)",
+                        "border-left-color": "var(--text-secondary)",
+                        "border-right-color": "var(--text-secondary)",
+                        "border-top-color": "var(--text-secondary)",
                         "caret-color": "auto",
-                        "color": "rgb(102, 102, 102)",
+                        "color": "var(--text-secondary)",
                         "cursor": "pointer",
                         "display": "flex",
                         "font-size": "7px",
@@ -4091,7 +4163,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
               },
               "dataAttributes": {},
               "tagName": "div",
-              "textContent": "BIUabx2x2A▾▾",
+              "textContent": "BIUabx2x2▾A▾▾",
             },
           ],
           "className": "onr-basic-text-inner",
@@ -4116,7 +4188,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
           },
           "dataAttributes": {},
           "tagName": "div",
-          "textContent": "Font▾11▾▾▾BIUabx2x2A▾▾",
+          "textContent": "Font▾16▾▾▾BIUabx2x2▾A▾▾",
         },
         {
           "children": [],
@@ -4174,7 +4246,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
       },
       "dataAttributes": {},
       "tagName": "div",
-      "textContent": "Font▾11▾▾▾BIUabx2x2A▾▾Basic Text",
+      "textContent": "Font▾16▾▾▾BIUabx2x2▾A▾▾Basic Text",
     },
     {
       "children": [
@@ -4184,23 +4256,23 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
               "children": [
                 {
                   "children": [],
-                  "className": "onr-btn-sm onr-style-preview ",
+                  "className": "onr-btn-sm onr-active onr-style-preview ",
                   "computedCss": {
                     "align-items": "center",
-                    "background": "rgb(26, 26, 46)",
-                    "background-color": "rgb(26, 26, 46)",
-                    "border": "1px solid rgb(85, 85, 85)",
-                    "border-block-end-color": "rgb(91, 155, 213)",
-                    "border-block-start-color": "rgb(91, 155, 213)",
-                    "border-bottom-color": "rgb(85, 85, 85)",
-                    "border-inline-end-color": "rgb(91, 155, 213)",
-                    "border-inline-start-color": "rgb(91, 155, 213)",
-                    "border-left-color": "rgb(85, 85, 85)",
+                    "background": "var(--style-preview-bg)",
+                    "background-color": "rgba(0, 0, 0, 0)",
+                    "border": "1px solid var(--style-preview-border)",
+                    "border-block-end-color": "var(--style-preview-text)",
+                    "border-block-start-color": "var(--style-preview-text)",
+                    "border-bottom-color": "rgba(0, 0, 0, 0)",
+                    "border-inline-end-color": "var(--style-preview-text)",
+                    "border-inline-start-color": "var(--style-preview-text)",
+                    "border-left-color": "rgba(0, 0, 0, 0)",
                     "border-radius": "2px",
-                    "border-right-color": "rgb(85, 85, 85)",
-                    "border-top-color": "rgb(85, 85, 85)",
+                    "border-right-color": "rgba(0, 0, 0, 0)",
+                    "border-top-color": "rgba(0, 0, 0, 0)",
                     "caret-color": "auto",
-                    "color": "rgb(91, 155, 213)",
+                    "color": "var(--style-preview-text)",
                     "cursor": "pointer",
                     "display": "flex",
                     "flex-direction": "row",
@@ -4229,20 +4301,20 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                   "className": "onr-btn-sm onr-style-preview onr-style-h1",
                   "computedCss": {
                     "align-items": "center",
-                    "background": "rgb(26, 26, 46)",
-                    "background-color": "rgb(26, 26, 46)",
-                    "border": "1px solid rgb(85, 85, 85)",
-                    "border-block-end-color": "rgb(91, 155, 213)",
-                    "border-block-start-color": "rgb(91, 155, 213)",
-                    "border-bottom-color": "rgb(85, 85, 85)",
-                    "border-inline-end-color": "rgb(91, 155, 213)",
-                    "border-inline-start-color": "rgb(91, 155, 213)",
-                    "border-left-color": "rgb(85, 85, 85)",
+                    "background": "var(--style-preview-bg)",
+                    "background-color": "rgba(0, 0, 0, 0)",
+                    "border": "1px solid var(--style-preview-border)",
+                    "border-block-end-color": "var(--style-preview-text)",
+                    "border-block-start-color": "var(--style-preview-text)",
+                    "border-bottom-color": "rgba(0, 0, 0, 0)",
+                    "border-inline-end-color": "var(--style-preview-text)",
+                    "border-inline-start-color": "var(--style-preview-text)",
+                    "border-left-color": "rgba(0, 0, 0, 0)",
                     "border-radius": "2px",
-                    "border-right-color": "rgb(85, 85, 85)",
-                    "border-top-color": "rgb(85, 85, 85)",
+                    "border-right-color": "rgba(0, 0, 0, 0)",
+                    "border-top-color": "rgba(0, 0, 0, 0)",
                     "caret-color": "auto",
-                    "color": "rgb(91, 155, 213)",
+                    "color": "var(--style-preview-text)",
                     "cursor": "pointer",
                     "display": "flex",
                     "flex-direction": "row",
@@ -6722,6 +6794,6 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
     "data-panel": "Home",
   },
   "tagName": "div",
-  "textContent": "Paste▾CutCopyFormat PainterClipboardFont▾11▾▾▾BIUabx2x2A▾▾Basic TextNormalHeading 1▲▼▾StylesTo DoImportant?Question▾To Do TagFind TagsTagsEmail PageMeeting DetailsEmail & MeetingsOutlineFold AllUnfold AllNavigate",
+  "textContent": "Paste▾CutCopyFormat PainterClipboardFont▾16▾▾▾BIUabx2x2▾A▾▾Basic TextNormalHeading 1▲▼▾StylesTo DoImportant?Question▾To Do TagFind TagsTagsEmail PageMeeting DetailsEmail & MeetingsOutlineFold AllUnfold AllNavigate",
 }
 `;

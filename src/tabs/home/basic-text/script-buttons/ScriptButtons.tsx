@@ -4,7 +4,12 @@ import { RibbonButton } from '../../../../shared/components/ribbon-button/Ribbon
 import { toggleTagInEditor } from '../../../../shared/editor/styling-engine/editorIntegration';
 import { SUBSCRIPT_TAG, SUPERSCRIPT_TAG } from '../../../../shared/editor/styling-engine/constants';
 
-export function ScriptButtons() {
+interface ScriptButtonsProps {
+  subscript: boolean;
+  superscript: boolean;
+}
+
+export function ScriptButtons({ subscript, superscript }: ScriptButtonsProps) {
   const app = useApp();
 
   const getEditor = () => app.workspace.activeEditor?.editor;
@@ -26,6 +31,7 @@ export function ScriptButtons() {
       <RibbonButton
         className="onr-format-btn onr-format-sub"
         title="Subscript"
+        active={subscript}
         onClick={handleSubscript}
         data-cmd="subscript"
       >
@@ -35,6 +41,7 @@ export function ScriptButtons() {
       <RibbonButton
         className="onr-format-btn onr-format-sup"
         title="Superscript"
+        active={superscript}
         onClick={handleSuperscript}
         data-cmd="superscript"
       >

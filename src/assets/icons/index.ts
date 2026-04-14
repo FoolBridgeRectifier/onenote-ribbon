@@ -1,4 +1,6 @@
+export { AlignCenterIcon } from "./AlignCenterIcon";
 export { AlignLeftIcon } from "./AlignLeftIcon";
+export { AlignRightIcon } from "./AlignRightIcon";
 export { BulletListIcon } from "./BulletListIcon";
 export { ClearFormattingIcon } from "./ClearFormattingIcon";
 export { ClearInlineIcon } from "./ClearInlineIcon";

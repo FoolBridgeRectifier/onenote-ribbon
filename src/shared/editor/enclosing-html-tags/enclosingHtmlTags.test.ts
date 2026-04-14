@@ -159,6 +159,30 @@ describe('enclosingHtmlTags', () => {
     expect(tagNames).toEqual(['bold']);
   });
 
+  it('detects combined ***bold+italic*** as both bold and italic', () => {
+    const sourceText = '***bold italic***';
+    const finder = createEnclosingHtmlTagFinder(sourceText);
+
+    const tagNames = finder.getEnclosingTagNames({
+      cursorPosition: createPosition(0, 6),
+    });
+
+    expect(tagNames).toContain('bold');
+    expect(tagNames).toContain('italic');
+  });
+
+  it('does not detect standalone ** as ***', () => {
+    const sourceText = '**just bold**';
+    const finder = createEnclosingHtmlTagFinder(sourceText);
+
+    const tagNames = finder.getEnclosingTagNames({
+      cursorPosition: createPosition(0, 4),
+    });
+
+    expect(tagNames).toEqual(['bold']);
+    expect(tagNames).not.toContain('italic');
+  });
+
   it('detects nested markdown tags in inner-to-outer order', () => {
     const sourceText = '**_text_**';
     const finder = createEnclosingHtmlTagFinder(sourceText);

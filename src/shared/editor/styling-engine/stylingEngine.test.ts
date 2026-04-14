@@ -166,6 +166,27 @@ describe('toggleTag', () => {
       expect(result.isNoOp).toBe(false);
       expect(applyReplacements(sourceText, result.replacements)).toBe('bold');
     });
+
+    it('removes only bold from ***text*** leaving italic markers intact', () => {
+      const sourceText = '***both***';
+      // Content "both" is at offsets 3-7 (inside all 3 asterisks)
+      const context = createContext(sourceText, 3, 7);
+
+      const result = toggleTag(context, BOLD_MD_TAG);
+
+      expect(result.isNoOp).toBe(false);
+      expect(applyReplacements(sourceText, result.replacements)).toBe('*both*');
+    });
+
+    it('removes only italic from ***text*** leaving bold markers intact', () => {
+      const sourceText = '***both***';
+      const context = createContext(sourceText, 3, 7);
+
+      const result = toggleTag(context, ITALIC_MD_TAG);
+
+      expect(result.isNoOp).toBe(false);
+      expect(applyReplacements(sourceText, result.replacements)).toBe('**both**');
+    });
   });
 
   // --- Addition cases (tag not present) ---
@@ -963,6 +984,18 @@ describe('removeAllTags — extras', () => {
     expect(result.isNoOp).toBe(false);
     const output = applyReplacements(sourceText, result.replacements);
     expect(output).toBe('bold');
+  });
+
+  it('removes all formatting from ***text*** leaving plain text', () => {
+    const sourceText = '***both***';
+    // "both" at offsets 3-7
+    const context = createContext(sourceText, 3, 7);
+
+    const result = removeAllTags(context);
+
+    expect(result.isNoOp).toBe(false);
+    const output = applyReplacements(sourceText, result.replacements);
+    expect(output).toBe('both');
   });
 });
 
