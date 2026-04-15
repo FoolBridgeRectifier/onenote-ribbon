@@ -62,6 +62,84 @@ describe('detectActiveTagKeys — task detection', () => {
   });
 });
 
+describe('detectActiveTagKeys — task prefix detection', () => {
+  it('adds a prefix-specific key for a P1 task', () => {
+    const editor = new MockEditor();
+    editor.setValue('- [ ] P1: Buy milk');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has(ACTIVE_TAG_KEY_TASK)).toBe(true);
+    expect(result.has(`${ACTIVE_TAG_KEY_TASK}:P1`)).toBe(true);
+  });
+
+  it('adds a prefix-specific key for a P2 task', () => {
+    const editor = new MockEditor();
+    editor.setValue('- [ ] P2: Read book');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has(ACTIVE_TAG_KEY_TASK)).toBe(true);
+    expect(result.has(`${ACTIVE_TAG_KEY_TASK}:P2`)).toBe(true);
+  });
+
+  it('does NOT add P1 key when on a P2 task', () => {
+    const editor = new MockEditor();
+    editor.setValue('- [ ] P2: Read book');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has(`${ACTIVE_TAG_KEY_TASK}:P1`)).toBe(false);
+  });
+
+  it('does NOT add P2 key when on a P1 task', () => {
+    const editor = new MockEditor();
+    editor.setValue('- [ ] P1: Buy milk');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has(`${ACTIVE_TAG_KEY_TASK}:P2`)).toBe(false);
+  });
+
+  it('adds a prefix-specific key for a Discuss task', () => {
+    const editor = new MockEditor();
+    editor.setValue('- [ ] Discuss: Team meeting');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has(`${ACTIVE_TAG_KEY_TASK}:Discuss`)).toBe(true);
+  });
+
+  it('adds a prefix-specific key for a "Discuss with manager" task', () => {
+    const editor = new MockEditor();
+    editor.setValue('- [ ] Discuss with manager: Project review');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has(`${ACTIVE_TAG_KEY_TASK}:Discuss with manager`)).toBe(
+      true,
+    );
+  });
+
+  it('does NOT add a prefix key for a plain task with no prefix', () => {
+    const editor = new MockEditor();
+    editor.setValue('- [ ] Buy milk');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    // Only the generic __task__ key, no prefix-specific key
+    expect(result.size).toBe(1);
+    expect(result.has(ACTIVE_TAG_KEY_TASK)).toBe(true);
+  });
+});
+
 describe('detectActiveTagKeys — highlight detection', () => {
   it('adds __highlight__ when line contains ==text==', () => {
     const editor = new MockEditor();
