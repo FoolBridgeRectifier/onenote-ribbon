@@ -1,0 +1,66 @@
+/* Container for the numbering library dropdown */
+.onr-number-library {
+  padding: 8px;
+  min-width: 280px;
+}
+
+/* Section heading above the grid */
+.onr-number-library-heading {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--btn-hover-border);
+}
+
+/* Grid of preset cells */
+.onr-number-library-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+/* Individual preset cell */
+.onr-number-library-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
+  min-height: 44px;
+}
+
+.onr-number-library-cell:hover {
+  background: var(--btn-hover-bg);
+  border-color: var(--btn-hover-border);
+}
+
+.onr-number-library-cell.onr-active {
+  background: var(--btn-active-bg);
+  border-color: var(--btn-active-border);
+}
+
+/* Number sequence preview text */
+.onr-number-library-preview {
+  font-size: 11px;
+  line-height: 1.2;
+  text-align: center;
+}
+
+/* Cell name label */
+.onr-number-library-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-align: center;
+}
