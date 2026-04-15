@@ -2,7 +2,7 @@ import React from 'react';
 import './bullet-library.css';
 import { Dropdown } from '../../../../../shared/components/dropdown/Dropdown';
 import { BULLET_PRESETS } from '../constants';
-import { BULLET_LIBRARY_HEADING } from './constants';
+import { BULLET_LIBRARY_HEADING, BULLET_LIBRARY_INDENT_PER_LEVEL_PX } from './constants';
 import type { BulletLibraryProps } from './interfaces';
 
 export function BulletLibrary({
@@ -42,7 +42,7 @@ export function BulletLibrary({
                       key={levelIndex}
                       className="onr-bullet-library-level"
                       // Cascading indent: each deeper nesting level shifts right by 2px per depth.
-                      style={{ marginLeft: levelIndex * 2 }}
+                      style={{ marginLeft: levelIndex * BULLET_LIBRARY_INDENT_PER_LEVEL_PX }}
                     >
                       {symbol}
                     </span>

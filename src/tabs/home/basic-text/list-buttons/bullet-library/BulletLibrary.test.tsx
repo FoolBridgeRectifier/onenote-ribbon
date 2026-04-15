@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { BulletLibrary } from './BulletLibrary';
 import { BULLET_PRESETS } from '../constants';
+import { BULLET_LIBRARY_HEADING } from './constants';
 
 function renderBulletLibrary(
   anchor: HTMLElement,
@@ -40,7 +41,7 @@ describe('BulletLibrary', () => {
 
   it('renders the heading', () => {
     renderBulletLibrary(anchorElement);
-    expect(screen.getByText('Bullet Library')).toBeInTheDocument();
+    expect(screen.getByText(BULLET_LIBRARY_HEADING)).toBeInTheDocument();
   });
 
   it('renders a cell for every bullet preset', () => {
@@ -50,9 +51,18 @@ describe('BulletLibrary', () => {
     });
   });
 
-  it('renders the None cell', () => {
+  it('renders the em-dash fallback for the None preset instead of level symbols', () => {
     renderBulletLibrary(anchorElement);
-    expect(screen.getByText('None')).toBeInTheDocument();
+
+    // Scope the assertion to the None cell specifically — em dash also appears in other presets.
+    const noneCell = screen.getByText('None').closest('[data-cmd="bullet-preset-none"]');
+    expect(noneCell).not.toBeNull();
+
+    // The None cell should contain the "—" fallback span.
+    expect(noneCell!.querySelector('.onr-bullet-library-levels')).toHaveTextContent('—');
+
+    // No individual level spans (.onr-bullet-library-level) should exist inside the None cell.
+    expect(noneCell!.querySelectorAll('.onr-bullet-library-level')).toHaveLength(0);
   });
 
   it('marks the active preset cell with onr-active class', () => {
@@ -89,6 +99,22 @@ describe('BulletLibrary', () => {
     // Classic has ● as the L1 symbol
     const classicLevelSymbol = screen.getAllByText('●')[0];
     expect(classicLevelSymbol).toBeInTheDocument();
+  });
+
+  it('calls preventDefault on mousedown to prevent editor blur', () => {
+    const onSelectPreset = jest.fn();
+    renderBulletLibrary(anchorElement, 'none', onSelectPreset);
+
+    const classicCell = screen.getByText('Classic').closest('[data-cmd]') as HTMLElement;
+
+    const mousedownEvent = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
+    Object.defineProperty(mousedownEvent, 'preventDefault', { value: jest.fn() });
+
+    act(() => {
+      classicCell.dispatchEvent(mousedownEvent);
+    });
+
+    expect(mousedownEvent.preventDefault).toHaveBeenCalled();
   });
 
   it('snapshot: open state', () => {
