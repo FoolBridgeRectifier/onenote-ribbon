@@ -40,12 +40,21 @@ function buildCssString(bulletPresetId: string, numberPresetId: string): string 
     if (bulletPreset && bulletPreset.levels.length === REQUIRED_BULLET_DEPTH_COUNT) {
       const levels = bulletPreset.levels as [string, string, string, string];
 
+      // Obsidian renders its default bullet via .list-bullet::after (a CSS circle shape).
+      // Hide that circle so our custom ::marker symbols are the only visible bullet indicator.
+      for (const scope of READING_VIEW_SCOPES) {
+        parts.push(`${scope} ul > li > .list-bullet::after { display: none; }`);
+      }
+
       for (const scope of READING_VIEW_SCOPES) {
         DEPTH_SELECTORS.forEach((depthSelector, index) => {
           const symbol = levels[index];
           parts.push(`${scope} ${depthSelector} { list-style-type: none; }`);
-          // Two spaces after symbol provides visual padding before the list item text
-          parts.push(`${scope} ${depthSelector}::marker { content: "${symbol}${MARKER_SYMBOL_PADDING}"; }`);
+          // Obsidian's theme sets ::marker color to transparent; explicitly set it to inherit the muted text color.
+          // Two spaces after symbol provides visual padding before the list item text.
+          parts.push(
+            `${scope} ${depthSelector}::marker { content: "${symbol}${MARKER_SYMBOL_PADDING}" !important; color: var(--text-muted, #888) !important; }`,
+          );
         });
       }
     }
