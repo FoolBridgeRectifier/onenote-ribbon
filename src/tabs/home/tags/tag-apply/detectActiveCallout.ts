@@ -35,6 +35,17 @@ export function detectActiveTagKeys(editor: Editor | null): Set<string> {
 
   if (TASK_LINE_PATTERN.test(lineContent)) {
     activeKeys.add(ACTIVE_TAG_KEY_TASK);
+
+    // Also emit a prefix-specific key so that named task tags (e.g. "P1:", "P2:")
+    // can be matched individually without every task tag lighting up at once.
+    const taskBody = lineContent.replace(TASK_LINE_PATTERN, '');
+    const colonIndex = taskBody.indexOf(':');
+    if (colonIndex > 0) {
+      const prefix = taskBody.slice(0, colonIndex).trim();
+      if (prefix) {
+        activeKeys.add(`${ACTIVE_TAG_KEY_TASK}:${prefix}`);
+      }
+    }
   }
 
   if (HIGHLIGHT_PATTERN.test(lineContent)) {
