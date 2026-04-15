@@ -13,6 +13,10 @@ import {
   LIST_BTN_CMD_NUMBER_CARET,
   LIST_BTN_CMD_OUTDENT,
   LIST_BTN_CMD_INDENT,
+  OBSIDIAN_CMD_TOGGLE_BULLET_LIST,
+  OBSIDIAN_CMD_TOGGLE_NUMBER_LIST,
+  OBSIDIAN_CMD_UNINDENT_LIST,
+  OBSIDIAN_CMD_INDENT_LIST,
 } from './constants';
 
 interface ListButtonsProps {
@@ -37,7 +41,7 @@ export function ListButtons({ editorState }: ListButtonsProps) {
   };
 
   const handleBulletToggle = () => {
-    app.commands.executeCommandById('editor:toggle-bullet-list');
+    app.commands.executeCommandById(OBSIDIAN_CMD_TOGGLE_BULLET_LIST);
   };
 
   const handleBulletCaretClick = () => {
@@ -47,7 +51,7 @@ export function ListButtons({ editorState }: ListButtonsProps) {
   };
 
   const handleNumberToggle = () => {
-    app.commands.executeCommandById('editor:toggle-numbered-list');
+    app.commands.executeCommandById(OBSIDIAN_CMD_TOGGLE_NUMBER_LIST);
   };
 
   const handleNumberCaretClick = () => {
@@ -57,11 +61,11 @@ export function ListButtons({ editorState }: ListButtonsProps) {
   };
 
   const handleOutdent = () => {
-    app.commands.executeCommandById('editor:unindent-list');
+    app.commands.executeCommandById(OBSIDIAN_CMD_UNINDENT_LIST);
   };
 
   const handleIndent = () => {
-    app.commands.executeCommandById('editor:indent-list');
+    app.commands.executeCommandById(OBSIDIAN_CMD_INDENT_LIST);
   };
 
   return (

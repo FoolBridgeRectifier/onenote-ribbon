@@ -77,3 +77,15 @@ export const LIST_BTN_CMD_INDENT         = 'indent';
 
 /** DOM id for the injected list-style `<style>` element. */
 export const LIST_STYLE_ELEMENT_ID = 'onr-list-style';
+
+/** Obsidian command ID for toggling bullet list in the active editor. */
+export const OBSIDIAN_CMD_TOGGLE_BULLET_LIST = 'editor:toggle-bullet-list';
+
+/** Obsidian command ID for toggling numbered list in the active editor. */
+export const OBSIDIAN_CMD_TOGGLE_NUMBER_LIST = 'editor:toggle-numbered-list';
+
+/** Obsidian command ID for outdenting a list item. */
+export const OBSIDIAN_CMD_UNINDENT_LIST = 'editor:unindent-list';
+
+/** Obsidian command ID for indenting a list item. */
+export const OBSIDIAN_CMD_INDENT_LIST = 'editor:indent-list';

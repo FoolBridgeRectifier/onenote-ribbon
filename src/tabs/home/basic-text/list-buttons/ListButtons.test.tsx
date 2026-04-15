@@ -11,6 +11,10 @@ import {
   LIST_BTN_CMD_NUMBER_CARET,
   LIST_BTN_CMD_OUTDENT,
   LIST_BTN_CMD_INDENT,
+  OBSIDIAN_CMD_TOGGLE_BULLET_LIST,
+  OBSIDIAN_CMD_TOGGLE_NUMBER_LIST,
+  OBSIDIAN_CMD_UNINDENT_LIST,
+  OBSIDIAN_CMD_INDENT_LIST,
 } from './constants';
 
 // app.commands._called is a plain array, not a jest.fn().
@@ -64,25 +68,25 @@ describe('ListButtons', () => {
   it('toggle bullet-list calls editor:toggle-bullet-list command', () => {
     const { app } = renderListButtons();
     fireEvent.click(document.querySelector(`[data-cmd="${LIST_BTN_CMD_BULLET_TOGGLE}"]`)!);
-    expect(app.commands._called).toContain('editor:toggle-bullet-list');
+    expect(app.commands._called).toContain(OBSIDIAN_CMD_TOGGLE_BULLET_LIST);
   });
 
   it('toggle number-list calls editor:toggle-numbered-list command', () => {
     const { app } = renderListButtons();
     fireEvent.click(document.querySelector(`[data-cmd="${LIST_BTN_CMD_NUMBER_TOGGLE}"]`)!);
-    expect(app.commands._called).toContain('editor:toggle-numbered-list');
+    expect(app.commands._called).toContain(OBSIDIAN_CMD_TOGGLE_NUMBER_LIST);
   });
 
   it('outdent calls editor:unindent-list command', () => {
     const { app } = renderListButtons();
     fireEvent.click(document.querySelector(`[data-cmd="${LIST_BTN_CMD_OUTDENT}"]`)!);
-    expect(app.commands._called).toContain('editor:unindent-list');
+    expect(app.commands._called).toContain(OBSIDIAN_CMD_UNINDENT_LIST);
   });
 
   it('indent calls editor:indent-list command', () => {
     const { app } = renderListButtons();
     fireEvent.click(document.querySelector(`[data-cmd="${LIST_BTN_CMD_INDENT}"]`)!);
-    expect(app.commands._called).toContain('editor:indent-list');
+    expect(app.commands._called).toContain(OBSIDIAN_CMD_INDENT_LIST);
   });
 
   it('bullet-list toggle button has onr-active class when bulletList is true', () => {
