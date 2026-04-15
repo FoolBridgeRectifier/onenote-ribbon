@@ -1,5 +1,5 @@
 import React from 'react';
-import { createMockApp } from '../../test-utils/mockApp';
+import { createMockApp, createMockPlugin } from '../../test-utils/mockApp';
 import { renderWithApp } from '../../test-utils/renderWithApp';
 import { HomeTabPanel } from './HomeTabPanel';
 
@@ -110,7 +110,8 @@ function collectDefinedCssClassNames(): Set<string> {
 describe('HomeTabPanel snapshots', () => {
   it('matches DOM snapshot and recursive computed CSS snapshot for all elements', () => {
     const app = createMockApp();
-    const { container } = renderWithApp(<HomeTabPanel />, app);
+    const plugin = createMockPlugin();
+    const { container } = renderWithApp(<HomeTabPanel />, app, { plugin });
 
     const panelElement = container.querySelector('[data-panel="Home"]');
     expect(panelElement).not.toBeNull();
@@ -127,7 +128,8 @@ describe('HomeTabPanel snapshots', () => {
 
   it('every onr-* class used in the DOM has a matching CSS rule', () => {
     const app = createMockApp();
-    const { container } = renderWithApp(<HomeTabPanel />, app);
+    const plugin = createMockPlugin();
+    const { container } = renderWithApp(<HomeTabPanel />, app, { plugin });
 
     const panelElement = container.querySelector('[data-panel="Home"]');
     if (!panelElement) {
