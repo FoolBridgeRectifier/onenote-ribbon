@@ -47,7 +47,14 @@ export interface NumberPreset {
    * Four level configurations, one per nesting depth (L1→L4).
    * Use an empty array to represent "None" (remove overrides).
    */
-  levels: [NumberLevelConfig, NumberLevelConfig, NumberLevelConfig, NumberLevelConfig] | [];
+  levels:
+    | [
+        NumberLevelConfig,
+        NumberLevelConfig,
+        NumberLevelConfig,
+        NumberLevelConfig,
+      ]
+    | [];
 }
 
 /** Persisted plugin settings for list style preferences. */

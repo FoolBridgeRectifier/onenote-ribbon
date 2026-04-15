@@ -590,7 +590,10 @@ function buildEffectiveLineRanges(
   for (const line of structureContext.lines) {
     if (line.inertZone !== null) continue;
 
-    const effectiveStart = Math.max(selectionStartOffset, line.contentStartOffset);
+    const effectiveStart = Math.max(
+      selectionStartOffset,
+      line.contentStartOffset,
+    );
     const effectiveEnd = Math.min(selectionEndOffset, line.lineEndOffset);
 
     if (effectiveStart >= effectiveEnd) continue;
@@ -613,14 +616,22 @@ function lineHasMatchingTag(
   tagDefinition: TagDefinition,
 ): boolean {
   const enclosingMatch = findEnclosingMatchingTag(
-    allTagRanges, sourceText, rangeStart, rangeEnd, tagDefinition,
+    allTagRanges,
+    sourceText,
+    rangeStart,
+    rangeEnd,
+    tagDefinition,
   );
 
   if (enclosingMatch !== null) return true;
 
   // Delimiter-inclusive: tag delimiters fall within the selection range
   const delimiterMatch = findDelimiterInclusiveMatch(
-    allTagRanges, sourceText, rangeStart, rangeEnd, tagDefinition,
+    allTagRanges,
+    sourceText,
+    rangeStart,
+    rangeEnd,
+    tagDefinition,
   );
 
   if (delimiterMatch !== null) return true;
@@ -631,13 +642,21 @@ function lineHasMatchingTag(
 
     if (htmlEquivalent) {
       const htmlEnclosingMatch = findEnclosingMatchingTag(
-        allTagRanges, sourceText, rangeStart, rangeEnd, htmlEquivalent,
+        allTagRanges,
+        sourceText,
+        rangeStart,
+        rangeEnd,
+        htmlEquivalent,
       );
 
       if (htmlEnclosingMatch !== null) return true;
 
       const htmlDelimiterMatch = findDelimiterInclusiveMatch(
-        allTagRanges, sourceText, rangeStart, rangeEnd, htmlEquivalent,
+        allTagRanges,
+        sourceText,
+        rangeStart,
+        rangeEnd,
+        htmlEquivalent,
       );
 
       if (htmlDelimiterMatch !== null) return true;
@@ -659,7 +678,9 @@ function toggleTagPerLine(
   structureContext: StructureContext,
 ): StylingResult {
   const lineRanges = buildEffectiveLineRanges(
-    structureContext, selectionStartOffset, selectionEndOffset,
+    structureContext,
+    selectionStartOffset,
+    selectionEndOffset,
   );
 
   if (lineRanges.length === 0) {
@@ -670,7 +691,13 @@ function toggleTagPerLine(
 
   // Check which lines already have the target tag
   const tagPresent = lineRanges.map((range) =>
-    lineHasMatchingTag(allTagRanges, sourceText, range.start, range.end, tagDefinition),
+    lineHasMatchingTag(
+      allTagRanges,
+      sourceText,
+      range.start,
+      range.end,
+      tagDefinition,
+    ),
   );
 
   const allHaveTag = tagPresent.every(Boolean);
@@ -731,7 +758,9 @@ function addTagPerLine(
   structureContext: StructureContext,
 ): StylingResult {
   const lineRanges = buildEffectiveLineRanges(
-    structureContext, selectionStartOffset, selectionEndOffset,
+    structureContext,
+    selectionStartOffset,
+    selectionEndOffset,
   );
 
   if (lineRanges.length === 0) {
@@ -792,8 +821,11 @@ export function toggleTag(
   // Step 2b: Multi-line structured content → process each line independently
   if (shouldProcessPerLine(structureContext)) {
     return toggleTagPerLine(
-      sourceText, selectionStartOffset, selectionEndOffset,
-      tagDefinition, structureContext,
+      sourceText,
+      selectionStartOffset,
+      selectionEndOffset,
+      tagDefinition,
+      structureContext,
     );
   }
 
@@ -955,8 +987,11 @@ export function addTag(
   // Multi-line structured content → process each line independently
   if (shouldProcessPerLine(structureContext)) {
     return addTagPerLine(
-      sourceText, selectionStartOffset, selectionEndOffset,
-      tagDefinition, structureContext,
+      sourceText,
+      selectionStartOffset,
+      selectionEndOffset,
+      tagDefinition,
+      structureContext,
     );
   }
 

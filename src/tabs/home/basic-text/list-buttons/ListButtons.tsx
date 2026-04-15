@@ -1,7 +1,12 @@
 import React, { useRef, useState } from 'react';
 import './list-buttons.css';
 import { useApp } from '../../../../shared/context/AppContext';
-import { BulletListIcon, NumberedListIcon, OutdentIcon, IndentIcon } from '../../../../assets/icons';
+import {
+  BulletListIcon,
+  NumberedListIcon,
+  OutdentIcon,
+  IndentIcon,
+} from '../../../../assets/icons';
 import { BulletLibrary } from './bullet-library/BulletLibrary';
 import { NumberLibrary } from './number-library/NumberLibrary';
 import { useListStyleInjection } from '../../../../shared/hooks/useListStyleInjection';

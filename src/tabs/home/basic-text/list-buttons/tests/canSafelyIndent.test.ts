@@ -45,20 +45,12 @@ describe('canSafelyIndent', () => {
   });
 
   it('allows indent when nested items are at the same depth', () => {
-    const editor = mockEditor([
-      '- Item 1',
-      '\t- Nested A',
-      '\t- Nested B',
-    ], 2);
+    const editor = mockEditor(['- Item 1', '\t- Nested A', '\t- Nested B'], 2);
     expect(canSafelyIndent(editor)).toBe(true);
   });
 
   it('blocks indent on nested item already one deeper than its sibling', () => {
-    const editor = mockEditor([
-      '- Item 1',
-      '\t- Nested A',
-      '\t\t- Deep',
-    ], 2);
+    const editor = mockEditor(['- Item 1', '\t- Nested A', '\t\t- Deep'], 2);
     expect(canSafelyIndent(editor)).toBe(false);
   });
 
@@ -78,12 +70,10 @@ describe('canSafelyIndent', () => {
   });
 
   it('allows indent from depth 0 after depth-2 item (returning to shallower)', () => {
-    const editor = mockEditor([
-      '- Level 1',
-      '\t- Level 2',
-      '\t\t- Level 3',
-      '- Back to 1',
-    ], 3);
+    const editor = mockEditor(
+      ['- Level 1', '\t- Level 2', '\t\t- Level 3', '- Back to 1'],
+      3,
+    );
     expect(canSafelyIndent(editor)).toBe(true);
   });
 });

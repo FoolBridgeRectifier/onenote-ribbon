@@ -26,13 +26,13 @@ export const DEFAULT_LIST_STYLE_SETTINGS = {
  * Each preset defines Unicode symbols for 4 nesting levels (L1 → L4).
  */
 export const BULLET_PRESETS: BulletPreset[] = [
-  { id: BULLET_PRESET_NONE_ID, label: 'None',      levels: [] },
-  { id: 'classic',   label: 'Classic',   levels: ['●', '○', '■', '□'] },
-  { id: 'diamond',   label: 'Diamond',   levels: ['◆', '◇', '●', '○'] },
-  { id: 'arrow',     label: 'Arrow',     levels: ['→', '▸', '–', '·'] },
-  { id: 'star',      label: 'Star',      levels: ['✦', '◇', '◆', '○'] },
-  { id: 'square',    label: 'Square',    levels: ['■', '□', '●', '○'] },
-  { id: 'checkmark', label: 'Check',     levels: ['✓', '●', '○', '■'] },
+  { id: BULLET_PRESET_NONE_ID, label: 'None', levels: [] },
+  { id: 'classic', label: 'Classic', levels: ['●', '○', '■', '□'] },
+  { id: 'diamond', label: 'Diamond', levels: ['◆', '◇', '●', '○'] },
+  { id: 'arrow', label: 'Arrow', levels: ['→', '▸', '–', '·'] },
+  { id: 'star', label: 'Star', levels: ['✦', '◇', '◆', '○'] },
+  { id: 'square', label: 'Square', levels: ['■', '□', '●', '○'] },
+  { id: 'checkmark', label: 'Check', levels: ['✓', '●', '○', '■'] },
 ];
 
 /**
@@ -42,37 +42,102 @@ export const BULLET_PRESETS: BulletPreset[] = [
  */
 export const NUMBER_PRESETS: NumberPreset[] = [
   // Row 1: None + period-suffix styles
-  { id: NUMBER_PRESET_NONE_ID,  label: 'None',           markerContent: '' },
-  { id: 'decimal-period',       label: '1. 2. 3.',       markerContent: '', cssListStyleType: 'decimal' },
-  { id: 'lower-alpha-period',   label: 'a. b. c.',       markerContent: '', cssListStyleType: 'lower-alpha' },
-  { id: 'upper-alpha-period',   label: 'A. B. C.',       markerContent: '', cssListStyleType: 'upper-alpha' },
+  { id: NUMBER_PRESET_NONE_ID, label: 'None', markerContent: '' },
+  {
+    id: 'decimal-period',
+    label: '1. 2. 3.',
+    markerContent: '',
+    cssListStyleType: 'decimal',
+  },
+  {
+    id: 'lower-alpha-period',
+    label: 'a. b. c.',
+    markerContent: '',
+    cssListStyleType: 'lower-alpha',
+  },
+  {
+    id: 'upper-alpha-period',
+    label: 'A. B. C.',
+    markerContent: '',
+    cssListStyleType: 'upper-alpha',
+  },
 
   // Row 2: roman period + paren variants
-  { id: 'lower-roman-period',   label: 'i. ii. iii.',    markerContent: '', cssListStyleType: 'lower-roman' },
-  { id: 'upper-roman-period',   label: 'I. II. III.',    markerContent: '', cssListStyleType: 'upper-roman' },
-  { id: 'decimal-paren',        label: '1) 2) 3)',        markerContent: 'counter(list-item, decimal) ")  "' },
-  { id: 'lower-alpha-paren',    label: 'a) b) c)',        markerContent: 'counter(list-item, lower-alpha) ")  "' },
+  {
+    id: 'lower-roman-period',
+    label: 'i. ii. iii.',
+    markerContent: '',
+    cssListStyleType: 'lower-roman',
+  },
+  {
+    id: 'upper-roman-period',
+    label: 'I. II. III.',
+    markerContent: '',
+    cssListStyleType: 'upper-roman',
+  },
+  {
+    id: 'decimal-paren',
+    label: '1) 2) 3)',
+    markerContent: 'counter(list-item, decimal) ")  "',
+  },
+  {
+    id: 'lower-alpha-paren',
+    label: 'a) b) c)',
+    markerContent: 'counter(list-item, lower-alpha) ")  "',
+  },
 
   // Row 3
-  { id: 'upper-alpha-paren',    label: 'A) B) C)',        markerContent: 'counter(list-item, upper-alpha) ")  "' },
-  { id: 'lower-roman-paren',    label: 'i) ii) iii)',     markerContent: 'counter(list-item, lower-roman) ")  "' },
-  { id: 'upper-roman-paren',    label: 'I) II) III)',     markerContent: 'counter(list-item, upper-roman) ")  "' },
-  { id: 'decimal-wrapped',      label: '(1) (2) (3)',     markerContent: '"(" counter(list-item, decimal) ")  "' },
+  {
+    id: 'upper-alpha-paren',
+    label: 'A) B) C)',
+    markerContent: 'counter(list-item, upper-alpha) ")  "',
+  },
+  {
+    id: 'lower-roman-paren',
+    label: 'i) ii) iii)',
+    markerContent: 'counter(list-item, lower-roman) ")  "',
+  },
+  {
+    id: 'upper-roman-paren',
+    label: 'I) II) III)',
+    markerContent: 'counter(list-item, upper-roman) ")  "',
+  },
+  {
+    id: 'decimal-wrapped',
+    label: '(1) (2) (3)',
+    markerContent: '"(" counter(list-item, decimal) ")  "',
+  },
 
   // Row 4
-  { id: 'lower-alpha-wrapped',  label: '(a) (b) (c)',    markerContent: '"(" counter(list-item, lower-alpha) ")  "' },
-  { id: 'upper-alpha-wrapped',  label: '(A) (B) (C)',    markerContent: '"(" counter(list-item, upper-alpha) ")  "' },
-  { id: 'lower-roman-wrapped',  label: '(i) (ii) (iii)', markerContent: '"(" counter(list-item, lower-roman) ")  "' },
-  { id: 'upper-roman-wrapped',  label: '(I) (II) (III)', markerContent: '"(" counter(list-item, upper-roman) ")  "' },
+  {
+    id: 'lower-alpha-wrapped',
+    label: '(a) (b) (c)',
+    markerContent: '"(" counter(list-item, lower-alpha) ")  "',
+  },
+  {
+    id: 'upper-alpha-wrapped',
+    label: '(A) (B) (C)',
+    markerContent: '"(" counter(list-item, upper-alpha) ")  "',
+  },
+  {
+    id: 'lower-roman-wrapped',
+    label: '(i) (ii) (iii)',
+    markerContent: '"(" counter(list-item, lower-roman) ")  "',
+  },
+  {
+    id: 'upper-roman-wrapped',
+    label: '(I) (II) (III)',
+    markerContent: '"(" counter(list-item, upper-roman) ")  "',
+  },
 ];
 
 /** `data-cmd` values used on the split-button sub-regions for test targeting. */
-export const LIST_BTN_CMD_BULLET_TOGGLE  = 'bullet-list-toggle';
-export const LIST_BTN_CMD_BULLET_CARET   = 'bullet-list-caret';
-export const LIST_BTN_CMD_NUMBER_TOGGLE  = 'number-list-toggle';
-export const LIST_BTN_CMD_NUMBER_CARET   = 'number-list-caret';
-export const LIST_BTN_CMD_OUTDENT        = 'outdent';
-export const LIST_BTN_CMD_INDENT         = 'indent';
+export const LIST_BTN_CMD_BULLET_TOGGLE = 'bullet-list-toggle';
+export const LIST_BTN_CMD_BULLET_CARET = 'bullet-list-caret';
+export const LIST_BTN_CMD_NUMBER_TOGGLE = 'number-list-toggle';
+export const LIST_BTN_CMD_NUMBER_CARET = 'number-list-caret';
+export const LIST_BTN_CMD_OUTDENT = 'outdent';
+export const LIST_BTN_CMD_INDENT = 'indent';
 
 /** DOM id for the injected list-style `<style>` element. */
 export const LIST_STYLE_ELEMENT_ID = 'onr-list-style';

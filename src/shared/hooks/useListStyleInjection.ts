@@ -1,5 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import type { ListStyleContextValue, ListStyleSettings, NumberPreset } from '../../tabs/home/basic-text/list-buttons/interfaces';
+import type {
+  ListStyleContextValue,
+  ListStyleSettings,
+  NumberPreset,
+} from '../../tabs/home/basic-text/list-buttons/interfaces';
 import {
   BULLET_PRESETS,
   NUMBER_PRESETS,
@@ -61,9 +65,19 @@ function numberToUpperAlpha(value: number): string {
 /** Converts a 1-based number to lowercase Roman numerals. */
 function numberToLowerRoman(value: number): string {
   const romanPairs: Array<[number, string]> = [
-    [1000, 'm'], [900, 'cm'], [500, 'd'], [400, 'cd'],
-    [100, 'c'], [90, 'xc'], [50, 'l'], [40, 'xl'],
-    [10, 'x'], [9, 'ix'], [5, 'v'], [4, 'iv'], [1, 'i'],
+    [1000, 'm'],
+    [900, 'cm'],
+    [500, 'd'],
+    [400, 'cd'],
+    [100, 'c'],
+    [90, 'xc'],
+    [50, 'l'],
+    [40, 'xl'],
+    [10, 'x'],
+    [9, 'ix'],
+    [5, 'v'],
+    [4, 'iv'],
+    [1, 'i'],
   ];
 
   let result = '';
@@ -94,7 +108,9 @@ type NumberConverter = (value: number) => string;
  * Builds a converter function for a given NumberPreset.
  * Returns null if the preset is "none" (no conversion needed).
  */
-export function buildNumberConverter(numberPreset: NumberPreset): NumberConverter | null {
+export function buildNumberConverter(
+  numberPreset: NumberPreset,
+): NumberConverter | null {
   const styleType = numberPreset.cssListStyleType;
   const markerTemplate = numberPreset.markerContent;
 
@@ -117,10 +133,14 @@ export function buildNumberConverter(numberPreset: NumberPreset): NumberConverte
 /** Maps a CSS list-style-type name to a number→string function. */
 function getFormatFunction(styleType: string): (value: number) => string {
   switch (styleType) {
-    case 'lower-alpha': return numberToLowerAlpha;
-    case 'upper-alpha': return numberToUpperAlpha;
-    case 'lower-roman': return numberToLowerRoman;
-    case 'upper-roman': return numberToUpperRoman;
+    case 'lower-alpha':
+      return numberToLowerAlpha;
+    case 'upper-alpha':
+      return numberToUpperAlpha;
+    case 'lower-roman':
+      return numberToLowerRoman;
+    case 'upper-roman':
+      return numberToUpperRoman;
     case 'decimal':
     default:
       return (value: number) => String(value);
@@ -133,7 +153,9 @@ function getFormatFunction(styleType: string): (value: number) => string {
  */
 function buildTemplateConverter(template: string): NumberConverter | null {
   // Extract the counter style from counter(list-item, <style>)
-  const counterMatch = template.match(/counter\(\s*list-item\s*,\s*(\w[\w-]*)\s*\)/);
+  const counterMatch = template.match(
+    /counter\(\s*list-item\s*,\s*(\w[\w-]*)\s*\)/,
+  );
   if (!counterMatch) return null;
 
   const styleType = counterMatch[1];
@@ -175,13 +197,13 @@ function buildEditorNumberCss(): string[] {
   for (let depth = 1; depth <= EDITOR_MAX_DEPTH; depth++) {
     parts.push(
       `.HyperMD-list-line-${depth} .cm-formatting-list-ol[data-onr-marker] ` +
-      `{ font-size: 0 !important; }`,
+        `{ font-size: 0 !important; }`,
     );
     parts.push(
       `.HyperMD-list-line-${depth} .cm-formatting-list-ol[data-onr-marker]::before ` +
-      `{ font-size: var(--font-text-size, 16px) !important; ` +
-      `content: attr(data-onr-marker); ` +
-      `color: var(--text-normal) !important; }`,
+        `{ font-size: var(--font-text-size, 16px) !important; ` +
+        `content: attr(data-onr-marker); ` +
+        `color: var(--text-normal) !important; }`,
     );
   }
 
@@ -226,7 +248,9 @@ function stampAllOlSpans(converter: NumberConverter): void {
  * Removes all `data-onr-marker` attributes from OL spans (cleanup on preset change or unmount).
  */
 function clearAllOlMarkers(): void {
-  const spans = document.querySelectorAll('.cm-formatting-list-ol[data-onr-marker]');
+  const spans = document.querySelectorAll(
+    '.cm-formatting-list-ol[data-onr-marker]',
+  );
 
   for (const span of spans) {
     span.removeAttribute('data-onr-marker');
@@ -234,14 +258,22 @@ function clearAllOlMarkers(): void {
 }
 
 /** Builds the full CSS override string for the given bullet and number preset IDs. */
-function buildCssString(bulletPresetId: string, numberPresetId: string): string {
+function buildCssString(
+  bulletPresetId: string,
+  numberPresetId: string,
+): string {
   const parts: string[] = [];
 
   if (bulletPresetId !== BULLET_PRESET_NONE_ID) {
-    const bulletPreset = BULLET_PRESETS.find((preset) => preset.id === bulletPresetId);
+    const bulletPreset = BULLET_PRESETS.find(
+      (preset) => preset.id === bulletPresetId,
+    );
 
     // Only emit rules when the preset has exactly the required number of level symbols defined
-    if (bulletPreset && bulletPreset.levels.length === REQUIRED_BULLET_DEPTH_COUNT) {
+    if (
+      bulletPreset &&
+      bulletPreset.levels.length === REQUIRED_BULLET_DEPTH_COUNT
+    ) {
       const levels = bulletPreset.levels as [string, string, string, string];
 
       // Obsidian renders its default bullet via .list-bullet::after (a CSS circle shape).
@@ -265,7 +297,9 @@ function buildCssString(bulletPresetId: string, numberPresetId: string): string 
       // Task list items use checkboxes instead of bullets — suppress custom markers on them.
       for (const scope of READING_VIEW_SCOPES) {
         parts.push(`${scope} .task-list-item { list-style-type: none; }`);
-        parts.push(`${scope} .task-list-item::marker { content: "" !important; }`);
+        parts.push(
+          `${scope} .task-list-item::marker { content: "" !important; }`,
+        );
       }
 
       // Editor / live-preview view: Obsidian renders bullets as a CSS circle via
@@ -277,33 +311,39 @@ function buildCssString(bulletPresetId: string, numberPresetId: string): string 
 
         parts.push(
           `.HyperMD-list-line-${depth} .list-bullet::after { ` +
-          `content: "${symbol}" !important; ` +
-          `background: none !important; ` +
-          `border-radius: 0 !important; ` +
-          `width: auto !important; ` +
-          `height: auto !important; ` +
-          `color: var(--text-muted, #888) !important; ` +
-          `font-size: 0.9em; }`,
+            `content: "${symbol}" !important; ` +
+            `background: none !important; ` +
+            `border-radius: 0 !important; ` +
+            `width: auto !important; ` +
+            `height: auto !important; ` +
+            `color: var(--text-muted, #888) !important; ` +
+            `font-size: 0.9em; }`,
         );
       }
     }
   }
 
   if (numberPresetId !== NUMBER_PRESET_NONE_ID) {
-    const numberPreset = NUMBER_PRESETS.find((preset) => preset.id === numberPresetId);
+    const numberPreset = NUMBER_PRESETS.find(
+      (preset) => preset.id === numberPresetId,
+    );
 
     if (numberPreset) {
       // ── Reading view CSS ────────────────────────────────────────────────
       if (numberPreset.cssListStyleType) {
         // Use native list-style-type — lets Obsidian's counter-reset handling work correctly
         for (const scope of READING_VIEW_SCOPES) {
-          parts.push(`${scope} ol > li { list-style-type: ${numberPreset.cssListStyleType}; }`);
+          parts.push(
+            `${scope} ol > li { list-style-type: ${numberPreset.cssListStyleType}; }`,
+          );
         }
       } else if (numberPreset.markerContent) {
         // Custom marker expression requires suppressing the default list-style-type first
         for (const scope of READING_VIEW_SCOPES) {
           parts.push(`${scope} ol > li { list-style-type: none; }`);
-          parts.push(`${scope} ol > li::marker { content: ${numberPreset.markerContent}; }`);
+          parts.push(
+            `${scope} ol > li::marker { content: ${numberPreset.markerContent}; }`,
+          );
         }
       }
 
@@ -316,8 +356,13 @@ function buildCssString(bulletPresetId: string, numberPresetId: string): string 
 }
 
 /** Upserts the injected <style> element in document.head with the current list-style CSS. */
-function buildAndInjectCss(bulletPresetId: string, numberPresetId: string): void {
-  let styleElement = document.getElementById(LIST_STYLE_ELEMENT_ID) as HTMLStyleElement | null;
+function buildAndInjectCss(
+  bulletPresetId: string,
+  numberPresetId: string,
+): void {
+  let styleElement = document.getElementById(
+    LIST_STYLE_ELEMENT_ID,
+  ) as HTMLStyleElement | null;
 
   if (!styleElement) {
     styleElement = document.createElement('style');
@@ -408,16 +453,26 @@ function createOlMarkerObserver(converter: NumberConverter): () => void {
 export function useListStyleInjection(): ListStyleContextValue {
   const plugin = usePlugin() as unknown as StoragePlugin;
 
-  const [bulletPresetId, setBulletPresetId] = useState<string>(DEFAULT_LIST_STYLE_SETTINGS.bulletPresetId);
-  const [numberPresetId, setNumberPresetId] = useState<string>(DEFAULT_LIST_STYLE_SETTINGS.numberPresetId);
+  const [bulletPresetId, setBulletPresetId] = useState<string>(
+    DEFAULT_LIST_STYLE_SETTINGS.bulletPresetId,
+  );
+  const [numberPresetId, setNumberPresetId] = useState<string>(
+    DEFAULT_LIST_STYLE_SETTINGS.numberPresetId,
+  );
   const observerCleanupRef = useRef<(() => void) | null>(null);
 
   // Load persisted settings from plugin storage on mount; fall back to defaults for missing keys
   useEffect(() => {
     plugin.loadData().then((data: unknown) => {
       const loadedSettings = (data ?? {}) as Partial<ListStyleSettings>;
-      setBulletPresetId(loadedSettings.bulletPresetId ?? DEFAULT_LIST_STYLE_SETTINGS.bulletPresetId);
-      setNumberPresetId(loadedSettings.numberPresetId ?? DEFAULT_LIST_STYLE_SETTINGS.numberPresetId);
+      setBulletPresetId(
+        loadedSettings.bulletPresetId ??
+          DEFAULT_LIST_STYLE_SETTINGS.bulletPresetId,
+      );
+      setNumberPresetId(
+        loadedSettings.numberPresetId ??
+          DEFAULT_LIST_STYLE_SETTINGS.numberPresetId,
+      );
     });
   }, []); // intentionally runs once on mount only
 
@@ -436,7 +491,9 @@ export function useListStyleInjection(): ListStyleContextValue {
 
     if (numberPresetId === NUMBER_PRESET_NONE_ID) return;
 
-    const numberPreset = NUMBER_PRESETS.find((preset) => preset.id === numberPresetId);
+    const numberPreset = NUMBER_PRESETS.find(
+      (preset) => preset.id === numberPresetId,
+    );
     if (!numberPreset) return;
 
     const converter = buildNumberConverter(numberPreset);
