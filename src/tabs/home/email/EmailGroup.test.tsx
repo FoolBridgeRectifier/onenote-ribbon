@@ -44,6 +44,29 @@ describe('EmailGroup — email page integration (integration)', () => {
     expect(mockedSendNoteByEmail).toHaveBeenCalledWith(
       '# My Note\nHello world',
       'My Note',
+      undefined,
+      undefined,
+    );
+  });
+
+  it('calls sendNoteByEmail with reading-mode HTML when a preview is available', async () => {
+    const { app } = createAppWithEditor('# My Note\nHello world');
+    const previewEl = document.createElement('div');
+    previewEl.innerHTML = '<h1>My Note</h1><p>Hello world</p>';
+    (app.workspace as unknown as { activeLeaf: unknown }).activeLeaf = {
+      view: { previewMode: { containerEl: previewEl } },
+    };
+    renderWithApp(<EmailGroup />, app);
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Email Page'));
+    });
+
+    expect(mockedSendNoteByEmail).toHaveBeenCalledWith(
+      '# My Note\nHello world',
+      'My Note',
+      undefined,
+      '<h1>My Note</h1><p>Hello world</p>',
     );
   });
 
@@ -58,6 +81,8 @@ describe('EmailGroup — email page integration (integration)', () => {
     expect(mockedSendNoteByEmail).toHaveBeenCalledWith(
       expect.any(String),
       'Weekly Summary',
+      undefined,
+      undefined,
     );
   });
 
@@ -72,6 +97,8 @@ describe('EmailGroup — email page integration (integration)', () => {
     expect(mockedSendNoteByEmail).toHaveBeenCalledWith(
       expect.any(String),
       'Note',
+      undefined,
+      undefined,
     );
   });
 

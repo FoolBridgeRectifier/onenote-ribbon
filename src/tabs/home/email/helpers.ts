@@ -176,13 +176,22 @@ export function convertMarkdownToHtmlBody(markdownContent: string): string {
 /**
  * Builds a complete, self-contained HTML document from markdown content.
  * The document includes print-friendly styles matching markdown conventions.
+ *
+ * When `preRenderedBody` is provided (e.g. HTML taken directly from Obsidian's
+ * reading mode), it is used as the body verbatim — the markdown-to-HTML
+ * conversion is skipped and no extra `<h1>` title is injected (the reading
+ * mode HTML already contains the rendered title).
  */
 export function buildNoteHtml(
   markdownContent: string,
   noteTitle: string,
+  preRenderedBody?: string,
 ): string {
   const escapedTitle = escapeHtmlEntities(noteTitle);
-  const bodyHtml = convertMarkdownToHtmlBody(markdownContent);
+  const bodyHtml =
+    preRenderedBody !== undefined
+      ? preRenderedBody
+      : `<h1>${escapedTitle}</h1>\n  ${convertMarkdownToHtmlBody(markdownContent)}`;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -192,7 +201,6 @@ export function buildNoteHtml(
   <style>${NOTE_EXPORT_STYLES}</style>
 </head>
 <body>
-  <h1>${escapedTitle}</h1>
   ${bodyHtml}
 </body>
 </html>`;
@@ -333,6 +341,11 @@ export function createDefaultSendDependencies(): SendNoteByEmailDependencies {
  * text fallback), writes it to the OS temp directory, and opens it with the
  * system default email client so the user can add recipients and send.
  *
+ * When `preRenderedHtml` is provided (e.g. the innerHTML captured from
+ * Obsidian's reading-mode view), it is used as the HTML body directly instead
+ * of running the custom markdown-to-HTML converter. The `markdownContent` is
+ * still used to produce the plain-text fallback part of the email.
+ *
  * The `dependencies` parameter allows injecting mocks in tests. When omitted,
  * the real Electron implementations are used.
  */
@@ -340,8 +353,9 @@ export async function sendNoteByEmail(
   markdownContent: string,
   noteTitle: string,
   dependencies: SendNoteByEmailDependencies = createDefaultSendDependencies(),
+  preRenderedHtml?: string,
 ): Promise<void> {
-  const htmlContent = buildNoteHtml(markdownContent, noteTitle);
+  const htmlContent = buildNoteHtml(markdownContent, noteTitle, preRenderedHtml);
   const plainTextContent = stripMarkdownToPlainText(markdownContent);
   const subject = EMAIL_SUBJECT_PREFIX + noteTitle;
 

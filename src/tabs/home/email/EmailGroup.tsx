@@ -12,6 +12,15 @@ export function EmailGroup() {
   const getEditor = () => app.workspace.activeEditor?.editor;
 
   /**
+   * Returns the rendered HTML from Obsidian's reading-mode view for the active
+   * leaf, or null if no reading-mode preview is available.
+   */
+  const getReadingViewHtml = (): string | null => {
+    const leaf = (app.workspace as unknown as { activeLeaf?: { view?: { previewMode?: { containerEl?: HTMLElement } } } }).activeLeaf;
+    return leaf?.view?.previewMode?.containerEl?.innerHTML ?? null;
+  };
+
+  /**
    * Derives a plain note title from the editor's first line.
    * Strips leading heading markers (e.g. "# " or "## ") so the title is
    * suitable for use as a file name and email subject.
@@ -27,6 +36,11 @@ export function EmailGroup() {
    * Converts the current note to a styled HTML email (with plain-text fallback),
    * writes it as an EML file to the OS temp directory, and opens it with the
    * default email client so the user can add recipients and send.
+   *
+   * HTML is sourced from Obsidian's reading-mode view when available, so the
+   * email faithfully reflects the rendered note (including plugin-rendered
+   * content, tables, task lists, etc.). The raw markdown is kept as the
+   * plain-text fallback and is used to derive the subject line.
    */
   const handleEmailPage = async (): Promise<void> => {
     const editor = getEditor();
@@ -34,9 +48,10 @@ export function EmailGroup() {
 
     const noteTitle = getNoteTitleFromEditor();
     const markdownContent = editor.getValue();
+    const readingHtml = getReadingViewHtml();
 
     try {
-      await sendNoteByEmail(markdownContent, noteTitle);
+      await sendNoteByEmail(markdownContent, noteTitle, undefined, readingHtml ?? undefined);
     } catch {
       new Notice('Failed to open email. Please try again.');
     }

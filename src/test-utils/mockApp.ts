@@ -4,8 +4,21 @@ import { MockEditor } from './MockEditor';
  * A comprehensive mock of the Obsidian App, Workspace, Vault, and Commands
  * used in integration tests. Mirrors the real API surface used by components.
  */
+export interface MockPreviewMode {
+  containerEl: HTMLElement;
+}
+
+export interface MockLeafView {
+  previewMode: MockPreviewMode | null;
+}
+
+export interface MockLeaf {
+  view: MockLeafView;
+}
+
 export interface MockWorkspace {
   activeEditor: { editor: MockEditor } | null;
+  activeLeaf: MockLeaf | null;
   _handlers: Record<string, Array<() => void>>;
   on(event: string, handler: () => void): object;
   offref(ref: object): void;
@@ -38,6 +51,7 @@ export interface MockApp {
 export function createMockApp(editor?: MockEditor): MockApp {
   const workspace: MockWorkspace = {
     activeEditor: editor ? { editor } : null,
+    activeLeaf: null,
     _handlers: {},
     on(event: string, handler: () => void) {
       if (!this._handlers[event]) this._handlers[event] = [];
