@@ -3,6 +3,11 @@ import { useRibbonState } from '../shared/hooks/useRibbonState';
 import { TabBar } from './tab-bar/TabBar';
 import { HomeTabPanel } from '../tabs/home/HomeTabPanel';
 import { InsertTabPanel } from '../tabs/insert/InsertTabPanel';
+import { DrawTabPanel } from '../tabs/draw/DrawTabPanel';
+import { HistoryTabPanel } from '../tabs/history/HistoryTabPanel';
+import { ReviewTabPanel } from '../tabs/review/ReviewTabPanel';
+import { ViewTabPanel } from '../tabs/view/ViewTabPanel';
+import { HelpTabPanel } from '../tabs/help/HelpTabPanel';
 
 import './ribbon-app.css';
 
@@ -49,6 +54,11 @@ export function RibbonApp() {
         <div className="onr-body">
           {activeTab === 'Home' && <HomeTabPanel />}
           {activeTab === 'Insert' && <InsertTabPanel />}
+          {activeTab === 'Draw' && <DrawTabPanel />}
+          {activeTab === 'History' && <HistoryTabPanel />}
+          {activeTab === 'Review' && <ReviewTabPanel />}
+          {activeTab === 'View' && <ViewTabPanel />}
+          {activeTab === 'Help' && <HelpTabPanel />}
         </div>
       )}
     </div>
