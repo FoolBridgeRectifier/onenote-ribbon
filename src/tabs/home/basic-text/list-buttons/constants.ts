@@ -32,7 +32,6 @@ export const BULLET_PRESETS: BulletPreset[] = [
   { id: 'arrow',     label: 'Arrow',     levels: ['→', '▸', '–', '·'] },
   { id: 'star',      label: 'Star',      levels: ['✦', '◇', '◆', '○'] },
   { id: 'square',    label: 'Square',    levels: ['■', '□', '●', '○'] },
-  { id: 'dash',      label: 'Dash',      levels: ['—', '–', '·', '·'] },
   { id: 'checkmark', label: 'Check',     levels: ['✓', '●', '○', '■'] },
 ];
 

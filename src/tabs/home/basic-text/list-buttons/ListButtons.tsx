@@ -6,6 +6,7 @@ import { BulletLibrary } from './bullet-library/BulletLibrary';
 import { NumberLibrary } from './number-library/NumberLibrary';
 import { useListStyleInjection } from '../../../../shared/hooks/useListStyleInjection';
 import type { EditorState } from '../../../../shared/hooks/useEditorState';
+import { canSafelyIndent } from './canSafelyIndent';
 import {
   LIST_BTN_CMD_BULLET_TOGGLE,
   LIST_BTN_CMD_BULLET_CARET,
@@ -65,6 +66,11 @@ export function ListButtons({ editorState }: ListButtonsProps) {
   };
 
   const handleIndent = () => {
+    const editor = app.workspace.activeEditor?.editor;
+
+    // Block indent when it would create an invalid depth gap in list structure
+    if (editor && !canSafelyIndent(editor)) return;
+
     app.commands.executeCommandById(OBSIDIAN_CMD_INDENT_LIST);
   };
 

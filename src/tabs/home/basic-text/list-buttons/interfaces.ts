@@ -11,27 +11,43 @@ export interface BulletPreset {
   levels: [string, string, string, string] | [];
 }
 
-/** Defines one numbered list style preset. */
+/**
+ * Style type for a single depth level in a numbered list.
+ * Maps to CSS list-style-type values.
+ */
+export type NumberStyleType =
+  | 'decimal'
+  | 'lower-alpha'
+  | 'upper-alpha'
+  | 'lower-roman'
+  | 'upper-roman';
+
+/**
+ * Suffix type for numbered list markers.
+ */
+export type NumberSuffixType = 'period' | 'paren' | 'wrapped';
+
+/**
+ * Configuration for a single depth level in a number preset.
+ */
+export interface NumberLevelConfig {
+  /** The counter style (decimal, alpha, roman). */
+  style: NumberStyleType;
+  /** The suffix format (period: "1.", paren: "1)", wrapped: "(1)"). */
+  suffix: NumberSuffixType;
+}
+
+/** Defines one numbered list style preset with depth-aware formatting. */
 export interface NumberPreset {
   /** Stable identifier used in stored settings. */
   id: string;
   /** Human-readable label shown in the library grid. */
   label: string;
   /**
-   * CSS `content` expression for the `::marker` pseudo-element.
-   * Set to empty string to represent "None" (remove overrides).
-   * Examples:
-   *   'counter(list-item, decimal) ".  "'
-   *   '"(" counter(list-item, lower-alpha) ")  "'
+   * Four level configurations, one per nesting depth (L1→L4).
+   * Use an empty array to represent "None" (remove overrides).
    */
-  markerContent: string;
-  /**
-   * Optional CSS `list-style-type` property value.
-   * When provided, this is used INSTEAD of a custom `markerContent`.
-   * Prefer this for the simple period-suffix presets — it honours
-   * Obsidian's own counter-reset handling correctly.
-   */
-  cssListStyleType?: string;
+  levels: [NumberLevelConfig, NumberLevelConfig, NumberLevelConfig, NumberLevelConfig] | [];
 }
 
 /** Persisted plugin settings for list style preferences. */
