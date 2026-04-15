@@ -1,0 +1,63 @@
+/* Wrapper that groups the toggle icon and caret as a single split button unit */
+.onr-list-split-btn {
+  display: flex;
+  align-items: stretch;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  overflow: hidden;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.onr-list-split-btn:hover {
+  background: var(--btn-hover-bg);
+  border-color: var(--btn-hover-border);
+}
+
+/* Icon region — left side of the split button */
+.onr-list-split-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 4px;
+  cursor: pointer;
+  user-select: none;
+  border-radius: 0;
+  border: none;
+  background: transparent;
+  min-height: 24px;
+}
+
+.onr-list-split-main:hover {
+  background: var(--btn-hover-bg);
+}
+
+.onr-list-split-main.onr-active {
+  background: var(--btn-active-bg);
+}
+
+/* Thin vertical divider between icon and caret regions */
+.onr-list-split-divider {
+  width: 1px;
+  background: var(--btn-hover-border);
+  margin: 3px 0;
+  flex-shrink: 0;
+}
+
+/* Caret region — narrow right side, shows ▾ */
+.onr-list-split-caret {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 7px;
+  padding: 2px 1px;
+  background: transparent;
+}
+
+.onr-list-split-caret:hover {
+  background: var(--btn-hover-bg);
+}
