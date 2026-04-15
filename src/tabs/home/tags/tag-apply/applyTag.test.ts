@@ -5,16 +5,26 @@ describe('applyTag — command action', () => {
   it('calls executeCommand with the provided command id', () => {
     const mockExecuteCommand = jest.fn();
 
-    applyTag(null, { type: 'command', commandId: 'editor:toggle-checklist-status' }, mockExecuteCommand);
+    applyTag(
+      null,
+      { type: 'command', commandId: 'editor:toggle-checklist-status' },
+      mockExecuteCommand,
+    );
 
-    expect(mockExecuteCommand).toHaveBeenCalledWith('editor:toggle-checklist-status');
+    expect(mockExecuteCommand).toHaveBeenCalledWith(
+      'editor:toggle-checklist-status',
+    );
     expect(mockExecuteCommand).toHaveBeenCalledTimes(1);
   });
 
   it('does not require a live editor — works with null editor', () => {
     const mockExecuteCommand = jest.fn();
 
-    applyTag(null, { type: 'command', commandId: 'global-search:open' }, mockExecuteCommand);
+    applyTag(
+      null,
+      { type: 'command', commandId: 'global-search:open' },
+      mockExecuteCommand,
+    );
 
     expect(mockExecuteCommand).toHaveBeenCalledTimes(1);
   });
@@ -27,7 +37,11 @@ describe('applyTag — callout action', () => {
     editor.setCursor({ line: 0, ch: 0 });
     const mockExecuteCommand = jest.fn();
 
-    applyTag(editor as any, { type: 'callout', calloutType: 'important' }, mockExecuteCommand);
+    applyTag(
+      editor as any,
+      { type: 'callout', calloutType: 'important' },
+      mockExecuteCommand,
+    );
 
     expect(editor.getValue()).toBe('> [!important]\n> Hello world');
     expect(mockExecuteCommand).not.toHaveBeenCalled();
@@ -39,7 +53,11 @@ describe('applyTag — callout action', () => {
     editor.setCursor({ line: 0, ch: 5 });
     const mockExecuteCommand = jest.fn();
 
-    applyTag(editor as any, { type: 'callout', calloutType: 'note' }, mockExecuteCommand);
+    applyTag(
+      editor as any,
+      { type: 'callout', calloutType: 'note' },
+      mockExecuteCommand,
+    );
 
     expect(editor.getValue()).toBe('> [!note]\n> Buy milk and eggs');
   });
@@ -50,7 +68,11 @@ describe('applyTag — callout action', () => {
     editor.setCursor({ line: 0, ch: 0 });
     const mockExecuteCommand = jest.fn();
 
-    applyTag(editor as any, { type: 'callout', calloutType: 'danger' }, mockExecuteCommand);
+    applyTag(
+      editor as any,
+      { type: 'callout', calloutType: 'danger' },
+      mockExecuteCommand,
+    );
 
     expect(editor.getValue()).toBe('> [!danger]\n> Line text');
   });
@@ -59,7 +81,11 @@ describe('applyTag — callout action', () => {
     const mockExecuteCommand = jest.fn();
 
     expect(() => {
-      applyTag(null, { type: 'callout', calloutType: 'important' }, mockExecuteCommand);
+      applyTag(
+        null,
+        { type: 'callout', calloutType: 'important' },
+        mockExecuteCommand,
+      );
     }).not.toThrow();
   });
 });
@@ -71,7 +97,11 @@ describe('applyTag — task action', () => {
     editor.setCursor({ line: 0, ch: 0 });
     const mockExecuteCommand = jest.fn();
 
-    applyTag(editor as any, { type: 'task', taskPrefix: '' }, mockExecuteCommand);
+    applyTag(
+      editor as any,
+      { type: 'task', taskPrefix: '' },
+      mockExecuteCommand,
+    );
 
     expect(editor.getValue()).toBe('- [ ] Meeting notes');
   });
@@ -82,7 +112,11 @@ describe('applyTag — task action', () => {
     editor.setCursor({ line: 0, ch: 0 });
     const mockExecuteCommand = jest.fn();
 
-    applyTag(editor as any, { type: 'task', taskPrefix: 'Discuss:' }, mockExecuteCommand);
+    applyTag(
+      editor as any,
+      { type: 'task', taskPrefix: 'Discuss:' },
+      mockExecuteCommand,
+    );
 
     expect(editor.getValue()).toBe('- [ ] Discuss: John');
   });
@@ -93,7 +127,11 @@ describe('applyTag — task action', () => {
     editor.setCursor({ line: 0, ch: 0 });
     const mockExecuteCommand = jest.fn();
 
-    applyTag(editor as any, { type: 'task', taskPrefix: 'P1:' }, mockExecuteCommand);
+    applyTag(
+      editor as any,
+      { type: 'task', taskPrefix: 'P1:' },
+      mockExecuteCommand,
+    );
 
     // One space added between prefix and content only
     expect(editor.getValue()).toBe('- [ ] P1: Jane');

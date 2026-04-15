@@ -6,6 +6,19 @@
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-ribbon);
   min-width: 150px;
+  animation: onr-dd-appear 100ms ease-out;
+}
+
+/* Subtle slide-in from slightly above the anchor. */
+@keyframes onr-dd-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .onr-dd-item {
@@ -22,6 +35,11 @@
 
 .onr-dd-item:hover {
   background: var(--btn-hover-bg);
+}
+
+.onr-dd-item:focus-visible {
+  outline: 2px solid var(--btn-focus-ring);
+  outline-offset: -2px;
 }
 
 .onr-dd-icon {
@@ -49,6 +67,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .onr-overlay-dropdown {
+    animation: none;
+  }
+
   .onr-dd-item {
     transition: none;
   }

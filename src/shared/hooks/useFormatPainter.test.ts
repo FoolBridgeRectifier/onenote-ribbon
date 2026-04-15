@@ -1,7 +1,10 @@
 import { act, renderHook } from '@testing-library/react';
 import type { App } from 'obsidian';
 import { createAppWithEditor } from '../../test-utils/mockApp';
-import { addTagInEditor, copyFormatFromEditor } from '../editor/styling-engine/editorIntegration';
+import {
+  addTagInEditor,
+  copyFormatFromEditor,
+} from '../editor/styling-engine/editorIntegration';
 import type { CopiedFormat } from '../editor/styling-engine/interfaces';
 import { useFormatPainter } from './useFormatPainter';
 
@@ -10,10 +13,12 @@ jest.mock('../editor/styling-engine/editorIntegration', () => ({
   addTagInEditor: jest.fn(),
 }));
 
-const mockedCopyFormatFromEditor =
-  copyFormatFromEditor as jest.MockedFunction<typeof copyFormatFromEditor>;
-const mockedAddTagInEditor =
-  addTagInEditor as jest.MockedFunction<typeof addTagInEditor>;
+const mockedCopyFormatFromEditor = copyFormatFromEditor as jest.MockedFunction<
+  typeof copyFormatFromEditor
+>;
+const mockedAddTagInEditor = addTagInEditor as jest.MockedFunction<
+  typeof addTagInEditor
+>;
 
 const copiedFormatFixture: CopiedFormat = {
   tagDefinitions: [
@@ -55,7 +60,9 @@ describe('useFormatPainter', () => {
 
     mockedCopyFormatFromEditor.mockReturnValue(copiedFormatFixture);
 
-    const { result } = renderHook(() => useFormatPainter(app as unknown as App));
+    const { result } = renderHook(() =>
+      useFormatPainter(app as unknown as App),
+    );
 
     act(() => {
       result.current.handleSingleClick(1);
@@ -64,7 +71,9 @@ describe('useFormatPainter', () => {
     expect(result.current.state.mode).toBe('armed');
 
     act(() => {
-      editorContainerElement.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      editorContainerElement.dispatchEvent(
+        new MouseEvent('click', { bubbles: true }),
+      );
       jest.advanceTimersByTime(100);
     });
 
@@ -77,7 +86,9 @@ describe('useFormatPainter', () => {
 
     mockedCopyFormatFromEditor.mockReturnValue(copiedFormatFixture);
 
-    const { result } = renderHook(() => useFormatPainter(app as unknown as App));
+    const { result } = renderHook(() =>
+      useFormatPainter(app as unknown as App),
+    );
 
     act(() => {
       result.current.handleSingleClick(1);
@@ -101,7 +112,9 @@ describe('useFormatPainter', () => {
 
     mockedCopyFormatFromEditor.mockReturnValue(copiedFormatFixture);
 
-    const { result } = renderHook(() => useFormatPainter(app as unknown as App));
+    const { result } = renderHook(() =>
+      useFormatPainter(app as unknown as App),
+    );
 
     act(() => {
       result.current.handleDoubleClick();
@@ -112,14 +125,18 @@ describe('useFormatPainter', () => {
     editor.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 5 });
 
     act(() => {
-      editorContainerElement.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      editorContainerElement.dispatchEvent(
+        new MouseEvent('click', { bubbles: true }),
+      );
       jest.advanceTimersByTime(100);
     });
 
     editor.setSelection({ line: 0, ch: 6 }, { line: 0, ch: 12 });
 
     act(() => {
-      editorContainerElement.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      editorContainerElement.dispatchEvent(
+        new MouseEvent('click', { bubbles: true }),
+      );
       jest.advanceTimersByTime(100);
     });
 
@@ -132,7 +149,9 @@ describe('useFormatPainter', () => {
 
     mockedCopyFormatFromEditor.mockReturnValue(copiedFormatFixture);
 
-    const { result } = renderHook(() => useFormatPainter(app as unknown as App));
+    const { result } = renderHook(() =>
+      useFormatPainter(app as unknown as App),
+    );
 
     act(() => {
       result.current.handleDoubleClick();
@@ -152,7 +171,9 @@ describe('useFormatPainter', () => {
 
     mockedCopyFormatFromEditor.mockReturnValue(null);
 
-    const { result } = renderHook(() => useFormatPainter(app as unknown as App));
+    const { result } = renderHook(() =>
+      useFormatPainter(app as unknown as App),
+    );
 
     act(() => {
       result.current.handleSingleClick(1);

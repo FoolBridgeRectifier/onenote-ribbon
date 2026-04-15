@@ -44,13 +44,35 @@
   color: #222;
 }
 
-/* Color swatch on the right of each tag row */
-.onr-tag-swatch {
-  width: 14px;
-  height: 14px;
-  border: 1px solid #999;
+/* Visual-only checkbox on the right of each ribbon tag row.
+ * Checked when the cursor is inside the matching callout or task type.
+ */
+.onr-tag-cb {
+  width: 13px;
+  height: 13px;
+  border: 1.5px solid #999;
+  border-radius: 2px;
   margin-left: auto;
-  background: #fff;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+}
+
+.onr-tag-cb--checked {
+  background: #0078d4;
+  border-color: #0078d4;
+}
+
+.onr-tag-cb--checked::after {
+  content: '';
+  display: block;
+  width: 6px;
+  height: 4px;
+  border-left: 1.5px solid white;
+  border-bottom: 1.5px solid white;
+  transform: rotate(-45deg) translateY(-1px);
 }
 
 /* Wrapper that vertically centres the "more" dropdown trigger */
@@ -151,13 +173,41 @@
   white-space: nowrap;
 }
 
-/* Right-side category color swatch */
-.onr-tags-dd-swatch {
-  width: 14px;
-  height: 14px;
-  border: 1px solid rgba(0, 0, 0, 0.18);
+/* Right-side checkbox: checked when cursor is inside this tag type's callout */
+.onr-tags-dd-cb {
+  width: 13px;
+  height: 13px;
+  border: 1.5px solid #999;
+  border-radius: 2px;
   flex-shrink: 0;
-  border-radius: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+}
+
+.onr-tags-dd-cb--checked {
+  background: #0078d4;
+  border-color: #0078d4;
+}
+
+.onr-tags-dd-cb--checked::after {
+  content: '';
+  display: block;
+  width: 6px;
+  height: 4px;
+  border-left: 1.5px solid white;
+  border-bottom: 1.5px solid white;
+  transform: rotate(-45deg) translateY(-1px);
+}
+
+/* Tiny rounded square used as an icon for user-created custom tags */
+.onr-tag-custom-icon {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+  flex-shrink: 0;
 }
 
 /* Horizontal rule between tag groups and footer actions */

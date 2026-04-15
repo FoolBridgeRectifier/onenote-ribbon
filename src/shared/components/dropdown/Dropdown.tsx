@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import type { HTMLAttributes, ReactNode } from 'react';
 import type { DropdownItem } from './interfaces.ts';
+import { usePortalContainer } from '../../context/PortalContext';
 
 import './dropdown.css';
 
@@ -27,6 +28,7 @@ export function Dropdown({
   ...restProps
 }: DropdownProps) {
   const dropdownElementRef = useRef<HTMLDivElement>(null);
+  const portalContainer = usePortalContainer();
 
   useEffect(() => {
     if (!anchor) return;
@@ -41,9 +43,17 @@ export function Dropdown({
       }
     };
 
+    // Close on Escape key, matching standard dropdown/menu keyboard behavior.
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+
     document.addEventListener('click', handleDocumentClick, true);
-    return () =>
+    document.addEventListener('keydown', handleKeyDown, true);
+    return () => {
       document.removeEventListener('click', handleDocumentClick, true);
+      document.removeEventListener('keydown', handleKeyDown, true);
+    };
   }, [anchor, onClose]);
 
   if (!anchor) return null;
@@ -100,6 +110,6 @@ export function Dropdown({
           </div>
         ))}
     </div>,
-    document.body,
+    portalContainer,
   );
 }

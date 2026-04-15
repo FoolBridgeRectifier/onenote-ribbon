@@ -16,7 +16,6 @@ export function applyTag(
   action: TagAction,
   executeCommand: (commandId: string) => void,
 ): void {
-
   if (action.type === 'command') {
     executeCommand(action.commandId);
     return;

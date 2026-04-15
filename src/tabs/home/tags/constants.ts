@@ -1,5 +1,6 @@
 /** Obsidian command ID for toggling a checklist item on the current line. */
-export const EDITOR_COMMAND_TOGGLE_CHECKLIST = 'editor:toggle-checklist-status' as const;
+export const EDITOR_COMMAND_TOGGLE_CHECKLIST =
+  'editor:toggle-checklist-status' as const;
 
 /** Obsidian command ID for opening the global search panel. */
 export const EDITOR_COMMAND_OPEN_GLOBAL_SEARCH = 'global-search:open' as const;
@@ -35,3 +36,15 @@ export const TAG_SWATCH_PROJECT_A = '#E36C09' as const;
 export const TAG_SWATCH_PROJECT_B = '#FFC000' as const;
 export const TAG_SWATCH_PRIORITY_1 = '#C0392B' as const;
 export const TAG_SWATCH_PRIORITY_2 = '#2E86AB' as const;
+
+// ── Active tag detection keys ─────────────────────────────────────────────────
+// Special sentinel values used in place of a callout type string.
+
+/** Sentinel key for "cursor is on a task list line". */
+export const ACTIVE_TAG_KEY_TASK = '__task__' as const;
+
+/** Sentinel key for "cursor line contains ==highlight== markers". */
+export const ACTIVE_TAG_KEY_HIGHLIGHT = '__highlight__' as const;
+
+/** localStorage key used to persist user-created custom tags. */
+export const STORAGE_KEY_CUSTOM_TAGS = 'onr-custom-tags' as const;

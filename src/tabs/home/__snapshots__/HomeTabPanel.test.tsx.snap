@@ -702,8 +702,9 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
           >
             To Do
           </span>
-          <div
-            class="onr-tag-swatch"
+          <span
+            aria-hidden="true"
+            class="onr-tag-cb"
           />
         </div>
         <div
@@ -733,8 +734,9 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
           >
             Important
           </span>
-          <div
-            class="onr-tag-swatch"
+          <span
+            aria-hidden="true"
+            class="onr-tag-cb"
           />
         </div>
         <div
@@ -770,8 +772,9 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
           >
             Question
           </span>
-          <div
-            class="onr-tag-swatch"
+          <span
+            aria-hidden="true"
+            class="onr-tag-cb"
           />
         </div>
       </div>
@@ -792,7 +795,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
         <div
           class="onr-btn onr-tag-btn"
           data-cmd="todo-tag"
-          title="Insert To Do tag"
+          title="Insert #todo tag"
         >
           <svg
             class="onr-icon"
@@ -880,7 +883,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
       <div
         class="onr-btn"
         data-cmd="email-page"
-        title="Copy as formatted text"
+        title="Export as PDF and open email client"
       >
         <svg
           class="onr-icon"
@@ -4779,30 +4782,34 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                     },
                     {
                       "children": [],
-                      "className": "onr-tag-swatch",
+                      "className": "onr-tag-cb",
                       "computedCss": {
-                        "background": "rgb(255, 255, 255)",
+                        "align-items": "center",
+                        "background": "white",
                         "background-color": "rgb(255, 255, 255)",
-                        "border": "1px solid rgb(153, 153, 153)",
+                        "border": "1.5px solid rgb(153, 153, 153)",
                         "border-block-end-color": "var(--text-primary)",
                         "border-block-start-color": "var(--text-primary)",
                         "border-bottom-color": "rgb(153, 153, 153)",
                         "border-inline-end-color": "var(--text-primary)",
                         "border-inline-start-color": "var(--text-primary)",
                         "border-left-color": "rgb(153, 153, 153)",
+                        "border-radius": "2px",
                         "border-right-color": "rgb(153, 153, 153)",
                         "border-top-color": "rgb(153, 153, 153)",
                         "caret-color": "auto",
                         "color": "var(--text-primary)",
-                        "display": "block",
-                        "height": "14px",
+                        "display": "flex",
+                        "flex-shrink": "0",
+                        "height": "13px",
+                        "justify-content": "center",
                         "margin-left": "auto",
                         "pointer-events": "auto",
                         "visibility": "visible",
-                        "width": "14px",
+                        "width": "13px",
                       },
                       "dataAttributes": {},
-                      "tagName": "div",
+                      "tagName": "span",
                       "textContent": "",
                     },
                   ],
@@ -4944,30 +4951,34 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                     },
                     {
                       "children": [],
-                      "className": "onr-tag-swatch",
+                      "className": "onr-tag-cb",
                       "computedCss": {
-                        "background": "rgb(255, 255, 255)",
+                        "align-items": "center",
+                        "background": "white",
                         "background-color": "rgb(255, 255, 255)",
-                        "border": "1px solid rgb(153, 153, 153)",
+                        "border": "1.5px solid rgb(153, 153, 153)",
                         "border-block-end-color": "var(--text-primary)",
                         "border-block-start-color": "var(--text-primary)",
                         "border-bottom-color": "rgb(153, 153, 153)",
                         "border-inline-end-color": "var(--text-primary)",
                         "border-inline-start-color": "var(--text-primary)",
                         "border-left-color": "rgb(153, 153, 153)",
+                        "border-radius": "2px",
                         "border-right-color": "rgb(153, 153, 153)",
                         "border-top-color": "rgb(153, 153, 153)",
                         "caret-color": "auto",
                         "color": "var(--text-primary)",
-                        "display": "block",
-                        "height": "14px",
+                        "display": "flex",
+                        "flex-shrink": "0",
+                        "height": "13px",
+                        "justify-content": "center",
                         "margin-left": "auto",
                         "pointer-events": "auto",
                         "visibility": "visible",
-                        "width": "14px",
+                        "width": "13px",
                       },
                       "dataAttributes": {},
-                      "tagName": "div",
+                      "tagName": "span",
                       "textContent": "",
                     },
                   ],
@@ -5109,30 +5120,34 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                     },
                     {
                       "children": [],
-                      "className": "onr-tag-swatch",
+                      "className": "onr-tag-cb",
                       "computedCss": {
-                        "background": "rgb(255, 255, 255)",
+                        "align-items": "center",
+                        "background": "white",
                         "background-color": "rgb(255, 255, 255)",
-                        "border": "1px solid rgb(153, 153, 153)",
+                        "border": "1.5px solid rgb(153, 153, 153)",
                         "border-block-end-color": "var(--text-primary)",
                         "border-block-start-color": "var(--text-primary)",
                         "border-bottom-color": "rgb(153, 153, 153)",
                         "border-inline-end-color": "var(--text-primary)",
                         "border-inline-start-color": "var(--text-primary)",
                         "border-left-color": "rgb(153, 153, 153)",
+                        "border-radius": "2px",
                         "border-right-color": "rgb(153, 153, 153)",
                         "border-top-color": "rgb(153, 153, 153)",
                         "caret-color": "auto",
                         "color": "var(--text-primary)",
-                        "display": "block",
-                        "height": "14px",
+                        "display": "flex",
+                        "flex-shrink": "0",
+                        "height": "13px",
+                        "justify-content": "center",
                         "margin-left": "auto",
                         "pointer-events": "auto",
                         "visibility": "visible",
-                        "width": "14px",
+                        "width": "13px",
                       },
                       "dataAttributes": {},
-                      "tagName": "div",
+                      "tagName": "span",
                       "textContent": "",
                     },
                   ],

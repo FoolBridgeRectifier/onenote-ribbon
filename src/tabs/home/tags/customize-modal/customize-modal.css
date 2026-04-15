@@ -1,0 +1,302 @@
+.onr-customize-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.onr-customize-modal {
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  width: 360px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 13px;
+  color: var(--text-normal);
+}
+
+/* ── Header ── */
+
+.onr-customize-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 10px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  flex-shrink: 0;
+}
+
+.onr-customize-modal-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-normal);
+}
+
+/* Close button: override RibbonButton defaults for a compact inline close affordance. */
+.onr-customize-modal-close.onr-btn-sm {
+  width: auto;
+  min-height: auto;
+  min-width: 24px;
+  padding: 3px 6px;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--text-muted);
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.onr-customize-modal-close.onr-btn-sm:hover {
+  color: var(--text-normal);
+}
+
+/* ── Scrollable body ── */
+
+.onr-customize-modal-body {
+  overflow-y: auto;
+  flex: 1;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Existing tags list ── */
+
+.onr-customize-modal-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.onr-customize-modal-tag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.onr-customize-modal-tag-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--background-modifier-border);
+}
+
+.onr-customize-modal-tag-color {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.onr-customize-modal-tag-name {
+  flex: 1;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.onr-customize-modal-tag-type {
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* Delete tag button: danger-red hover, override RibbonButton defaults for inline row use. */
+.onr-customize-modal-tag-delete.onr-btn-sm {
+  color: var(--text-faint);
+  font-size: 16px;
+  line-height: 1;
+  width: auto;
+  min-height: auto;
+  min-width: 24px;
+  padding: 2px 5px;
+  flex-shrink: 0;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.onr-customize-modal-tag-delete.onr-btn-sm:hover {
+  background: var(--background-modifier-error);
+  color: var(--text-on-accent);
+  border-color: transparent;
+}
+
+.onr-customize-modal-empty {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-style: italic;
+  text-align: center;
+  padding: 8px 0;
+}
+
+/* ── Divider ── */
+
+.onr-customize-modal-divider {
+  border: none;
+  border-top: 1px solid var(--background-modifier-border);
+  margin: 0;
+}
+
+/* ── Add new tag form ── */
+
+.onr-customize-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.onr-customize-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.onr-customize-modal-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.onr-customize-modal-input {
+  background: var(--background-modifier-form-field);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  color: var(--text-normal);
+  font-size: 13px;
+  font-family: inherit;
+  padding: 5px 8px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.onr-customize-modal-input:focus {
+  border-color: var(--interactive-accent);
+}
+
+.onr-customize-modal-select {
+  background: var(--background-modifier-form-field);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  color: var(--text-normal);
+  font-size: 13px;
+  font-family: inherit;
+  padding: 5px 8px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.onr-customize-modal-select:focus {
+  border-color: var(--interactive-accent);
+}
+
+/* ── Color swatches ── */
+
+.onr-customize-modal-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/*
+ * Swatch buttons use RibbonButton (onr-btn-sm) as their base.
+ * - Background color comes from the inline style prop and wins over CSS background.
+ * - Inline style also wins on hover, so the color is preserved — only opacity changes.
+ * - Border signals selection state; outline provides visible affordance above the color.
+ */
+.onr-customize-modal-swatch.onr-btn-sm {
+  width: 20px;
+  height: 20px;
+  min-height: 20px;
+  padding: 0;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  flex-shrink: 0;
+  transition:
+    opacity var(--transition-fast),
+    border-color var(--transition-fast),
+    outline-color var(--transition-fast);
+}
+
+.onr-customize-modal-swatch.onr-btn-sm:hover {
+  opacity: 0.8;
+}
+
+.onr-customize-modal-swatch--selected {
+  border-color: var(--interactive-accent);
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 1px;
+}
+
+/* Keep selection ring visible even while hovering the selected swatch. */
+.onr-customize-modal-swatch--selected:hover {
+  border-color: var(--interactive-accent);
+  opacity: 1;
+}
+
+/* ── Add Tag button ── */
+
+/*
+ * Override RibbonButton's fixed column layout and 28px width for a
+ * full-width-of-content, horizontal text button with accent background.
+ */
+.onr-customize-modal-add-btn.onr-btn-sm {
+  width: auto;
+  min-height: auto;
+  flex-direction: row;
+  align-self: flex-start;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border-color: transparent;
+  transition:
+    background var(--transition-fast),
+    opacity var(--transition-fast);
+}
+
+.onr-customize-modal-add-btn.onr-btn-sm:hover:not(.onr-disabled) {
+  background: var(--interactive-accent-hover);
+  border-color: transparent;
+}
+
+/* Keep accent color at reduced opacity when disabled, rather than the ribbon grey. */
+.onr-customize-modal-add-btn.onr-btn-sm.onr-disabled {
+  background: var(--interactive-accent);
+  opacity: 0.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onr-customize-modal-close.onr-btn-sm,
+  .onr-customize-modal-tag-delete.onr-btn-sm,
+  .onr-customize-modal-swatch.onr-btn-sm,
+  .onr-customize-modal-add-btn.onr-btn-sm {
+    transition: none;
+  }
+}

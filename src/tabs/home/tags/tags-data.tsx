@@ -11,6 +11,8 @@ import {
 
 import type { TagOrSeparator } from './interfaces';
 import {
+  ACTIVE_TAG_KEY_HIGHLIGHT,
+  ACTIVE_TAG_KEY_TASK,
   EDITOR_COMMAND_TOGGLE_CHECKLIST,
   TAG_FILL_DARK,
   TAG_FILL_DEFINITION_GREEN,
@@ -62,7 +64,14 @@ function TagIconText({ fill, symbol }: { fill: string; symbol: string }) {
 function HighlightTagIcon() {
   return (
     <svg viewBox="0 0 16 16" className="onr-tag-dd-icon-svg">
-      <rect x="1" y="1" width="14" height="14" rx="2" fill={TAG_FILL_HIGHLIGHT_YELLOW} />
+      <rect
+        x="1"
+        y="1"
+        width="14"
+        height="14"
+        rx="2"
+        fill={TAG_FILL_HIGHLIGHT_YELLOW}
+      />
       {/* Pencil body diagonal */}
       <rect
         x="7"
@@ -96,7 +105,14 @@ function PersonTagIcon({ fill }: { fill: string }) {
 function AddressTagIcon() {
   return (
     <svg viewBox="0 0 16 16" className="onr-tag-dd-icon-svg">
-      <rect x="1" y="1" width="14" height="14" rx="2" fill={TAG_FILL_MEDIUM_GRAY} />
+      <rect
+        x="1"
+        y="1"
+        width="14"
+        height="14"
+        rx="2"
+        fill={TAG_FILL_MEDIUM_GRAY}
+      />
       {/* Roof */}
       <polygon points="8,3 13,8 3,8" fill="white" />
       {/* Body */}
@@ -111,7 +127,14 @@ function AddressTagIcon() {
 function PhoneTagIcon() {
   return (
     <svg viewBox="0 0 16 16" className="onr-tag-dd-icon-svg">
-      <rect x="1" y="1" width="14" height="14" rx="2" fill={TAG_FILL_MEDIUM_GRAY} />
+      <rect
+        x="1"
+        y="1"
+        width="14"
+        height="14"
+        rx="2"
+        fill={TAG_FILL_MEDIUM_GRAY}
+      />
       {/* Handset curve — simplified as a bold stroke path */}
       <path
         d="M4,4 Q4,2 6,3 L7,5 Q7.5,6 6.5,7 Q9,10 10,9.5 L12,10.5 Q13,11.5 11,12 Q7,13 4,4"
@@ -126,9 +149,23 @@ function PhoneTagIcon() {
 function GlobeTagIcon() {
   return (
     <svg viewBox="0 0 16 16" className="onr-tag-dd-icon-svg">
-      <rect x="1" y="1" width="14" height="14" rx="2" fill={TAG_FILL_MEDIUM_GRAY} />
+      <rect
+        x="1"
+        y="1"
+        width="14"
+        height="14"
+        rx="2"
+        fill={TAG_FILL_MEDIUM_GRAY}
+      />
       {/* Globe circle outline */}
-      <circle cx="8" cy="8" r="4.5" fill="none" stroke="white" strokeWidth="1" />
+      <circle
+        cx="8"
+        cy="8"
+        r="4.5"
+        fill="none"
+        stroke="white"
+        strokeWidth="1"
+      />
       {/* Horizontal equator */}
       <line x1="3.5" y1="8" x2="12.5" y2="8" stroke="white" strokeWidth="1" />
       {/* Vertical axis */}
@@ -141,9 +178,19 @@ function GlobeTagIcon() {
 function IdeaTagIcon() {
   return (
     <svg viewBox="0 0 16 16" className="onr-tag-dd-icon-svg">
-      <rect x="1" y="1" width="14" height="14" rx="2" fill={TAG_FILL_MEDIUM_GRAY} />
+      <rect
+        x="1"
+        y="1"
+        width="14"
+        height="14"
+        rx="2"
+        fill={TAG_FILL_MEDIUM_GRAY}
+      />
       {/* Bulb top */}
-      <path d="M5.5,7 Q5,3 8,3 Q11,3 10.5,7 Q10.5,9 9,10 L9,11 L7,11 L7,10 Q5.5,9 5.5,7" fill="white" />
+      <path
+        d="M5.5,7 Q5,3 8,3 Q11,3 10.5,7 Q10.5,9 9,10 L9,11 L7,11 L7,10 Q5.5,9 5.5,7"
+        fill="white"
+      />
       {/* Base lines */}
       <rect x="6.5" y="11" width="3" height="1" fill="white" />
       <rect x="6.5" y="12.5" width="3" height="1" fill="white" />
@@ -178,7 +225,16 @@ function MovieTagIcon() {
     <svg viewBox="0 0 16 16" className="onr-tag-dd-icon-svg">
       <rect x="1" y="1" width="14" height="14" rx="2" fill={TAG_FILL_DARK} />
       {/* Film strip outer */}
-      <rect x="2.5" y="4.5" width="11" height="7" rx="1" fill="none" stroke="white" strokeWidth="1" />
+      <rect
+        x="2.5"
+        y="4.5"
+        width="11"
+        height="7"
+        rx="1"
+        fill="none"
+        stroke="white"
+        strokeWidth="1"
+      />
       {/* Perforations */}
       <rect x="2.5" y="4.5" width="2" height="7" fill="white" opacity="0.4" />
       <rect x="11.5" y="4.5" width="2" height="7" fill="white" opacity="0.4" />
@@ -198,7 +254,14 @@ function BookTagIcon() {
       {/* Right page */}
       <path d="M8,4 L13,4 L13,13 Q11,12 8,13 Z" fill="white" opacity="0.7" />
       {/* Spine */}
-      <line x1="8" y1="4" x2="8" y2="13" stroke={TAG_FILL_DARK} strokeWidth="0.8" />
+      <line
+        x1="8"
+        y1="4"
+        x2="8"
+        y2="13"
+        stroke={TAG_FILL_DARK}
+        strokeWidth="0.8"
+      />
     </svg>
   );
 }
@@ -213,7 +276,12 @@ function MusicTagIcon() {
       {/* Stem */}
       <line x1="7.8" y1="12" x2="7.8" y2="4" stroke="white" strokeWidth="1.2" />
       {/* Flag */}
-      <path d="M7.8,4 Q12,6 10,9" fill="none" stroke="white" strokeWidth="1.2" />
+      <path
+        d="M7.8,4 Q12,6 10,9"
+        fill="none"
+        stroke="white"
+        strokeWidth="1.2"
+      />
     </svg>
   );
 }
@@ -243,9 +311,23 @@ function ChecklistTagIcon({ fill }: { fill: string }) {
       {/* Clipboard body */}
       <rect x="3" y="4" width="10" height="9" rx="1" fill="white" />
       {/* Clip at top */}
-      <rect x="6" y="2.5" width="4" height="2.5" rx="1" fill="white" stroke={fill} strokeWidth="0.6" />
+      <rect
+        x="6"
+        y="2.5"
+        width="4"
+        height="2.5"
+        rx="1"
+        fill="white"
+        stroke={fill}
+        strokeWidth="0.6"
+      />
       {/* Check lines */}
-      <polyline points="5.5,8 6.5,9.5 9,6.5" fill="none" stroke={fill} strokeWidth="1.2" />
+      <polyline
+        points="5.5,8 6.5,9.5 9,6.5"
+        fill="none"
+        stroke={fill}
+        strokeWidth="1.2"
+      />
       <line x1="10" y1="9" x2="12" y2="9" stroke={fill} strokeWidth="0.8" />
       <line x1="5.5" y1="11" x2="12" y2="11" stroke={fill} strokeWidth="0.8" />
     </svg>
@@ -256,11 +338,23 @@ function ChecklistTagIcon({ fill }: { fill: string }) {
 function EmailTagIcon() {
   return (
     <svg viewBox="0 0 16 16" className="onr-tag-dd-icon-svg">
-      <rect x="1" y="1" width="14" height="14" rx="2" fill={TAG_FILL_MEDIUM_GRAY} />
+      <rect
+        x="1"
+        y="1"
+        width="14"
+        height="14"
+        rx="2"
+        fill={TAG_FILL_MEDIUM_GRAY}
+      />
       {/* Envelope body */}
       <rect x="2.5" y="5" width="11" height="7" rx="1" fill="white" />
       {/* Flap */}
-      <polyline points="2.5,5 8,10 13.5,5" fill="none" stroke={TAG_FILL_MEDIUM_GRAY} strokeWidth="1" />
+      <polyline
+        points="2.5,5 8,10 13.5,5"
+        fill="none"
+        stroke={TAG_FILL_MEDIUM_GRAY}
+        strokeWidth="1"
+      />
     </svg>
   );
 }
@@ -270,7 +364,12 @@ function PriorityTodoIcon({ fill }: { fill: string }) {
   return (
     <svg viewBox="0 0 16 16" className="onr-tag-dd-icon-svg">
       <rect x="1" y="1" width="14" height="14" rx="2" fill={fill} />
-      <polyline points="4,8 7,11 12,5" stroke="white" strokeWidth="2" fill="none" />
+      <polyline
+        points="4,8 7,11 12,5"
+        stroke="white"
+        strokeWidth="2"
+        fill="none"
+      />
     </svg>
   );
 }
@@ -283,168 +382,196 @@ export const ALL_TAGS: TagOrSeparator[] = [
     icon: <TodoTagIcon className="onr-tag-dd-icon-svg" />,
     swatchColor: TAG_SWATCH_TODO,
     action: { type: 'command', commandId: EDITOR_COMMAND_TOGGLE_CHECKLIST },
+    calloutKey: ACTIVE_TAG_KEY_TASK,
   },
   {
     label: 'Important',
     icon: <ImportantTagIcon className="onr-tag-dd-icon-svg" />,
     swatchColor: TAG_SWATCH_IMPORTANT,
     action: { type: 'callout', calloutType: 'important' },
+    calloutKey: 'important',
   },
   {
     label: 'Question',
     icon: <QuestionTagIcon className="onr-tag-dd-icon-svg" />,
     swatchColor: TAG_SWATCH_QUESTION,
     action: { type: 'callout', calloutType: 'question' },
+    calloutKey: 'question',
   },
   {
     label: 'Remember for later',
     icon: <TagIconText fill={TAG_FILL_DARK} symbol="R" />,
     swatchColor: TAG_SWATCH_REMEMBER,
     action: { type: 'callout', calloutType: 'note' },
+    calloutKey: 'note',
   },
   {
     label: 'Definition',
     icon: <TagIconText fill={TAG_FILL_DEFINITION_GREEN} symbol="D" />,
     swatchColor: TAG_SWATCH_DEFINITION,
     action: { type: 'callout', calloutType: 'abstract' },
+    calloutKey: 'abstract',
   },
   {
     label: 'Highlight',
     icon: <HighlightTagIcon />,
     swatchColor: TAG_SWATCH_HIGHLIGHT,
     action: { type: 'highlight' },
+    calloutKey: ACTIVE_TAG_KEY_HIGHLIGHT,
   },
   {
     label: 'Contact',
     icon: <PersonTagIcon fill={TAG_FILL_MEDIUM_GRAY} />,
     swatchColor: TAG_SWATCH_NEUTRAL,
     action: { type: 'callout', calloutType: 'info' },
+    calloutKey: 'info',
   },
   {
     label: 'Address',
     icon: <AddressTagIcon />,
     swatchColor: TAG_SWATCH_NEUTRAL,
     action: { type: 'callout', calloutType: 'info' },
+    calloutKey: 'info',
   },
   {
     label: 'Phone number',
     icon: <PhoneTagIcon />,
     swatchColor: TAG_SWATCH_NEUTRAL,
     action: { type: 'callout', calloutType: 'info' },
+    calloutKey: 'info',
   },
   {
     label: 'Web site to visit',
     icon: <GlobeTagIcon />,
     swatchColor: TAG_SWATCH_NEUTRAL,
     action: { type: 'callout', calloutType: 'tip' },
+    calloutKey: 'tip',
   },
   {
     label: 'Idea',
     icon: <IdeaTagIcon />,
     swatchColor: TAG_SWATCH_NEUTRAL,
     action: { type: 'callout', calloutType: 'tip' },
+    calloutKey: 'tip',
   },
   {
     label: 'Password',
     icon: <LockTagIcon />,
     swatchColor: TAG_SWATCH_NEUTRAL,
     action: { type: 'callout', calloutType: 'warning' },
+    calloutKey: 'warning',
   },
   {
     label: 'Critical',
     icon: <TagIconText fill={TAG_FILL_CRITICAL_RED} symbol="!" />,
     swatchColor: TAG_SWATCH_CRITICAL,
     action: { type: 'callout', calloutType: 'danger' },
+    calloutKey: 'danger',
   },
   {
     label: 'Project A',
     icon: <TagIconText fill={TAG_FILL_PROJECT_A_CORAL} symbol="A" />,
     swatchColor: TAG_SWATCH_PROJECT_A,
-    action: { type: 'callout', calloutType: 'info' },
+    action: { type: 'callout', calloutType: 'example' },
+    calloutKey: 'example',
   },
   {
     label: 'Project B',
     icon: <TagIconText fill={TAG_FILL_PROJECT_B_GOLD} symbol="B" />,
     swatchColor: TAG_SWATCH_PROJECT_B,
-    action: { type: 'callout', calloutType: 'info' },
+    action: { type: 'callout', calloutType: 'success' },
+    calloutKey: 'success',
   },
   {
     label: 'Movie to see',
     icon: <MovieTagIcon />,
     swatchColor: TAG_SWATCH_NEUTRAL,
     action: { type: 'callout', calloutType: 'tip' },
+    calloutKey: 'tip',
   },
   {
     label: 'Book to read',
     icon: <BookTagIcon />,
     swatchColor: TAG_SWATCH_NEUTRAL,
     action: { type: 'callout', calloutType: 'tip' },
+    calloutKey: 'tip',
   },
   {
     label: 'Music to listen to',
     icon: <MusicTagIcon />,
     swatchColor: TAG_SWATCH_NEUTRAL,
     action: { type: 'callout', calloutType: 'tip' },
+    calloutKey: 'tip',
   },
   {
     label: 'Source for article',
     icon: <DocumentTagIcon fill={TAG_FILL_MEDIUM_GRAY} />,
     swatchColor: TAG_SWATCH_NEUTRAL,
     action: { type: 'callout', calloutType: 'quote' },
+    calloutKey: 'quote',
   },
   {
     label: 'Remember for blog',
     icon: <DocumentTagIcon fill={TAG_FILL_MEDIUM_GRAY} />,
     swatchColor: TAG_SWATCH_NEUTRAL,
     action: { type: 'callout', calloutType: 'note' },
+    calloutKey: 'note',
   },
   {
     label: 'Discuss with <Person>',
     icon: <ChecklistTagIcon fill={TAG_FILL_MEDIUM_GRAY} />,
     swatchColor: TAG_SWATCH_NEUTRAL,
     action: { type: 'task', taskPrefix: 'Discuss:' },
+    calloutKey: ACTIVE_TAG_KEY_TASK,
   },
   {
     label: 'Discuss with <Person>',
     icon: <ChecklistTagIcon fill={TAG_FILL_DARK} />,
     swatchColor: TAG_SWATCH_NEUTRAL,
     action: { type: 'task', taskPrefix: 'Discuss:' },
+    calloutKey: ACTIVE_TAG_KEY_TASK,
   },
   {
     label: 'Discuss with manager',
     icon: <ChecklistTagIcon fill={TAG_FILL_DARK} />,
     swatchColor: TAG_SWATCH_NEUTRAL,
     action: { type: 'task', taskPrefix: 'Discuss with manager:' },
+    calloutKey: ACTIVE_TAG_KEY_TASK,
   },
   {
     label: 'Send in email',
     icon: <EmailTagIcon />,
     swatchColor: TAG_SWATCH_NEUTRAL,
     action: { type: 'task', taskPrefix: 'Send in email:' },
+    calloutKey: ACTIVE_TAG_KEY_TASK,
   },
   {
     label: 'Schedule meeting',
     icon: <ChecklistTagIcon fill={TAG_FILL_TODO_BLUE} />,
     swatchColor: TAG_SWATCH_NEUTRAL,
     action: { type: 'task', taskPrefix: 'Schedule meeting:' },
+    calloutKey: ACTIVE_TAG_KEY_TASK,
   },
   {
     label: 'Call back',
     icon: <ChecklistTagIcon fill={TAG_FILL_TODO_BLUE} />,
     swatchColor: TAG_SWATCH_NEUTRAL,
     action: { type: 'task', taskPrefix: 'Call back:' },
+    calloutKey: ACTIVE_TAG_KEY_TASK,
   },
   {
     label: 'To Do priority 1',
     icon: <PriorityTodoIcon fill={TAG_FILL_PRIORITY_1_RED} />,
     swatchColor: TAG_SWATCH_PRIORITY_1,
     action: { type: 'task', taskPrefix: 'P1:' },
+    calloutKey: ACTIVE_TAG_KEY_TASK,
   },
   {
     label: 'To Do priority 2',
     icon: <PriorityTodoIcon fill={TAG_FILL_PRIORITY_2_BLUE} />,
     swatchColor: TAG_SWATCH_PRIORITY_2,
     action: { type: 'task', taskPrefix: 'P2:' },
+    calloutKey: ACTIVE_TAG_KEY_TASK,
   },
 
   { isSeparator: true },
@@ -453,13 +580,14 @@ export const ALL_TAGS: TagOrSeparator[] = [
     label: 'Customize Tags…',
     icon: <TagIconText fill={TAG_FILL_MEDIUM_GRAY} symbol="⚙" />,
     swatchColor: 'transparent',
-    action: { type: 'command', commandId: 'app:open-settings' },
+    action: { type: 'command', commandId: '' },
+    isCustomizeTags: true,
   },
   {
     label: 'Remove Tag',
     icon: <TagIconText fill={TAG_FILL_MEDIUM_GRAY} symbol="✕" />,
     swatchColor: 'transparent',
     action: { type: 'command', commandId: '' },
-    isDisabled: true,
+    isRemoveTag: true,
   },
 ];

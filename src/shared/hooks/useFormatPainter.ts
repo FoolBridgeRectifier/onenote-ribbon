@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { App } from 'obsidian';
-import { copyFormatFromEditor, addTagInEditor } from '../editor/styling-engine/editorIntegration';
+import {
+  copyFormatFromEditor,
+  addTagInEditor,
+} from '../editor/styling-engine/editorIntegration';
 import type { CopiedFormat } from '../editor/styling-engine/interfaces';
 
 export type FormatPainterMode = 'idle' | 'armed' | 'locked';
@@ -32,7 +35,9 @@ export function useFormatPainter(app: App): UseFormatPainterResult {
     copiedFormat: null,
   });
 
-  const pendingApplyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingApplyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   const stateRef = useRef(state);
   stateRef.current = state;
@@ -72,24 +77,27 @@ export function useFormatPainter(app: App): UseFormatPainterResult {
     setState({ mode: 'idle', copiedFormat: null });
   }, []);
 
-  const handleSingleClick = useCallback((clickCount: number = 1) => {
-    if (clickCount > 1) {
-      return;
-    }
+  const handleSingleClick = useCallback(
+    (clickCount: number = 1) => {
+      if (clickCount > 1) {
+        return;
+      }
 
-    if (stateRef.current.mode !== 'idle') {
-      // If already active, cancel
-      cancel();
-      return;
-    }
+      if (stateRef.current.mode !== 'idle') {
+        // If already active, cancel
+        cancel();
+        return;
+      }
 
-    const format = copyCurrentFormat();
-    if (!format || format.tagDefinitions.length === 0) {
-      return;
-    }
+      const format = copyCurrentFormat();
+      if (!format || format.tagDefinitions.length === 0) {
+        return;
+      }
 
-    setState({ mode: 'armed', copiedFormat: format });
-  }, [copyCurrentFormat, cancel]);
+      setState({ mode: 'armed', copiedFormat: format });
+    },
+    [copyCurrentFormat, cancel],
+  );
 
   const handleDoubleClick = useCallback(() => {
     if (stateRef.current.mode === 'locked') {
