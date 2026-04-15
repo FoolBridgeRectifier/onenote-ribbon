@@ -1,4 +1,3 @@
-import './script-buttons.css';
 import { useApp } from '../../../../shared/context/AppContext';
 import { RibbonButton } from '../../../../shared/components/ribbon-button/RibbonButton';
 import { toggleTagInEditor } from '../../../../shared/editor/styling-engine/editorIntegration';
@@ -35,9 +34,7 @@ export function ScriptButtons({ subscript, superscript }: ScriptButtonsProps) {
         onClick={handleSubscript}
         data-cmd="subscript"
       >
-        <span className="onr-script-symbol">
-          x<sub className="onr-sub-text">2</sub>
-        </span>
+        x₂
       </RibbonButton>
 
       <RibbonButton
@@ -47,9 +44,7 @@ export function ScriptButtons({ subscript, superscript }: ScriptButtonsProps) {
         onClick={handleSuperscript}
         data-cmd="superscript"
       >
-        <span className="onr-script-symbol">
-          x<sup className="onr-sup-text">2</sup>
-        </span>
+        x²
       </RibbonButton>
     </>
   );
