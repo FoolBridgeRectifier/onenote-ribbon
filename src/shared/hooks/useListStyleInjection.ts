@@ -227,6 +227,65 @@ function buildEditorNumberCss(): string[] {
   return parts;
 }
 
+function buildNumberFallbackMarker(levelConfig: NumberLevelConfig): string {
+  const previewBase = getFormatFunction(levelConfig.style)(1);
+
+  switch (levelConfig.suffix) {
+    case 'period':
+      return `${previewBase}. `;
+    case 'paren':
+      return `${previewBase})  `;
+    case 'wrapped':
+      return `(${previewBase})  `;
+    default:
+      return `${previewBase}. `;
+  }
+}
+
+function buildEditorNumberCssWithFallback(
+  levels: [
+    NumberLevelConfig,
+    NumberLevelConfig,
+    NumberLevelConfig,
+    NumberLevelConfig,
+  ],
+): string[] {
+  const parts = buildEditorMarkerCss(
+    'cm-formatting-list-ol',
+    'var(--text-normal)',
+  );
+
+  // Always hide raw markdown number tokens while showing a depth-aware fallback
+  // so cursor moves don't reveal the raw `1.` token before re-stamping finishes.
+  parts.push('.cm-formatting-list-ol { font-size: 0 !important; }');
+
+  for (let depth = 1; depth <= EDITOR_MAX_DEPTH; depth++) {
+    const levelIndex = (depth - 1) % REQUIRED_BULLET_DEPTH_COUNT;
+    const fallbackMarker = buildNumberFallbackMarker(levels[levelIndex]);
+
+    parts.push(
+      `.cm-formatting-list-ol.cm-list-${depth}::before, ` +
+        `.HyperMD-list-line-${depth} .cm-formatting-list-ol::before ` +
+        `{ font-size: var(--font-text-size, 16px) !important; content: "${fallbackMarker}" !important; color: var(--text-normal) !important; }`,
+    );
+  }
+
+  // Prefer exact JS-stamped marker text when available.
+  parts.push(
+    '.cm-formatting-list-ol[data-onr-marker]::before { content: attr(data-onr-marker) !important; }',
+  );
+
+  // Task lines keep their original display
+  parts.push(
+    `.HyperMD-task-line .cm-formatting-list-ol { font-size: inherit !important; }`,
+  );
+  parts.push(
+    `.HyperMD-task-line .cm-formatting-list-ol::before { content: none !important; }`,
+  );
+
+  return parts;
+}
+
 function buildEditorBulletCss(levels: BulletLevels): string[] {
   const parts: string[] = [];
 
@@ -285,21 +344,29 @@ function stampAllOlSpans(converter: NumberLevelConverter): void {
     const text = span.textContent ?? '';
     const match = text.match(OL_NUMBER_REGEX);
 
-    if (match) {
-      const number = parseInt(match[1], 10);
-      const depth = extractListLineDepth(span);
-
-      if (depth === null) {
-        span.removeAttribute('data-onr-marker');
+    if (!match) {
+      // During cursor moves, CM6 can briefly leave list-formatting spans in an
+      // intermediate state. Keep the previous marker through that transition
+      // to avoid a visible raw-token flash.
+      if (text.trim().length === 0) {
         continue;
       }
 
-      const marker = converter(number, depth);
-      span.setAttribute('data-onr-marker', marker);
+      span.removeAttribute('data-onr-marker');
       continue;
     }
 
-    span.removeAttribute('data-onr-marker');
+    const number = parseInt(match[1], 10);
+    const depth = extractListLineDepth(span);
+
+    // If depth class is temporarily missing, preserve existing marker and wait
+    // for the next stable pass.
+    if (depth === null) {
+      continue;
+    }
+
+    const marker = converter(number, depth);
+    span.setAttribute('data-onr-marker', marker);
   }
 }
 
@@ -445,7 +512,7 @@ function buildCssString(
       }
 
       // ── Editor / live-preview CSS (data-attribute driven) ──────────────
-      parts.push(...buildEditorNumberCss());
+      parts.push(...buildEditorNumberCssWithFallback(levels));
     }
   }
 
@@ -490,6 +557,22 @@ function createListMarkerObserver(
   let hasPendingMicrotask = false;
   let isStamping = false;
 
+  const runStampNow = () => {
+    if (isStamping) return;
+
+    isStamping = true;
+
+    if (converter !== null) {
+      stampAllOlSpans(converter);
+    }
+
+    if (bulletLevels !== null) {
+      stampAllUlSpans(bulletLevels);
+    }
+
+    isStamping = false;
+  };
+
   const scheduleStamp = () => {
     // Ignore mutations triggered by our own stamping
     if (isStamping) return;
@@ -499,17 +582,7 @@ function createListMarkerObserver(
 
     queueMicrotask(() => {
       hasPendingMicrotask = false;
-      isStamping = true;
-
-      if (converter !== null) {
-        stampAllOlSpans(converter);
-      }
-
-      if (bulletLevels !== null) {
-        stampAllUlSpans(bulletLevels);
-      }
-
-      isStamping = false;
+      runStampNow();
     });
   };
 
@@ -538,8 +611,10 @@ function createListMarkerObserver(
   // mutations at the body level. Listen for scroll events on the editor's
   // scroll container to catch viewport-driven node recycling.
   const scrollContainers = document.querySelectorAll('.cm-scroller');
-  const scrollHandler = () => scheduleStamp();
-  const selectionHandler = () => scheduleStamp();
+  // Selection and scroll changes can happen without mutation timing that lands before paint.
+  // Stamp immediately on these events to reduce visible marker flashes.
+  const scrollHandler = () => runStampNow();
+  const selectionHandler = () => runStampNow();
 
   for (const container of scrollContainers) {
     container.addEventListener('scroll', scrollHandler, { passive: true });
