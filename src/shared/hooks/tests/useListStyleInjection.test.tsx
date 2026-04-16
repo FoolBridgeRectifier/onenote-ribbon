@@ -217,13 +217,16 @@ describe('useListStyleInjection — CSS injection on mount', () => {
     const cssText =
       document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
     expect(cssText).toContain(
-      '.HyperMD-list-line-1 .cm-formatting-list-ul { font-size: 0 !important; }',
+      '.cm-formatting-list-ul { font-size: 0 !important; }',
     );
     expect(cssText).toContain(
-      '.HyperMD-list-line-1 .cm-formatting-list-ul::before { font-size: var(--font-text-size, 16px) !important; content: "●  " !important; color: var(--text-muted, #888) !important; }',
+      '.cm-formatting-list-ul::before { font-size: var(--font-text-size, 16px) !important; content: "●  " !important; color: var(--text-muted, #888) !important; }',
     );
     expect(cssText).toContain(
-      '.HyperMD-list-line-1 .cm-formatting-list-ul[data-onr-marker]::before { content: attr(data-onr-marker) !important; }',
+      '.cm-formatting-list-ul.cm-list-1::before, .HyperMD-list-line-1 .cm-formatting-list-ul::before { font-size: var(--font-text-size, 16px) !important; content: "●  " !important; color: var(--text-muted, #888) !important; }',
+    );
+    expect(cssText).toContain(
+      '.cm-formatting-list-ul[data-onr-marker]::before { content: attr(data-onr-marker) !important; }',
     );
   });
 });

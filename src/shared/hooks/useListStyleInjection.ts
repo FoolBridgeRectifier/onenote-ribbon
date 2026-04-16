@@ -230,30 +230,32 @@ function buildEditorNumberCss(): string[] {
 function buildEditorBulletCss(levels: BulletLevels): string[] {
   const parts: string[] = [];
 
+  // Always hide raw UL marker tokens and render a level-1 fallback marker.
+  // This prevents visible flashes when CM6 temporarily recycles depth classes.
+  parts.push('.cm-formatting-list-ul { font-size: 0 !important; }');
+  parts.push(
+    `.cm-formatting-list-ul::before { font-size: var(--font-text-size, 16px) !important; content: "${levels[0]}${MARKER_SYMBOL_PADDING}" !important; color: var(--text-muted, #888) !important; }`,
+  );
+
   for (let depth = 1; depth <= EDITOR_MAX_DEPTH; depth++) {
     const levelIndex = (depth - 1) % REQUIRED_BULLET_DEPTH_COUNT;
     const symbol = levels[levelIndex];
 
-    // Keep the raw markdown token hidden at all times to avoid one-frame flashes during CM6 DOM recycling.
-    parts.push(
-      `.HyperMD-list-line-${depth} .cm-formatting-list-ul ` +
-        `{ font-size: 0 !important; }`,
-    );
-
     // Depth-based fallback marker shown even before data-onr-marker is restamped.
+    // Support both span depth classes and line depth classes to tolerate CM6 DOM churn.
     parts.push(
-      `.HyperMD-list-line-${depth} .cm-formatting-list-ul::before ` +
+      `.cm-formatting-list-ul.cm-list-${depth}::before, ` +
+        `.HyperMD-list-line-${depth} .cm-formatting-list-ul::before ` +
         `{ font-size: var(--font-text-size, 16px) !important; ` +
         `content: "${symbol}${MARKER_SYMBOL_PADDING}" !important; ` +
         `color: var(--text-muted, #888) !important; }`,
     );
-
-    // Once available, prefer the JS-stamped marker attribute.
-    parts.push(
-      `.HyperMD-list-line-${depth} .cm-formatting-list-ul[data-onr-marker]::before ` +
-        `{ content: attr(data-onr-marker) !important; }`,
-    );
   }
+
+  // Once available, prefer the JS-stamped marker attribute.
+  parts.push(
+    '.cm-formatting-list-ul[data-onr-marker]::before { content: attr(data-onr-marker) !important; }',
+  );
 
   parts.push(
     `.HyperMD-task-line .cm-formatting-list-ul { font-size: inherit !important; }`,
