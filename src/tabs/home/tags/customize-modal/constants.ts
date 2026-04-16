@@ -3,6 +3,8 @@ export const OBSIDIAN_CALLOUT_TYPES: ReadonlyArray<{
   value: string;
   label: string;
 }> = [
+  // Checkbox type appears first — it produces "- [ ] TagName:" instead of a callout block
+  { value: 'checkbox', label: 'Checkbox (- [ ] Title:)' },
   { value: 'note', label: 'Note' },
   { value: 'abstract', label: 'Abstract / Summary' },
   { value: 'info', label: 'Info' },

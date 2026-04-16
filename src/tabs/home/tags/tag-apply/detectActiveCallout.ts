@@ -5,20 +5,33 @@ import { ACTIVE_TAG_KEY_HIGHLIGHT, ACTIVE_TAG_KEY_TASK } from '../constants';
 /** Matches a Markdown task list item regardless of check state, e.g. "- [ ] …" or "  - [x] …". */
 const TASK_LINE_PATTERN = /^\s*-\s+\[.\]\s*/;
 
-/** Matches Obsidian highlight markers spanning at least one character. */
+/** Obsidian highlight markers spanning at least one character. */
 const HIGHLIGHT_PATTERN = /==.+?==/;
 
-/** Captures the callout type from a callout header line, e.g. "> [!tip] My Title". */
-const CALLOUT_HEADER_PATTERN = /^>\s*\[!(\w+)\]/;
+/**
+ * Matches a callout header line and captures both the type and the optional title.
+ * Group 1: callout type (e.g. "tip")
+ * Group 2: title text after [!type] (e.g. "Book to read"), or undefined if absent
+ */
+const CALLOUT_HEADER_PATTERN = /^>\s*\[!(\w+)\](?:\s+(.+))?/;
+
+/**
+ * Matches a task prefix — the text before a colon at the start of task content.
+ * Used to identify specific task-type tags (e.g. "P2:" in "- [ ] P2: content").
+ * Group 1: the prefix including its trailing colon (e.g. "P2:").
+ */
+const TASK_PREFIX_PATTERN = /^\s*-\s+\[.\]\s+([^:\s][^:]*:)/;
 
 /**
  * Detects which OneNote-style tag types are currently active at the editor cursor.
  *
  * Returns a Set containing:
- * - `"__task__"`        when the cursor is on a task-list line
- * - `"__highlight__"`   when the cursor line contains ==…== markers
- * - A callout type key  when the cursor is inside an Obsidian callout block
- *                       (e.g. "important", "tip", "question")
+ * - `"__task__"`                when the cursor is on a task-list line
+ * - `"task-prefix:P2:"`         when the task line has a recognised prefix (e.g. P2:)
+ * - `"__highlight__"`           when the cursor line contains ==…== markers
+ * - A callout title string      when the cursor is inside a callout with a title
+ *                               (e.g. "Important", "Book to read")
+ * - A callout type string       when the callout has no title (fallback, e.g. "tip")
  *
  * Returns an empty Set when `editor` is null.
  */
@@ -35,6 +48,12 @@ export function detectActiveTagKeys(editor: Editor | null): Set<string> {
 
   if (TASK_LINE_PATTERN.test(lineContent)) {
     activeKeys.add(ACTIVE_TAG_KEY_TASK);
+
+    // Add a prefix-specific key so individual task tags can be identified
+    const prefixMatch = lineContent.match(TASK_PREFIX_PATTERN);
+    if (prefixMatch) {
+      activeKeys.add(`task-prefix:${prefixMatch[1].trim()}`);
+    }
   }
 
   if (HIGHLIGHT_PATTERN.test(lineContent)) {
@@ -50,7 +69,11 @@ export function detectActiveTagKeys(editor: Editor | null): Set<string> {
 
     const calloutHeaderMatch = lineText.match(CALLOUT_HEADER_PATTERN);
     if (calloutHeaderMatch) {
-      activeKeys.add(calloutHeaderMatch[1].toLowerCase());
+      const calloutType = calloutHeaderMatch[1].toLowerCase();
+      const calloutTitle = calloutHeaderMatch[2]?.trim();
+
+      // Prefer title-based detection for specificity; fall back to type
+      activeKeys.add(calloutTitle ?? calloutType);
       break;
     }
 

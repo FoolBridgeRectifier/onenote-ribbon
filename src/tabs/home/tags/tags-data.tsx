@@ -11,12 +11,10 @@ import {
 
 import type { TagOrSeparator } from './interfaces';
 import {
-  ACTIVE_TAG_KEY_HIGHLIGHT,
   ACTIVE_TAG_KEY_TASK,
   EDITOR_COMMAND_TOGGLE_CHECKLIST,
   TAG_FILL_DARK,
   TAG_FILL_DEFINITION_GREEN,
-  TAG_FILL_HIGHLIGHT_YELLOW,
   TAG_FILL_MEDIUM_GRAY,
   TAG_FILL_CRITICAL_RED,
   TAG_FILL_PROJECT_A_CORAL,
@@ -29,7 +27,6 @@ import {
   TAG_SWATCH_QUESTION,
   TAG_SWATCH_REMEMBER,
   TAG_SWATCH_DEFINITION,
-  TAG_SWATCH_HIGHLIGHT,
   TAG_SWATCH_NEUTRAL,
   TAG_SWATCH_CRITICAL,
   TAG_SWATCH_PROJECT_A,
@@ -56,34 +53,6 @@ function TagIconText({ fill, symbol }: { fill: string; symbol: string }) {
       >
         {symbol}
       </text>
-    </svg>
-  );
-}
-
-/** Pencil (highlight) icon: yellow rect with a diagonal stroke. */
-function HighlightTagIcon() {
-  return (
-    <svg viewBox="0 0 16 16" className="onr-tag-dd-icon-svg">
-      <rect
-        x="1"
-        y="1"
-        width="14"
-        height="14"
-        rx="2"
-        fill={TAG_FILL_HIGHLIGHT_YELLOW}
-      />
-      {/* Pencil body diagonal */}
-      <rect
-        x="7"
-        y="2"
-        width="4"
-        height="9"
-        rx="1"
-        transform="rotate(40 8 8)"
-        fill="white"
-      />
-      {/* Pencil tip */}
-      <polygon points="5.5,12 7.5,10 9,11.5" fill="white" />
     </svg>
   );
 }
@@ -378,6 +347,219 @@ function PriorityTodoIcon({ fill }: { fill: string }) {
 
 export const ALL_TAGS: TagOrSeparator[] = [
   {
+    label: 'Important',
+    icon: <ImportantTagIcon className="onr-tag-dd-icon-svg" />,
+    swatchColor: TAG_SWATCH_IMPORTANT,
+    action: {
+      type: 'callout',
+      calloutType: 'important',
+      calloutTitle: 'Important',
+    },
+    calloutKey: 'Important',
+  },
+  {
+    label: 'Question',
+    icon: <QuestionTagIcon className="onr-tag-dd-icon-svg" />,
+    swatchColor: TAG_SWATCH_QUESTION,
+    action: {
+      type: 'callout',
+      calloutType: 'question',
+      calloutTitle: 'Question',
+    },
+    calloutKey: 'Question',
+  },
+  {
+    label: 'Remember for later',
+    icon: <TagIconText fill={TAG_FILL_DARK} symbol="R" />,
+    swatchColor: TAG_SWATCH_REMEMBER,
+    action: {
+      type: 'callout',
+      calloutType: 'note',
+      calloutTitle: 'Remember for later',
+    },
+    calloutKey: 'Remember for later',
+  },
+  {
+    label: 'Definition',
+    icon: <TagIconText fill={TAG_FILL_DEFINITION_GREEN} symbol="D" />,
+    swatchColor: TAG_SWATCH_DEFINITION,
+    action: {
+      type: 'callout',
+      calloutType: 'abstract',
+      calloutTitle: 'Definition',
+    },
+    calloutKey: 'Definition',
+  },
+  {
+    label: 'Contact',
+    icon: <PersonTagIcon fill={TAG_FILL_MEDIUM_GRAY} />,
+    swatchColor: TAG_SWATCH_NEUTRAL,
+    action: { type: 'callout', calloutType: 'info', calloutTitle: 'Contact' },
+    calloutKey: 'Contact',
+  },
+  {
+    label: 'Address',
+    icon: <AddressTagIcon />,
+    swatchColor: TAG_SWATCH_NEUTRAL,
+    action: { type: 'callout', calloutType: 'info', calloutTitle: 'Address' },
+    calloutKey: 'Address',
+  },
+  {
+    label: 'Phone number',
+    icon: <PhoneTagIcon />,
+    swatchColor: TAG_SWATCH_NEUTRAL,
+    action: {
+      type: 'callout',
+      calloutType: 'info',
+      calloutTitle: 'Phone number',
+    },
+    calloutKey: 'Phone number',
+  },
+  {
+    label: 'Web site to visit',
+    icon: <GlobeTagIcon />,
+    swatchColor: TAG_SWATCH_NEUTRAL,
+    action: {
+      type: 'callout',
+      calloutType: 'tip',
+      calloutTitle: 'Web site to visit',
+    },
+    calloutKey: 'Web site to visit',
+  },
+  {
+    label: 'Idea',
+    icon: <IdeaTagIcon />,
+    swatchColor: TAG_SWATCH_NEUTRAL,
+    action: { type: 'callout', calloutType: 'tip', calloutTitle: 'Idea' },
+    calloutKey: 'Idea',
+  },
+  {
+    label: 'Password',
+    icon: <LockTagIcon />,
+    swatchColor: TAG_SWATCH_NEUTRAL,
+    action: {
+      type: 'callout',
+      calloutType: 'warning',
+      calloutTitle: 'Password',
+    },
+    calloutKey: 'Password',
+  },
+  {
+    label: 'Critical',
+    icon: <TagIconText fill={TAG_FILL_CRITICAL_RED} symbol="!" />,
+    swatchColor: TAG_SWATCH_CRITICAL,
+    action: {
+      type: 'callout',
+      calloutType: 'danger',
+      calloutTitle: 'Critical',
+    },
+    calloutKey: 'Critical',
+  },
+  {
+    label: 'Project A',
+    icon: <TagIconText fill={TAG_FILL_PROJECT_A_CORAL} symbol="A" />,
+    swatchColor: TAG_SWATCH_PROJECT_A,
+    action: {
+      type: 'callout',
+      calloutType: 'example',
+      calloutTitle: 'Project A',
+    },
+    calloutKey: 'Project A',
+  },
+  {
+    label: 'Project B',
+    icon: <TagIconText fill={TAG_FILL_PROJECT_B_GOLD} symbol="B" />,
+    swatchColor: TAG_SWATCH_PROJECT_B,
+    action: {
+      type: 'callout',
+      calloutType: 'success',
+      calloutTitle: 'Project B',
+    },
+    calloutKey: 'Project B',
+  },
+  {
+    label: 'Movie to see',
+    icon: <MovieTagIcon />,
+    swatchColor: TAG_SWATCH_NEUTRAL,
+    action: {
+      type: 'callout',
+      calloutType: 'tip',
+      calloutTitle: 'Movie to see',
+    },
+    calloutKey: 'Movie to see',
+  },
+  {
+    label: 'Book to read',
+    icon: <BookTagIcon />,
+    swatchColor: TAG_SWATCH_NEUTRAL,
+    action: {
+      type: 'callout',
+      calloutType: 'tip',
+      calloutTitle: 'Book to read',
+    },
+    calloutKey: 'Book to read',
+  },
+  {
+    label: 'Music to listen to',
+    icon: <MusicTagIcon />,
+    swatchColor: TAG_SWATCH_NEUTRAL,
+    action: {
+      type: 'callout',
+      calloutType: 'tip',
+      calloutTitle: 'Music to listen to',
+    },
+    calloutKey: 'Music to listen to',
+  },
+  {
+    label: 'Source for article',
+    icon: <DocumentTagIcon fill={TAG_FILL_MEDIUM_GRAY} />,
+    swatchColor: TAG_SWATCH_NEUTRAL,
+    action: {
+      type: 'callout',
+      calloutType: 'quote',
+      calloutTitle: 'Source for article',
+    },
+    calloutKey: 'Source for article',
+  },
+  {
+    label: 'Remember for blog',
+    icon: <DocumentTagIcon fill={TAG_FILL_MEDIUM_GRAY} />,
+    swatchColor: TAG_SWATCH_NEUTRAL,
+    action: {
+      type: 'callout',
+      calloutType: 'note',
+      calloutTitle: 'Remember for blog',
+    },
+    calloutKey: 'Remember for blog',
+  },
+  {
+    label: 'To Do priority 1',
+    icon: <PriorityTodoIcon fill={TAG_FILL_PRIORITY_1_RED} />,
+    swatchColor: TAG_SWATCH_PRIORITY_1,
+    action: {
+      type: 'callout',
+      calloutType: 'todo',
+      calloutTitle: 'To Do priority 1',
+    },
+    calloutKey: 'To Do priority 1',
+  },
+  {
+    label: 'To Do priority 2',
+    icon: <PriorityTodoIcon fill={TAG_FILL_PRIORITY_2_BLUE} />,
+    swatchColor: TAG_SWATCH_PRIORITY_2,
+    action: {
+      type: 'callout',
+      calloutType: 'todo',
+      calloutTitle: 'To Do priority 2',
+    },
+    calloutKey: 'To Do priority 2',
+  },
+
+  // ── Checkbox group ────────────────────────────────────────────────────────
+
+  { isGroupHeader: true as const, groupLabel: 'Checkbox' },
+
+  {
     label: 'To Do',
     icon: <TodoTagIcon className="onr-tag-dd-icon-svg" />,
     swatchColor: TAG_SWATCH_TODO,
@@ -385,195 +567,47 @@ export const ALL_TAGS: TagOrSeparator[] = [
     calloutKey: ACTIVE_TAG_KEY_TASK,
   },
   {
-    label: 'Important',
-    icon: <ImportantTagIcon className="onr-tag-dd-icon-svg" />,
-    swatchColor: TAG_SWATCH_IMPORTANT,
-    action: { type: 'callout', calloutType: 'important' },
-    calloutKey: 'important',
-  },
-  {
-    label: 'Question',
-    icon: <QuestionTagIcon className="onr-tag-dd-icon-svg" />,
-    swatchColor: TAG_SWATCH_QUESTION,
-    action: { type: 'callout', calloutType: 'question' },
-    calloutKey: 'question',
-  },
-  {
-    label: 'Remember for later',
-    icon: <TagIconText fill={TAG_FILL_DARK} symbol="R" />,
-    swatchColor: TAG_SWATCH_REMEMBER,
-    action: { type: 'callout', calloutType: 'note' },
-    calloutKey: 'note',
-  },
-  {
-    label: 'Definition',
-    icon: <TagIconText fill={TAG_FILL_DEFINITION_GREEN} symbol="D" />,
-    swatchColor: TAG_SWATCH_DEFINITION,
-    action: { type: 'callout', calloutType: 'abstract' },
-    calloutKey: 'abstract',
-  },
-  {
-    label: 'Highlight',
-    icon: <HighlightTagIcon />,
-    swatchColor: TAG_SWATCH_HIGHLIGHT,
-    action: { type: 'highlight' },
-    calloutKey: ACTIVE_TAG_KEY_HIGHLIGHT,
-  },
-  {
-    label: 'Contact',
-    icon: <PersonTagIcon fill={TAG_FILL_MEDIUM_GRAY} />,
-    swatchColor: TAG_SWATCH_NEUTRAL,
-    action: { type: 'callout', calloutType: 'info' },
-    calloutKey: 'info',
-  },
-  {
-    label: 'Address',
-    icon: <AddressTagIcon />,
-    swatchColor: TAG_SWATCH_NEUTRAL,
-    action: { type: 'callout', calloutType: 'info' },
-    calloutKey: 'info',
-  },
-  {
-    label: 'Phone number',
-    icon: <PhoneTagIcon />,
-    swatchColor: TAG_SWATCH_NEUTRAL,
-    action: { type: 'callout', calloutType: 'info' },
-    calloutKey: 'info',
-  },
-  {
-    label: 'Web site to visit',
-    icon: <GlobeTagIcon />,
-    swatchColor: TAG_SWATCH_NEUTRAL,
-    action: { type: 'callout', calloutType: 'tip' },
-    calloutKey: 'tip',
-  },
-  {
-    label: 'Idea',
-    icon: <IdeaTagIcon />,
-    swatchColor: TAG_SWATCH_NEUTRAL,
-    action: { type: 'callout', calloutType: 'tip' },
-    calloutKey: 'tip',
-  },
-  {
-    label: 'Password',
-    icon: <LockTagIcon />,
-    swatchColor: TAG_SWATCH_NEUTRAL,
-    action: { type: 'callout', calloutType: 'warning' },
-    calloutKey: 'warning',
-  },
-  {
-    label: 'Critical',
-    icon: <TagIconText fill={TAG_FILL_CRITICAL_RED} symbol="!" />,
-    swatchColor: TAG_SWATCH_CRITICAL,
-    action: { type: 'callout', calloutType: 'danger' },
-    calloutKey: 'danger',
-  },
-  {
-    label: 'Project A',
-    icon: <TagIconText fill={TAG_FILL_PROJECT_A_CORAL} symbol="A" />,
-    swatchColor: TAG_SWATCH_PROJECT_A,
-    action: { type: 'callout', calloutType: 'example' },
-    calloutKey: 'example',
-  },
-  {
-    label: 'Project B',
-    icon: <TagIconText fill={TAG_FILL_PROJECT_B_GOLD} symbol="B" />,
-    swatchColor: TAG_SWATCH_PROJECT_B,
-    action: { type: 'callout', calloutType: 'success' },
-    calloutKey: 'success',
-  },
-  {
-    label: 'Movie to see',
-    icon: <MovieTagIcon />,
-    swatchColor: TAG_SWATCH_NEUTRAL,
-    action: { type: 'callout', calloutType: 'tip' },
-    calloutKey: 'tip',
-  },
-  {
-    label: 'Book to read',
-    icon: <BookTagIcon />,
-    swatchColor: TAG_SWATCH_NEUTRAL,
-    action: { type: 'callout', calloutType: 'tip' },
-    calloutKey: 'tip',
-  },
-  {
-    label: 'Music to listen to',
-    icon: <MusicTagIcon />,
-    swatchColor: TAG_SWATCH_NEUTRAL,
-    action: { type: 'callout', calloutType: 'tip' },
-    calloutKey: 'tip',
-  },
-  {
-    label: 'Source for article',
-    icon: <DocumentTagIcon fill={TAG_FILL_MEDIUM_GRAY} />,
-    swatchColor: TAG_SWATCH_NEUTRAL,
-    action: { type: 'callout', calloutType: 'quote' },
-    calloutKey: 'quote',
-  },
-  {
-    label: 'Remember for blog',
-    icon: <DocumentTagIcon fill={TAG_FILL_MEDIUM_GRAY} />,
-    swatchColor: TAG_SWATCH_NEUTRAL,
-    action: { type: 'callout', calloutType: 'note' },
-    calloutKey: 'note',
-  },
-  {
     label: 'Discuss with <Person>',
     icon: <ChecklistTagIcon fill={TAG_FILL_MEDIUM_GRAY} />,
     swatchColor: TAG_SWATCH_NEUTRAL,
     action: { type: 'task', taskPrefix: 'Discuss:' },
-    calloutKey: ACTIVE_TAG_KEY_TASK,
+    calloutKey: 'task-prefix:Discuss:',
   },
   {
     label: 'Discuss with <Person>',
     icon: <ChecklistTagIcon fill={TAG_FILL_DARK} />,
     swatchColor: TAG_SWATCH_NEUTRAL,
     action: { type: 'task', taskPrefix: 'Discuss:' },
-    calloutKey: ACTIVE_TAG_KEY_TASK,
+    calloutKey: 'task-prefix:Discuss:',
   },
   {
     label: 'Discuss with manager',
     icon: <ChecklistTagIcon fill={TAG_FILL_DARK} />,
     swatchColor: TAG_SWATCH_NEUTRAL,
     action: { type: 'task', taskPrefix: 'Discuss with manager:' },
-    calloutKey: ACTIVE_TAG_KEY_TASK,
+    calloutKey: 'task-prefix:Discuss with manager:',
   },
   {
     label: 'Send in email',
     icon: <EmailTagIcon />,
     swatchColor: TAG_SWATCH_NEUTRAL,
     action: { type: 'task', taskPrefix: 'Send in email:' },
-    calloutKey: ACTIVE_TAG_KEY_TASK,
+    calloutKey: 'task-prefix:Send in email:',
   },
   {
     label: 'Schedule meeting',
     icon: <ChecklistTagIcon fill={TAG_FILL_TODO_BLUE} />,
     swatchColor: TAG_SWATCH_NEUTRAL,
     action: { type: 'task', taskPrefix: 'Schedule meeting:' },
-    calloutKey: ACTIVE_TAG_KEY_TASK,
+    calloutKey: 'task-prefix:Schedule meeting:',
   },
   {
     label: 'Call back',
     icon: <ChecklistTagIcon fill={TAG_FILL_TODO_BLUE} />,
     swatchColor: TAG_SWATCH_NEUTRAL,
     action: { type: 'task', taskPrefix: 'Call back:' },
-    calloutKey: ACTIVE_TAG_KEY_TASK,
+    calloutKey: 'task-prefix:Call back:',
   },
-  {
-    label: 'To Do priority 1',
-    icon: <PriorityTodoIcon fill={TAG_FILL_PRIORITY_1_RED} />,
-    swatchColor: TAG_SWATCH_PRIORITY_1,
-    action: { type: 'task', taskPrefix: 'P1:' },
-    calloutKey: ACTIVE_TAG_KEY_TASK,
-  },
-  {
-    label: 'To Do priority 2',
-    icon: <PriorityTodoIcon fill={TAG_FILL_PRIORITY_2_BLUE} />,
-    swatchColor: TAG_SWATCH_PRIORITY_2,
-    action: { type: 'task', taskPrefix: 'P2:' },
-    calloutKey: ACTIVE_TAG_KEY_TASK,
-  },
-
   { isSeparator: true },
 
   {

@@ -156,3 +156,108 @@ describe('detectActiveTagKeys — callout detection', () => {
     expect(result.has(ACTIVE_TAG_KEY_TASK)).toBe(true);
   });
 });
+
+describe('detectActiveTagKeys — title-based callout detection', () => {
+  it('returns the title as the key when the callout header includes a title', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!important] Important\n> Some note');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has('Important')).toBe(true);
+    // Does NOT fall back to the type when title is present
+    expect(result.has('important')).toBe(false);
+  });
+
+  it('returns the title for a titled callout when cursor is on a body line', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!tip] Book to read\n> A great novel');
+    editor.setCursor({ line: 1, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has('Book to read')).toBe(true);
+    expect(result.has('tip')).toBe(false);
+  });
+
+  it('falls back to the callout type (lowercase) when no title is present', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!note]\n> Content');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has('note')).toBe(true);
+  });
+
+  it('preserves the exact casing of the title text', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!warning] Password\n> Keep safe');
+    editor.setCursor({ line: 1, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has('Password')).toBe(true);
+    // Original casing from header — not lowercased
+    expect(result.has('password')).toBe(false);
+  });
+
+  it('handles multi-word titles correctly', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!tip] Music to listen to\n> Jazz essentials');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has('Music to listen to')).toBe(true);
+  });
+});
+
+describe('detectActiveTagKeys — task prefix detection', () => {
+  it('adds a task-prefix key when the task line starts with a recognised prefix', () => {
+    const editor = new MockEditor();
+    editor.setValue('- [ ] P2: Some task');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has(ACTIVE_TAG_KEY_TASK)).toBe(true);
+    expect(result.has('task-prefix:P2:')).toBe(true);
+  });
+
+  it('adds task-prefix:Discuss: for a Discuss task line', () => {
+    const editor = new MockEditor();
+    editor.setValue('- [ ] Discuss: John about budget');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has('task-prefix:Discuss:')).toBe(true);
+  });
+
+  it('adds task-prefix for multi-word prefix (Discuss with manager:)', () => {
+    const editor = new MockEditor();
+    editor.setValue('- [ ] Discuss with manager: Quarterly review');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has('task-prefix:Discuss with manager:')).toBe(true);
+  });
+
+  it('adds only __task__ (no prefix key) for a plain task with no prefix', () => {
+    const editor = new MockEditor();
+    editor.setValue('- [ ] Buy milk');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has(ACTIVE_TAG_KEY_TASK)).toBe(true);
+    // No task-prefix key should be added since there is no "Word:" prefix
+    const prefixKeys = [...result].filter((key) =>
+      key.startsWith('task-prefix:'),
+    );
+    expect(prefixKeys).toHaveLength(0);
+  });
+});

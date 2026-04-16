@@ -14,7 +14,9 @@ import {
 } from '../../../assets/icons';
 import { applyTag } from './tag-apply/applyTag';
 import { removeActiveCallout } from './tag-apply/removeActiveCallout';
-import { isTagSeparator } from './interfaces';
+import { removeActiveCheckbox } from './tag-apply/removeActiveCheckbox';
+import { toggleInlineTodoTag } from './tag-apply/toggleInlineTodoTag';
+import { isTagSeparator, isTagGroupHeader } from './interfaces';
 import type { TagDefinition, TagOrSeparator } from './interfaces';
 import { ALL_TAGS } from './tags-data';
 import {
@@ -45,6 +47,9 @@ function saveCustomTags(tags: CustomTag[]): void {
 // ── Custom tag → TagDefinition conversion ─────────────────────────────────────
 
 function buildCustomTagDefinition(customTag: CustomTag): TagDefinition {
+  // Checkbox-type custom tags create a task line instead of a callout block
+  const isCheckbox = customTag.calloutType === 'checkbox';
+
   return {
     label: customTag.name,
     // Dynamic background on a tiny icon — inline style is appropriate here since
@@ -57,8 +62,14 @@ function buildCustomTagDefinition(customTag: CustomTag): TagDefinition {
       />
     ),
     swatchColor: customTag.color,
-    action: { type: 'callout', calloutType: customTag.calloutType },
-    calloutKey: customTag.calloutType,
+    action: isCheckbox
+      ? { type: 'task', taskPrefix: `${customTag.name}:` }
+      : {
+          type: 'callout',
+          calloutType: customTag.calloutType,
+          calloutTitle: customTag.name,
+        },
+    calloutKey: isCheckbox ? `task-prefix:${customTag.name}:` : customTag.name,
   };
 }
 
@@ -74,9 +85,12 @@ export function TagsGroup() {
   const activeTagKeys = useActiveTagKeys(app as any);
 
   // "Remove Tag" is only enabled when cursor is inside a real callout block
-  // (i.e. an active key that is not one of the special sentinel values)
+  // (i.e. an active key that is not a sentinel or task-prefix value)
   const canRemoveTag = [...activeTagKeys].some(
-    (key) => key !== ACTIVE_TAG_KEY_TASK && key !== ACTIVE_TAG_KEY_HIGHLIGHT,
+    (key) =>
+      key !== ACTIVE_TAG_KEY_TASK &&
+      key !== ACTIVE_TAG_KEY_HIGHLIGHT &&
+      !key.startsWith('task-prefix:'),
   );
 
   // Build the displayed tag list by merging custom tags before the footer items
@@ -102,15 +116,28 @@ export function TagsGroup() {
   };
 
   const handleTodo = () => {
+    const editor = getEditor();
+
+    if (editor && activeTagKeys.has(ACTIVE_TAG_KEY_TASK)) {
+      removeActiveCheckbox(editor as any);
+      return;
+    }
+
     executeCommand(EDITOR_COMMAND_TOGGLE_CHECKLIST);
   };
 
   const handleImportant = () => {
     const editor = getEditor();
     if (!editor) return;
+
+    if (activeTagKeys.has('Important')) {
+      removeActiveCallout(editor as any);
+      return;
+    }
+
     applyTag(
       editor as any,
-      { type: 'callout', calloutType: 'important' },
+      { type: 'callout', calloutType: 'important', calloutTitle: 'Important' },
       executeCommand,
     );
   };
@@ -118,9 +145,15 @@ export function TagsGroup() {
   const handleQuestion = () => {
     const editor = getEditor();
     if (!editor) return;
+
+    if (activeTagKeys.has('Question')) {
+      removeActiveCallout(editor as any);
+      return;
+    }
+
     applyTag(
       editor as any,
-      { type: 'callout', calloutType: 'question' },
+      { type: 'callout', calloutType: 'question', calloutTitle: 'Question' },
       executeCommand,
     );
   };
@@ -140,7 +173,7 @@ export function TagsGroup() {
   const handleToDoTag = () => {
     const editor = getEditor();
     if (!editor) return;
-    editor.replaceSelection('#todo');
+    toggleInlineTodoTag(editor as any);
   };
 
   const handleCustomTagsChange = (updatedTags: CustomTag[]) => {
@@ -171,10 +204,21 @@ export function TagsGroup() {
     const isCurrentlyActive =
       calloutKey != null && activeTagKeys.has(calloutKey);
 
-    // Toggle: if a callout-based tag is already active, remove it instead
     if (isCurrentlyActive && tagDefinition.action.type === 'callout') {
       const editor = getEditor();
       if (editor) removeActiveCallout(editor as any);
+      setMoreMenuOpen(false);
+      return;
+    }
+
+    if (
+      isCurrentlyActive &&
+      (tagDefinition.action.type === 'task' ||
+        (tagDefinition.action.type === 'command' &&
+          tagDefinition.calloutKey === ACTIVE_TAG_KEY_TASK))
+    ) {
+      const editor = getEditor();
+      if (editor) removeActiveCheckbox(editor as any);
       setMoreMenuOpen(false);
       return;
     }
@@ -218,7 +262,7 @@ export function TagsGroup() {
             <span className="onr-tag-label">Important</span>
             <span
               className={
-                activeTagKeys.has('important')
+                activeTagKeys.has('Important')
                   ? 'onr-tag-cb onr-tag-cb--checked'
                   : 'onr-tag-cb'
               }
@@ -236,7 +280,7 @@ export function TagsGroup() {
             <span className="onr-tag-label">Question</span>
             <span
               className={
-                activeTagKeys.has('question')
+                activeTagKeys.has('Question')
                   ? 'onr-tag-cb onr-tag-cb--checked'
                   : 'onr-tag-cb'
               }
@@ -266,6 +310,14 @@ export function TagsGroup() {
               {allDisplayedTags.map((tagOrSeparator, index) => {
                 if (isTagSeparator(tagOrSeparator)) {
                   return <div key={index} className="onr-tags-dd-separator" />;
+                }
+
+                if (isTagGroupHeader(tagOrSeparator)) {
+                  return (
+                    <div key={index} className="onr-tags-dd-group-header">
+                      {tagOrSeparator.groupLabel}
+                    </div>
+                  );
                 }
 
                 const tagDefinition = tagOrSeparator;

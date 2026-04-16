@@ -88,6 +88,84 @@ describe('applyTag — callout action', () => {
       );
     }).not.toThrow();
   });
+
+  it('appends the calloutTitle after [!type] when provided', () => {
+    const editor = new MockEditor();
+    editor.setValue('Hello world');
+    editor.setCursor({ line: 0, ch: 0 });
+    const mockExecuteCommand = jest.fn();
+
+    applyTag(
+      editor as any,
+      { type: 'callout', calloutType: 'important', calloutTitle: 'Important' },
+      mockExecuteCommand,
+    );
+
+    expect(editor.getValue()).toBe('> [!important] Important\n> Hello world');
+  });
+
+  it('appends a multi-word calloutTitle correctly', () => {
+    const editor = new MockEditor();
+    editor.setValue('Novel draft');
+    editor.setCursor({ line: 0, ch: 0 });
+    const mockExecuteCommand = jest.fn();
+
+    applyTag(
+      editor as any,
+      { type: 'callout', calloutType: 'tip', calloutTitle: 'Book to read' },
+      mockExecuteCommand,
+    );
+
+    expect(editor.getValue()).toBe('> [!tip] Book to read\n> Novel draft');
+  });
+
+  it('omits the title segment when calloutTitle is undefined', () => {
+    const editor = new MockEditor();
+    editor.setValue('No title');
+    editor.setCursor({ line: 0, ch: 0 });
+    const mockExecuteCommand = jest.fn();
+
+    applyTag(
+      editor as any,
+      { type: 'callout', calloutType: 'note' },
+      mockExecuteCommand,
+    );
+
+    // No trailing space or title in the header
+    expect(editor.getValue()).toBe('> [!note]\n> No title');
+  });
+
+  it('nests callouts by one level when cursor is already inside a callout block', () => {
+    const editor = new MockEditor();
+    editor.setValue('> Existing callout body');
+    editor.setCursor({ line: 0, ch: 5 });
+    const mockExecuteCommand = jest.fn();
+
+    applyTag(
+      editor as any,
+      { type: 'callout', calloutType: 'important', calloutTitle: 'Important' },
+      mockExecuteCommand,
+    );
+
+    expect(editor.getValue()).toBe(
+      '>> [!important] Important\n>> Existing callout body',
+    );
+  });
+
+  it('preserves deeper nesting by adding one extra blockquote level', () => {
+    const editor = new MockEditor();
+    editor.setValue('>> Nested body content');
+    editor.setCursor({ line: 0, ch: 4 });
+    const mockExecuteCommand = jest.fn();
+
+    applyTag(
+      editor as any,
+      { type: 'callout', calloutType: 'note' },
+      mockExecuteCommand,
+    );
+
+    expect(editor.getValue()).toBe('>>> [!note]\n>>> Nested body content');
+  });
 });
 
 describe('applyTag — task action', () => {
@@ -143,6 +221,81 @@ describe('applyTag — task action', () => {
     expect(() => {
       applyTag(null, { type: 'task', taskPrefix: 'Do:' }, mockExecuteCommand);
     }).not.toThrow();
+  });
+
+  it('creates a checkbox from callout title and moves callout header to next line', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!note] Follow up with team');
+    editor.setCursor({ line: 0, ch: 16 });
+    const mockExecuteCommand = jest.fn();
+
+    applyTag(
+      editor as any,
+      { type: 'task', taskPrefix: '' },
+      mockExecuteCommand,
+    );
+
+    expect(editor.getValue()).toBe('- [ ] Follow up with team\n> [!note]');
+  });
+
+  it('applies task prefix when converting callout title into checkbox', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!tip] Send in email');
+    editor.setCursor({ line: 0, ch: 12 });
+    const mockExecuteCommand = jest.fn();
+
+    applyTag(
+      editor as any,
+      { type: 'task', taskPrefix: 'P2:' },
+      mockExecuteCommand,
+    );
+
+    expect(editor.getValue()).toBe('- [ ] P2: Send in email\n> [!tip]');
+  });
+
+  it('replaces an existing task prefix when applying a different checkbox tag', () => {
+    const editor = new MockEditor();
+    editor.setValue('- [ ] Discuss: Alex');
+    editor.setCursor({ line: 0, ch: 10 });
+    const mockExecuteCommand = jest.fn();
+
+    applyTag(
+      editor as any,
+      { type: 'task', taskPrefix: 'P2:' },
+      mockExecuteCommand,
+    );
+
+    expect(editor.getValue()).toBe('- [ ] P2: Alex');
+  });
+
+  it('removes an existing task prefix when applying a plain checkbox tag', () => {
+    const editor = new MockEditor();
+    editor.setValue('- [ ] P1: Follow up');
+    editor.setCursor({ line: 0, ch: 8 });
+    const mockExecuteCommand = jest.fn();
+
+    applyTag(
+      editor as any,
+      { type: 'task', taskPrefix: '' },
+      mockExecuteCommand,
+    );
+
+    expect(editor.getValue()).toBe('- [ ] Follow up');
+  });
+
+  it('preserves callout quote prefix when replacing a nested checkbox line', () => {
+    const editor = new MockEditor();
+    editor.setValue('> - [ ] Discuss with manager: Sarah');
+    editor.setCursor({ line: 0, ch: 8 });
+    const mockExecuteCommand = jest.fn();
+
+    applyTag(
+      editor as any,
+      { type: 'task', taskPrefix: 'Call back:' },
+      mockExecuteCommand,
+    );
+
+    expect(editor.getValue()).toBe('> - [ ] Call back: Sarah');
   });
 });
 

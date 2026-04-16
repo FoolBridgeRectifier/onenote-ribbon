@@ -6,7 +6,12 @@ import type { ReactNode } from 'react';
  */
 export type TagAction =
   | { type: 'command'; commandId: string }
-  | { type: 'callout'; calloutType: string }
+  | {
+      type: 'callout';
+      calloutType: string;
+      /** Optional title text written after [!type] and used for cursor detection. */
+      calloutTitle?: string;
+    }
   | { type: 'task'; taskPrefix: string }
   | { type: 'highlight' };
 
@@ -37,11 +42,27 @@ export interface TagSeparatorEntry {
   isSeparator: true;
 }
 
-export type TagOrSeparator = TagDefinition | TagSeparatorEntry;
+/** A labelled section header rendered inside the dropdown to group related tags. */
+export interface TagGroupHeaderEntry {
+  isGroupHeader: true;
+  groupLabel: string;
+}
+
+export type TagOrSeparator =
+  | TagDefinition
+  | TagSeparatorEntry
+  | TagGroupHeaderEntry;
 
 /** Type guard to distinguish a separator from a tag entry. */
 export function isTagSeparator(
   item: TagOrSeparator,
 ): item is TagSeparatorEntry {
   return (item as TagSeparatorEntry).isSeparator === true;
+}
+
+/** Type guard to distinguish a group header from a tag entry. */
+export function isTagGroupHeader(
+  item: TagOrSeparator,
+): item is TagGroupHeaderEntry {
+  return (item as TagGroupHeaderEntry).isGroupHeader === true;
 }

@@ -50,6 +50,14 @@
   font-weight: 600;
 }
 
+.onr-btn-sm.onr-format-sub {
+  font-size: 11px;
+}
+
+.onr-btn-sm.onr-format-sup {
+  font-size: 11px;
+}
+
 /* Label rendered inside the strikethrough button */
 .onr-strikethrough-text {
   font-size: 11px;

@@ -453,32 +453,14 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
           data-cmd="subscript"
           title="Subscript"
         >
-          <span
-            class="onr-script-symbol"
-          >
-            x
-            <sub
-              class="onr-sub-text"
-            >
-              2
-            </sub>
-          </span>
+          x₂
         </div>
         <div
           class="onr-btn-sm onr-format-btn onr-format-sup"
           data-cmd="superscript"
           title="Superscript"
         >
-          <span
-            class="onr-script-symbol"
-          >
-            x
-            <sup
-              class="onr-sup-text"
-            >
-              2
-            </sup>
-          </span>
+          x²
         </div>
         <div
           class="onr-divider"
@@ -3306,62 +3288,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                   "textContent": "ab",
                 },
                 {
-                  "children": [
-                    {
-                      "children": [
-                        {
-                          "children": [],
-                          "className": "onr-sub-text",
-                          "computedCss": {
-                            "background-color": "rgba(0, 0, 0, 0)",
-                            "border-block-end-color": "var(--text-primary)",
-                            "border-block-start-color": "var(--text-primary)",
-                            "border-bottom-color": "var(--text-primary)",
-                            "border-inline-end-color": "var(--text-primary)",
-                            "border-inline-start-color": "var(--text-primary)",
-                            "border-left-color": "var(--text-primary)",
-                            "border-right-color": "var(--text-primary)",
-                            "border-top-color": "var(--text-primary)",
-                            "caret-color": "auto",
-                            "color": "var(--text-primary)",
-                            "display": "inline-block",
-                            "font-size": "6px",
-                            "margin-left": "-3px",
-                            "pointer-events": "auto",
-                            "position": "relative",
-                            "top": "2px",
-                            "vertical-align": "sub",
-                            "visibility": "visible",
-                          },
-                          "dataAttributes": {},
-                          "tagName": "sub",
-                          "textContent": "2",
-                        },
-                      ],
-                      "className": "onr-script-symbol",
-                      "computedCss": {
-                        "background-color": "rgba(0, 0, 0, 0)",
-                        "border-block-end-color": "var(--text-primary)",
-                        "border-block-start-color": "var(--text-primary)",
-                        "border-bottom-color": "var(--text-primary)",
-                        "border-inline-end-color": "var(--text-primary)",
-                        "border-inline-start-color": "var(--text-primary)",
-                        "border-left-color": "var(--text-primary)",
-                        "border-right-color": "var(--text-primary)",
-                        "border-top-color": "var(--text-primary)",
-                        "caret-color": "auto",
-                        "color": "var(--text-primary)",
-                        "display": "inline-block",
-                        "line-height": "1",
-                        "pointer-events": "auto",
-                        "visibility": "visible",
-                        "white-space": "nowrap",
-                      },
-                      "dataAttributes": {},
-                      "tagName": "span",
-                      "textContent": "x2",
-                    },
-                  ],
+                  "children": [],
                   "className": "onr-btn-sm onr-format-btn onr-format-sub",
                   "computedCss": {
                     "align-items": "center",
@@ -3383,10 +3310,9 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                     "display": "flex",
                     "flex-direction": "column",
                     "flex-shrink": "0",
-                    "font-size": "10px",
+                    "font-size": "11px",
                     "gap": "1px",
                     "justify-content": "center",
-                    "letter-spacing": "-2px",
                     "min-height": "22px",
                     "padding": "2px",
                     "pointer-events": "auto",
@@ -3400,65 +3326,10 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                     "data-cmd": "subscript",
                   },
                   "tagName": "div",
-                  "textContent": "x2",
+                  "textContent": "x₂",
                 },
                 {
-                  "children": [
-                    {
-                      "children": [
-                        {
-                          "children": [],
-                          "className": "onr-sup-text",
-                          "computedCss": {
-                            "background-color": "rgba(0, 0, 0, 0)",
-                            "border-block-end-color": "var(--text-primary)",
-                            "border-block-start-color": "var(--text-primary)",
-                            "border-bottom-color": "var(--text-primary)",
-                            "border-inline-end-color": "var(--text-primary)",
-                            "border-inline-start-color": "var(--text-primary)",
-                            "border-left-color": "var(--text-primary)",
-                            "border-right-color": "var(--text-primary)",
-                            "border-top-color": "var(--text-primary)",
-                            "caret-color": "auto",
-                            "color": "var(--text-primary)",
-                            "display": "inline-block",
-                            "font-size": "6px",
-                            "margin-left": "-3px",
-                            "pointer-events": "auto",
-                            "position": "relative",
-                            "top": "-3px",
-                            "vertical-align": "super",
-                            "visibility": "visible",
-                          },
-                          "dataAttributes": {},
-                          "tagName": "sup",
-                          "textContent": "2",
-                        },
-                      ],
-                      "className": "onr-script-symbol",
-                      "computedCss": {
-                        "background-color": "rgba(0, 0, 0, 0)",
-                        "border-block-end-color": "var(--text-primary)",
-                        "border-block-start-color": "var(--text-primary)",
-                        "border-bottom-color": "var(--text-primary)",
-                        "border-inline-end-color": "var(--text-primary)",
-                        "border-inline-start-color": "var(--text-primary)",
-                        "border-left-color": "var(--text-primary)",
-                        "border-right-color": "var(--text-primary)",
-                        "border-top-color": "var(--text-primary)",
-                        "caret-color": "auto",
-                        "color": "var(--text-primary)",
-                        "display": "inline-block",
-                        "line-height": "1",
-                        "pointer-events": "auto",
-                        "visibility": "visible",
-                        "white-space": "nowrap",
-                      },
-                      "dataAttributes": {},
-                      "tagName": "span",
-                      "textContent": "x2",
-                    },
-                  ],
+                  "children": [],
                   "className": "onr-btn-sm onr-format-btn onr-format-sup",
                   "computedCss": {
                     "align-items": "center",
@@ -3480,10 +3351,9 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                     "display": "flex",
                     "flex-direction": "column",
                     "flex-shrink": "0",
-                    "font-size": "10px",
+                    "font-size": "11px",
                     "gap": "1px",
                     "justify-content": "center",
-                    "letter-spacing": "-2px",
                     "min-height": "22px",
                     "padding": "2px",
                     "pointer-events": "auto",
@@ -3497,7 +3367,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                     "data-cmd": "superscript",
                   },
                   "tagName": "div",
-                  "textContent": "x2",
+                  "textContent": "x²",
                 },
                 {
                   "children": [],
@@ -4238,7 +4108,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
               },
               "dataAttributes": {},
               "tagName": "div",
-              "textContent": "BIUabx2x2▾A▾▾",
+              "textContent": "BIUabx₂x²▾A▾▾",
             },
           ],
           "className": "onr-basic-text-inner",
@@ -4263,7 +4133,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
           },
           "dataAttributes": {},
           "tagName": "div",
-          "textContent": "Font▾16▾▾▾BIUabx2x2▾A▾▾",
+          "textContent": "Font▾16▾▾▾BIUabx₂x²▾A▾▾",
         },
         {
           "children": [],
@@ -4321,7 +4191,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
       },
       "dataAttributes": {},
       "tagName": "div",
-      "textContent": "Font▾16▾▾▾BIUabx2x2▾A▾▾Basic Text",
+      "textContent": "Font▾16▾▾▾BIUabx₂x²▾A▾▾Basic Text",
     },
     {
       "children": [
@@ -6885,6 +6755,6 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
     "data-panel": "Home",
   },
   "tagName": "div",
-  "textContent": "Paste▾CutCopyFormat PainterClipboardFont▾16▾▾▾BIUabx2x2▾A▾▾Basic TextNormalHeading 1▲▼▾StylesTo DoImportant?Question▾To Do TagFind TagsTagsEmail PageMeeting DetailsEmail & MeetingsOutlineFold AllUnfold AllNavigate",
+  "textContent": "Paste▾CutCopyFormat PainterClipboardFont▾16▾▾▾BIUabx₂x²▾A▾▾Basic TextNormalHeading 1▲▼▾StylesTo DoImportant?Question▾To Do TagFind TagsTagsEmail PageMeeting DetailsEmail & MeetingsOutlineFold AllUnfold AllNavigate",
 }
 `;
