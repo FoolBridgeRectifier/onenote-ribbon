@@ -216,69 +216,18 @@ function buildEditorNumberCss(): string[] {
     'var(--text-normal)',
   );
 
-  // Task lines keep their original display
+  // During short CM6 recycling windows, spans may not be stamped yet.
+  // Keep the raw markdown number token visually hidden so `1.` does not flash.
+  parts.push('.cm-formatting-list-ol { color: transparent !important; }');
   parts.push(
-    `.HyperMD-task-line .cm-formatting-list-ol { font-size: inherit !important; }`,
-  );
-  parts.push(
-    `.HyperMD-task-line .cm-formatting-list-ol::before { content: none !important; }`,
-  );
-
-  return parts;
-}
-
-function buildNumberFallbackMarker(levelConfig: NumberLevelConfig): string {
-  const previewBase = getFormatFunction(levelConfig.style)(1);
-
-  switch (levelConfig.suffix) {
-    case 'period':
-      return `${previewBase}. `;
-    case 'paren':
-      return `${previewBase})  `;
-    case 'wrapped':
-      return `(${previewBase})  `;
-    default:
-      return `${previewBase}. `;
-  }
-}
-
-function buildEditorNumberCssWithFallback(
-  levels: [
-    NumberLevelConfig,
-    NumberLevelConfig,
-    NumberLevelConfig,
-    NumberLevelConfig,
-  ],
-): string[] {
-  const parts = buildEditorMarkerCss(
-    'cm-formatting-list-ol',
-    'var(--text-normal)',
-  );
-
-  // Always hide raw markdown number tokens while showing a depth-aware fallback
-  // so cursor moves don't reveal the raw `1.` token before re-stamping finishes.
-  parts.push('.cm-formatting-list-ol { font-size: 0 !important; }');
-
-  for (let depth = 1; depth <= EDITOR_MAX_DEPTH; depth++) {
-    const levelIndex = (depth - 1) % REQUIRED_BULLET_DEPTH_COUNT;
-    const fallbackMarker = buildNumberFallbackMarker(levels[levelIndex]);
-
-    parts.push(
-      `.cm-formatting-list-ol.cm-list-${depth}::before, ` +
-        `.HyperMD-list-line-${depth} .cm-formatting-list-ol::before ` +
-        `{ font-size: var(--font-text-size, 16px) !important; content: "${fallbackMarker}" !important; color: var(--text-normal) !important; }`,
-    );
-  }
-
-  // Prefer exact JS-stamped marker text when available.
-  parts.push(
-    '.cm-formatting-list-ol[data-onr-marker]::before { content: attr(data-onr-marker) !important; }',
+    '.cm-formatting-list-ol::before { color: var(--text-normal) !important; font-size: var(--font-text-size, 16px) !important; }',
   );
 
   // Task lines keep their original display
   parts.push(
     `.HyperMD-task-line .cm-formatting-list-ol { font-size: inherit !important; }`,
   );
+  parts.push(`.HyperMD-task-line .cm-formatting-list-ol { color: inherit !important; }`);
   parts.push(
     `.HyperMD-task-line .cm-formatting-list-ol::before { content: none !important; }`,
   );
@@ -512,7 +461,7 @@ function buildCssString(
       }
 
       // ── Editor / live-preview CSS (data-attribute driven) ──────────────
-      parts.push(...buildEditorNumberCssWithFallback(levels));
+      parts.push(...buildEditorNumberCss());
     }
   }
 
@@ -554,7 +503,6 @@ function createListMarkerObserver(
   converter: NumberLevelConverter | null,
   bulletLevels: BulletLevels | null,
 ): () => void {
-  let hasPendingMicrotask = false;
   let isStamping = false;
 
   const runStampNow = () => {
@@ -576,14 +524,7 @@ function createListMarkerObserver(
   const scheduleStamp = () => {
     // Ignore mutations triggered by our own stamping
     if (isStamping) return;
-    if (hasPendingMicrotask) return;
-
-    hasPendingMicrotask = true;
-
-    queueMicrotask(() => {
-      hasPendingMicrotask = false;
-      runStampNow();
-    });
+    runStampNow();
   };
 
   // Initial pass
@@ -611,10 +552,23 @@ function createListMarkerObserver(
   // mutations at the body level. Listen for scroll events on the editor's
   // scroll container to catch viewport-driven node recycling.
   const scrollContainers = document.querySelectorAll('.cm-scroller');
+
+  const runStampBurst = () => {
+    runStampNow();
+
+    queueMicrotask(() => {
+      runStampNow();
+    });
+
+    requestAnimationFrame(() => {
+      runStampNow();
+    });
+  };
+
   // Selection and scroll changes can happen without mutation timing that lands before paint.
   // Stamp immediately on these events to reduce visible marker flashes.
-  const scrollHandler = () => runStampNow();
-  const selectionHandler = () => runStampNow();
+  const scrollHandler = () => runStampBurst();
+  const selectionHandler = () => runStampBurst();
 
   for (const container of scrollContainers) {
     container.addEventListener('scroll', scrollHandler, { passive: true });

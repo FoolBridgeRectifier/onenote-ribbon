@@ -205,6 +205,9 @@ describe('useListStyleInjection — CSS injection on mount', () => {
     expect(cssText).toContain(
       '.HyperMD-list-line-1 .cm-formatting-list-ol[data-onr-marker] { font-size: 0 !important; }',
     );
+      expect(cssText).toContain(
+        '.cm-formatting-list-ol { color: transparent !important; }',
+      );
   });
 
   it('injected CSS hides UL tokens unconditionally and provides a depth fallback marker', async () => {
