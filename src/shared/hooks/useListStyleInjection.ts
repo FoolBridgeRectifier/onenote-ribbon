@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import type {
   ListStyleContextValue,
   ListStyleSettings,
+  NumberLevelConfig,
   NumberPreset,
 } from '../../tabs/home/basic-text/list-buttons/interfaces';
 import {
@@ -30,8 +31,19 @@ const DEPTH_SELECTORS: [string, string, string, string] = [
   ':is(ul ul ul ul) > li',
 ];
 
+const NUMBER_DEPTH_SELECTORS: [string, string, string, string] = [
+  ':is(ol) > li',
+  ':is(ol ol) > li',
+  ':is(ol ol ol) > li',
+  ':is(ol ol ol ol) > li',
+];
+
 /** Two-space visual padding appended after each bullet symbol in CSS marker content. */
 const MARKER_SYMBOL_PADDING = '  ';
+
+type BulletLevels = [string, string, string, string];
+
+const LIST_LINE_DEPTH_REGEX = /\bHyperMD-list-line-(\d+)\b/;
 
 /**
  * Maximum nesting depth for editor-view CSS rules.
@@ -98,11 +110,7 @@ function numberToUpperRoman(value: number): string {
   return numberToLowerRoman(value).toUpperCase();
 }
 
-/**
- * Converter function type: takes a 1-based number (parsed from markdown "N. ")
- * and returns the formatted marker string (e.g. "a. " or "(1) ").
- */
-type NumberConverter = (value: number) => string;
+type NumberLevelConverter = (value: number, depth: number) => string;
 
 /**
  * Builds a converter function for a given NumberPreset.
@@ -110,24 +118,33 @@ type NumberConverter = (value: number) => string;
  */
 export function buildNumberConverter(
   numberPreset: NumberPreset,
-): NumberConverter | null {
-  const styleType = numberPreset.cssListStyleType;
-  const markerTemplate = numberPreset.markerContent;
+): NumberLevelConverter | null {
+  if (numberPreset.levels.length !== REQUIRED_BULLET_DEPTH_COUNT) return null;
 
-  // Period-suffix styles: "a. ", "I. ", etc.
-  if (styleType) {
-    const formatFn = getFormatFunction(styleType);
-    return (value: number) => `${formatFn(value)}. `;
-  }
+  const levels = numberPreset.levels as [
+    NumberLevelConfig,
+    NumberLevelConfig,
+    NumberLevelConfig,
+    NumberLevelConfig,
+  ];
 
-  // Custom marker templates: "1) ", "(a) ", etc.
-  // The template uses `counter(list-item, <style>)` notation.
-  // We extract the style and wrapping characters.
-  if (markerTemplate) {
-    return buildTemplateConverter(markerTemplate);
-  }
+  return (value: number, depth: number) => {
+    const levelIndex = (depth - 1) % REQUIRED_BULLET_DEPTH_COUNT;
+    const levelConfig = levels[levelIndex];
+    const formatFn = getFormatFunction(levelConfig.style);
+    const formattedValue = formatFn(value);
 
-  return null;
+    switch (levelConfig.suffix) {
+      case 'period':
+        return `${formattedValue}. `;
+      case 'paren':
+        return `${formattedValue})  `;
+      case 'wrapped':
+        return `(${formattedValue})  `;
+      default:
+        return `${formattedValue}. `;
+    }
+  };
 }
 
 /** Maps a CSS list-style-type name to a number→string function. */
@@ -147,42 +164,44 @@ function getFormatFunction(styleType: string): (value: number) => string {
   }
 }
 
-/**
- * Parses a markerContent template like 'counter(list-item, lower-alpha) ")  "'
- * or '"(" counter(list-item, decimal) ")  "' and returns a converter function.
- */
-function buildTemplateConverter(template: string): NumberConverter | null {
-  // Extract the counter style from counter(list-item, <style>)
-  const counterMatch = template.match(
-    /counter\(\s*list-item\s*,\s*(\w[\w-]*)\s*\)/,
-  );
-  if (!counterMatch) return null;
-
-  const styleType = counterMatch[1];
-  const formatFn = getFormatFunction(styleType);
-
-  // Check for prefix/suffix characters around the counter() call
-  // e.g., '"(" counter(...) ")  "' → prefix="(", suffix=") "
-  const beforeCounter = template.substring(0, template.indexOf('counter('));
-  const afterCounter = template.substring(template.indexOf(')') + 1);
-
-  // Extract string literals from the prefix/suffix (remove quotes and extra spaces)
-  const prefix = extractStringLiteral(beforeCounter);
-  const suffix = extractStringLiteral(afterCounter);
-
-  return (value: number) => `${prefix}${formatFn(value)}${suffix}`;
-}
-
-/** Extracts the text content from a CSS string literal like '"("' → "(". */
-function extractStringLiteral(fragment: string): string {
-  const matches = fragment.match(/"([^"]*)"/g);
-  if (!matches) return '';
-
-  return matches.map((match) => match.slice(1, -1)).join('');
-}
-
 /** Regex to extract the number from a CM6 OL formatting span: "3. " → 3. */
 const OL_NUMBER_REGEX = /^(\d+)\.\s$/;
+
+/** Regex to detect a CM6 UL formatting span's raw marker text: "- " / "* " / "+ ". */
+const UL_MARKER_REGEX = /^[-*+]\s$/;
+
+function buildEditorMarkerCss(
+  markerClassName: 'cm-formatting-list-ol' | 'cm-formatting-list-ul',
+  markerColor: string,
+): string[] {
+  const parts: string[] = [];
+
+  for (let depth = 1; depth <= EDITOR_MAX_DEPTH; depth++) {
+    parts.push(
+      `.HyperMD-list-line-${depth} .${markerClassName}[data-onr-marker] ` +
+        `{ font-size: 0 !important; }`,
+    );
+    parts.push(
+      `.HyperMD-list-line-${depth} .${markerClassName}[data-onr-marker]::before ` +
+        `{ font-size: var(--font-text-size, 16px) !important; ` +
+        `content: attr(data-onr-marker); ` +
+        `color: ${markerColor} !important; }`,
+    );
+  }
+
+  return parts;
+}
+
+function extractListLineDepth(element: Element): number | null {
+  const lineClassName = element.closest('.cm-line')?.className ?? '';
+  const match = lineClassName.match(LIST_LINE_DEPTH_REGEX);
+
+  if (!match) {
+    return null;
+  }
+
+  return parseInt(match[1], 10);
+}
 
 /**
  * Builds static CSS rules for the editor that hide the original number text
@@ -192,20 +211,10 @@ const OL_NUMBER_REGEX = /^(\d+)\.\s$/;
  * the MutationObserver in `useListStyleInjection`.
  */
 function buildEditorNumberCss(): string[] {
-  const parts: string[] = [];
-
-  for (let depth = 1; depth <= EDITOR_MAX_DEPTH; depth++) {
-    parts.push(
-      `.HyperMD-list-line-${depth} .cm-formatting-list-ol[data-onr-marker] ` +
-        `{ font-size: 0 !important; }`,
-    );
-    parts.push(
-      `.HyperMD-list-line-${depth} .cm-formatting-list-ol[data-onr-marker]::before ` +
-        `{ font-size: var(--font-text-size, 16px) !important; ` +
-        `content: attr(data-onr-marker); ` +
-        `color: var(--text-normal) !important; }`,
-    );
-  }
+  const parts = buildEditorMarkerCss(
+    'cm-formatting-list-ol',
+    'var(--text-normal)',
+  );
 
   // Task lines keep their original display
   parts.push(
@@ -218,12 +227,50 @@ function buildEditorNumberCss(): string[] {
   return parts;
 }
 
+function buildEditorBulletCss(levels: BulletLevels): string[] {
+  const parts: string[] = [];
+
+  for (let depth = 1; depth <= EDITOR_MAX_DEPTH; depth++) {
+    const levelIndex = (depth - 1) % REQUIRED_BULLET_DEPTH_COUNT;
+    const symbol = levels[levelIndex];
+
+    // Keep the raw markdown token hidden at all times to avoid one-frame flashes during CM6 DOM recycling.
+    parts.push(
+      `.HyperMD-list-line-${depth} .cm-formatting-list-ul ` +
+        `{ font-size: 0 !important; }`,
+    );
+
+    // Depth-based fallback marker shown even before data-onr-marker is restamped.
+    parts.push(
+      `.HyperMD-list-line-${depth} .cm-formatting-list-ul::before ` +
+        `{ font-size: var(--font-text-size, 16px) !important; ` +
+        `content: "${symbol}${MARKER_SYMBOL_PADDING}" !important; ` +
+        `color: var(--text-muted, #888) !important; }`,
+    );
+
+    // Once available, prefer the JS-stamped marker attribute.
+    parts.push(
+      `.HyperMD-list-line-${depth} .cm-formatting-list-ul[data-onr-marker]::before ` +
+        `{ content: attr(data-onr-marker) !important; }`,
+    );
+  }
+
+  parts.push(
+    `.HyperMD-task-line .cm-formatting-list-ul { font-size: inherit !important; }`,
+  );
+  parts.push(
+    `.HyperMD-task-line .cm-formatting-list-ul::before { content: none !important; }`,
+  );
+
+  return parts;
+}
+
 /**
  * Stamps `data-onr-marker` on every visible `.cm-formatting-list-ol` span.
  * Called once to process all existing spans, and again by the MutationObserver
  * whenever the DOM changes.
  */
-function stampAllOlSpans(converter: NumberConverter): void {
+function stampAllOlSpans(converter: NumberLevelConverter): void {
   const spans = document.querySelectorAll('.cm-formatting-list-ol');
 
   for (const span of spans) {
@@ -238,18 +285,57 @@ function stampAllOlSpans(converter: NumberConverter): void {
 
     if (match) {
       const number = parseInt(match[1], 10);
-      const marker = converter(number);
+      const depth = extractListLineDepth(span);
+
+      if (depth === null) {
+        span.removeAttribute('data-onr-marker');
+        continue;
+      }
+
+      const marker = converter(number, depth);
       span.setAttribute('data-onr-marker', marker);
+      continue;
     }
+
+    span.removeAttribute('data-onr-marker');
+  }
+}
+
+function stampAllUlSpans(levels: BulletLevels): void {
+  const spans = document.querySelectorAll('.cm-formatting-list-ul');
+
+  for (const span of spans) {
+    if (span.closest('.HyperMD-task-line')) {
+      span.removeAttribute('data-onr-marker');
+      continue;
+    }
+
+    const text = span.textContent ?? '';
+
+    if (!UL_MARKER_REGEX.test(text)) {
+      span.removeAttribute('data-onr-marker');
+      continue;
+    }
+
+    const depth = extractListLineDepth(span);
+
+    if (depth === null) {
+      span.removeAttribute('data-onr-marker');
+      continue;
+    }
+
+    const levelIndex = (depth - 1) % REQUIRED_BULLET_DEPTH_COUNT;
+    const symbol = levels[levelIndex];
+    span.setAttribute('data-onr-marker', `${symbol}${MARKER_SYMBOL_PADDING}`);
   }
 }
 
 /**
- * Removes all `data-onr-marker` attributes from OL spans (cleanup on preset change or unmount).
+ * Removes all `data-onr-marker` attributes from list-marker spans.
  */
-function clearAllOlMarkers(): void {
+function clearAllListMarkers(): void {
   const spans = document.querySelectorAll(
-    '.cm-formatting-list-ol[data-onr-marker]',
+    '.cm-formatting-list-ol[data-onr-marker], .cm-formatting-list-ul[data-onr-marker]',
   );
 
   for (const span of spans) {
@@ -302,24 +388,7 @@ function buildCssString(
         );
       }
 
-      // Editor / live-preview view: Obsidian renders bullets as a CSS circle via
-      // .list-bullet::after (background-color circle, no text content). Override that
-      // pseudo-element with the preset symbol. Depth is encoded in .HyperMD-list-line-N.
-      for (let depth = 1; depth <= EDITOR_MAX_DEPTH; depth++) {
-        const levelIndex = (depth - 1) % REQUIRED_BULLET_DEPTH_COUNT;
-        const symbol = levels[levelIndex];
-
-        parts.push(
-          `.HyperMD-list-line-${depth} .list-bullet::after { ` +
-            `content: "${symbol}" !important; ` +
-            `background: none !important; ` +
-            `border-radius: 0 !important; ` +
-            `width: auto !important; ` +
-            `height: auto !important; ` +
-            `color: var(--text-muted, #888) !important; ` +
-            `font-size: 0.9em; }`,
-        );
-      }
+      parts.push(...buildEditorBulletCss(levels));
     }
   }
 
@@ -328,23 +397,49 @@ function buildCssString(
       (preset) => preset.id === numberPresetId,
     );
 
-    if (numberPreset) {
+    if (
+      numberPreset &&
+      numberPreset.levels.length === REQUIRED_BULLET_DEPTH_COUNT
+    ) {
+      const levels = numberPreset.levels as [
+        NumberLevelConfig,
+        NumberLevelConfig,
+        NumberLevelConfig,
+        NumberLevelConfig,
+      ];
+
       // ── Reading view CSS ────────────────────────────────────────────────
-      if (numberPreset.cssListStyleType) {
-        // Use native list-style-type — lets Obsidian's counter-reset handling work correctly
-        for (const scope of READING_VIEW_SCOPES) {
+      for (const scope of READING_VIEW_SCOPES) {
+        NUMBER_DEPTH_SELECTORS.forEach((depthSelector, depthIndex) => {
+          const levelConfig = levels[depthIndex];
+
+          if (levelConfig.suffix === 'period') {
+            parts.push(
+              `${scope} ${depthSelector} { list-style-type: ${levelConfig.style}; }`,
+            );
+            return;
+          }
+
+          parts.push(`${scope} ${depthSelector} { list-style-type: none; }`);
+
+          if (levelConfig.suffix === 'paren') {
+            parts.push(
+              `${scope} ${depthSelector}::marker { content: counter(list-item, ${levelConfig.style}) ")  "; }`,
+            );
+            return;
+          }
+
           parts.push(
-            `${scope} ol > li { list-style-type: ${numberPreset.cssListStyleType}; }`,
+            `${scope} ${depthSelector}::marker { content: "(" counter(list-item, ${levelConfig.style}) ")  "; }`,
           );
-        }
-      } else if (numberPreset.markerContent) {
-        // Custom marker expression requires suppressing the default list-style-type first
-        for (const scope of READING_VIEW_SCOPES) {
-          parts.push(`${scope} ol > li { list-style-type: none; }`);
-          parts.push(
-            `${scope} ol > li::marker { content: ${numberPreset.markerContent}; }`,
-          );
-        }
+        });
+      }
+
+      for (const scope of READING_VIEW_SCOPES) {
+        parts.push(`${scope} .task-list-item { list-style-type: none; }`);
+        parts.push(
+          `${scope} .task-list-item::marker { content: "" !important; }`,
+        );
       }
 
       // ── Editor / live-preview CSS (data-attribute driven) ──────────────
@@ -386,26 +481,47 @@ function buildAndInjectCss(
  *
  * Returns a cleanup function that disconnects the observer and removes all markers.
  */
-function createOlMarkerObserver(converter: NumberConverter): () => void {
-  let pendingFrame: number | null = null;
+function createListMarkerObserver(
+  converter: NumberLevelConverter | null,
+  bulletLevels: BulletLevels | null,
+): () => void {
+  let hasPendingMicrotask = false;
   let isStamping = false;
 
   const scheduleStamp = () => {
     // Ignore mutations triggered by our own stamping
     if (isStamping) return;
-    if (pendingFrame !== null) return;
+    if (hasPendingMicrotask) return;
 
-    pendingFrame = requestAnimationFrame(() => {
-      pendingFrame = null;
+    hasPendingMicrotask = true;
+
+    queueMicrotask(() => {
+      hasPendingMicrotask = false;
       isStamping = true;
-      stampAllOlSpans(converter);
+
+      if (converter !== null) {
+        stampAllOlSpans(converter);
+      }
+
+      if (bulletLevels !== null) {
+        stampAllUlSpans(bulletLevels);
+      }
+
       isStamping = false;
     });
   };
 
   // Initial pass
   isStamping = true;
-  stampAllOlSpans(converter);
+
+  if (converter !== null) {
+    stampAllOlSpans(converter);
+  }
+
+  if (bulletLevels !== null) {
+    stampAllUlSpans(bulletLevels);
+  }
+
   isStamping = false;
 
   const observer = new MutationObserver(scheduleStamp);
@@ -421,10 +537,13 @@ function createOlMarkerObserver(converter: NumberConverter): () => void {
   // scroll container to catch viewport-driven node recycling.
   const scrollContainers = document.querySelectorAll('.cm-scroller');
   const scrollHandler = () => scheduleStamp();
+  const selectionHandler = () => scheduleStamp();
 
   for (const container of scrollContainers) {
     container.addEventListener('scroll', scrollHandler, { passive: true });
   }
+
+  document.addEventListener('selectionchange', selectionHandler, true);
 
   return () => {
     observer.disconnect();
@@ -433,11 +552,9 @@ function createOlMarkerObserver(converter: NumberConverter): () => void {
       container.removeEventListener('scroll', scrollHandler);
     }
 
-    if (pendingFrame !== null) {
-      cancelAnimationFrame(pendingFrame);
-    }
+    document.removeEventListener('selectionchange', selectionHandler, true);
 
-    clearAllOlMarkers();
+    clearAllListMarkers();
   };
 }
 
@@ -481,7 +598,7 @@ export function useListStyleInjection(): ListStyleContextValue {
     buildAndInjectCss(bulletPresetId, numberPresetId);
   }, [bulletPresetId, numberPresetId]);
 
-  // Manage the MutationObserver for OL number conversion in the editor
+  // Manage the MutationObserver for live-editor list marker conversion
   useEffect(() => {
     // Clean up previous observer
     if (observerCleanupRef.current) {
@@ -489,28 +606,44 @@ export function useListStyleInjection(): ListStyleContextValue {
       observerCleanupRef.current = null;
     }
 
-    if (numberPresetId === NUMBER_PRESET_NONE_ID) return;
-
-    const numberPreset = NUMBER_PRESETS.find(
-      (preset) => preset.id === numberPresetId,
+    const bulletPreset = BULLET_PRESETS.find(
+      (preset) => preset.id === bulletPresetId,
     );
-    if (!numberPreset) return;
+    const bulletLevels =
+      bulletPreset && bulletPreset.levels.length === REQUIRED_BULLET_DEPTH_COUNT
+        ? (bulletPreset.levels as BulletLevels)
+        : null;
 
-    const converter = buildNumberConverter(numberPreset);
-    if (!converter) return;
+    const numberPreset =
+      numberPresetId === NUMBER_PRESET_NONE_ID
+        ? null
+        : (NUMBER_PRESETS.find((preset) => preset.id === numberPresetId) ??
+          null);
+    const converter = numberPreset ? buildNumberConverter(numberPreset) : null;
 
-    console.log('[ONR] Creating observer for:', numberPresetId);
-    observerCleanupRef.current = createOlMarkerObserver(converter);
+    if (bulletLevels === null && converter === null) return;
+
+    console.log('[ONR] Creating observer for:', {
+      bulletPresetId,
+      numberPresetId,
+    });
+    observerCleanupRef.current = createListMarkerObserver(
+      converter,
+      bulletLevels,
+    );
     console.log('[ONR] Observer created, ref set');
 
     return () => {
-      console.log('[ONR] Effect cleanup running for:', numberPresetId);
+      console.log('[ONR] Effect cleanup running for:', {
+        bulletPresetId,
+        numberPresetId,
+      });
       if (observerCleanupRef.current) {
         observerCleanupRef.current();
         observerCleanupRef.current = null;
       }
     };
-  }, [numberPresetId]);
+  }, [bulletPresetId, numberPresetId]);
 
   const setBulletPreset = (presetId: string): void => {
     setBulletPresetId(presetId);

@@ -2,7 +2,11 @@ import React from 'react';
 import './number-library.css';
 import { Dropdown } from '../../../../../shared/components/dropdown/Dropdown';
 import { NUMBER_PRESETS } from '../constants';
-import { NUMBER_LIBRARY_HEADING } from './constants';
+import {
+  NUMBER_LIBRARY_HEADING,
+  NUMBER_LIBRARY_INDENT_PER_LEVEL_PX,
+} from './constants';
+import { formatLevelPreview } from './formatLevelPreview';
 import type { NumberLibraryProps } from './interfaces';
 
 export function NumberLibrary({
@@ -35,7 +39,26 @@ export function NumberLibrary({
                 event.preventDefault();
               }}
             >
-              <span className="onr-number-library-preview">{preset.label}</span>
+              {preset.levels.length > 0 ? (
+                <div className="onr-number-library-levels">
+                  {preset.levels.map((levelConfig, levelIndex) => (
+                    <span
+                      key={levelIndex}
+                      className="onr-number-library-level"
+                      // Cascading indent: each deeper nesting level shifts right by 2px per depth.
+                      style={{
+                        marginLeft:
+                          levelIndex * NUMBER_LIBRARY_INDENT_PER_LEVEL_PX,
+                      }}
+                    >
+                      {formatLevelPreview(levelConfig, 1)}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <span className="onr-number-library-levels">—</span>
+              )}
+              <span className="onr-number-library-label">{preset.label}</span>
             </div>
           );
         })}

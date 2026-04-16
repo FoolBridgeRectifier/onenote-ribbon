@@ -24,6 +24,18 @@ function countLeadingTabs(lineText: string): number {
 }
 
 /**
+ * Returns true when a line is a markdown list item (bullet, numbered, or todo).
+ * Only list items provide valid parent-depth context for indent-safety checking.
+ * Non-list lines (headers, paragraphs, etc.) do not count as list parents.
+ */
+function isListItemLine(lineText: string): boolean {
+  // Matches optional leading tabs followed by a list marker:
+  //   - bullet: `- `, `* `, `+ ` (with optional checkbox `[ ] `)
+  //   - numbered: `1. `, `2. `, etc.
+  return /^\t*([-*+]|\d+\.)\s/.test(lineText);
+}
+
+/**
  * Returns true when the current line can be safely indented one more level
  * without breaking the markdown list parser.
  *
@@ -48,6 +60,11 @@ export function canSafelyIndent(editor: MinimalEditor): boolean {
     const previousLine = editor.getLine(lineIndex);
 
     if (previousLine.trim() === '') continue;
+
+    // Only a list item can serve as a valid depth reference.
+    // Headers, paragraphs, etc. do not establish list parent context, so
+    // indenting past them would orphan the list item at an invalid depth.
+    if (!isListItemLine(previousLine)) return false;
 
     const previousDepth = countLeadingTabs(previousLine);
 

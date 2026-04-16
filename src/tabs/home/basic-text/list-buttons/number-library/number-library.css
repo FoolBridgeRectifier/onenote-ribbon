@@ -38,7 +38,7 @@
   transition:
     background var(--transition-fast),
     border-color var(--transition-fast);
-  min-height: 44px;
+  min-height: 52px;
 }
 
 .onr-number-library-cell:hover {
@@ -51,14 +51,26 @@
   border-color: var(--btn-active-border);
 }
 
-/* Number sequence preview text */
-.onr-number-library-preview {
+/* Column of depth-level preview markers inside each cell */
+.onr-number-library-levels {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
   font-size: 11px;
   line-height: 1.2;
-  text-align: center;
+  width: 100%;
+  padding-left: 4px;
 }
 
-/* Cell name label */
+/* One nesting-level marker row */
+.onr-number-library-level {
+  display: inline-block;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Cell name label below the depth previews */
 .onr-number-library-label {
   font-size: 10px;
   color: var(--text-muted);

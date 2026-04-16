@@ -1302,4 +1302,37 @@ describe('Group 8: Multi-line list formatting', () => {
       '> ==Line one==\n> ==Line two==',
     );
   });
+
+  it('Header + bullet list full selection + bold → keeps structure on every line', () => {
+    const source = '## Header line\n- list item one\n- list item two';
+    const context = createContext(source, 0, source.length);
+    const result = toggleTag(context, BOLD_MD_TAG);
+
+    expect(result.isNoOp).toBe(false);
+    expect(applyReplacements(source, result.replacements)).toBe(
+      '## **Header line**\n- **list item one**\n- **list item two**',
+    );
+  });
+
+  it('Todo bullet + hashtag + italic across lines → hashtag remains outside formatting', () => {
+    const source = '- [ ] Task one #todo\n- [ ] Task two #todo';
+    const context = createContext(source, 0, source.length);
+    const result = toggleTag(context, ITALIC_MD_TAG);
+
+    expect(result.isNoOp).toBe(false);
+    expect(applyReplacements(source, result.replacements)).toBe(
+      '- [ ] *Task one *#todo\n- [ ] *Task two *#todo',
+    );
+  });
+
+  it('Bullet list mixed HTML + MD + plain content + bold → no list-prefix breakage', () => {
+    const source = '- <u>html underlined</u>\n- **markdown bold**\n- plain';
+    const context = createContext(source, 0, source.length);
+    const result = toggleTag(context, BOLD_MD_TAG);
+
+    expect(result.isNoOp).toBe(false);
+    expect(applyReplacements(source, result.replacements)).toBe(
+      '- **<u>html underlined</u>**\n- **markdown bold**\n- **plain**',
+    );
+  });
 });

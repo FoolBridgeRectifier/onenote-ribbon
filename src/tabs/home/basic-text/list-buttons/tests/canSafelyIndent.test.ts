@@ -76,4 +76,37 @@ describe('canSafelyIndent', () => {
     );
     expect(canSafelyIndent(editor)).toBe(true);
   });
+
+  describe('non-list preceding lines', () => {
+    it('blocks indent when first previous non-empty line is a heading', () => {
+      // Indenting a root list item after a header creates an orphaned depth-1 item
+      const editor = mockEditor(['# Section Header', '', '- item one'], 2);
+      expect(canSafelyIndent(editor)).toBe(false);
+    });
+
+    it('blocks indent when first previous non-empty line is a paragraph', () => {
+      const editor = mockEditor(['Some paragraph text.', '- item one'], 1);
+      expect(canSafelyIndent(editor)).toBe(false);
+    });
+
+    it('blocks indent when a non-list line separates two list sections', () => {
+      // The paragraph terminates the first list; the item below starts a new list
+      const editor = mockEditor(
+        ['- parent', 'Paragraph break', '- item one'],
+        2,
+      );
+      expect(canSafelyIndent(editor)).toBe(false);
+    });
+
+    it('blocks indent when previous line is a heading and item is numbered', () => {
+      const editor = mockEditor(['## Sub-heading', '1. first item'], 1);
+      expect(canSafelyIndent(editor)).toBe(false);
+    });
+
+    it('allows indent when previous list item is separated from header by another list item', () => {
+      // Header → root list item → cursor item: cursor item has a valid list parent
+      const editor = mockEditor(['# Header', '- parent', '- cursor'], 2);
+      expect(canSafelyIndent(editor)).toBe(true);
+    });
+  });
 });

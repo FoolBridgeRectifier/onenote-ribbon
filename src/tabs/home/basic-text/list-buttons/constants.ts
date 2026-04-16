@@ -1,5 +1,41 @@
 import type { BulletPreset, NumberPreset } from './interfaces';
 
+type NumberStyleType =
+  | 'decimal'
+  | 'lower-alpha'
+  | 'upper-alpha'
+  | 'lower-roman'
+  | 'upper-roman';
+
+type NumberSuffixType = 'period' | 'paren' | 'wrapped';
+
+const DEPTH_STYLE_CYCLE: NumberStyleType[] = [
+  'decimal',
+  'lower-alpha',
+  'lower-roman',
+  'upper-alpha',
+  'upper-roman',
+];
+
+function buildNumberLevels(
+  baseStyle: NumberStyleType,
+  suffix: NumberSuffixType,
+): NumberPreset['levels'] {
+  const baseIndex = DEPTH_STYLE_CYCLE.indexOf(baseStyle);
+
+  const getStyleAtDepth = (depthOffset: number): NumberStyleType => {
+    const index = (baseIndex + depthOffset) % DEPTH_STYLE_CYCLE.length;
+    return DEPTH_STYLE_CYCLE[index];
+  };
+
+  return [
+    { style: getStyleAtDepth(0), suffix },
+    { style: getStyleAtDepth(1), suffix },
+    { style: getStyleAtDepth(2), suffix },
+    { style: getStyleAtDepth(3), suffix },
+  ];
+}
+
 /** CSS selector targeting reading-view list items at a given nesting depth. */
 export const READING_VIEW_SCOPES = [
   '.markdown-preview-view',
@@ -42,92 +78,87 @@ export const BULLET_PRESETS: BulletPreset[] = [
  */
 export const NUMBER_PRESETS: NumberPreset[] = [
   // Row 1: None + period-suffix styles
-  { id: NUMBER_PRESET_NONE_ID, label: 'None', markerContent: '' },
+  { id: NUMBER_PRESET_NONE_ID, label: 'None', levels: [] },
   {
     id: 'decimal-period',
     label: '1. 2. 3.',
-    markerContent: '',
-    cssListStyleType: 'decimal',
+    levels: buildNumberLevels('decimal', 'period'),
   },
   {
     id: 'lower-alpha-period',
     label: 'a. b. c.',
-    markerContent: '',
-    cssListStyleType: 'lower-alpha',
+    levels: buildNumberLevels('lower-alpha', 'period'),
   },
   {
     id: 'upper-alpha-period',
     label: 'A. B. C.',
-    markerContent: '',
-    cssListStyleType: 'upper-alpha',
+    levels: buildNumberLevels('upper-alpha', 'period'),
   },
 
   // Row 2: roman period + paren variants
   {
     id: 'lower-roman-period',
     label: 'i. ii. iii.',
-    markerContent: '',
-    cssListStyleType: 'lower-roman',
+    levels: buildNumberLevels('lower-roman', 'period'),
   },
   {
     id: 'upper-roman-period',
     label: 'I. II. III.',
-    markerContent: '',
-    cssListStyleType: 'upper-roman',
+    levels: buildNumberLevels('upper-roman', 'period'),
   },
   {
     id: 'decimal-paren',
     label: '1) 2) 3)',
-    markerContent: 'counter(list-item, decimal) ")  "',
+    levels: buildNumberLevels('decimal', 'paren'),
   },
   {
     id: 'lower-alpha-paren',
     label: 'a) b) c)',
-    markerContent: 'counter(list-item, lower-alpha) ")  "',
+    levels: buildNumberLevels('lower-alpha', 'paren'),
   },
 
   // Row 3
   {
     id: 'upper-alpha-paren',
     label: 'A) B) C)',
-    markerContent: 'counter(list-item, upper-alpha) ")  "',
+    levels: buildNumberLevels('upper-alpha', 'paren'),
   },
   {
     id: 'lower-roman-paren',
     label: 'i) ii) iii)',
-    markerContent: 'counter(list-item, lower-roman) ")  "',
+    levels: buildNumberLevels('lower-roman', 'paren'),
   },
   {
     id: 'upper-roman-paren',
     label: 'I) II) III)',
-    markerContent: 'counter(list-item, upper-roman) ")  "',
+    levels: buildNumberLevels('upper-roman', 'paren'),
   },
   {
     id: 'decimal-wrapped',
     label: '(1) (2) (3)',
-    markerContent: '"(" counter(list-item, decimal) ")  "',
+    levels: buildNumberLevels('decimal', 'wrapped'),
   },
 
   // Row 4
   {
     id: 'lower-alpha-wrapped',
     label: '(a) (b) (c)',
-    markerContent: '"(" counter(list-item, lower-alpha) ")  "',
+    levels: buildNumberLevels('lower-alpha', 'wrapped'),
   },
   {
     id: 'upper-alpha-wrapped',
     label: '(A) (B) (C)',
-    markerContent: '"(" counter(list-item, upper-alpha) ")  "',
+    levels: buildNumberLevels('upper-alpha', 'wrapped'),
   },
   {
     id: 'lower-roman-wrapped',
     label: '(i) (ii) (iii)',
-    markerContent: '"(" counter(list-item, lower-roman) ")  "',
+    levels: buildNumberLevels('lower-roman', 'wrapped'),
   },
   {
     id: 'upper-roman-wrapped',
     label: '(I) (II) (III)',
-    markerContent: '"(" counter(list-item, upper-roman) ")  "',
+    levels: buildNumberLevels('upper-roman', 'wrapped'),
   },
 ];
 
