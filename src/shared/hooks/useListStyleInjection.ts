@@ -177,15 +177,34 @@ function buildEditorMarkerCss(
   const parts: string[] = [];
 
   for (let depth = 1; depth <= EDITOR_MAX_DEPTH; depth++) {
+    // Hide the raw marker text with transparent color (not font-size: 0) so the native
+    // caret still renders at normal height when positioned inside the marker span.
     parts.push(
-      `.HyperMD-list-line-${depth} .${markerClassName}[data-onr-marker] ` +
-        `{ font-size: 0 !important; }`,
+      `.HyperMD-list-line-${depth} .${markerClassName} ` +
+        `{ color: transparent !important; ` +
+        `caret-color: ${markerColor} !important; ` +
+        `position: relative !important; ` +
+        `display: inline-block !important; ` +
+        `vertical-align: baseline !important; ` +
+        `cursor: text !important; }`,
     );
+
+    // Empty placeholder before JS stamps the attribute — prevents default numbering flash.
+    // Absolutely positioned so it overlays the transparent original text.
+    parts.push(
+      `.HyperMD-list-line-${depth} .${markerClassName}::before ` +
+        `{ position: absolute !important; ` +
+        `left: 0 !important; ` +
+        `pointer-events: none !important; ` +
+        `font-size: var(--font-text-size, 16px) !important; ` +
+        `content: "\\a0" !important; ` +
+        `color: ${markerColor} !important; }`,
+    );
+
+    // Once JS stamps the data-onr-marker attribute, show the converted marker text.
     parts.push(
       `.HyperMD-list-line-${depth} .${markerClassName}[data-onr-marker]::before ` +
-        `{ font-size: var(--font-text-size, 16px) !important; ` +
-        `content: attr(data-onr-marker); ` +
-        `color: ${markerColor} !important; }`,
+        `{ content: attr(data-onr-marker) !important; }`,
     );
   }
 
@@ -218,7 +237,7 @@ function buildEditorNumberCss(): string[] {
 
   // Task lines keep their original display
   parts.push(
-    `.HyperMD-task-line .cm-formatting-list-ol { font-size: inherit !important; }`,
+    `.HyperMD-task-line .cm-formatting-list-ol { color: inherit !important; position: static !important; }`,
   );
   parts.push(
     `.HyperMD-task-line .cm-formatting-list-ol::before { content: none !important; }`,
@@ -234,16 +253,26 @@ function buildEditorBulletCss(levels: BulletLevels): string[] {
     const levelIndex = (depth - 1) % REQUIRED_BULLET_DEPTH_COUNT;
     const symbol = levels[levelIndex];
 
-    // Keep the raw markdown token hidden at all times to avoid one-frame flashes during CM6 DOM recycling.
+    // Hide the raw markdown token with transparent color (not font-size: 0) so the native
+    // caret still renders at normal height when positioned inside the marker span.
     parts.push(
       `.HyperMD-list-line-${depth} .cm-formatting-list-ul ` +
-        `{ font-size: 0 !important; }`,
+        `{ color: transparent !important; ` +
+        `caret-color: var(--text-normal) !important; ` +
+        `position: relative !important; ` +
+        `display: inline-block !important; ` +
+        `vertical-align: baseline !important; ` +
+        `cursor: text !important; }`,
     );
 
     // Depth-based fallback marker shown even before data-onr-marker is restamped.
+    // Absolutely positioned so it overlays the transparent original text.
     parts.push(
       `.HyperMD-list-line-${depth} .cm-formatting-list-ul::before ` +
-        `{ font-size: var(--font-text-size, 16px) !important; ` +
+        `{ position: absolute !important; ` +
+        `left: 0 !important; ` +
+        `pointer-events: none !important; ` +
+        `font-size: var(--font-text-size, 16px) !important; ` +
         `content: "${symbol}${MARKER_SYMBOL_PADDING}" !important; ` +
         `color: var(--text-muted, #888) !important; }`,
     );
@@ -253,10 +282,17 @@ function buildEditorBulletCss(levels: BulletLevels): string[] {
       `.HyperMD-list-line-${depth} .cm-formatting-list-ul[data-onr-marker]::before ` +
         `{ content: attr(data-onr-marker) !important; }`,
     );
+
+    // Hide Obsidian's native bullet dot (rendered via .list-bullet::after)
+    // so it doesn't double up with our custom marker.
+    parts.push(
+      `.HyperMD-list-line-${depth} .cm-formatting-list-ul .list-bullet::after ` +
+        `{ display: none !important; }`,
+    );
   }
 
   parts.push(
-    `.HyperMD-task-line .cm-formatting-list-ul { font-size: inherit !important; }`,
+    `.HyperMD-task-line .cm-formatting-list-ul { color: inherit !important; position: static !important; }`,
   );
   parts.push(
     `.HyperMD-task-line .cm-formatting-list-ul::before { content: none !important; }`,
@@ -276,7 +312,8 @@ function stampAllOlSpans(converter: NumberLevelConverter): void {
   for (const span of spans) {
     // Skip task-line spans (they use checkboxes, not numbers)
     if (span.closest('.HyperMD-task-line')) {
-      span.removeAttribute('data-onr-marker');
+      if (span.hasAttribute('data-onr-marker'))
+        span.removeAttribute('data-onr-marker');
       continue;
     }
 
@@ -288,16 +325,23 @@ function stampAllOlSpans(converter: NumberLevelConverter): void {
       const depth = extractListLineDepth(span);
 
       if (depth === null) {
-        span.removeAttribute('data-onr-marker');
+        if (span.hasAttribute('data-onr-marker'))
+          span.removeAttribute('data-onr-marker');
         continue;
       }
 
       const marker = converter(number, depth);
-      span.setAttribute('data-onr-marker', marker);
+
+      // Only write when the value actually differs — prevents infinite MutationObserver loops
+      if (span.getAttribute('data-onr-marker') !== marker) {
+        span.setAttribute('data-onr-marker', marker);
+      }
+
       continue;
     }
 
-    span.removeAttribute('data-onr-marker');
+    if (span.hasAttribute('data-onr-marker'))
+      span.removeAttribute('data-onr-marker');
   }
 }
 
@@ -306,27 +350,35 @@ function stampAllUlSpans(levels: BulletLevels): void {
 
   for (const span of spans) {
     if (span.closest('.HyperMD-task-line')) {
-      span.removeAttribute('data-onr-marker');
+      if (span.hasAttribute('data-onr-marker'))
+        span.removeAttribute('data-onr-marker');
       continue;
     }
 
     const text = span.textContent ?? '';
 
     if (!UL_MARKER_REGEX.test(text)) {
-      span.removeAttribute('data-onr-marker');
+      if (span.hasAttribute('data-onr-marker'))
+        span.removeAttribute('data-onr-marker');
       continue;
     }
 
     const depth = extractListLineDepth(span);
 
     if (depth === null) {
-      span.removeAttribute('data-onr-marker');
+      if (span.hasAttribute('data-onr-marker'))
+        span.removeAttribute('data-onr-marker');
       continue;
     }
 
     const levelIndex = (depth - 1) % REQUIRED_BULLET_DEPTH_COUNT;
     const symbol = levels[levelIndex];
-    span.setAttribute('data-onr-marker', `${symbol}${MARKER_SYMBOL_PADDING}`);
+    const expectedMarker = `${symbol}${MARKER_SYMBOL_PADDING}`;
+
+    // Only write when the value actually differs — prevents infinite MutationObserver loops
+    if (span.getAttribute('data-onr-marker') !== expectedMarker) {
+      span.setAttribute('data-onr-marker', expectedMarker);
+    }
   }
 }
 
@@ -526,10 +578,14 @@ function createListMarkerObserver(
 
   const observer = new MutationObserver(scheduleStamp);
 
+  // attributeFilter includes data-onr-marker so the observer fires immediately
+  // when CM6 strips our custom attribute during its DOM reconciliation.
+  // Without this, re-stamping only happens via selectionchange (too late — after paint).
   observer.observe(document.body, {
     childList: true,
     subtree: true,
     characterData: true,
+    attributeFilter: ['data-onr-marker'],
   });
 
   // CM6 recycles DOM nodes during scrolling without always firing childList
@@ -545,11 +601,108 @@ function createListMarkerObserver(
 
   document.addEventListener('selectionchange', selectionHandler, true);
 
+  // Clicking on a marker span with transparent text can land the native caret inside
+  // the marker's text node. On mouseup, nudge the cursor to the first content position
+  // after the marker so CM6's list-aware backspace behavior is preserved.
+  const contentContainers = document.querySelectorAll('.cm-content');
+
+  const markerClickHandler = (event: Event) => {
+    const mouseEvent = event as MouseEvent;
+    const target = mouseEvent.target as Element | null;
+
+    if (!target) return;
+
+    const markerSpan = target.closest(
+      '.cm-formatting-list-ol, .cm-formatting-list-ul',
+    );
+
+    if (!markerSpan) return;
+
+    // Skip task-line markers — those keep their native formatting
+    if (markerSpan.closest('.HyperMD-task-line')) return;
+
+    // Access the CM6 EditorView via the content element's internal reference
+    const cmContent = markerSpan.closest('.cm-content') as HTMLElement | null;
+    const editorView = (cmContent as any)?.cmView?.view;
+
+    if (!editorView || typeof editorView.posAtDOM !== 'function') return;
+
+    // Resolve document position at the first character after the marker span
+    const nextSibling = markerSpan.nextSibling;
+    const positionAfterMarker = nextSibling
+      ? editorView.posAtDOM(nextSibling, 0)
+      : editorView.posAtDOM(markerSpan, markerSpan.childNodes.length);
+
+    // Let CM6 process the mousedown natively, then reposition the cursor
+    // on mouseup so CM6's internal state (including list-context awareness)
+    // is set up correctly for subsequent keystrokes like backspace.
+    const repositionOnMouseUp = () => {
+      document.removeEventListener('mouseup', repositionOnMouseUp, true);
+
+      // Schedule after CM6 finishes its own mouseup handling
+      requestAnimationFrame(() => {
+        editorView.dispatch({ selection: { anchor: positionAfterMarker } });
+      });
+    };
+
+    document.addEventListener('mouseup', repositionOnMouseUp, true);
+  };
+
+  for (const container of contentContainers) {
+    container.addEventListener('mousedown', markerClickHandler, true);
+  }
+
+  // Backspace inside a marker span (transparent text) would delete individual marker
+  // characters instead of removing list formatting. Intercept it and use Obsidian's
+  // toggle commands so "1. one" → "one" rather than "1. one" → "1.one".
+  const backspaceHandler = (event: Event) => {
+    const keyEvent = event as KeyboardEvent;
+
+    if (keyEvent.key !== 'Backspace') return;
+
+    const selection = document.getSelection();
+
+    if (!selection || !selection.isCollapsed) return;
+
+    const anchorNode = selection.anchorNode;
+    const parentElement = anchorNode?.parentElement;
+
+    if (!parentElement) return;
+
+    const isOlMarker = parentElement.closest(
+      '.cm-formatting-list-ol:not(.HyperMD-task-line .cm-formatting-list-ol)',
+    );
+    const isUlMarker = parentElement.closest(
+      '.cm-formatting-list-ul:not(.HyperMD-task-line .cm-formatting-list-ul)',
+    );
+
+    if (!isOlMarker && !isUlMarker) return;
+
+    keyEvent.preventDefault();
+    keyEvent.stopPropagation();
+
+    const commandId = isOlMarker
+      ? 'editor:toggle-numbered-list'
+      : 'editor:toggle-bullet-list';
+
+    // Access Obsidian's global app to execute the toggle command
+    (window as any).app?.commands?.executeCommandById(commandId);
+  };
+
+  for (const container of contentContainers) {
+    container.addEventListener('keydown', backspaceHandler, true);
+  }
+
   return () => {
     observer.disconnect();
 
     for (const container of scrollContainers) {
       container.removeEventListener('scroll', scrollHandler);
+    }
+
+    for (const container of contentContainers) {
+      container.removeEventListener('mousedown', markerClickHandler, true);
+      container.removeEventListener('keydown', backspaceHandler, true);
     }
 
     document.removeEventListener('selectionchange', selectionHandler, true);

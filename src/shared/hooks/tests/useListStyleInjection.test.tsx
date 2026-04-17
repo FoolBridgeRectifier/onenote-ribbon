@@ -193,7 +193,7 @@ describe('useListStyleInjection — CSS injection on mount', () => {
     expect(cssText).toContain('counter(list-item, decimal)');
   });
 
-  it('injected CSS hides OL tokens only when a replacement marker attribute is present', async () => {
+  it('injected CSS unconditionally hides OL tokens and provides a placeholder fallback', async () => {
     const mockPlugin = createMockPlugin({
       bulletPresetId: BULLET_PRESET_NONE_ID,
       numberPresetId: 'decimal-paren',
@@ -202,8 +202,20 @@ describe('useListStyleInjection — CSS injection on mount', () => {
 
     const cssText =
       document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
+
+    // Transparent color hides raw text while keeping caret visible at normal height
     expect(cssText).toContain(
-      '.HyperMD-list-line-1 .cm-formatting-list-ol[data-onr-marker] { font-size: 0 !important; }',
+      '.HyperMD-list-line-1 .cm-formatting-list-ol { color: transparent !important; caret-color: var(--text-normal) !important; position: relative !important; display: inline-block !important; vertical-align: baseline !important; cursor: text !important; }',
+    );
+
+    // Non-breaking space placeholder keeps layout stable before JS stamps the real marker
+    expect(cssText).toContain(
+      '.HyperMD-list-line-1 .cm-formatting-list-ol::before',
+    );
+
+    // Once data-onr-marker is stamped, the converted marker text overrides the placeholder
+    expect(cssText).toContain(
+      '.HyperMD-list-line-1 .cm-formatting-list-ol[data-onr-marker]::before { content: attr(data-onr-marker) !important; }',
     );
   });
 
@@ -217,10 +229,10 @@ describe('useListStyleInjection — CSS injection on mount', () => {
     const cssText =
       document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
     expect(cssText).toContain(
-      '.HyperMD-list-line-1 .cm-formatting-list-ul { font-size: 0 !important; }',
+      '.HyperMD-list-line-1 .cm-formatting-list-ul { color: transparent !important; caret-color: var(--text-normal) !important; position: relative !important; display: inline-block !important; vertical-align: baseline !important; cursor: text !important; }',
     );
     expect(cssText).toContain(
-      '.HyperMD-list-line-1 .cm-formatting-list-ul::before { font-size: var(--font-text-size, 16px) !important; content: "●  " !important; color: var(--text-muted, #888) !important; }',
+      '.HyperMD-list-line-1 .cm-formatting-list-ul::before { position: absolute !important; left: 0 !important; pointer-events: none !important; font-size: var(--font-text-size, 16px) !important; content: "●  " !important; color: var(--text-muted, #888) !important; }',
     );
     expect(cssText).toContain(
       '.HyperMD-list-line-1 .cm-formatting-list-ul[data-onr-marker]::before { content: attr(data-onr-marker) !important; }',
@@ -448,5 +460,171 @@ describe('useListStyleInjection — editor marker stamping', () => {
     await act(async () => {});
 
     expect(formattingSpan.hasAttribute('data-onr-marker')).toBe(false);
+  });
+});
+
+// ============================================================
+// g) Backspace inside marker spans
+// ============================================================
+
+describe('useListStyleInjection — backspace inside marker span', () => {
+  let cmContent: HTMLElement;
+  let executeCommandSpy: jest.Mock;
+
+  beforeEach(() => {
+    // The backspace handler attaches to .cm-content elements found at mount time
+    cmContent = document.createElement('div');
+    cmContent.className = 'cm-content';
+    document.body.appendChild(cmContent);
+
+    executeCommandSpy = jest.fn();
+    (window as any).app = {
+      commands: { executeCommandById: executeCommandSpy },
+    };
+  });
+
+  afterEach(() => {
+    cmContent.remove();
+    delete (window as any).app;
+  });
+
+  /**
+   * Creates a marker span inside the shared .cm-content container and mocks
+   * document.getSelection() so the backspace handler sees the caret inside it.
+   */
+  function setupMarkerInsideCmContent({
+    depth,
+    listType,
+    textContent,
+    isTaskLine = false,
+  }: {
+    depth: number;
+    listType: 'ul' | 'ol';
+    textContent: string;
+    isTaskLine?: boolean;
+  }) {
+    const lineElement = document.createElement('div');
+    lineElement.className =
+      `${isTaskLine ? 'HyperMD-task-line ' : ''}` +
+      `HyperMD-list-line HyperMD-list-line-${depth} cm-line`;
+
+    const formattingSpan = document.createElement('span');
+    formattingSpan.className =
+      `cm-formatting cm-formatting-list ` +
+      `cm-formatting-list-${listType} cm-list-${depth}`;
+    formattingSpan.textContent = textContent;
+
+    const textNode = formattingSpan.firstChild!;
+
+    lineElement.appendChild(formattingSpan);
+    cmContent.appendChild(lineElement);
+
+    // Mock getSelection to place the caret inside the marker's text node
+    jest.spyOn(document, 'getSelection').mockReturnValue({
+      isCollapsed: true,
+      anchorNode: textNode,
+      anchorOffset: textContent.length,
+    } as unknown as Selection);
+
+    return { lineElement, formattingSpan };
+  }
+
+  it('intercepts Backspace inside an OL marker and calls toggle-numbered-list', async () => {
+    setupMarkerInsideCmContent({
+      depth: 1,
+      listType: 'ol',
+      textContent: '1. ',
+    });
+
+    const mockPlugin = createMockPlugin({
+      bulletPresetId: BULLET_PRESET_NONE_ID,
+      numberPresetId: 'decimal-period',
+    });
+
+    await renderAndFlush(mockPlugin);
+
+    const backspaceEvent = new KeyboardEvent('keydown', {
+      key: 'Backspace',
+      bubbles: true,
+      cancelable: true,
+    });
+    const wasDefaultPrevented = !cmContent.dispatchEvent(backspaceEvent);
+
+    expect(wasDefaultPrevented).toBe(true);
+    expect(executeCommandSpy).toHaveBeenCalledWith(
+      'editor:toggle-numbered-list',
+    );
+  });
+
+  it('intercepts Backspace inside a UL marker and calls toggle-bullet-list', async () => {
+    setupMarkerInsideCmContent({ depth: 1, listType: 'ul', textContent: '- ' });
+
+    const mockPlugin = createMockPlugin({
+      bulletPresetId: 'classic',
+      numberPresetId: NUMBER_PRESET_NONE_ID,
+    });
+
+    await renderAndFlush(mockPlugin);
+
+    const backspaceEvent = new KeyboardEvent('keydown', {
+      key: 'Backspace',
+      bubbles: true,
+      cancelable: true,
+    });
+    const wasDefaultPrevented = !cmContent.dispatchEvent(backspaceEvent);
+
+    expect(wasDefaultPrevented).toBe(true);
+    expect(executeCommandSpy).toHaveBeenCalledWith('editor:toggle-bullet-list');
+  });
+
+  it('does NOT intercept Backspace inside a task-line marker', async () => {
+    setupMarkerInsideCmContent({
+      depth: 1,
+      listType: 'ol',
+      textContent: '1. ',
+      isTaskLine: true,
+    });
+
+    const mockPlugin = createMockPlugin({
+      bulletPresetId: BULLET_PRESET_NONE_ID,
+      numberPresetId: 'decimal-period',
+    });
+
+    await renderAndFlush(mockPlugin);
+
+    const backspaceEvent = new KeyboardEvent('keydown', {
+      key: 'Backspace',
+      bubbles: true,
+      cancelable: true,
+    });
+    const wasDefaultPrevented = !cmContent.dispatchEvent(backspaceEvent);
+
+    expect(wasDefaultPrevented).toBe(false);
+    expect(executeCommandSpy).not.toHaveBeenCalled();
+  });
+
+  it('does NOT intercept non-Backspace keys inside a marker span', async () => {
+    setupMarkerInsideCmContent({
+      depth: 1,
+      listType: 'ol',
+      textContent: '1. ',
+    });
+
+    const mockPlugin = createMockPlugin({
+      bulletPresetId: BULLET_PRESET_NONE_ID,
+      numberPresetId: 'decimal-period',
+    });
+
+    await renderAndFlush(mockPlugin);
+
+    const letterEvent = new KeyboardEvent('keydown', {
+      key: 'a',
+      bubbles: true,
+      cancelable: true,
+    });
+    const wasDefaultPrevented = !cmContent.dispatchEvent(letterEvent);
+
+    expect(wasDefaultPrevented).toBe(false);
+    expect(executeCommandSpy).not.toHaveBeenCalled();
   });
 });

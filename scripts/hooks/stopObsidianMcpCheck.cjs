@@ -1,7 +1,8 @@
-let hookInput = {};
+const fs = require('node:fs');
 
+let hookInput = {};
 try {
-  const inputText = require('node:fs').readFileSync(0, 'utf8');
+  const inputText = fs.readFileSync(0, 'utf8');
   hookInput = inputText ? JSON.parse(inputText) : {};
 } catch {
   hookInput = {};
@@ -11,6 +12,42 @@ const stopHookActive = Boolean(hookInput.stop_hook_active);
 
 // When stop_hook_active is true, the hook is re-firing after a block — allow Claude to stop.
 if (stopHookActive) {
+  process.exit(0);
+}
+
+/**
+ * Check if the checklist has already been completed in the current session.
+ * We look at the transcript to see if the "Step 1 - PASS/FAIL/N/A" pattern exists.
+ */
+function isChecklistCompleted(transcriptPath, currentResponse) {
+  // 1. Check current response first (most recent)
+  if (currentResponse && /Step 1 - (PASS|FAIL|N\/A):/.test(currentResponse) && /Step 5 - (PASS|FAIL|N\/A):/.test(currentResponse)) {
+    return true;
+  }
+
+  // 2. Check full transcript
+  if (transcriptPath && fs.existsSync(transcriptPath)) {
+    try {
+      const transcript = JSON.parse(fs.readFileSync(transcriptPath, 'utf8'));
+      // Search from newest to oldest messages
+      for (let i = transcript.length - 1; i >= 0; i--) {
+        const message = transcript[i];
+        if (message.role === 'model' && message.content) {
+          const content = typeof message.content === 'string' ? message.content : JSON.stringify(message.content);
+          if (/Step 1 - (PASS|FAIL|N\/A):/.test(content) && /Step 5 - (PASS|FAIL|N\/A):/.test(content)) {
+            return true;
+          }
+        }
+      }
+    } catch (e) {
+      // Fallback to blocking if transcript parsing fails
+    }
+  }
+
+  return false;
+}
+
+if (isChecklistCompleted(hookInput.transcript_path, hookInput.prompt_response)) {
   process.exit(0);
 }
 
