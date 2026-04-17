@@ -5,6 +5,8 @@
   padding: 2px 8px 0;
   position: relative;
   min-width: 60px;
+  /* Must not shrink — parent is nowrap; without this groups overlap when space is tight */
+  flex-shrink: 0;
 }
 
 /* Vertical separator between adjacent groups */

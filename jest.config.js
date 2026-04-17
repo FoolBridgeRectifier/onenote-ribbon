@@ -1,7 +1,7 @@
 /** @type {import('jest').Config} */
 module.exports = {
   testEnvironment: "jsdom",
-  testMatch: ["**/*.test.ts", "**/*.test.tsx"],
+  testMatch: ["**/*.test.ts", "**/*.test.tsx", "**/*.test.cjs"],
   setupFilesAfterEnv: ["<rootDir>/src/test-utils/setup.ts"],
   transform: {
     "^.+\\.css$": "<rootDir>/scripts/jest/cssTransform.cjs",

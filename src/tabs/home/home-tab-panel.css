@@ -1,10 +1,13 @@
 .onr-tab-panel {
   display: flex;
   align-items: stretch;
-  flex-wrap: wrap;
+  /* Never wrap groups — horizontal scroll on the parent .onr-body handles overflow */
+  flex-wrap: nowrap;
   gap: 0;
-  flex: 1;
-  width: 100%;
+  /* flex-shrink: 0 so the panel never compresses to fit the viewport */
+  flex-shrink: 0;
+  /* min-width: 100% keeps the panel full-width when groups don't overflow */
+  min-width: 100%;
 }
 
 .onr-email-group,

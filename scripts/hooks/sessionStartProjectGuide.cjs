@@ -1,5 +1,11 @@
-const fs = require('node:fs');
-const path = require('node:path');
+const fs = require('fs');
+const path = require('path');
+
+const {
+  discoverSkillNames,
+  discoverAllAgentNames,
+  discoverMcpServerNames,
+} = require('./session-start/discoverContext.cjs');
 
 function getWorkspaceRoot() {
   return process.cwd();
@@ -27,6 +33,22 @@ function buildStartupGuide(workspaceRoot) {
 
   if (!fileExists(designPath)) {
     startupLines.push('- Warning: DESIGN.md was not found in the workspace root.');
+  }
+
+  const skillNames = discoverSkillNames();
+  if (skillNames.length > 0) {
+    startupLines.push('');
+    startupLines.push('Available skills: ' + skillNames.join(', '));
+  }
+
+  const allAgentNames = discoverAllAgentNames();
+  if (allAgentNames.length > 0) {
+    startupLines.push('Available agents: ' + allAgentNames.join(', '));
+  }
+
+  const mcpServerNames = discoverMcpServerNames();
+  if (mcpServerNames.length > 0) {
+    startupLines.push('Available MCP servers: ' + mcpServerNames.join(', '));
   }
 
   return startupLines.join('\n');

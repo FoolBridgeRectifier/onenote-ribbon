@@ -15,7 +15,26 @@ body.is-hidden-frameless:not(.starter) .titlebar {
   min-height: 92px;
   display: flex;
   align-items: stretch;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   padding: 4px 4px 0;
-  overflow: visible;
+  /* Scroll horizontally when groups exceed available width instead of wrapping.
+   * overflow-y is hidden (not visible) because the CSS spec promotes visible→auto
+   * whenever the other axis is non-visible, which would add an unwanted vertical scrollbar. */
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ribbon-border) transparent;
+}
+
+.onr-body::-webkit-scrollbar {
+  height: 4px;
+}
+
+.onr-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.onr-body::-webkit-scrollbar-thumb {
+  background: var(--ribbon-border);
+  border-radius: 2px;
 }
