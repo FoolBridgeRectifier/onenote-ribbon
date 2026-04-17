@@ -1,11 +1,14 @@
-import { Notice } from 'obsidian';
+import { App, Component, MarkdownRenderer, Notice, TFile } from 'obsidian';
 
 import {
+  EMAIL_BODY_TEXT,
   EMAIL_SUBJECT_PREFIX,
   EML_BOUNDARY,
+  EML_DELETE_DELAY_MS,
   NOTE_EXPORT_STYLES,
 } from './constants';
 import type { SendNoteByEmailDependencies } from './interfaces';
+import { generatePdfFromHtml } from './pdfExport';
 
 // ── Internal HTML helpers ─────────────────────────────────────────────────────
 
@@ -198,6 +201,145 @@ export function buildNoteHtml(
 </html>`;
 }
 
+// ── Obsidian-native HTML rendering ────────────────────────────────────────────
+
+/**
+ * CSS properties to snapshot from each rendered element and inline into the
+ * HTML sent to the PDF BrowserWindow. Skipping font-family avoids referencing
+ * fonts that exist only in the Obsidian process.
+ */
+const INLINE_STYLE_PROPERTIES = [
+  'font-size',
+  'font-weight',
+  'font-style',
+  'line-height',
+  'color',
+  'background-color',
+  'margin-top',
+  'margin-right',
+  'margin-bottom',
+  'margin-left',
+  'padding-top',
+  'padding-right',
+  'padding-bottom',
+  'padding-left',
+  'border-left-width',
+  'border-left-color',
+  'border-left-style',
+  'border-top-width',
+  'border-top-color',
+  'border-top-style',
+  'text-decoration',
+  'text-align',
+  'border-radius',
+  'display',
+  'vertical-align',
+] as const;
+
+/**
+ * Walks every descendant element of `root` and writes its live computed CSS
+ * values as inline styles. This makes the HTML self-contained — the isolated
+ * BrowserWindow used for PDF generation needs no external stylesheet.
+ */
+function inlineComputedStylesOnAllElements(root: HTMLElement): void {
+  const elements = root.querySelectorAll('*');
+  for (const element of Array.from(elements)) {
+    const computed = window.getComputedStyle(element as HTMLElement);
+    const styleEntries: string[] = [];
+
+    for (const property of INLINE_STYLE_PROPERTIES) {
+      const value = computed.getPropertyValue(property);
+      if (value !== '') {
+        styleEntries.push(`${property}:${value}`);
+      }
+    }
+
+    (element as HTMLElement).style.cssText = styleEntries.join(';');
+  }
+}
+
+/**
+ * Renders markdown using Obsidian's own MarkdownRenderer into a hidden
+ * off-screen container, inlines all computed CSS values onto every element,
+ * strips Obsidian UI chrome (collapse indicators, metadata header), and returns
+ * a complete self-contained HTML document ready for Electron's printToPDF.
+ *
+ * Because styles are inlined from live computed values, the PDF will match
+ * exactly what Obsidian's reading view displays for the active theme.
+ */
+export async function buildObsidianHtml(
+  app: App,
+  markdown: string,
+  noteTitle: string,
+  file: TFile | null,
+): Promise<string> {
+  // Render in a hidden off-screen container so getComputedStyle returns live values
+  const container = document.createElement('div');
+  container.className = 'markdown-preview-view markdown-rendered';
+  // 800px matches a typical readable-line-width in Obsidian
+  container.style.cssText =
+    'position:absolute;left:-9999px;top:0;width:800px;visibility:hidden;';
+  document.body.appendChild(container);
+
+  const component = new Component();
+  component.load();
+
+  const filePath = file?.path ?? '';
+  await MarkdownRenderer.render(app, markdown, container, filePath, component);
+
+  // Wait a tick for any async rendering (embeds, live-preview plugins) to settle
+  await new Promise<void>((resolve) => setTimeout(resolve, 100));
+
+  // Remove Obsidian UI chrome that has no place in a printed PDF
+  const obsidianUiSelectors = [
+    '.markdown-preview-pusher',
+    '.mod-header',
+    '.heading-collapse-indicator',
+    '.list-collapse-indicator',
+    '.collapse-indicator',
+    '.metadata-container',
+  ];
+  for (const selector of obsidianUiSelectors) {
+    container.querySelectorAll(selector).forEach((element) => element.remove());
+  }
+
+  // Snapshot computed styles onto every element before leaving the Obsidian context
+  inlineComputedStylesOnAllElements(container);
+
+  const bodyHtml = container.innerHTML;
+
+  component.unload();
+  document.body.removeChild(container);
+
+  const escapedTitle = escapeHtmlEntities(noteTitle);
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>${escapedTitle}</title>
+  <style>
+    body {
+      /* Safe system font stack — Obsidian's custom fonts are not available
+         in the isolated PDF BrowserWindow */
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, system-ui,
+        "Segoe UI", Roboto, Inter, sans-serif;
+      margin: 20px;
+      padding: 0;
+      max-width: 800px;
+    }
+    /* Hide any residual interactive Obsidian UI elements */
+    .collapse-indicator, .list-collapse-indicator { display: none; }
+    /* Keep SVG callout icons from overflowing their containers */
+    svg { max-width: 1em; height: auto; vertical-align: middle; }
+  </style>
+</head>
+<body>
+  ${bodyHtml}
+</body>
+</html>`;
+}
+
 // ── Public: plain text conversion ────────────────────────────────────────────
 
 /**
@@ -291,8 +433,51 @@ export function buildEmlContent(
   ].join('\r\n');
 }
 
-// ── Public: Electron dependency factory ──────────────────────────────────────
+// ── Public: EML with PDF attachment ──────────────────────────────────────────
 
+/**
+ * Builds a MIME multipart/mixed EML string with a generic plain-text body and a PDF
+ * file attachment. The PDF is base64-encoded per RFC 2045 §6.8.
+ *
+ * The plain-text part gives email clients a readable fallback message while
+ * the attached PDF carries the fully styled note content.
+ */
+export function buildEmlWithPdfAttachment(
+  pdfBuffer: Buffer,
+  subject: string,
+  noteTitle: string,
+): string {
+  // Derive a safe file name by stripping characters that are unsafe in paths
+  const safeFileName = noteTitle.replace(/[^\w\s-]/g, '').trim() + '.pdf';
+
+  const encodedBody = wrapBase64AtLineLength(
+    Buffer.from(EMAIL_BODY_TEXT, 'utf-8').toString('base64'),
+  );
+  const encodedPdf = wrapBase64AtLineLength(pdfBuffer.toString('base64'));
+
+  return [
+    'MIME-Version: 1.0',
+    `Subject: ${subject}`,
+    `Content-Type: multipart/mixed; boundary="${EML_BOUNDARY}"`,
+    '',
+    `--${EML_BOUNDARY}`,
+    'Content-Type: text/plain; charset="UTF-8"',
+    'Content-Transfer-Encoding: base64',
+    '',
+    encodedBody,
+    '',
+    `--${EML_BOUNDARY}`,
+    `Content-Type: application/pdf; name="${safeFileName}"`,
+    `Content-Disposition: attachment; filename="${safeFileName}"`,
+    'Content-Transfer-Encoding: base64',
+    '',
+    encodedPdf,
+    '',
+    `--${EML_BOUNDARY}--`,
+  ].join('\r\n');
+}
+
+// ── Public: Electron dependency factory ──────────────────────────────────────
 /**
  * Creates the real, Electron-backed implementation of SendNoteByEmailDependencies.
  * Uses Node.js fs/os/path for file writing and electron.shell for opening the
@@ -303,6 +488,13 @@ export function buildEmlContent(
  */
 export function createDefaultSendDependencies(): SendNoteByEmailDependencies {
   return {
+    buildHtml: (markdown: string, noteTitle: string): Promise<string> => {
+      // Access the global Obsidian App instance — always available in the renderer process
+      const obsidianApp = (window as unknown as { app: App }).app;
+      const file = obsidianApp.workspace.getActiveFile();
+      return buildObsidianHtml(obsidianApp, markdown, noteTitle, file);
+    },
+
     writeEmlToTemp: (emlContent: string, noteTitle: string): string => {
       const os = require('os');
       const path = require('path');
@@ -323,15 +515,29 @@ export function createDefaultSendDependencies(): SendNoteByEmailDependencies {
     displayNotice: (message: string): void => {
       new Notice(message);
     },
+
+    generatePdf: (htmlContent: string): Promise<Buffer> => {
+      return generatePdfFromHtml(htmlContent);
+    },
+
+    deleteFile: (filePath: string): void => {
+      const fs = require('fs');
+      try {
+        fs.unlinkSync(filePath);
+      } catch {
+        // Ignore deletion errors — the OS temp directory will eventually reclaim the file
+      }
+    },
   };
 }
 
 // ── Public: orchestration ─────────────────────────────────────────────────────
 
 /**
- * Converts the given markdown to a styled EML file (HTML email body + plain
- * text fallback), writes it to the OS temp directory, and opens it with the
- * system default email client so the user can add recipients and send.
+ * Converts the given markdown to a PDF attachment, builds an EML file
+ * containing the PDF with a generic body message, writes it to the OS temp
+ * directory, opens it with the system default email client, then schedules
+ * deletion of the temp file once the email client has had time to read it.
  *
  * The `dependencies` parameter allows injecting mocks in tests. When omitted,
  * the real Electron implementations are used.
@@ -341,13 +547,19 @@ export async function sendNoteByEmail(
   noteTitle: string,
   dependencies: SendNoteByEmailDependencies = createDefaultSendDependencies(),
 ): Promise<void> {
-  const htmlContent = buildNoteHtml(markdownContent, noteTitle);
-  const plainTextContent = stripMarkdownToPlainText(markdownContent);
+  const htmlContent = await dependencies.buildHtml(markdownContent, noteTitle);
   const subject = EMAIL_SUBJECT_PREFIX + noteTitle;
 
-  const emlContent = buildEmlContent(htmlContent, plainTextContent, subject);
-  const savedEmlPath = dependencies.writeEmlToTemp(emlContent, noteTitle);
+  const pdfBuffer = await dependencies.generatePdf(htmlContent);
+  const emlContent = buildEmlWithPdfAttachment(pdfBuffer, subject, noteTitle);
 
+  const savedEmlPath = dependencies.writeEmlToTemp(emlContent, noteTitle);
   await dependencies.openEmlFile(savedEmlPath);
+
+  // Schedule EML cleanup after the email client has had time to read the file
+  setTimeout(() => {
+    dependencies.deleteFile(savedEmlPath);
+  }, EML_DELETE_DELAY_MS);
+
   dependencies.displayNotice('Opening your email client...');
 }

@@ -1,5 +1,6 @@
 import {
   buildEmlContent,
+  buildEmlWithPdfAttachment,
   buildNoteHtml,
   convertMarkdownToHtmlBody,
   sendNoteByEmail,
@@ -323,26 +324,127 @@ describe('buildEmlContent', () => {
   });
 });
 
+// ── buildEmlWithPdfAttachment ─────────────────────────────────────────────────
+
+describe('buildEmlWithPdfAttachment', () => {
+  const fakePdf = Buffer.from('%PDF-1.4 fake');
+
+  it('starts with the MIME-Version header', () => {
+    const result = buildEmlWithPdfAttachment(fakePdf, 'Subject', 'Title');
+    expect(result).toMatch(/^MIME-Version: 1\.0/);
+  });
+
+  it('includes the subject header', () => {
+    const result = buildEmlWithPdfAttachment(fakePdf, 'My Note Title', 'Title');
+    expect(result).toContain('Subject: My Note Title');
+  });
+
+  it('declares multipart/mixed content type', () => {
+    const result = buildEmlWithPdfAttachment(fakePdf, 'Subject', 'Title');
+    expect(result).toContain('Content-Type: multipart/mixed');
+  });
+
+  it('contains the EML boundary marker', () => {
+    const result = buildEmlWithPdfAttachment(fakePdf, 'Subject', 'Title');
+    expect(result).toContain('--onenote-ribbon-v1');
+  });
+
+  it('includes a text/plain part with generic body text', () => {
+    const result = buildEmlWithPdfAttachment(fakePdf, 'Subject', 'Title');
+    expect(result).toContain('Content-Type: text/plain; charset="UTF-8"');
+    // Email body text should be base64-encoded in the EML
+    const expectedBodyBase64 = Buffer.from(
+      'Your note is attached and ready to share.\n\nHope this makes your day a little brighter.',
+      'utf-8',
+    ).toString('base64');
+    expect(result).toContain(expectedBodyBase64);
+  });
+
+  it('includes an application/pdf attachment part', () => {
+    const result = buildEmlWithPdfAttachment(fakePdf, 'Subject', 'Title');
+    expect(result).toContain('Content-Type: application/pdf');
+    expect(result).toContain('Content-Disposition: attachment');
+  });
+
+  it('derives the attachment filename from the note title', () => {
+    const result = buildEmlWithPdfAttachment(fakePdf, 'Subject', 'My Note');
+    expect(result).toContain('filename="My Note.pdf"');
+  });
+
+  it('strips unsafe characters from the attachment filename', () => {
+    const result = buildEmlWithPdfAttachment(fakePdf, 'Subject', 'Note: <Draft>');
+    // Colon, space, angle brackets are stripped — only word chars, spaces, hyphens remain
+    expect(result).toContain('filename="Note Draft.pdf"');
+  });
+
+  it('base64-encodes the PDF buffer into the attachment part', () => {
+    const result = buildEmlWithPdfAttachment(fakePdf, 'Subject', 'Title');
+    const expectedPdfBase64 = fakePdf.toString('base64');
+    expect(result).toContain(expectedPdfBase64);
+  });
+
+  it('ends with the closing boundary marker', () => {
+    const result = buildEmlWithPdfAttachment(fakePdf, 'Subject', 'Title');
+    expect(result.trimEnd()).toMatch(/--onenote-ribbon-v1--$/);
+  });
+});
+
 describe('sendNoteByEmail', () => {
+  const fakePdfBuffer = Buffer.from('%PDF-1.4 mock');
+
   const buildMockDependencies = (): {
     mockDependencies: SendNoteByEmailDependencies;
+    buildHtml: jest.Mock;
     writeEmlToTemp: jest.Mock;
     openEmlFile: jest.Mock;
     displayNotice: jest.Mock;
+    generatePdf: jest.Mock;
+    deleteFile: jest.Mock;
   } => {
+    const buildHtml = jest
+      .fn()
+      .mockResolvedValue(
+        '<!DOCTYPE html><html><body>rendered note</body></html>',
+      );
     const writeEmlToTemp = jest.fn().mockReturnValue('/tmp/My Note.eml');
     const openEmlFile = jest.fn().mockResolvedValue(undefined);
     const displayNotice = jest.fn();
+    const generatePdf = jest.fn().mockResolvedValue(fakePdfBuffer);
+    const deleteFile = jest.fn();
 
     return {
-      mockDependencies: { writeEmlToTemp, openEmlFile, displayNotice },
+      mockDependencies: {
+        buildHtml,
+        writeEmlToTemp,
+        openEmlFile,
+        displayNotice,
+        generatePdf,
+        deleteFile,
+      },
+      buildHtml,
       writeEmlToTemp,
       openEmlFile,
       displayNotice,
+      generatePdf,
+      deleteFile,
     };
   };
 
-  it('calls writeEmlToTemp with valid EML content and the note title', async () => {
+  it('calls buildHtml with the note markdown and title', async () => {
+    const { mockDependencies, buildHtml } = buildMockDependencies();
+    await sendNoteByEmail('# My Note\nHello', 'My Note', mockDependencies);
+    expect(buildHtml).toHaveBeenCalledWith('# My Note\nHello', 'My Note');
+  });
+
+  it('calls generatePdf with the HTML returned by buildHtml', async () => {
+    const { mockDependencies, generatePdf } = buildMockDependencies();
+    await sendNoteByEmail('# My Note\nHello', 'My Note', mockDependencies);
+    expect(generatePdf).toHaveBeenCalledWith(
+      expect.stringContaining('<!DOCTYPE html>'),
+    );
+  });
+
+  it('calls writeEmlToTemp with EML containing a PDF attachment and the note title', async () => {
     const { mockDependencies, writeEmlToTemp } = buildMockDependencies();
     await sendNoteByEmail('# My Note\nHello', 'My Note', mockDependencies);
     expect(writeEmlToTemp).toHaveBeenCalledWith(
@@ -358,6 +460,15 @@ describe('sendNoteByEmail', () => {
     expect(emlContent).toContain('Subject: Note: My Note');
   });
 
+  it('EML passed to writeEmlToTemp declares multipart/mixed with a PDF attachment', async () => {
+    const { mockDependencies, writeEmlToTemp } = buildMockDependencies();
+    await sendNoteByEmail('content', 'My Note', mockDependencies);
+    const emlContent: string = writeEmlToTemp.mock.calls[0][0];
+    expect(emlContent).toContain('multipart/mixed');
+    expect(emlContent).toContain('Content-Type: application/pdf');
+    expect(emlContent).toContain('Your note has been exported');
+  });
+
   it('calls openEmlFile with the path returned by writeEmlToTemp', async () => {
     const { mockDependencies, openEmlFile } = buildMockDependencies();
     await sendNoteByEmail('content', 'My Note', mockDependencies);
@@ -370,11 +481,34 @@ describe('sendNoteByEmail', () => {
     expect(displayNotice).toHaveBeenCalled();
   });
 
+  it('schedules deleteFile with the EML path after the delay', async () => {
+    jest.useFakeTimers();
+    const { mockDependencies, deleteFile } = buildMockDependencies();
+
+    await sendNoteByEmail('content', 'My Note', mockDependencies);
+
+    expect(deleteFile).not.toHaveBeenCalled();
+
+    jest.runAllTimers();
+
+    expect(deleteFile).toHaveBeenCalledWith('/tmp/My Note.eml');
+
+    jest.useRealTimers();
+  });
+
   it('propagates errors thrown by openEmlFile', async () => {
     const { mockDependencies, openEmlFile } = buildMockDependencies();
     openEmlFile.mockRejectedValue(new Error('Cannot open file'));
     await expect(
       sendNoteByEmail('content', 'My Note', mockDependencies),
     ).rejects.toThrow('Cannot open file');
+  });
+
+  it('propagates errors thrown by generatePdf', async () => {
+    const { mockDependencies, generatePdf } = buildMockDependencies();
+    generatePdf.mockRejectedValue(new Error('PDF failed'));
+    await expect(
+      sendNoteByEmail('content', 'My Note', mockDependencies),
+    ).rejects.toThrow('PDF failed');
   });
 });

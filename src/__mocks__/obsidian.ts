@@ -29,3 +29,16 @@ export class Notice {
 export class Plugin {}
 
 export class App {}
+
+export class Component {
+  load() {}
+  unload() {}
+}
+
+export class TFile {
+  path = '';
+}
+
+export const MarkdownRenderer = {
+  render: jest.fn().mockResolvedValue(undefined),
+};

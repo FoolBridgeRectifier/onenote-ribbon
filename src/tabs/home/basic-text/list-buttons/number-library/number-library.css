@@ -9,10 +9,10 @@
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   color: var(--text-muted);
-  margin-bottom: 6px;
-  padding-bottom: 4px;
+  margin-bottom: 8px;
+  padding-bottom: 5px;
   border-bottom: 1px solid var(--btn-hover-border);
 }
 
@@ -20,7 +20,7 @@
 .onr-number-library-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 4px;
+  gap: 5px;
 }
 
 /* Individual preset cell */
@@ -29,16 +29,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  padding: 6px 4px;
+  gap: 4px;
+  padding: 8px 5px;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
   cursor: pointer;
   user-select: none;
   transition:
     background var(--transition-fast),
-    border-color var(--transition-fast);
-  min-height: 52px;
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+  min-height: 60px;
 }
 
 .onr-number-library-cell:hover {
@@ -46,28 +47,37 @@
   border-color: var(--btn-hover-border);
 }
 
+/* Active selection uses a visible inset ring for clear highlight */
 .onr-number-library-cell.onr-active {
   background: var(--btn-active-bg);
   border-color: var(--btn-active-border);
+  box-shadow: inset 0 0 0 1px var(--btn-active-border);
 }
 
-/* Column of depth-level preview markers inside each cell */
+/* Levels container: stacks primary marker above secondary row */
 .onr-number-library-levels {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 1px;
-  font-size: 11px;
-  line-height: 1.2;
-  width: 100%;
-  padding-left: 4px;
+  align-items: center;
+  gap: 2px;
+  line-height: 1;
 }
 
-/* One nesting-level marker row */
-.onr-number-library-level {
-  display: inline-block;
-  font-size: 10px;
+/* First-level marker — prominent, same size as bullet symbols */
+.onr-number-library-level-primary {
+  font-size: 13px;
   font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+/* Remaining levels — smaller and muted to indicate nesting preview */
+.onr-number-library-level-secondary {
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  line-height: 1;
+  white-space: nowrap;
 }
 
 /* Cell name label below the depth previews */
@@ -75,4 +85,14 @@
   font-size: 10px;
   color: var(--text-muted);
   text-align: center;
+  letter-spacing: 0.025em;
+}
+
+/* Skip box-shadow transitions for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .onr-number-library-cell {
+    transition:
+      background var(--transition-fast),
+      border-color var(--transition-fast);
+  }
 }

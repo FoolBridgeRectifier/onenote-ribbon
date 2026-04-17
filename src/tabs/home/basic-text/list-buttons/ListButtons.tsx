@@ -7,6 +7,7 @@ import {
   OutdentIcon,
   IndentIcon,
 } from '../../../../assets/icons';
+import { RibbonButton } from '../../../../shared/components/ribbon-button/RibbonButton';
 import { BulletLibrary } from './bullet-library/BulletLibrary';
 import { NumberLibrary } from './number-library/NumberLibrary';
 import { useListStyleInjection } from '../../../../shared/hooks/useListStyleInjection';
@@ -23,6 +24,8 @@ import {
   OBSIDIAN_CMD_TOGGLE_NUMBER_LIST,
   OBSIDIAN_CMD_UNINDENT_LIST,
   OBSIDIAN_CMD_INDENT_LIST,
+  BULLET_PRESET_NONE_ID,
+  NUMBER_PRESET_NONE_ID,
 } from './constants';
 
 interface ListButtonsProps {
@@ -41,12 +44,16 @@ export function ListButtons({ editorState }: ListButtonsProps) {
   const { bulletPresetId, numberPresetId, setBulletPreset, setNumberPreset } =
     useListStyleInjection();
 
-  // Prevents editor from losing focus when clicking ribbon buttons.
-  const preventEditorBlur = (event: React.MouseEvent) => {
-    event.preventDefault();
-  };
+  // Tracks the last preset explicitly chosen from the library so the main button re-applies it.
+  const [lastBulletPresetId, setLastBulletPresetId] = useState(bulletPresetId);
+  const [lastNumberPresetId, setLastNumberPresetId] = useState(numberPresetId);
 
   const handleBulletToggle = () => {
+    // Re-apply the last chosen bullet preset so the new list uses it immediately.
+    if (lastBulletPresetId !== BULLET_PRESET_NONE_ID) {
+      setBulletPreset(lastBulletPresetId);
+    }
+
     app.commands.executeCommandById(OBSIDIAN_CMD_TOGGLE_BULLET_LIST);
   };
 
@@ -56,7 +63,17 @@ export function ListButtons({ editorState }: ListButtonsProps) {
     setBulletLibraryOpen((isOpen) => !isOpen);
   };
 
+  const handleBulletPresetSelect = (presetId: string) => {
+    setLastBulletPresetId(presetId);
+    setBulletPreset(presetId);
+  };
+
   const handleNumberToggle = () => {
+    // Re-apply the last chosen number preset so the new list uses it immediately.
+    if (lastNumberPresetId !== NUMBER_PRESET_NONE_ID) {
+      setNumberPreset(lastNumberPresetId);
+    }
+
     app.commands.executeCommandById(OBSIDIAN_CMD_TOGGLE_NUMBER_LIST);
   };
 
@@ -64,6 +81,11 @@ export function ListButtons({ editorState }: ListButtonsProps) {
     // Close the other library before opening this one.
     setBulletLibraryOpen(false);
     setNumberLibraryOpen((isOpen) => !isOpen);
+  };
+
+  const handleNumberPresetSelect = (presetId: string) => {
+    setLastNumberPresetId(presetId);
+    setNumberPreset(presetId);
   };
 
   const handleOutdent = () => {
@@ -81,80 +103,76 @@ export function ListButtons({ editorState }: ListButtonsProps) {
 
   return (
     <>
-      {/* Bullet list split button */}
-      <div className="onr-list-split-btn" ref={bulletAnchorRef}>
-        <div
-          className={`onr-list-split-main${editorState.bulletList ? ' onr-active' : ''}`}
-          data-cmd={LIST_BTN_CMD_BULLET_TOGGLE}
+      {/* Bullet list button: icon above, caret below — same layout as highlight/color buttons */}
+      <div className="onr-list-btn-wrapper" ref={bulletAnchorRef}>
+        <RibbonButton
+          className="onr-list-main-btn"
+          active={editorState.bulletList}
           title="Bullet list"
+          data-cmd={LIST_BTN_CMD_BULLET_TOGGLE}
           onClick={handleBulletToggle}
-          onMouseDown={preventEditorBlur}
         >
           <BulletListIcon className="onr-icon-sm" />
-        </div>
-        <div className="onr-list-split-divider" />
-        <div
-          className="onr-list-split-caret"
+        </RibbonButton>
+
+        <RibbonButton
+          size="small"
+          className="onr-list-caret-btn"
           data-cmd={LIST_BTN_CMD_BULLET_CARET}
           title="Bullet list styles"
           onClick={handleBulletCaretClick}
-          onMouseDown={preventEditorBlur}
         >
           ▾
-        </div>
+        </RibbonButton>
       </div>
 
-      {/* Number list split button */}
-      <div className="onr-list-split-btn" ref={numberAnchorRef}>
-        <div
-          className={`onr-list-split-main${editorState.numberedList ? ' onr-active' : ''}`}
-          data-cmd={LIST_BTN_CMD_NUMBER_TOGGLE}
+      {/* Number list button: icon above, caret below */}
+      <div className="onr-list-btn-wrapper" ref={numberAnchorRef}>
+        <RibbonButton
+          className="onr-list-main-btn"
+          active={editorState.numberedList}
           title="Numbered list"
+          data-cmd={LIST_BTN_CMD_NUMBER_TOGGLE}
           onClick={handleNumberToggle}
-          onMouseDown={preventEditorBlur}
         >
           <NumberedListIcon className="onr-icon-sm" />
-        </div>
-        <div className="onr-list-split-divider" />
-        <div
-          className="onr-list-split-caret"
+        </RibbonButton>
+
+        <RibbonButton
+          size="small"
+          className="onr-list-caret-btn"
           data-cmd={LIST_BTN_CMD_NUMBER_CARET}
           title="Numbering styles"
           onClick={handleNumberCaretClick}
-          onMouseDown={preventEditorBlur}
         >
           ▾
-        </div>
+        </RibbonButton>
       </div>
 
       {/* Outdent button */}
-      <div
-        className="onr-btn-sm"
+      <RibbonButton
         data-cmd={LIST_BTN_CMD_OUTDENT}
         title="Decrease indent"
         onClick={handleOutdent}
-        onMouseDown={preventEditorBlur}
       >
         <OutdentIcon className="onr-icon-sm" />
-      </div>
+      </RibbonButton>
 
       {/* Indent button */}
-      <div
-        className="onr-btn-sm"
+      <RibbonButton
         data-cmd={LIST_BTN_CMD_INDENT}
         title="Increase indent"
         onClick={handleIndent}
-        onMouseDown={preventEditorBlur}
       >
         <IndentIcon className="onr-icon-sm" />
-      </div>
+      </RibbonButton>
 
       {/* Bullet Library dropdown (portal) */}
       {bulletLibraryOpen && (
         <BulletLibrary
           anchor={bulletAnchorRef.current}
           activePresetId={bulletPresetId}
-          onSelectPreset={setBulletPreset}
+          onSelectPreset={handleBulletPresetSelect}
           onClose={() => setBulletLibraryOpen(false)}
         />
       )}
@@ -164,7 +182,7 @@ export function ListButtons({ editorState }: ListButtonsProps) {
         <NumberLibrary
           anchor={numberAnchorRef.current}
           activePresetId={numberPresetId}
-          onSelectPreset={setNumberPreset}
+          onSelectPreset={handleNumberPresetSelect}
           onClose={() => setNumberLibraryOpen(false)}
         />
       )}

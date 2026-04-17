@@ -27,7 +27,7 @@ const injectCssPlugin = {
 const ctx = await esbuild.context({
   entryPoints: ['src/main.ts'],
   bundle: true,
-  external: ['obsidian', 'electron', '@codemirror/*', '@lezer/*', 'os', 'path', 'fs'],
+  external: ['obsidian', 'electron', '@electron/remote', '@codemirror/*', '@lezer/*', 'os', 'path', 'fs'],
   format: 'cjs',
   target: 'es2020',
   outfile: 'main.js',

@@ -5,4 +5,4 @@ export const NUMBER_LIBRARY_COLUMNS = 4;
 export const NUMBER_LIBRARY_HEADING = 'Numbering Library';
 
 /** Pixel offset per nesting depth for the cascading level-preview indent. */
-export const NUMBER_LIBRARY_INDENT_PER_LEVEL_PX = 2;
+export const NUMBER_LIBRARY_INDENT_PER_LEVEL_PX = 4;
