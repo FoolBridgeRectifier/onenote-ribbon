@@ -219,111 +219,129 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
           </span>
         </div>
         <div
-          class="onr-btn-sm onr-format-btn"
-          data-cmd="bullet-list"
-          title="Bullet list"
+          class="onr-list-split-btn"
         >
-          <svg
-            class="onr-icon-sm"
-            viewBox="0 0 24 24"
+          <div
+            class="onr-list-split-main"
+            data-cmd="bullet-list-toggle"
+            title="Bullet list"
           >
-            <line
-              x1="9"
-              x2="20"
-              y1="6"
-              y2="6"
-            />
-            <line
-              x1="9"
-              x2="20"
-              y1="12"
-              y2="12"
-            />
-            <line
-              x1="9"
-              x2="20"
-              y1="18"
-              y2="18"
-            />
-            <circle
-              cx="5"
-              cy="6"
-              fill="currentColor"
-              r="1.5"
-              stroke="none"
-            />
-            <circle
-              cx="5"
-              cy="12"
-              fill="currentColor"
-              r="1.5"
-              stroke="none"
-            />
-            <circle
-              cx="5"
-              cy="18"
-              fill="currentColor"
-              r="1.5"
-              stroke="none"
-            />
-          </svg>
-          <span
-            class="onr-list-caret"
+            <svg
+              class="onr-icon-sm"
+              viewBox="0 0 24 24"
+            >
+              <line
+                x1="9"
+                x2="20"
+                y1="6"
+                y2="6"
+              />
+              <line
+                x1="9"
+                x2="20"
+                y1="12"
+                y2="12"
+              />
+              <line
+                x1="9"
+                x2="20"
+                y1="18"
+                y2="18"
+              />
+              <circle
+                cx="5"
+                cy="6"
+                fill="currentColor"
+                r="1.5"
+                stroke="none"
+              />
+              <circle
+                cx="5"
+                cy="12"
+                fill="currentColor"
+                r="1.5"
+                stroke="none"
+              />
+              <circle
+                cx="5"
+                cy="18"
+                fill="currentColor"
+                r="1.5"
+                stroke="none"
+              />
+            </svg>
+          </div>
+          <div
+            class="onr-list-split-divider"
+          />
+          <div
+            class="onr-list-split-caret"
+            data-cmd="bullet-list-caret"
+            title="Bullet list styles"
           >
             ▾
-          </span>
+          </div>
         </div>
         <div
-          class="onr-btn-sm onr-format-btn"
-          data-cmd="numbered-list"
-          title="Numbered list"
+          class="onr-list-split-btn"
         >
-          <svg
-            class="onr-icon-sm"
-            viewBox="0 0 24 24"
+          <div
+            class="onr-list-split-main"
+            data-cmd="number-list-toggle"
+            title="Numbered list"
           >
-            <line
-              x1="10"
-              x2="21"
-              y1="6"
-              y2="6"
-            />
-            <line
-              x1="10"
-              x2="21"
-              y1="12"
-              y2="12"
-            />
-            <line
-              x1="10"
-              x2="21"
-              y1="18"
-              y2="18"
-            />
-            <path
-              d="M4 6h1v4"
-              stroke="currentColor"
-              stroke-width="1.5"
-            />
-            <path
-              d="M4 10h2"
-              stroke="currentColor"
-              stroke-width="1.5"
-            />
-            <path
-              d="M6 14H4l2 2-2 2h2"
-              stroke="currentColor"
-              stroke-width="1.5"
-            />
-          </svg>
-          <span
-            class="onr-list-caret"
+            <svg
+              class="onr-icon-sm"
+              viewBox="0 0 24 24"
+            >
+              <line
+                x1="10"
+                x2="21"
+                y1="6"
+                y2="6"
+              />
+              <line
+                x1="10"
+                x2="21"
+                y1="12"
+                y2="12"
+              />
+              <line
+                x1="10"
+                x2="21"
+                y1="18"
+                y2="18"
+              />
+              <path
+                d="M4 6h1v4"
+                stroke="currentColor"
+                stroke-width="1.5"
+              />
+              <path
+                d="M4 10h2"
+                stroke="currentColor"
+                stroke-width="1.5"
+              />
+              <path
+                d="M6 14H4l2 2-2 2h2"
+                stroke="currentColor"
+                stroke-width="1.5"
+              />
+            </svg>
+          </div>
+          <div
+            class="onr-list-split-divider"
+          />
+          <div
+            class="onr-list-split-caret"
+            data-cmd="number-list-caret"
+            title="Numbering styles"
           >
             ▾
-          </span>
+          </div>
         </div>
         <div
-          class="onr-btn-sm onr-format-btn"
+          class="onr-btn-sm"
           data-cmd="outdent"
           title="Decrease indent"
         >
@@ -355,7 +373,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
           </svg>
         </div>
         <div
-          class="onr-btn-sm onr-format-btn"
+          class="onr-btn-sm"
           data-cmd="indent"
           title="Increase indent"
         >
@@ -2179,221 +2197,280 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                     {
                       "children": [
                         {
-                          "children": [],
-                          "className": "",
+                          "children": [
+                            {
+                              "children": [],
+                              "className": "",
+                              "computedCss": {
+                                "background-color": "rgba(0, 0, 0, 0)",
+                                "border-block-end-color": "CanvasText",
+                                "border-block-start-color": "CanvasText",
+                                "border-bottom-color": "canvastext",
+                                "border-inline-end-color": "CanvasText",
+                                "border-inline-start-color": "CanvasText",
+                                "border-left-color": "canvastext",
+                                "border-right-color": "canvastext",
+                                "border-top-color": "canvastext",
+                                "caret-color": "auto",
+                                "color": "canvastext",
+                                "pointer-events": "auto",
+                                "visibility": "visible",
+                              },
+                              "dataAttributes": {},
+                              "tagName": "line",
+                              "textContent": "",
+                            },
+                            {
+                              "children": [],
+                              "className": "",
+                              "computedCss": {
+                                "background-color": "rgba(0, 0, 0, 0)",
+                                "border-block-end-color": "CanvasText",
+                                "border-block-start-color": "CanvasText",
+                                "border-bottom-color": "canvastext",
+                                "border-inline-end-color": "CanvasText",
+                                "border-inline-start-color": "CanvasText",
+                                "border-left-color": "canvastext",
+                                "border-right-color": "canvastext",
+                                "border-top-color": "canvastext",
+                                "caret-color": "auto",
+                                "color": "canvastext",
+                                "pointer-events": "auto",
+                                "visibility": "visible",
+                              },
+                              "dataAttributes": {},
+                              "tagName": "line",
+                              "textContent": "",
+                            },
+                            {
+                              "children": [],
+                              "className": "",
+                              "computedCss": {
+                                "background-color": "rgba(0, 0, 0, 0)",
+                                "border-block-end-color": "CanvasText",
+                                "border-block-start-color": "CanvasText",
+                                "border-bottom-color": "canvastext",
+                                "border-inline-end-color": "CanvasText",
+                                "border-inline-start-color": "CanvasText",
+                                "border-left-color": "canvastext",
+                                "border-right-color": "canvastext",
+                                "border-top-color": "canvastext",
+                                "caret-color": "auto",
+                                "color": "canvastext",
+                                "pointer-events": "auto",
+                                "visibility": "visible",
+                              },
+                              "dataAttributes": {},
+                              "tagName": "line",
+                              "textContent": "",
+                            },
+                            {
+                              "children": [],
+                              "className": "",
+                              "computedCss": {
+                                "background-color": "rgba(0, 0, 0, 0)",
+                                "border-block-end-color": "CanvasText",
+                                "border-block-start-color": "CanvasText",
+                                "border-bottom-color": "canvastext",
+                                "border-inline-end-color": "CanvasText",
+                                "border-inline-start-color": "CanvasText",
+                                "border-left-color": "canvastext",
+                                "border-right-color": "canvastext",
+                                "border-top-color": "canvastext",
+                                "caret-color": "auto",
+                                "color": "canvastext",
+                                "pointer-events": "auto",
+                                "visibility": "visible",
+                              },
+                              "dataAttributes": {},
+                              "tagName": "circle",
+                              "textContent": "",
+                            },
+                            {
+                              "children": [],
+                              "className": "",
+                              "computedCss": {
+                                "background-color": "rgba(0, 0, 0, 0)",
+                                "border-block-end-color": "CanvasText",
+                                "border-block-start-color": "CanvasText",
+                                "border-bottom-color": "canvastext",
+                                "border-inline-end-color": "CanvasText",
+                                "border-inline-start-color": "CanvasText",
+                                "border-left-color": "canvastext",
+                                "border-right-color": "canvastext",
+                                "border-top-color": "canvastext",
+                                "caret-color": "auto",
+                                "color": "canvastext",
+                                "pointer-events": "auto",
+                                "visibility": "visible",
+                              },
+                              "dataAttributes": {},
+                              "tagName": "circle",
+                              "textContent": "",
+                            },
+                            {
+                              "children": [],
+                              "className": "",
+                              "computedCss": {
+                                "background-color": "rgba(0, 0, 0, 0)",
+                                "border-block-end-color": "CanvasText",
+                                "border-block-start-color": "CanvasText",
+                                "border-bottom-color": "canvastext",
+                                "border-inline-end-color": "CanvasText",
+                                "border-inline-start-color": "CanvasText",
+                                "border-left-color": "canvastext",
+                                "border-right-color": "canvastext",
+                                "border-top-color": "canvastext",
+                                "caret-color": "auto",
+                                "color": "canvastext",
+                                "pointer-events": "auto",
+                                "visibility": "visible",
+                              },
+                              "dataAttributes": {},
+                              "tagName": "circle",
+                              "textContent": "",
+                            },
+                          ],
+                          "className": "onr-icon-sm",
                           "computedCss": {
                             "background-color": "rgba(0, 0, 0, 0)",
-                            "border-block-end-color": "var(--text-primary)",
-                            "border-block-start-color": "var(--text-primary)",
-                            "border-bottom-color": "var(--text-primary)",
-                            "border-inline-end-color": "var(--text-primary)",
-                            "border-inline-start-color": "var(--text-primary)",
-                            "border-left-color": "var(--text-primary)",
-                            "border-right-color": "var(--text-primary)",
-                            "border-top-color": "var(--text-primary)",
+                            "border-block-end-color": "CanvasText",
+                            "border-block-start-color": "CanvasText",
+                            "border-bottom-color": "canvastext",
+                            "border-inline-end-color": "CanvasText",
+                            "border-inline-start-color": "CanvasText",
+                            "border-left-color": "canvastext",
+                            "border-right-color": "canvastext",
+                            "border-top-color": "canvastext",
                             "caret-color": "auto",
-                            "color": "var(--text-primary)",
+                            "color": "canvastext",
+                            "flex-shrink": "0",
+                            "height": "14px",
                             "pointer-events": "auto",
                             "visibility": "visible",
+                            "width": "14px",
                           },
                           "dataAttributes": {},
-                          "tagName": "line",
-                          "textContent": "",
-                        },
-                        {
-                          "children": [],
-                          "className": "",
-                          "computedCss": {
-                            "background-color": "rgba(0, 0, 0, 0)",
-                            "border-block-end-color": "var(--text-primary)",
-                            "border-block-start-color": "var(--text-primary)",
-                            "border-bottom-color": "var(--text-primary)",
-                            "border-inline-end-color": "var(--text-primary)",
-                            "border-inline-start-color": "var(--text-primary)",
-                            "border-left-color": "var(--text-primary)",
-                            "border-right-color": "var(--text-primary)",
-                            "border-top-color": "var(--text-primary)",
-                            "caret-color": "auto",
-                            "color": "var(--text-primary)",
-                            "pointer-events": "auto",
-                            "visibility": "visible",
-                          },
-                          "dataAttributes": {},
-                          "tagName": "line",
-                          "textContent": "",
-                        },
-                        {
-                          "children": [],
-                          "className": "",
-                          "computedCss": {
-                            "background-color": "rgba(0, 0, 0, 0)",
-                            "border-block-end-color": "var(--text-primary)",
-                            "border-block-start-color": "var(--text-primary)",
-                            "border-bottom-color": "var(--text-primary)",
-                            "border-inline-end-color": "var(--text-primary)",
-                            "border-inline-start-color": "var(--text-primary)",
-                            "border-left-color": "var(--text-primary)",
-                            "border-right-color": "var(--text-primary)",
-                            "border-top-color": "var(--text-primary)",
-                            "caret-color": "auto",
-                            "color": "var(--text-primary)",
-                            "pointer-events": "auto",
-                            "visibility": "visible",
-                          },
-                          "dataAttributes": {},
-                          "tagName": "line",
-                          "textContent": "",
-                        },
-                        {
-                          "children": [],
-                          "className": "",
-                          "computedCss": {
-                            "background-color": "rgba(0, 0, 0, 0)",
-                            "border-block-end-color": "var(--text-primary)",
-                            "border-block-start-color": "var(--text-primary)",
-                            "border-bottom-color": "var(--text-primary)",
-                            "border-inline-end-color": "var(--text-primary)",
-                            "border-inline-start-color": "var(--text-primary)",
-                            "border-left-color": "var(--text-primary)",
-                            "border-right-color": "var(--text-primary)",
-                            "border-top-color": "var(--text-primary)",
-                            "caret-color": "auto",
-                            "color": "var(--text-primary)",
-                            "pointer-events": "auto",
-                            "visibility": "visible",
-                          },
-                          "dataAttributes": {},
-                          "tagName": "circle",
-                          "textContent": "",
-                        },
-                        {
-                          "children": [],
-                          "className": "",
-                          "computedCss": {
-                            "background-color": "rgba(0, 0, 0, 0)",
-                            "border-block-end-color": "var(--text-primary)",
-                            "border-block-start-color": "var(--text-primary)",
-                            "border-bottom-color": "var(--text-primary)",
-                            "border-inline-end-color": "var(--text-primary)",
-                            "border-inline-start-color": "var(--text-primary)",
-                            "border-left-color": "var(--text-primary)",
-                            "border-right-color": "var(--text-primary)",
-                            "border-top-color": "var(--text-primary)",
-                            "caret-color": "auto",
-                            "color": "var(--text-primary)",
-                            "pointer-events": "auto",
-                            "visibility": "visible",
-                          },
-                          "dataAttributes": {},
-                          "tagName": "circle",
-                          "textContent": "",
-                        },
-                        {
-                          "children": [],
-                          "className": "",
-                          "computedCss": {
-                            "background-color": "rgba(0, 0, 0, 0)",
-                            "border-block-end-color": "var(--text-primary)",
-                            "border-block-start-color": "var(--text-primary)",
-                            "border-bottom-color": "var(--text-primary)",
-                            "border-inline-end-color": "var(--text-primary)",
-                            "border-inline-start-color": "var(--text-primary)",
-                            "border-left-color": "var(--text-primary)",
-                            "border-right-color": "var(--text-primary)",
-                            "border-top-color": "var(--text-primary)",
-                            "caret-color": "auto",
-                            "color": "var(--text-primary)",
-                            "pointer-events": "auto",
-                            "visibility": "visible",
-                          },
-                          "dataAttributes": {},
-                          "tagName": "circle",
+                          "tagName": "svg",
                           "textContent": "",
                         },
                       ],
-                      "className": "onr-icon-sm",
+                      "className": "onr-list-split-main",
                       "computedCss": {
+                        "align-items": "center",
+                        "background": "transparent",
                         "background-color": "rgba(0, 0, 0, 0)",
-                        "border-block-end-color": "var(--text-primary)",
-                        "border-block-start-color": "var(--text-primary)",
-                        "border-bottom-color": "var(--text-primary)",
-                        "border-inline-end-color": "var(--text-primary)",
-                        "border-inline-start-color": "var(--text-primary)",
-                        "border-left-color": "var(--text-primary)",
-                        "border-right-color": "var(--text-primary)",
-                        "border-top-color": "var(--text-primary)",
+                        "border-block-end-color": "CanvasText",
+                        "border-block-start-color": "CanvasText",
+                        "border-bottom-color": "canvastext",
+                        "border-inline-end-color": "CanvasText",
+                        "border-inline-start-color": "CanvasText",
+                        "border-left-color": "canvastext",
+                        "border-radius": "0",
+                        "border-right-color": "canvastext",
+                        "border-top-color": "canvastext",
                         "caret-color": "auto",
-                        "color": "var(--text-primary)",
-                        "flex-shrink": "0",
-                        "height": "14px",
+                        "color": "canvastext",
+                        "cursor": "pointer",
+                        "display": "flex",
+                        "justify-content": "center",
+                        "min-height": "24px",
+                        "padding": "2px 4px",
                         "pointer-events": "auto",
+                        "user-select": "none",
                         "visibility": "visible",
-                        "width": "14px",
                       },
-                      "dataAttributes": {},
-                      "tagName": "svg",
+                      "dataAttributes": {
+                        "data-cmd": "bullet-list-toggle",
+                      },
+                      "tagName": "div",
                       "textContent": "",
                     },
                     {
                       "children": [],
-                      "className": "onr-list-caret",
+                      "className": "onr-list-split-divider",
                       "computedCss": {
+                        "background": "var(--btn-hover-border)",
                         "background-color": "rgba(0, 0, 0, 0)",
-                        "border-block-end-color": "var(--text-primary)",
-                        "border-block-start-color": "var(--text-primary)",
-                        "border-bottom-color": "var(--text-primary)",
-                        "border-inline-end-color": "var(--text-primary)",
-                        "border-inline-start-color": "var(--text-primary)",
-                        "border-left-color": "var(--text-primary)",
-                        "border-right-color": "var(--text-primary)",
-                        "border-top-color": "var(--text-primary)",
+                        "border-block-end-color": "CanvasText",
+                        "border-block-start-color": "CanvasText",
+                        "border-bottom-color": "canvastext",
+                        "border-inline-end-color": "CanvasText",
+                        "border-inline-start-color": "CanvasText",
+                        "border-left-color": "canvastext",
+                        "border-right-color": "canvastext",
+                        "border-top-color": "canvastext",
                         "caret-color": "auto",
-                        "color": "var(--text-primary)",
-                        "font-size": "7px",
+                        "color": "canvastext",
+                        "display": "block",
+                        "flex-shrink": "0",
+                        "margin": "3px 0px",
                         "pointer-events": "auto",
                         "visibility": "visible",
+                        "width": "1px",
                       },
                       "dataAttributes": {},
-                      "tagName": "span",
+                      "tagName": "div",
+                      "textContent": "",
+                    },
+                    {
+                      "children": [],
+                      "className": "onr-list-split-caret",
+                      "computedCss": {
+                        "align-items": "center",
+                        "background": "transparent",
+                        "background-color": "rgba(0, 0, 0, 0)",
+                        "border-block-end-color": "CanvasText",
+                        "border-block-start-color": "CanvasText",
+                        "border-bottom-color": "canvastext",
+                        "border-inline-end-color": "CanvasText",
+                        "border-inline-start-color": "CanvasText",
+                        "border-left-color": "canvastext",
+                        "border-right-color": "canvastext",
+                        "border-top-color": "canvastext",
+                        "caret-color": "auto",
+                        "color": "canvastext",
+                        "cursor": "pointer",
+                        "display": "flex",
+                        "font-size": "7px",
+                        "justify-content": "center",
+                        "padding": "2px 1px",
+                        "pointer-events": "auto",
+                        "user-select": "none",
+                        "visibility": "visible",
+                        "width": "12px",
+                      },
+                      "dataAttributes": {
+                        "data-cmd": "bullet-list-caret",
+                      },
+                      "tagName": "div",
                       "textContent": "▾",
                     },
                   ],
-                  "className": "onr-btn-sm onr-format-btn",
+                  "className": "onr-list-split-btn",
                   "computedCss": {
-                    "align-items": "center",
-                    "background": "transparent",
+                    "align-items": "stretch",
                     "background-color": "rgba(0, 0, 0, 0)",
                     "border": "1px solid transparent",
-                    "border-block-end-color": "var(--text-primary)",
-                    "border-block-start-color": "var(--text-primary)",
+                    "border-block-end-color": "CanvasText",
+                    "border-block-start-color": "CanvasText",
                     "border-bottom-color": "rgba(0, 0, 0, 0)",
-                    "border-inline-end-color": "var(--text-primary)",
-                    "border-inline-start-color": "var(--text-primary)",
+                    "border-inline-end-color": "CanvasText",
+                    "border-inline-start-color": "CanvasText",
                     "border-left-color": "rgba(0, 0, 0, 0)",
                     "border-radius": "var(--radius-sm)",
                     "border-right-color": "rgba(0, 0, 0, 0)",
                     "border-top-color": "rgba(0, 0, 0, 0)",
                     "caret-color": "auto",
-                    "color": "var(--text-primary)",
-                    "cursor": "pointer",
+                    "color": "canvastext",
                     "display": "flex",
-                    "flex-direction": "column",
-                    "flex-shrink": "0",
-                    "font-size": "9px",
-                    "gap": "1px",
-                    "justify-content": "center",
-                    "min-height": "22px",
-                    "padding": "2px",
+                    "overflow": "hidden",
                     "pointer-events": "auto",
                     "transition": "background var(--transition-fast),
     border-color var(--transition-fast)",
-                    "user-select": "none",
                     "visibility": "visible",
-                    "width": "22px",
                   },
-                  "dataAttributes": {
-                    "data-cmd": "bullet-list",
-                  },
+                  "dataAttributes": {},
                   "tagName": "div",
                   "textContent": "▾",
                 },
@@ -2402,221 +2479,280 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                     {
                       "children": [
                         {
-                          "children": [],
-                          "className": "",
+                          "children": [
+                            {
+                              "children": [],
+                              "className": "",
+                              "computedCss": {
+                                "background-color": "rgba(0, 0, 0, 0)",
+                                "border-block-end-color": "CanvasText",
+                                "border-block-start-color": "CanvasText",
+                                "border-bottom-color": "canvastext",
+                                "border-inline-end-color": "CanvasText",
+                                "border-inline-start-color": "CanvasText",
+                                "border-left-color": "canvastext",
+                                "border-right-color": "canvastext",
+                                "border-top-color": "canvastext",
+                                "caret-color": "auto",
+                                "color": "canvastext",
+                                "pointer-events": "auto",
+                                "visibility": "visible",
+                              },
+                              "dataAttributes": {},
+                              "tagName": "line",
+                              "textContent": "",
+                            },
+                            {
+                              "children": [],
+                              "className": "",
+                              "computedCss": {
+                                "background-color": "rgba(0, 0, 0, 0)",
+                                "border-block-end-color": "CanvasText",
+                                "border-block-start-color": "CanvasText",
+                                "border-bottom-color": "canvastext",
+                                "border-inline-end-color": "CanvasText",
+                                "border-inline-start-color": "CanvasText",
+                                "border-left-color": "canvastext",
+                                "border-right-color": "canvastext",
+                                "border-top-color": "canvastext",
+                                "caret-color": "auto",
+                                "color": "canvastext",
+                                "pointer-events": "auto",
+                                "visibility": "visible",
+                              },
+                              "dataAttributes": {},
+                              "tagName": "line",
+                              "textContent": "",
+                            },
+                            {
+                              "children": [],
+                              "className": "",
+                              "computedCss": {
+                                "background-color": "rgba(0, 0, 0, 0)",
+                                "border-block-end-color": "CanvasText",
+                                "border-block-start-color": "CanvasText",
+                                "border-bottom-color": "canvastext",
+                                "border-inline-end-color": "CanvasText",
+                                "border-inline-start-color": "CanvasText",
+                                "border-left-color": "canvastext",
+                                "border-right-color": "canvastext",
+                                "border-top-color": "canvastext",
+                                "caret-color": "auto",
+                                "color": "canvastext",
+                                "pointer-events": "auto",
+                                "visibility": "visible",
+                              },
+                              "dataAttributes": {},
+                              "tagName": "line",
+                              "textContent": "",
+                            },
+                            {
+                              "children": [],
+                              "className": "",
+                              "computedCss": {
+                                "background-color": "rgba(0, 0, 0, 0)",
+                                "border-block-end-color": "CanvasText",
+                                "border-block-start-color": "CanvasText",
+                                "border-bottom-color": "canvastext",
+                                "border-inline-end-color": "CanvasText",
+                                "border-inline-start-color": "CanvasText",
+                                "border-left-color": "canvastext",
+                                "border-right-color": "canvastext",
+                                "border-top-color": "canvastext",
+                                "caret-color": "auto",
+                                "color": "canvastext",
+                                "pointer-events": "auto",
+                                "visibility": "visible",
+                              },
+                              "dataAttributes": {},
+                              "tagName": "path",
+                              "textContent": "",
+                            },
+                            {
+                              "children": [],
+                              "className": "",
+                              "computedCss": {
+                                "background-color": "rgba(0, 0, 0, 0)",
+                                "border-block-end-color": "CanvasText",
+                                "border-block-start-color": "CanvasText",
+                                "border-bottom-color": "canvastext",
+                                "border-inline-end-color": "CanvasText",
+                                "border-inline-start-color": "CanvasText",
+                                "border-left-color": "canvastext",
+                                "border-right-color": "canvastext",
+                                "border-top-color": "canvastext",
+                                "caret-color": "auto",
+                                "color": "canvastext",
+                                "pointer-events": "auto",
+                                "visibility": "visible",
+                              },
+                              "dataAttributes": {},
+                              "tagName": "path",
+                              "textContent": "",
+                            },
+                            {
+                              "children": [],
+                              "className": "",
+                              "computedCss": {
+                                "background-color": "rgba(0, 0, 0, 0)",
+                                "border-block-end-color": "CanvasText",
+                                "border-block-start-color": "CanvasText",
+                                "border-bottom-color": "canvastext",
+                                "border-inline-end-color": "CanvasText",
+                                "border-inline-start-color": "CanvasText",
+                                "border-left-color": "canvastext",
+                                "border-right-color": "canvastext",
+                                "border-top-color": "canvastext",
+                                "caret-color": "auto",
+                                "color": "canvastext",
+                                "pointer-events": "auto",
+                                "visibility": "visible",
+                              },
+                              "dataAttributes": {},
+                              "tagName": "path",
+                              "textContent": "",
+                            },
+                          ],
+                          "className": "onr-icon-sm",
                           "computedCss": {
                             "background-color": "rgba(0, 0, 0, 0)",
-                            "border-block-end-color": "var(--text-primary)",
-                            "border-block-start-color": "var(--text-primary)",
-                            "border-bottom-color": "var(--text-primary)",
-                            "border-inline-end-color": "var(--text-primary)",
-                            "border-inline-start-color": "var(--text-primary)",
-                            "border-left-color": "var(--text-primary)",
-                            "border-right-color": "var(--text-primary)",
-                            "border-top-color": "var(--text-primary)",
+                            "border-block-end-color": "CanvasText",
+                            "border-block-start-color": "CanvasText",
+                            "border-bottom-color": "canvastext",
+                            "border-inline-end-color": "CanvasText",
+                            "border-inline-start-color": "CanvasText",
+                            "border-left-color": "canvastext",
+                            "border-right-color": "canvastext",
+                            "border-top-color": "canvastext",
                             "caret-color": "auto",
-                            "color": "var(--text-primary)",
+                            "color": "canvastext",
+                            "flex-shrink": "0",
+                            "height": "14px",
                             "pointer-events": "auto",
                             "visibility": "visible",
+                            "width": "14px",
                           },
                           "dataAttributes": {},
-                          "tagName": "line",
-                          "textContent": "",
-                        },
-                        {
-                          "children": [],
-                          "className": "",
-                          "computedCss": {
-                            "background-color": "rgba(0, 0, 0, 0)",
-                            "border-block-end-color": "var(--text-primary)",
-                            "border-block-start-color": "var(--text-primary)",
-                            "border-bottom-color": "var(--text-primary)",
-                            "border-inline-end-color": "var(--text-primary)",
-                            "border-inline-start-color": "var(--text-primary)",
-                            "border-left-color": "var(--text-primary)",
-                            "border-right-color": "var(--text-primary)",
-                            "border-top-color": "var(--text-primary)",
-                            "caret-color": "auto",
-                            "color": "var(--text-primary)",
-                            "pointer-events": "auto",
-                            "visibility": "visible",
-                          },
-                          "dataAttributes": {},
-                          "tagName": "line",
-                          "textContent": "",
-                        },
-                        {
-                          "children": [],
-                          "className": "",
-                          "computedCss": {
-                            "background-color": "rgba(0, 0, 0, 0)",
-                            "border-block-end-color": "var(--text-primary)",
-                            "border-block-start-color": "var(--text-primary)",
-                            "border-bottom-color": "var(--text-primary)",
-                            "border-inline-end-color": "var(--text-primary)",
-                            "border-inline-start-color": "var(--text-primary)",
-                            "border-left-color": "var(--text-primary)",
-                            "border-right-color": "var(--text-primary)",
-                            "border-top-color": "var(--text-primary)",
-                            "caret-color": "auto",
-                            "color": "var(--text-primary)",
-                            "pointer-events": "auto",
-                            "visibility": "visible",
-                          },
-                          "dataAttributes": {},
-                          "tagName": "line",
-                          "textContent": "",
-                        },
-                        {
-                          "children": [],
-                          "className": "",
-                          "computedCss": {
-                            "background-color": "rgba(0, 0, 0, 0)",
-                            "border-block-end-color": "var(--text-primary)",
-                            "border-block-start-color": "var(--text-primary)",
-                            "border-bottom-color": "var(--text-primary)",
-                            "border-inline-end-color": "var(--text-primary)",
-                            "border-inline-start-color": "var(--text-primary)",
-                            "border-left-color": "var(--text-primary)",
-                            "border-right-color": "var(--text-primary)",
-                            "border-top-color": "var(--text-primary)",
-                            "caret-color": "auto",
-                            "color": "var(--text-primary)",
-                            "pointer-events": "auto",
-                            "visibility": "visible",
-                          },
-                          "dataAttributes": {},
-                          "tagName": "path",
-                          "textContent": "",
-                        },
-                        {
-                          "children": [],
-                          "className": "",
-                          "computedCss": {
-                            "background-color": "rgba(0, 0, 0, 0)",
-                            "border-block-end-color": "var(--text-primary)",
-                            "border-block-start-color": "var(--text-primary)",
-                            "border-bottom-color": "var(--text-primary)",
-                            "border-inline-end-color": "var(--text-primary)",
-                            "border-inline-start-color": "var(--text-primary)",
-                            "border-left-color": "var(--text-primary)",
-                            "border-right-color": "var(--text-primary)",
-                            "border-top-color": "var(--text-primary)",
-                            "caret-color": "auto",
-                            "color": "var(--text-primary)",
-                            "pointer-events": "auto",
-                            "visibility": "visible",
-                          },
-                          "dataAttributes": {},
-                          "tagName": "path",
-                          "textContent": "",
-                        },
-                        {
-                          "children": [],
-                          "className": "",
-                          "computedCss": {
-                            "background-color": "rgba(0, 0, 0, 0)",
-                            "border-block-end-color": "var(--text-primary)",
-                            "border-block-start-color": "var(--text-primary)",
-                            "border-bottom-color": "var(--text-primary)",
-                            "border-inline-end-color": "var(--text-primary)",
-                            "border-inline-start-color": "var(--text-primary)",
-                            "border-left-color": "var(--text-primary)",
-                            "border-right-color": "var(--text-primary)",
-                            "border-top-color": "var(--text-primary)",
-                            "caret-color": "auto",
-                            "color": "var(--text-primary)",
-                            "pointer-events": "auto",
-                            "visibility": "visible",
-                          },
-                          "dataAttributes": {},
-                          "tagName": "path",
+                          "tagName": "svg",
                           "textContent": "",
                         },
                       ],
-                      "className": "onr-icon-sm",
+                      "className": "onr-list-split-main",
                       "computedCss": {
+                        "align-items": "center",
+                        "background": "transparent",
                         "background-color": "rgba(0, 0, 0, 0)",
-                        "border-block-end-color": "var(--text-primary)",
-                        "border-block-start-color": "var(--text-primary)",
-                        "border-bottom-color": "var(--text-primary)",
-                        "border-inline-end-color": "var(--text-primary)",
-                        "border-inline-start-color": "var(--text-primary)",
-                        "border-left-color": "var(--text-primary)",
-                        "border-right-color": "var(--text-primary)",
-                        "border-top-color": "var(--text-primary)",
+                        "border-block-end-color": "CanvasText",
+                        "border-block-start-color": "CanvasText",
+                        "border-bottom-color": "canvastext",
+                        "border-inline-end-color": "CanvasText",
+                        "border-inline-start-color": "CanvasText",
+                        "border-left-color": "canvastext",
+                        "border-radius": "0",
+                        "border-right-color": "canvastext",
+                        "border-top-color": "canvastext",
                         "caret-color": "auto",
-                        "color": "var(--text-primary)",
-                        "flex-shrink": "0",
-                        "height": "14px",
+                        "color": "canvastext",
+                        "cursor": "pointer",
+                        "display": "flex",
+                        "justify-content": "center",
+                        "min-height": "24px",
+                        "padding": "2px 4px",
                         "pointer-events": "auto",
+                        "user-select": "none",
                         "visibility": "visible",
-                        "width": "14px",
                       },
-                      "dataAttributes": {},
-                      "tagName": "svg",
+                      "dataAttributes": {
+                        "data-cmd": "number-list-toggle",
+                      },
+                      "tagName": "div",
                       "textContent": "",
                     },
                     {
                       "children": [],
-                      "className": "onr-list-caret",
+                      "className": "onr-list-split-divider",
                       "computedCss": {
+                        "background": "var(--btn-hover-border)",
                         "background-color": "rgba(0, 0, 0, 0)",
-                        "border-block-end-color": "var(--text-primary)",
-                        "border-block-start-color": "var(--text-primary)",
-                        "border-bottom-color": "var(--text-primary)",
-                        "border-inline-end-color": "var(--text-primary)",
-                        "border-inline-start-color": "var(--text-primary)",
-                        "border-left-color": "var(--text-primary)",
-                        "border-right-color": "var(--text-primary)",
-                        "border-top-color": "var(--text-primary)",
+                        "border-block-end-color": "CanvasText",
+                        "border-block-start-color": "CanvasText",
+                        "border-bottom-color": "canvastext",
+                        "border-inline-end-color": "CanvasText",
+                        "border-inline-start-color": "CanvasText",
+                        "border-left-color": "canvastext",
+                        "border-right-color": "canvastext",
+                        "border-top-color": "canvastext",
                         "caret-color": "auto",
-                        "color": "var(--text-primary)",
-                        "font-size": "7px",
+                        "color": "canvastext",
+                        "display": "block",
+                        "flex-shrink": "0",
+                        "margin": "3px 0px",
                         "pointer-events": "auto",
                         "visibility": "visible",
+                        "width": "1px",
                       },
                       "dataAttributes": {},
-                      "tagName": "span",
+                      "tagName": "div",
+                      "textContent": "",
+                    },
+                    {
+                      "children": [],
+                      "className": "onr-list-split-caret",
+                      "computedCss": {
+                        "align-items": "center",
+                        "background": "transparent",
+                        "background-color": "rgba(0, 0, 0, 0)",
+                        "border-block-end-color": "CanvasText",
+                        "border-block-start-color": "CanvasText",
+                        "border-bottom-color": "canvastext",
+                        "border-inline-end-color": "CanvasText",
+                        "border-inline-start-color": "CanvasText",
+                        "border-left-color": "canvastext",
+                        "border-right-color": "canvastext",
+                        "border-top-color": "canvastext",
+                        "caret-color": "auto",
+                        "color": "canvastext",
+                        "cursor": "pointer",
+                        "display": "flex",
+                        "font-size": "7px",
+                        "justify-content": "center",
+                        "padding": "2px 1px",
+                        "pointer-events": "auto",
+                        "user-select": "none",
+                        "visibility": "visible",
+                        "width": "12px",
+                      },
+                      "dataAttributes": {
+                        "data-cmd": "number-list-caret",
+                      },
+                      "tagName": "div",
                       "textContent": "▾",
                     },
                   ],
-                  "className": "onr-btn-sm onr-format-btn",
+                  "className": "onr-list-split-btn",
                   "computedCss": {
-                    "align-items": "center",
-                    "background": "transparent",
+                    "align-items": "stretch",
                     "background-color": "rgba(0, 0, 0, 0)",
                     "border": "1px solid transparent",
-                    "border-block-end-color": "var(--text-primary)",
-                    "border-block-start-color": "var(--text-primary)",
+                    "border-block-end-color": "CanvasText",
+                    "border-block-start-color": "CanvasText",
                     "border-bottom-color": "rgba(0, 0, 0, 0)",
-                    "border-inline-end-color": "var(--text-primary)",
-                    "border-inline-start-color": "var(--text-primary)",
+                    "border-inline-end-color": "CanvasText",
+                    "border-inline-start-color": "CanvasText",
                     "border-left-color": "rgba(0, 0, 0, 0)",
                     "border-radius": "var(--radius-sm)",
                     "border-right-color": "rgba(0, 0, 0, 0)",
                     "border-top-color": "rgba(0, 0, 0, 0)",
                     "caret-color": "auto",
-                    "color": "var(--text-primary)",
-                    "cursor": "pointer",
+                    "color": "canvastext",
                     "display": "flex",
-                    "flex-direction": "column",
-                    "flex-shrink": "0",
-                    "font-size": "9px",
-                    "gap": "1px",
-                    "justify-content": "center",
-                    "min-height": "22px",
-                    "padding": "2px",
+                    "overflow": "hidden",
                     "pointer-events": "auto",
                     "transition": "background var(--transition-fast),
     border-color var(--transition-fast)",
-                    "user-select": "none",
                     "visibility": "visible",
-                    "width": "22px",
                   },
-                  "dataAttributes": {
-                    "data-cmd": "numbered-list",
-                  },
+                  "dataAttributes": {},
                   "tagName": "div",
                   "textContent": "▾",
                 },
@@ -2737,7 +2873,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                       "textContent": "",
                     },
                   ],
-                  "className": "onr-btn-sm onr-format-btn",
+                  "className": "onr-btn-sm",
                   "computedCss": {
                     "align-items": "center",
                     "background": "transparent",
@@ -2761,14 +2897,14 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                     "font-size": "9px",
                     "gap": "1px",
                     "justify-content": "center",
-                    "min-height": "22px",
+                    "min-height": "24px",
                     "padding": "2px",
                     "pointer-events": "auto",
                     "transition": "background var(--transition-fast),
     border-color var(--transition-fast)",
                     "user-select": "none",
                     "visibility": "visible",
-                    "width": "22px",
+                    "width": "28px",
                   },
                   "dataAttributes": {
                     "data-cmd": "outdent",
@@ -2893,7 +3029,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                       "textContent": "",
                     },
                   ],
-                  "className": "onr-btn-sm onr-format-btn",
+                  "className": "onr-btn-sm",
                   "computedCss": {
                     "align-items": "center",
                     "background": "transparent",
@@ -2917,14 +3053,14 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                     "font-size": "9px",
                     "gap": "1px",
                     "justify-content": "center",
-                    "min-height": "22px",
+                    "min-height": "24px",
                     "padding": "2px",
                     "pointer-events": "auto",
                     "transition": "background var(--transition-fast),
     border-color var(--transition-fast)",
                     "user-select": "none",
                     "visibility": "visible",
-                    "width": "22px",
+                    "width": "28px",
                   },
                   "dataAttributes": {
                     "data-cmd": "indent",

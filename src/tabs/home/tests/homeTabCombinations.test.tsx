@@ -2,6 +2,9 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AppContext } from '../../../shared/context/AppContext';
+import { PluginContext } from '../../../shared/context/PluginContext';
+import { createMockPlugin } from '../../../test-utils/mockApp';
+import type { Plugin } from 'obsidian';
 import type { EditorState } from '../../../shared/hooks/useEditorState';
 
 // ── Mutable mock state ──────────────────────────────────────────────────────
@@ -60,8 +63,13 @@ const mockApp = {
 } as any;
 
 function renderWithMockApp(component: React.ReactElement) {
+  // ListButtons calls usePlugin() — wrap with PluginContext.Provider alongside AppContext.
+  const mockPlugin = createMockPlugin() as unknown as Plugin;
+
   return render(
-    <AppContext.Provider value={mockApp}>{component}</AppContext.Provider>,
+    <PluginContext.Provider value={mockPlugin}>
+      <AppContext.Provider value={mockApp}>{component}</AppContext.Provider>
+    </PluginContext.Provider>,
   );
 }
 
@@ -113,8 +121,8 @@ describe('BasicTextGroup button rendering', () => {
     'strikethrough',
     'subscript',
     'superscript',
-    'bullet-list',
-    'numbered-list',
+    'bullet-list-toggle',
+    'number-list-toggle',
     'outdent',
     'indent',
     'clear-all',
@@ -147,8 +155,8 @@ describe('Inline formatting — active states', () => {
     { command: 'strikethrough', stateField: 'strikethrough' },
     { command: 'subscript', stateField: 'subscript' },
     { command: 'superscript', stateField: 'superscript' },
-    { command: 'bullet-list', stateField: 'bulletList' },
-    { command: 'numbered-list', stateField: 'numberedList' },
+    { command: 'bullet-list-toggle', stateField: 'bulletList' },
+    { command: 'number-list-toggle', stateField: 'numberedList' },
   ];
 
   describe.each(INLINE_BUTTONS)(
@@ -321,7 +329,7 @@ describe('Combination states', () => {
     const { container } = renderWithMockApp(<BasicTextGroup />);
 
     expect(
-      getByCmd(container, 'bullet-list').classList.contains('onr-active'),
+      getByCmd(container, 'bullet-list-toggle').classList.contains('onr-active'),
     ).toBe(true);
     expect(getByCmd(container, 'bold').classList.contains('onr-active')).toBe(
       true,
@@ -334,7 +342,7 @@ describe('Combination states', () => {
       false,
     );
     expect(
-      getByCmd(container, 'numbered-list').classList.contains('onr-active'),
+      getByCmd(container, 'number-list-toggle').classList.contains('onr-active'),
     ).toBe(false);
   });
 

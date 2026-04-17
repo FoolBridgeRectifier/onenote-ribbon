@@ -3,12 +3,8 @@ import { useApp } from '../../../shared/context/AppContext';
 import { GroupShell } from '../../../shared/components/group-shell/GroupShell';
 import { RibbonButton } from '../../../shared/components/ribbon-button/RibbonButton';
 import {
-  BulletListIcon,
   ClearFormattingIcon,
   ClearInlineIcon,
-  IndentIcon,
-  NumberedListIcon,
-  OutdentIcon,
 } from '../../../assets/icons';
 import {
   toggleTagInEditor,
@@ -25,6 +21,7 @@ import { FontPicker } from './font-picker/FontPicker';
 import { HighlightTextColor } from './highlight-text-color/HighlightTextColor';
 import { ScriptButtons } from './script-buttons/ScriptButtons';
 import { AlignButton } from './align-button/AlignButton';
+import { ListButtons } from './list-buttons/ListButtons';
 
 export function BasicTextGroup() {
   const app = useApp();
@@ -56,22 +53,6 @@ export function BasicTextGroup() {
     toggleTagInEditor(editor, STRIKETHROUGH_MD_TAG);
   };
 
-  const handleBulletList = () => {
-    (app as any).commands.executeCommandById('editor:toggle-bullet-list');
-  };
-
-  const handleNumberedList = () => {
-    (app as any).commands.executeCommandById('editor:toggle-numbered-list');
-  };
-
-  const handleOutdent = () => {
-    (app as any).commands.executeCommandById('editor:unindent-list');
-  };
-
-  const handleIndent = () => {
-    (app as any).commands.executeCommandById('editor:indent-list');
-  };
-
   const handleDeleteElement = () => {
     const editor = getEditor();
     if (!editor) return;
@@ -87,51 +68,11 @@ export function BasicTextGroup() {
   return (
     <GroupShell name="Basic Text">
       <div className="onr-basic-text-inner">
-        {/* Row 1: Font, size, bullets, lists, indent, clear */}
+        {/* Row 1: Font, size, list buttons (split with caret), indent, clear */}
         <div className="onr-basic-text-row1">
           <FontPicker editorState={editorState} />
 
-          {/* Bullet list */}
-          <RibbonButton
-            className="onr-format-btn"
-            title="Bullet list"
-            active={editorState.bulletList}
-            onClick={handleBulletList}
-            data-cmd="bullet-list"
-          >
-            <BulletListIcon className="onr-icon-sm" />
-            <span className="onr-list-caret">▾</span>
-          </RibbonButton>
-
-          {/* Numbered list */}
-          <RibbonButton
-            className="onr-format-btn"
-            title="Numbered list"
-            active={editorState.numberedList}
-            onClick={handleNumberedList}
-            data-cmd="numbered-list"
-          >
-            <NumberedListIcon className="onr-icon-sm" />
-            <span className="onr-list-caret">▾</span>
-          </RibbonButton>
-
-          {/* Outdent */}
-          <RibbonButton
-            className="onr-format-btn"
-            icon={<OutdentIcon className="onr-icon-sm" />}
-            title="Decrease indent"
-            onClick={handleOutdent}
-            data-cmd="outdent"
-          />
-
-          {/* Indent */}
-          <RibbonButton
-            className="onr-format-btn"
-            icon={<IndentIcon className="onr-icon-sm" />}
-            title="Increase indent"
-            onClick={handleIndent}
-            data-cmd="indent"
-          />
+          <ListButtons editorState={editorState} />
 
           {/* Clear formatting */}
           <RibbonButton

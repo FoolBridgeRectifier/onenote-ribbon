@@ -22,11 +22,6 @@
   gap: 2px;
 }
 
-/* Small caret indicator on list buttons */
-.onr-list-caret {
-  font-size: 7px;
-}
-
 /* 22 × 22 size override for inline format buttons */
 .onr-btn-sm.onr-format-btn {
   min-height: 22px;

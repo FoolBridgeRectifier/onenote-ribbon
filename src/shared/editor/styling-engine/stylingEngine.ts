@@ -6,6 +6,7 @@ import {
   CopiedFormat,
   FormattingDomain,
   RemoveAllTagsOptions,
+  StructureContext,
 } from './interfaces';
 
 import {
@@ -558,6 +559,238 @@ function buildWrapReplacements(
 }
 
 // ============================================================
+// Per-Line Processing for Multi-Line Structured Selections
+// ============================================================
+
+/**
+ * Determines if the selection spans multiple lines where at least one line
+ * has a structural prefix (bullet, numbered, todo, heading, callout, etc.).
+ * When true, formatting should be applied per-line to avoid breaking markdown structure.
+ */
+function shouldProcessPerLine(structureContext: StructureContext): boolean {
+  if (structureContext.lines.length <= 1) return false;
+
+  return structureContext.lines.some(
+    (line) => line.linePrefixType !== 'none' && line.inertZone === null,
+  );
+}
+
+/**
+ * Computes the effective content range for each line that intersects the selection.
+ * Each range starts after the line prefix (or at the selection start, whichever is later)
+ * and ends at the line end (or at the selection end, whichever is earlier).
+ */
+function buildEffectiveLineRanges(
+  structureContext: StructureContext,
+  selectionStartOffset: number,
+  selectionEndOffset: number,
+): Array<{ start: number; end: number }> {
+  const ranges: Array<{ start: number; end: number }> = [];
+
+  for (const line of structureContext.lines) {
+    if (line.inertZone !== null) continue;
+
+    const effectiveStart = Math.max(
+      selectionStartOffset,
+      line.contentStartOffset,
+    );
+    const effectiveEnd = Math.min(selectionEndOffset, line.lineEndOffset);
+
+    if (effectiveStart >= effectiveEnd) continue;
+
+    ranges.push({ start: effectiveStart, end: effectiveEnd });
+  }
+
+  return ranges;
+}
+
+/**
+ * Checks whether the given content range has a matching formatting tag
+ * (enclosing or delimiter-inclusive, including HTML equivalents for markdown tags).
+ */
+function lineHasMatchingTag(
+  allTagRanges: HtmlTagRange[],
+  sourceText: string,
+  rangeStart: number,
+  rangeEnd: number,
+  tagDefinition: TagDefinition,
+): boolean {
+  const enclosingMatch = findEnclosingMatchingTag(
+    allTagRanges,
+    sourceText,
+    rangeStart,
+    rangeEnd,
+    tagDefinition,
+  );
+
+  if (enclosingMatch !== null) return true;
+
+  // Delimiter-inclusive: tag delimiters fall within the selection range
+  const delimiterMatch = findDelimiterInclusiveMatch(
+    allTagRanges,
+    sourceText,
+    rangeStart,
+    rangeEnd,
+    tagDefinition,
+  );
+
+  if (delimiterMatch !== null) return true;
+
+  // Also check HTML equivalent for MD tags (e.g., **bold** was converted to <b>)
+  if (tagDefinition.domain === 'markdown') {
+    const htmlEquivalent = MARKDOWN_TO_HTML_TAG_MAP.get(tagDefinition.tagName);
+
+    if (htmlEquivalent) {
+      const htmlEnclosingMatch = findEnclosingMatchingTag(
+        allTagRanges,
+        sourceText,
+        rangeStart,
+        rangeEnd,
+        htmlEquivalent,
+      );
+
+      if (htmlEnclosingMatch !== null) return true;
+
+      const htmlDelimiterMatch = findDelimiterInclusiveMatch(
+        allTagRanges,
+        sourceText,
+        rangeStart,
+        rangeEnd,
+        htmlEquivalent,
+      );
+
+      if (htmlDelimiterMatch !== null) return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Toggles a formatting tag per-line for multi-line structured selections.
+ * If ALL lines have the tag → removes from all. Otherwise → adds to lines missing it.
+ */
+function toggleTagPerLine(
+  sourceText: string,
+  selectionStartOffset: number,
+  selectionEndOffset: number,
+  tagDefinition: TagDefinition,
+  structureContext: StructureContext,
+): StylingResult {
+  const lineRanges = buildEffectiveLineRanges(
+    structureContext,
+    selectionStartOffset,
+    selectionEndOffset,
+  );
+
+  if (lineRanges.length === 0) {
+    return { replacements: [], isNoOp: true };
+  }
+
+  const allTagRanges = buildTagRanges(sourceText);
+
+  // Check which lines already have the target tag
+  const tagPresent = lineRanges.map((range) =>
+    lineHasMatchingTag(
+      allTagRanges,
+      sourceText,
+      range.start,
+      range.end,
+      tagDefinition,
+    ),
+  );
+
+  const allHaveTag = tagPresent.every(Boolean);
+  const allReplacements: TextReplacement[] = [];
+
+  if (allHaveTag) {
+    // Remove the tag from every line by delegating to toggleTag per-line
+    for (const range of lineRanges) {
+      const lineContext: StylingContext = {
+        sourceText,
+        selectionStartOffset: range.start,
+        selectionEndOffset: range.end,
+        selectedText: sourceText.slice(range.start, range.end),
+      };
+
+      const result = toggleTag(lineContext, tagDefinition);
+
+      if (!result.isNoOp) {
+        allReplacements.push(...result.replacements);
+      }
+    }
+  } else {
+    // Add the tag to lines that don't already have it
+    for (let lineIndex = 0; lineIndex < lineRanges.length; lineIndex++) {
+      if (tagPresent[lineIndex]) continue;
+
+      const range = lineRanges[lineIndex];
+      const lineContext: StylingContext = {
+        sourceText,
+        selectionStartOffset: range.start,
+        selectionEndOffset: range.end,
+        selectedText: sourceText.slice(range.start, range.end),
+      };
+
+      const result = addTag(lineContext, tagDefinition);
+
+      if (!result.isNoOp) {
+        allReplacements.push(...result.replacements);
+      }
+    }
+  }
+
+  return {
+    replacements: sortReplacementsLastToFirst(allReplacements),
+    isNoOp: allReplacements.length === 0,
+  };
+}
+
+/**
+ * Adds a formatting tag per-line for multi-line structured selections.
+ * For span tags with an existing same-property span, replaces the attribute per-line.
+ */
+function addTagPerLine(
+  sourceText: string,
+  selectionStartOffset: number,
+  selectionEndOffset: number,
+  tagDefinition: TagDefinition,
+  structureContext: StructureContext,
+): StylingResult {
+  const lineRanges = buildEffectiveLineRanges(
+    structureContext,
+    selectionStartOffset,
+    selectionEndOffset,
+  );
+
+  if (lineRanges.length === 0) {
+    return { replacements: [], isNoOp: true };
+  }
+
+  const allReplacements: TextReplacement[] = [];
+
+  for (const range of lineRanges) {
+    const lineContext: StylingContext = {
+      sourceText,
+      selectionStartOffset: range.start,
+      selectionEndOffset: range.end,
+      selectedText: sourceText.slice(range.start, range.end),
+    };
+
+    const result = addTag(lineContext, tagDefinition);
+
+    if (!result.isNoOp) {
+      allReplacements.push(...result.replacements);
+    }
+  }
+
+  return {
+    replacements: sortReplacementsLastToFirst(allReplacements),
+    isNoOp: allReplacements.length === 0,
+  };
+}
+
+// ============================================================
 // Exported Functions
 // ============================================================
 
@@ -583,6 +816,17 @@ export function toggleTag(
   // Step 2: If fully inert, no-op
   if (structureContext.isFullyInert) {
     return { replacements: [], isNoOp: true };
+  }
+
+  // Step 2b: Multi-line structured content → process each line independently
+  if (shouldProcessPerLine(structureContext)) {
+    return toggleTagPerLine(
+      sourceText,
+      selectionStartOffset,
+      selectionEndOffset,
+      tagDefinition,
+      structureContext,
+    );
   }
 
   // Step 3: Single-line processing — use full selection range
@@ -738,6 +982,17 @@ export function addTag(
 
   if (structureContext.isFullyInert) {
     return { replacements: [], isNoOp: true };
+  }
+
+  // Multi-line structured content → process each line independently
+  if (shouldProcessPerLine(structureContext)) {
+    return addTagPerLine(
+      sourceText,
+      selectionStartOffset,
+      selectionEndOffset,
+      tagDefinition,
+      structureContext,
+    );
   }
 
   // Detect formatting domain

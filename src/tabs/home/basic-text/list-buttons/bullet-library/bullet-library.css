@@ -1,0 +1,73 @@
+/* Container for the bullet library dropdown */
+.onr-bullet-library {
+  padding: 8px;
+  min-width: 280px;
+}
+
+/* Section heading above the grid */
+.onr-bullet-library-heading {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--btn-hover-border);
+}
+
+/* Grid of preset cells */
+.onr-bullet-library-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+/* Individual preset cell */
+.onr-bullet-library-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
+  min-height: 52px;
+}
+
+.onr-bullet-library-cell:hover {
+  background: var(--btn-hover-bg);
+  border-color: var(--btn-hover-border);
+}
+
+.onr-bullet-library-cell.onr-active {
+  background: var(--btn-active-bg);
+  border-color: var(--btn-active-border);
+}
+
+/* Row of level symbols inside each cell */
+.onr-bullet-library-levels {
+  display: flex;
+  gap: 3px;
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* One nesting-level symbol */
+.onr-bullet-library-level {
+  display: inline-block;
+  font-size: 11px;
+}
+
+/* Cell name label */
+.onr-bullet-library-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-align: center;
+}
