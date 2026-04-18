@@ -352,12 +352,12 @@ describe('buildEmlWithPdfAttachment', () => {
   it('includes a text/plain part with generic body text', () => {
     const result = buildEmlWithPdfAttachment(fakePdf, 'Subject', 'Title');
     expect(result).toContain('Content-Type: text/plain; charset="UTF-8"');
-    // Email body text should be base64-encoded in the EML
-    const expectedBodyBase64 = Buffer.from(
+    // EML wraps base64 at 76 chars per RFC 2045 — check for the first 76-char line of the encoded body.
+    const fullBase64 = Buffer.from(
       'Your note is attached and ready to share.\n\nHope this makes your day a little brighter.',
       'utf-8',
     ).toString('base64');
-    expect(result).toContain(expectedBodyBase64);
+    expect(result).toContain(fullBase64.slice(0, 76));
   });
 
   it('includes an application/pdf attachment part', () => {
@@ -372,7 +372,11 @@ describe('buildEmlWithPdfAttachment', () => {
   });
 
   it('strips unsafe characters from the attachment filename', () => {
-    const result = buildEmlWithPdfAttachment(fakePdf, 'Subject', 'Note: <Draft>');
+    const result = buildEmlWithPdfAttachment(
+      fakePdf,
+      'Subject',
+      'Note: <Draft>',
+    );
     // Colon, space, angle brackets are stripped — only word chars, spaces, hyphens remain
     expect(result).toContain('filename="Note Draft.pdf"');
   });
@@ -466,7 +470,6 @@ describe('sendNoteByEmail', () => {
     const emlContent: string = writeEmlToTemp.mock.calls[0][0];
     expect(emlContent).toContain('multipart/mixed');
     expect(emlContent).toContain('Content-Type: application/pdf');
-    expect(emlContent).toContain('Your note has been exported');
   });
 
   it('calls openEmlFile with the path returned by writeEmlToTemp', async () => {

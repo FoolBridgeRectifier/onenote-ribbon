@@ -16,6 +16,10 @@
 - Import the CSS file: `import './ComponentName.css'`
 - Only resort to inline `style={}` props if you encounter a legitimate blocker and document why
 
+## File Length Rule
+
+Source files must not be longer than 150 lines, excluding import statements.
+
 ---
 
 ## Design Context

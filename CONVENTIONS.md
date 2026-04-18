@@ -3,6 +3,18 @@
 > **Read this entire document before writing, editing, or reviewing any code in this project.**
 > This is the single source of truth for structure, naming, testing, and quality rules.
 
+### Global Instruction File
+
+Also treat `CLAUDE.md` as required guidance for every task.
+
+- Preferred stack: React, React Testing Library, Node, Java, TypeScript.
+- Extract new logical blocks into dedicated files and add full path-coverage tests.
+- Add one-line comments above non-obvious logic only.
+- Leave blank lines between logical sections.
+- Use full descriptive variable names (no abbreviations).
+- Prioritize readability, maintainability, and reduced redundancy.
+- If blocked, add debug instrumentation, rerun, and continue with evidence-based fixes.
+
 ---
 
 ## 1. Project Overview
@@ -450,6 +462,7 @@ await act(async () => {
 13. **Blank-line spacing** — separate distinct logical groups of statements with a blank line. Import blocks: one blank line between third-party and local imports. Component body: blank line between `const getEditor`, context hooks, handler functions, and the `return`.
 14. **Comments on hard-to-understand code** — add a one-line comment above any line or block that is not immediately obvious. Do not comment trivial code.
 15. **Full variable names** — never shorten variable names. `editor` not `ed`, `index` not `i` (except conventional loop counters), `backgroundColor` not `bgColor`.
+16. **File length limit** — source files must not exceed 150 lines, excluding import statements.
 
 ---
 
@@ -460,7 +473,8 @@ The CDP runner (`scripts/e2e/run-e2e.mjs`) is a zero-dependency Node 24 script:
 - Connects to Obsidian at `localhost:9222` via Chrome DevTools Protocol (WebSocket + fetch)
 - Use `npm run test:e2e:launch` to kill existing `Obsidian.exe`, create `.e2e-vault/`, and relaunch
 - `--suite <names>` flag: comma-separated suite filter (also available as `test:e2e:home` / `test:e2e:insert`)
-- E2E test files live in `scripts/e2e/` — they are **not** under `src/` and are excluded from Jest/coverage
+- E2E runner and connector infrastructure live in `scripts/e2e/` (for example: `run-e2e.ts`, `suite-loader/`, `cdp-qa/`).
+- E2E suite definition files live in `src/e2e/` and are executed by the runner through `--suite` filtering.
 - Legacy `src/**/*.integration.ts` and `src/**/*.combinations.ts` patterns are excluded from coverage for historical reasons; no new files should use those patterns
 
 > **Do not confuse E2E with RTL integration tests.** RTL tests run in jsdom with mock Obsidian — they are the primary test layer. E2E only runs against a live Obsidian instance.
@@ -494,6 +508,7 @@ Use today's date (ISO 8601) and a short kebab-case name derived from the task. T
 6. Dropdown and modal tests include both snapshot assertions and computed CSS assertions
 7. Any new component or CSS addition traces back to a principle in `design.md` — if the design choice is not covered, update `design.md` first
 8. Every new feature folder contains both `constants.ts` and `interfaces.ts` — no constants or type definitions inlined in component files
+9. Source files do not exceed 150 lines, excluding import statements
 
 ---
 

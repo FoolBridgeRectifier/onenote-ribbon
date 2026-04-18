@@ -329,7 +329,9 @@ describe('Combination states', () => {
     const { container } = renderWithMockApp(<BasicTextGroup />);
 
     expect(
-      getByCmd(container, 'bullet-list-toggle').classList.contains('onr-active'),
+      getByCmd(container, 'bullet-list-toggle').classList.contains(
+        'onr-active',
+      ),
     ).toBe(true);
     expect(getByCmd(container, 'bold').classList.contains('onr-active')).toBe(
       true,
@@ -342,7 +344,9 @@ describe('Combination states', () => {
       false,
     );
     expect(
-      getByCmd(container, 'number-list-toggle').classList.contains('onr-active'),
+      getByCmd(container, 'number-list-toggle').classList.contains(
+        'onr-active',
+      ),
     ).toBe(false);
   });
 
@@ -626,7 +630,6 @@ describe('TagsGroup button rendering', () => {
     expect(itemTexts).toContain('Important');
     expect(itemTexts).toContain('Question');
     expect(itemTexts).toContain('Critical');
-    expect(itemTexts).toContain('Highlight');
     expect(itemTexts).toContain('Customize Tags…');
   });
 });

@@ -9,10 +9,10 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:e2e": "node scripts/e2e/run-e2e.mjs",
-    "test:e2e:launch": "node scripts/e2e/run-e2e.mjs --launch",
-    "test:e2e:home": "node scripts/e2e/run-e2e.mjs --suite home,basic-text,clipboard,styles,tags,email,navigate",
-    "test:e2e:insert": "node scripts/e2e/run-e2e.mjs --suite insert,tables,files,images,links,timestamp,blocks,symbols"
+    "test:e2e": "tsx scripts/e2e/run-e2e.ts --launch",
+    "test:e2e:launch": "tsx scripts/e2e/run-e2e.ts --launch",
+    "test:e2e:home": "tsx scripts/e2e/run-e2e.ts --suite home,home-combinations,basic-text,clipboard,styles,tags,email,navigate",
+    "test:e2e:insert": "tsx scripts/e2e/run-e2e.ts --suite insert,insert-combinations,tables,files,images,links,timestamp,blocks,symbols"
   },
   "dependencies": {
     "obsidian": "latest",
@@ -32,6 +32,7 @@
     "jest-environment-jsdom": "^30.3.0",
     "jsdom": "^29.0.2",
     "ts-jest": "^29.4.9",
+    "tsx": "^4.19.2",
     "typescript": "^5.3.0"
   }
 }

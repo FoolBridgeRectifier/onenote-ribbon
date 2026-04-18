@@ -67,14 +67,15 @@ describe('NumberLibrary', () => {
     expect(
       decimalPeriodCell?.querySelector('.onr-number-library-levels'),
     ).toBeInTheDocument();
-    const levelSpans = decimalPeriodCell?.querySelectorAll(
-      '.onr-number-library-level',
+    // Primary span shows the first depth level; secondary span shows remaining levels joined with spaces.
+    const primarySpan = decimalPeriodCell?.querySelector(
+      '.onr-number-library-level-primary',
     );
-    expect(levelSpans?.length).toBe(4);
-    expect(levelSpans?.[0].textContent).toBe('1.');
-    expect(levelSpans?.[1].textContent).toBe('a.');
-    expect(levelSpans?.[2].textContent).toBe('i.');
-    expect(levelSpans?.[3].textContent).toBe('A.');
+    const secondarySpan = decimalPeriodCell?.querySelector(
+      '.onr-number-library-level-secondary',
+    );
+    expect(primarySpan?.textContent).toBe('1.');
+    expect(secondarySpan?.textContent).toBe('a.  i.  A.');
   });
 
   it('renders "—" for the None preset', () => {
