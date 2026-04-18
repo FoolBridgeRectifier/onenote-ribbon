@@ -31,9 +31,9 @@ jest.mock('../../cdpClient/cdpClient', () => ({
   findMainPage: (...arguments_: unknown[]) => findMainPageMock(...arguments_),
 }));
 
-import { relaunchLiveObsidianDebug } from '../connectionStrategy';
+import { relaunchLiveObsidianDebug } from './connectionStrategy';
 
-import type { RunnerPaths } from '../../interfaces';
+import type { RunnerPaths } from '../interfaces';
 
 describe('relaunchLiveObsidianDebug', () => {
   const runnerPaths: RunnerPaths = {

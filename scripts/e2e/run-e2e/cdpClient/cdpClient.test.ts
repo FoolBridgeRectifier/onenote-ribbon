@@ -1,6 +1,6 @@
 /** @jest-environment node */
 
-import { CdpClient } from '../cdpClient';
+import { CdpClient } from './cdpClient';
 
 class MockWebSocket {
   private listeners: Record<string, Array<(event: { data: string }) => void>> =
