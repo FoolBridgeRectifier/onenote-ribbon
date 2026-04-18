@@ -22,6 +22,7 @@ export async function runSuites(
   let totalPassed = 0;
   let totalFailed = 0;
   const failedSuites: string[] = [];
+  const collectedSuiteResults: SuiteResult[] = [];
 
   for (const suite of suitesToRun) {
     const testFilePath = path.join(rootPath, suite.file);
@@ -35,6 +36,7 @@ export async function runSuites(
       const expression = await buildSuiteExpression(testFilePath);
       const results = await cdpClient.eval<SuiteResult[]>(expression);
       const suiteTotals = printSuiteResults(suite.name, results);
+      collectedSuiteResults.push(...results);
 
       totalPassed += suiteTotals.passed;
       totalFailed += suiteTotals.failed;
@@ -52,5 +54,11 @@ export async function runSuites(
     }
   }
 
-  return { failedSuites, suitesToRun, totalFailed, totalPassed };
+  return {
+    allSuiteResults: collectedSuiteResults,
+    failedSuites,
+    suitesToRun,
+    totalFailed,
+    totalPassed,
+  };
 }

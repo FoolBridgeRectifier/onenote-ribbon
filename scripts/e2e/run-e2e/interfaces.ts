@@ -2,6 +2,9 @@ import type { ChildProcess } from 'child_process';
 
 export interface ParsedCliArguments {
   cdpPort: number;
+  coverageMode: boolean;
+  coverageScope: string | null;
+  coverageThreshold: number | null;
   keepVault: boolean;
   launchFresh: boolean;
   suiteFilter: string[] | null;

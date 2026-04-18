@@ -22,6 +22,12 @@ import {
 import { parseCliArguments } from './parseCliArguments/parseCliArguments';
 import { runSuites } from './suiteExecution/suiteExecution';
 import {
+  calculateRuleCoverage,
+  formatCoveragePercent,
+} from './coverage/coverageReport';
+import { STYLING_ENGINE_RULE_IDS } from './coverage/constants';
+import { readJestCoverageLineThreshold } from './coverage/readJestCoverageThreshold';
+import {
   cleanupTempNote,
   dismissTrustModal,
   ensureEditorOpen,
@@ -125,6 +131,70 @@ export async function runE2e() {
       cliArguments.suiteFilter,
     );
 
+    let coverageFailed = false;
+
+    if (cliArguments.coverageMode) {
+      const discoveredRuleIds = Array.from(
+        new Set(
+          suiteSummary.allSuiteResults
+            .map((suiteResult) => suiteResult.test.match(/^rule-(\d{3})$/))
+            .filter(Boolean)
+            .map((ruleMatch) => Number.parseInt(ruleMatch?.[1] || '', 10))
+            .filter((ruleId) => !Number.isNaN(ruleId)),
+        ),
+      ).sort((leftRuleId, rightRuleId) => leftRuleId - rightRuleId);
+
+      const overallRuleCoverage = calculateRuleCoverage(
+        suiteSummary.allSuiteResults,
+        discoveredRuleIds,
+      );
+
+      console.log(`\n  Coverage: Rule-level E2E`);
+      console.log(
+        `  Rule pass coverage: ${overallRuleCoverage.passedRuleCount}/${overallRuleCoverage.totalRuleCount} (${formatCoveragePercent(overallRuleCoverage.coveragePercent)})`,
+      );
+
+      const shouldCheckStylingEngineCoverage =
+        cliArguments.coverageScope === 'styling-engine';
+
+      if (shouldCheckStylingEngineCoverage) {
+        const expectedCoverageThreshold =
+          cliArguments.coverageThreshold ??
+          readJestCoverageLineThreshold(runnerPaths.rootPath);
+
+        const stylingEngineCoverage = calculateRuleCoverage(
+          suiteSummary.allSuiteResults,
+          STYLING_ENGINE_RULE_IDS,
+        );
+
+        console.log(
+          `  Styling-engine pass coverage: ${stylingEngineCoverage.passedRuleCount}/${stylingEngineCoverage.totalRuleCount} (${formatCoveragePercent(stylingEngineCoverage.coveragePercent)})`,
+        );
+
+        if (stylingEngineCoverage.uncoveredRuleIds.length > 0) {
+          console.log(
+            `  Styling-engine uncovered rules: ${stylingEngineCoverage.uncoveredRuleIds.join(', ')}`,
+          );
+        }
+
+        if (stylingEngineCoverage.failedRuleIds.length > 0) {
+          console.log(
+            `  Styling-engine failed rules: ${stylingEngineCoverage.failedRuleIds.join(', ')}`,
+          );
+        }
+
+        if (
+          expectedCoverageThreshold !== null &&
+          stylingEngineCoverage.coveragePercent < expectedCoverageThreshold
+        ) {
+          coverageFailed = true;
+          console.log(
+            `  Coverage threshold not met: expected ${expectedCoverageThreshold}%, got ${formatCoveragePercent(stylingEngineCoverage.coveragePercent)}`,
+          );
+        }
+      }
+    }
+
     console.log(`\n${RUNNER_SEPARATOR}`);
     console.log(
       `  Results: ${suiteSummary.totalPassed} passed, ${suiteSummary.totalFailed} failed  (${suiteSummary.suitesToRun.length} suite(s))`,
@@ -144,7 +214,7 @@ export async function runE2e() {
     }
 
     launchSession.cdpClient.close();
-    process.exitCode = suiteSummary.totalFailed > 0 ? 1 : 0;
+    process.exitCode = suiteSummary.totalFailed > 0 || coverageFailed ? 1 : 0;
   } finally {
     if (launchSession.obsidianProcess) {
       launchSession.obsidianProcess.kill();

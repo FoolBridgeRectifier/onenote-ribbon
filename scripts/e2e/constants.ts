@@ -8,6 +8,9 @@ export const CLI_FLAG_PORT = '--port';
 export const CLI_FLAG_LAUNCH = '--launch';
 export const CLI_FLAG_KEEP_VAULT = '--keep-vault';
 export const CLI_FLAG_SUITE = '--suite';
+export const CLI_FLAG_COVERAGE = '--coverage';
+export const CLI_FLAG_COVERAGE_SCOPE = '--coverage-scope';
+export const CLI_FLAG_COVERAGE_THRESHOLD = '--coverage-threshold';
 
 /** Relative path from os.homedir() to the Obsidian executable. */
 export const OBSIDIAN_EXE_RELATIVE_PATH =

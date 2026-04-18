@@ -1,6 +1,7 @@
 import {
   BASIC_TEXT_RULE_IDS,
   DOMAIN_RULE_IDS,
+  FORMAT_PAINTER_RULE_IDS,
   HTML_TAG_RULE_IDS,
   LIST_BUTTON_RULE_IDS,
   LIST_STYLE_RULE_IDS,
@@ -23,6 +24,7 @@ export async function basicTextIntegrationTest(): Promise<HookRuleResult[]> {
       BASIC_TEXT_RULE_IDS,
       LIST_BUTTON_RULE_IDS,
       LIST_STYLE_RULE_IDS,
+      FORMAT_PAINTER_RULE_IDS,
     ],
     async ({
       clickByCommand,
@@ -198,6 +200,39 @@ export async function basicTextIntegrationTest(): Promise<HookRuleResult[]> {
           'numberButton=' +
             Boolean(document.querySelector('[data-cmd="number-list-toggle"]')),
           'Executed commands: ' + commandCalls.join(', '),
+        ].join(' | '),
+      );
+
+      editor.setValue('**beta** gamma');
+      selectToken('beta');
+      clickByCommand('format-painter');
+      await wait(120);
+
+      selectToken('gamma');
+
+      const editorElement = document.querySelector('.cm-editor');
+
+      if (editorElement) {
+        editorElement.dispatchEvent(
+          new MouseEvent('click', { bubbles: true, cancelable: true }),
+        );
+      }
+
+      await wait(200);
+
+      const afterFormatPainter = editor.getValue();
+      const formatPainterPass =
+        Boolean(editorElement) &&
+        afterFormatPainter.includes('beta') &&
+        afterFormatPainter.includes('gamma') &&
+        afterFormatPainter !== '**beta** gamma';
+
+      recordRules(
+        FORMAT_PAINTER_RULE_IDS,
+        formatPainterPass,
+        [
+          'editorElementFound=' + Boolean(editorElement),
+          'afterFormatPainter=' + afterFormatPainter,
         ].join(' | '),
       );
     },
