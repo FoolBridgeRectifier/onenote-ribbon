@@ -40,7 +40,7 @@ export function NumberLibrary({
                 <div className="onr-number-library-levels">
                   {/* First level shown prominently */}
                   <span className="onr-number-library-level-primary">
-                    {formatLevelPreview(preset.levels[0], 1)}
+                    {formatLevelPreview(preset.levels[0]!, 1)}
                   </span>
 
                   {/* Remaining levels shown smaller and grayed out */}

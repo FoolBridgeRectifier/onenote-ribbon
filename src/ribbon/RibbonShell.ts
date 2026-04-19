@@ -1,7 +1,7 @@
 import { App, Plugin } from 'obsidian';
 import { createRoot, Root } from 'react-dom/client';
 import { createElement } from 'react';
-import { AppContext } from '../shared/context/AppContext';
+import { AppContext, AppWithCommands } from '../shared/context/AppContext';
 import { PortalContext } from '../shared/context/PortalContext';
 import { PluginContext } from '../shared/context/PluginContext';
 import { RibbonApp } from './RibbonApp';
@@ -52,7 +52,7 @@ export class RibbonShell {
         { value: this.plugin },
         createElement(
           AppContext.Provider,
-          { value: this.app },
+          { value: this.app as unknown as AppWithCommands },
           createElement(
             PortalContext.Provider,
             { value: this.portalContainer },

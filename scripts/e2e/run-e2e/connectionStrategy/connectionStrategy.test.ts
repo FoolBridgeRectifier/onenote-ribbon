@@ -20,12 +20,12 @@ jest.mock('fs', () => ({
   },
 }));
 
-jest.mock('../../polling/polling', () => ({
+jest.mock('../polling/polling', () => ({
   pollUntil: (...arguments_: unknown[]) => pollUntilMock(...arguments_),
   sleep: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock('../../cdpClient/cdpClient', () => ({
+jest.mock('../cdpClient/cdpClient', () => ({
   connectCdp: (...arguments_: unknown[]) => connectCdpMock(...arguments_),
   fetchJson: (...arguments_: unknown[]) => fetchJsonMock(...arguments_),
   findMainPage: (...arguments_: unknown[]) => findMainPageMock(...arguments_),

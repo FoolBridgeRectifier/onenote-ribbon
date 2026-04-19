@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import './styles-group.css';
 import { useApp } from '../../../shared/context/AppContext';
 import { useEditorState } from '../../../shared/hooks/useEditorState';
@@ -7,6 +7,13 @@ import { RibbonButton } from '../../../shared/components/ribbon-button/RibbonBut
 import { Dropdown } from '../../../shared/components/dropdown/Dropdown';
 import { STYLES_LIST, StyleEntry } from './styles-data';
 import { ClearFormattingIcon } from '../../../assets/icons';
+
+/** Obsidian App with commands API. */
+interface AppWithCommands {
+  commands: {
+    executeCommandById(commandId: string): void;
+  };
+}
 
 export function StylesGroup() {
   const app = useApp();
@@ -18,11 +25,11 @@ export function StylesGroup() {
   const getEditor = () => app.workspace.activeEditor?.editor;
 
   // Determine which style is currently active based on editor state
-  const isStyleActive = (style: StyleEntry) => {
+  const isStyleActive = useCallback((style: StyleEntry) => {
     if (style.level > 0) return editorState.headLevel === style.level;
     if (style.level === 0 && !style.type) return editorState.headLevel === 0;
     return false;
-  };
+  }, [editorState.headLevel]);
 
   // Auto-scroll the visible style window to keep the active heading in view
   useEffect(() => {
@@ -39,16 +46,16 @@ export function StylesGroup() {
     if (activeIndex > stylesOffset + 1) {
       setStylesOffset(Math.min(activeIndex, STYLES_LIST.length - 2));
     }
-  }, [editorState.headLevel]);
+  }, [editorState.headLevel, isStyleActive, stylesOffset]);
 
   const handleStyleClick = (style: StyleEntry) => {
     if (style.type === 'quote') {
-      (app as any).commands.executeCommandById('editor:toggle-blockquote');
+      (app as unknown as AppWithCommands).commands.executeCommandById('editor:toggle-blockquote');
       return;
     }
 
     if (style.type === 'code') {
-      (app as any).commands.executeCommandById('editor:toggle-code');
+      (app as unknown as AppWithCommands).commands.executeCommandById('editor:toggle-code');
       return;
     }
 
@@ -63,7 +70,7 @@ export function StylesGroup() {
     }
 
     // Heading 1-6 — Obsidian uses "set-heading" not "toggle-heading"
-    (app as any).commands.executeCommandById(
+    (app as unknown as AppWithCommands).commands.executeCommandById(
       `editor:set-heading-${style.level}`,
     );
   };

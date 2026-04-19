@@ -1,4 +1,4 @@
 export type {
   ExplicitRuleResult,
   HookRuleResult,
-} from '../../../helpers/interfaces';
+} from '../../helpers/interfaces';

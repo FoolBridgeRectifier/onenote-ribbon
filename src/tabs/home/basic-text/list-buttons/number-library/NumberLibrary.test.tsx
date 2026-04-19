@@ -60,9 +60,7 @@ describe('NumberLibrary', () => {
     renderNumberLibrary(anchorElement);
 
     // decimal-period: depth levels should show "1.", "a.", "i.", "A."
-    const decimalPeriodCell = screen.getByTestId
-      ? document.querySelector('[data-cmd="number-preset-decimal-period"]')
-      : document.querySelector('[data-cmd="number-preset-decimal-period"]');
+    const decimalPeriodCell = document.querySelector('[data-cmd="number-preset-decimal-period"]');
 
     expect(
       decimalPeriodCell?.querySelector('.onr-number-library-levels'),

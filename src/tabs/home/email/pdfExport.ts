@@ -3,19 +3,6 @@
 // a temp file, and destroyed immediately after the PDF buffer is captured.
 
 /**
- * Minimal interface for the Electron BrowserWindow subset used here.
- * Avoids importing @electron/remote types, which are not in devDependencies.
- */
-interface ElectronBrowserWindow {
-  webContents: {
-    once(event: string, callback: () => void): void;
-    printToPDF(options: { printBackground: boolean }): Promise<Buffer>;
-  };
-  loadFile(path: string): Promise<void>;
-  destroy(): void;
-}
-
-/**
  * Generates a PDF buffer from an HTML string using Electron's printToPDF API.
  *
  * Writes the HTML to a temp file, creates a hidden BrowserWindow via

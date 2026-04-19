@@ -3,19 +3,26 @@ import { FoldAllIcon, OutlineIcon, UnfoldAllIcon } from '../../../assets/icons';
 import { GroupShell } from '../../../shared/components/group-shell/GroupShell';
 import { RibbonButton } from '../../../shared/components/ribbon-button/RibbonButton';
 
+/** Obsidian App with commands API. */
+interface AppWithCommands {
+  commands: {
+    executeCommandById(commandId: string): void;
+  };
+}
+
 export function NavigateGroup() {
   const app = useApp();
 
   const handleOutline = () => {
-    (app as any).commands.executeCommandById('outline:open');
+    (app as unknown as AppWithCommands).commands.executeCommandById('outline:open');
   };
 
   const handleFoldAll = () => {
-    (app as any).commands.executeCommandById('editor:fold-all');
+    (app as unknown as AppWithCommands).commands.executeCommandById('editor:fold-all');
   };
 
   const handleUnfoldAll = () => {
-    (app as any).commands.executeCommandById('editor:unfold-all');
+    (app as unknown as AppWithCommands).commands.executeCommandById('editor:unfold-all');
   };
 
   return (

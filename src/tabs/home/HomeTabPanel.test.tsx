@@ -69,7 +69,7 @@ function buildElementSnapshotTree(element: Element): ElementSnapshotNode {
 function collectRenderedClassNames(element: Element): Set<string> {
   const classNames = new Set<string>();
 
-  for (const singleClassName of element.classList) {
+  for (const singleClassName of Array.from(element.classList)) {
     if (singleClassName.startsWith('onr-')) {
       classNames.add(singleClassName);
     }

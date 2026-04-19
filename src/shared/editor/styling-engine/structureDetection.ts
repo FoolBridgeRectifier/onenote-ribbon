@@ -208,7 +208,7 @@ function splitSelectionIntoLines(
   let currentOffset = selectionStartOffset;
 
   while (currentOffset <= selectionEndOffset) {
-    let newlinePosition = sourceText.indexOf('\n', currentOffset);
+    const newlinePosition = sourceText.indexOf('\n', currentOffset);
 
     // If no newline found, or newline is beyond selection end, the line ends at selection end
     if (newlinePosition === -1 || newlinePosition >= selectionEndOffset) {

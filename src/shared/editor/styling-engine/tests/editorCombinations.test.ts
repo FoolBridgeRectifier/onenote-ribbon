@@ -155,7 +155,7 @@ function selectSubstring(editor: ObsidianEditor, substring: string): void {
 
       if (endOffset > currentOffset + lineLength) {
         // Multi-line selection
-        let remainingOffset = endOffset;
+        const remainingOffset = endOffset;
         let tempOffset = 0;
 
         for (let searchLine = 0; searchLine < lines.length; searchLine++) {
@@ -804,7 +804,7 @@ describe('Additional integration scenarios', () => {
   });
 
   it('addTag does not remove existing formatting — it always adds', () => {
-    let editor = createTestEditor('<u>already underlined</u>');
+    const editor = createTestEditor('<u>already underlined</u>');
     selectSubstring(editor, 'already underlined');
 
     // addTag with bold should wrap, not toggle off underline

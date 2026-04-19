@@ -2,7 +2,8 @@ import esbuild from 'esbuild';
 import { readFileSync } from 'fs';
 
 const watch = process.argv.includes('--watch');
-const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
+// Package.json is read but not used directly - it's available for future use
+void JSON.parse(readFileSync('./package.json', 'utf8'));
 
 // Inject CSS as inline styles into the JS bundle
 const injectCssPlugin = {

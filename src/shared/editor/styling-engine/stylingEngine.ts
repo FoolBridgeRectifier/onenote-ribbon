@@ -7,11 +7,11 @@ import {
   FormattingDomain,
   RemoveAllTagsOptions,
   StructureContext,
+  ProtectedRange,
 } from './interfaces';
 
 import {
   MARKDOWN_TO_HTML_TAG_MAP,
-  MARKDOWN_TO_HTML_CONVERSION_TABLE,
   UNDERLINE_TAG,
   SUBSCRIPT_TAG,
   SUPERSCRIPT_TAG,
@@ -541,7 +541,7 @@ function buildWrapReplacements(
     const replacements = splitFormattingAroundProtectedRanges(
       selectionStartOffset,
       selectionEndOffset,
-      structureContext.protectedRanges,
+      structureContext.protectedRanges as ProtectedRange[],
       effectiveTag,
     );
 
@@ -1097,7 +1097,7 @@ export function removeTag(
 export function removeAllTags(
   context: StylingContext,
   // TODO: implement preserveLinePrefix option — currently accepted but unused
-  options?: RemoveAllTagsOptions,
+  _options?: RemoveAllTagsOptions,
 ): StylingResult {
   const { sourceText, selectionStartOffset, selectionEndOffset } = context;
 

@@ -17,12 +17,12 @@ function clearFormattingString(
     result = result.replace(/^#+\s/gm, "");
   }
 
-  result = result.replace(/\*\*([^\*]+)\*\*/g, "$1");
+  result = result.replace(/\*\*([^*]+)\*\*/g, "$1");
   result = result.replace(/__([^_]+)__/g, "$1");
   result = result.replace(/~~([^~]+)~~/g, "$1");
   result = result.replace(/`([^`]+)`/g, "$1");
   result = result.replace(/_([^_]+)_/g, "$1");
-  result = result.replace(/\*([^\*]+)\*/g, "$1");
+  result = result.replace(/\*([^*]+)\*/g, "$1");
   result = result.replace(/<u>([^<]+)<\/u>/g, "$1");
   result = result.replace(/<sub>([^<]+)<\/sub>/g, "$1");
   result = result.replace(/<sup>([^<]+)<\/sup>/g, "$1");

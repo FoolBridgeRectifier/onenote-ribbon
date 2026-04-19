@@ -1,8 +1,7 @@
 import React from 'react';
 import { render, RenderOptions } from '@testing-library/react';
-import { App } from 'obsidian';
 import { Plugin } from 'obsidian';
-import { AppContext } from '../shared/context/AppContext';
+import { AppContext, AppWithCommands } from '../shared/context/AppContext';
 import { PluginContext } from '../shared/context/PluginContext';
 import type { MockApp, MockPlugin } from './mockApp';
 
@@ -20,7 +19,7 @@ export function renderWithApp(
   const wrapper = ({ children }: { children: React.ReactNode }) => {
     // MockApp satisfies the App interface surface used by components at runtime.
     const appProvided = (
-      <AppContext.Provider value={app as unknown as App}>
+      <AppContext.Provider value={app as unknown as AppWithCommands}>
         {children}
       </AppContext.Provider>
     );

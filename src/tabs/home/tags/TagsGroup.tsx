@@ -29,6 +29,13 @@ import { useActiveTagKeys } from './use-active-tag-keys/useActiveTagKeys';
 import type { CustomTag } from './customize-modal/interfaces';
 import { CustomizeTagsModal } from './customize-modal/CustomizeTagsModal';
 
+/** Obsidian App with commands API. */
+interface AppWithCommands {
+  commands: {
+    executeCommandById(commandId: string): void;
+  };
+}
+
 // ── localStorage helpers ──────────────────────────────────────────────────────
 
 function loadCustomTags(): CustomTag[] {
@@ -82,7 +89,7 @@ export function TagsGroup() {
   const [customizeModalOpen, setCustomizeModalOpen] = useState(false);
   const [customTags, setCustomTags] = useState<CustomTag[]>(loadCustomTags);
 
-  const activeTagKeys = useActiveTagKeys(app as any);
+  const activeTagKeys = useActiveTagKeys(app);
 
   // "Remove Tag" is only enabled when cursor is inside a real callout block
   // (i.e. an active key that is not a sentinel or task-prefix value)
@@ -112,14 +119,14 @@ export function TagsGroup() {
   const getEditor = () => app.workspace.activeEditor?.editor;
 
   const executeCommand = (commandId: string) => {
-    (app as any).commands.executeCommandById(commandId);
+    (app as unknown as AppWithCommands).commands.executeCommandById(commandId);
   };
 
   const handleTodo = () => {
     const editor = getEditor();
 
     if (editor && activeTagKeys.has(ACTIVE_TAG_KEY_TASK)) {
-      removeActiveCheckbox(editor as any);
+      removeActiveCheckbox(editor);
       return;
     }
 
@@ -131,12 +138,12 @@ export function TagsGroup() {
     if (!editor) return;
 
     if (activeTagKeys.has('Important')) {
-      removeActiveCallout(editor as any);
+      removeActiveCallout(editor);
       return;
     }
 
     applyTag(
-      editor as any,
+      editor,
       { type: 'callout', calloutType: 'important', calloutTitle: 'Important' },
       executeCommand,
     );
@@ -147,12 +154,12 @@ export function TagsGroup() {
     if (!editor) return;
 
     if (activeTagKeys.has('Question')) {
-      removeActiveCallout(editor as any);
+      removeActiveCallout(editor);
       return;
     }
 
     applyTag(
-      editor as any,
+      editor,
       { type: 'callout', calloutType: 'question', calloutTitle: 'Question' },
       executeCommand,
     );
@@ -173,7 +180,7 @@ export function TagsGroup() {
   const handleToDoTag = () => {
     const editor = getEditor();
     if (!editor) return;
-    toggleInlineTodoTag(editor as any);
+    toggleInlineTodoTag(editor);
   };
 
   const handleCustomTagsChange = (updatedTags: CustomTag[]) => {
@@ -193,7 +200,7 @@ export function TagsGroup() {
     if (tagDefinition.isRemoveTag) {
       if (!canRemoveTag) return;
       const editor = getEditor();
-      if (editor) removeActiveCallout(editor as any);
+      if (editor) removeActiveCallout(editor);
       setMoreMenuOpen(false);
       return;
     }
@@ -202,11 +209,11 @@ export function TagsGroup() {
 
     const calloutKey = tagDefinition.calloutKey;
     const isCurrentlyActive =
-      calloutKey != null && activeTagKeys.has(calloutKey);
+      calloutKey !== null && calloutKey !== undefined && activeTagKeys.has(calloutKey);
 
     if (isCurrentlyActive && tagDefinition.action.type === 'callout') {
       const editor = getEditor();
-      if (editor) removeActiveCallout(editor as any);
+      if (editor) removeActiveCallout(editor);
       setMoreMenuOpen(false);
       return;
     }
@@ -218,13 +225,15 @@ export function TagsGroup() {
           tagDefinition.calloutKey === ACTIVE_TAG_KEY_TASK))
     ) {
       const editor = getEditor();
-      if (editor) removeActiveCheckbox(editor as any);
+      if (editor) removeActiveCheckbox(editor);
       setMoreMenuOpen(false);
       return;
     }
 
     const editor = getEditor();
-    applyTag(editor as any, tagDefinition.action, executeCommand);
+    if (editor) {
+      applyTag(editor, tagDefinition.action, executeCommand);
+    }
     setMoreMenuOpen(false);
   };
 
@@ -330,7 +339,8 @@ export function TagsGroup() {
 
                 // Whether this tag is currently active at the cursor
                 const isChecked =
-                  tagDefinition.calloutKey != null &&
+                  tagDefinition.calloutKey !== null &&
+                  tagDefinition.calloutKey !== undefined &&
                   activeTagKeys.has(tagDefinition.calloutKey);
 
                 // Footer items ("Customize Tags…", "Remove Tag") don't get a checkbox

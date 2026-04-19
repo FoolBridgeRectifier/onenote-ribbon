@@ -24,7 +24,8 @@ import {
 // Use .toContain() for command assertions.
 
 function renderListButtons(editorState = {}) {
-  const editor = new MockEditor('');
+  const editor = new MockEditor();
+  editor.setValue('');
   const app = createMockApp(editor);
   const mockPlugin = createMockPlugin({});
 

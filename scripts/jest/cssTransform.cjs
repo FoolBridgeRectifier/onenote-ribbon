@@ -1,15 +1,14 @@
 const path = require('path');
-const nodeProcess = require('process');
 
 function createStyleElementId(styleSheetFilePath) {
   const normalizedFilePath = path
-    .relative(nodeProcess.cwd(), styleSheetFilePath)
+    .relative(process.cwd(), styleSheetFilePath)
     .replace(/\\/g, '/');
 
   return `jest-css-${normalizedFilePath}`.replace(/[^a-zA-Z0-9_-]/g, '_');
 }
 
-function process(styleSheetSourceText, styleSheetFilePath) {
+function processCss(styleSheetSourceText, styleSheetFilePath) {
   const styleElementId = createStyleElementId(styleSheetFilePath);
 
   return {
@@ -36,5 +35,5 @@ module.exports = cssText;
 }
 
 module.exports = {
-  process,
+  process: processCss,
 };

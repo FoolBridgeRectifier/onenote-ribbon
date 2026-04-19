@@ -61,8 +61,8 @@ function buildDefaultState(app: App): EditorState {
     bulletList: false,
     numberedList: false,
     headLevel: 0,
-    fontFamily: (app.vault as any).getConfig('fontText') ?? 'default',
-    fontSize: String((app.vault as any).getConfig('baseFontSize') ?? 16),
+    fontFamily: (app.vault as unknown as { getConfig: (key: string) => string }).getConfig('fontText') ?? 'default',
+    fontSize: String((app.vault as unknown as { getConfig: (key: string) => number }).getConfig('baseFontSize') ?? 16),
     textAlign: 'left',
     fontColor: null,
     highlightColor: null,
@@ -194,7 +194,14 @@ export function deriveEditorState(
     const stateField = TAG_NAME_TO_STATE_FIELD[tagRange.tagName];
 
     if (stateField) {
-      (state as any)[stateField] = true;
+      // Only set boolean fields from tag detection
+      const booleanFields: (keyof EditorState)[] = [
+        'bold', 'italic', 'underline', 'strikethrough', 'highlight',
+        'subscript', 'superscript', 'bulletList', 'numberedList',
+      ];
+      if (booleanFields.includes(stateField)) {
+        (state as unknown as Record<string, boolean>)[stateField] = true;
+      }
     }
   }
 

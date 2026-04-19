@@ -5,7 +5,7 @@ try {
   const inputText = fs.readFileSync(0, 'utf8');
   hookInput = inputText ? JSON.parse(inputText) : {};
 } catch {
-  hookInput = {};
+  // If parsing fails, hookInput remains as empty object
 }
 
 const stopHookActive = Boolean(hookInput.stop_hook_active);
@@ -39,7 +39,7 @@ function isChecklistCompleted(transcriptPath, currentResponse) {
           }
         }
       }
-    } catch (e) {
+    } catch {
       // Fallback to blocking if transcript parsing fails
     }
   }

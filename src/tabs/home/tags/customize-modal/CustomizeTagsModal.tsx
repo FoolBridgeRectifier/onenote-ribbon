@@ -210,7 +210,7 @@ export function CustomizeTagsModal({
                 id="onr-new-tag-callout"
                 className="onr-customize-modal-select"
                 value={newTagCalloutType}
-                onChange={(event) => setNewTagCalloutType(event.target.value)}
+                onChange={(event) => setNewTagCalloutType(event.target.value as 'note')}
               >
                 {OBSIDIAN_CALLOUT_TYPES.map((calloutType) => (
                   <option key={calloutType.value} value={calloutType.value}>

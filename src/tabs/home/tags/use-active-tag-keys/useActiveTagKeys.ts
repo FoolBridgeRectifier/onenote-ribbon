@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { App } from 'obsidian';
+import { App, Editor } from 'obsidian';
 
 import { detectActiveTagKeys } from '../tag-apply/detectActiveCallout';
 import { SELECTION_CHANGE_THROTTLE_MS } from './constants';
@@ -24,7 +24,7 @@ export function useActiveTagKeys(app: App): Set<string> {
   useEffect(() => {
     const recompute = () => {
       const editor = app.workspace.activeEditor?.editor ?? null;
-      setActiveTagKeys(detectActiveTagKeys(editor as any));
+      setActiveTagKeys(detectActiveTagKeys(editor as Editor | null));
     };
 
     // Throttled version for selectionchange, which fires on every caret movement

@@ -14,7 +14,6 @@ import {
   OffsetRange,
   OpeningTagBoundary,
   TextIndex,
-  TextPosition,
 } from './interfaces';
 import {
   buildTextIndex,
@@ -135,7 +134,7 @@ export function buildHtmlTagRanges(sourceText: string): HtmlTagRange[] {
   const openingTagStack: OpeningTagBoundary[] = [];
   const tagRanges: HtmlTagRange[] = [];
 
-  let currentMatch: RegExpExecArray | null = null;
+  let currentMatch: RegExpExecArray | null;
 
   while ((currentMatch = htmlTagPattern.exec(sourceText)) !== null) {
     const fullTagText = currentMatch[0];
@@ -234,7 +233,7 @@ export function buildMarkdownTagRanges(sourceText: string): HtmlTagRange[] {
       markdownPatternDefinition.patternFlags,
     );
 
-    let currentMatch: RegExpExecArray | null = null;
+    let currentMatch: RegExpExecArray | null;
 
     while ((currentMatch = markdownPattern.exec(sourceText)) !== null) {
       markdownTagRanges.push(

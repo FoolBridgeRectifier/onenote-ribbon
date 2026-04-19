@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+main.js
+
+# Coverage reports
+/coverage/
+
+# E2E test vault
+.e2e-vault/
+
+# Git worktrees
+.worktrees/
+
+# Package lock
+package-lock.json
+
+# Generated files
+__snapshots__/
+*.snap

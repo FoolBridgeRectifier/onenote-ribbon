@@ -23,6 +23,12 @@ interface StoragePlugin {
   saveData(data: unknown): Promise<void>;
 }
 
+/** Minimal CM6 EditorView interface for type safety. */
+interface EditorView {
+  posAtDOM(node: Node, offset: number): number;
+  dispatch(spec: { selection: { anchor: number } }): void;
+}
+
 /** CSS selectors for each nesting depth of unordered lists (L1 → L4). */
 const DEPTH_SELECTORS: [string, string, string, string] = [
   ':is(ul) > li',
@@ -309,7 +315,7 @@ function buildEditorBulletCss(levels: BulletLevels): string[] {
 function stampAllOlSpans(converter: NumberLevelConverter): void {
   const spans = document.querySelectorAll('.cm-formatting-list-ol');
 
-  for (const span of spans) {
+  for (const span of Array.from(spans)) {
     // Skip task-line spans (they use checkboxes, not numbers)
     if (span.closest('.HyperMD-task-line')) {
       if (span.hasAttribute('data-onr-marker'))
@@ -348,7 +354,7 @@ function stampAllOlSpans(converter: NumberLevelConverter): void {
 function stampAllUlSpans(levels: BulletLevels): void {
   const spans = document.querySelectorAll('.cm-formatting-list-ul');
 
-  for (const span of spans) {
+  for (const span of Array.from(spans)) {
     if (span.closest('.HyperMD-task-line')) {
       if (span.hasAttribute('data-onr-marker'))
         span.removeAttribute('data-onr-marker');
@@ -390,7 +396,7 @@ function clearAllListMarkers(): void {
     '.cm-formatting-list-ol[data-onr-marker], .cm-formatting-list-ul[data-onr-marker]',
   );
 
-  for (const span of spans) {
+  for (const span of Array.from(spans)) {
     span.removeAttribute('data-onr-marker');
   }
 }
@@ -595,7 +601,7 @@ function createListMarkerObserver(
   const scrollHandler = () => scheduleStamp();
   const selectionHandler = () => scheduleStamp();
 
-  for (const container of scrollContainers) {
+  for (const container of Array.from(scrollContainers)) {
     container.addEventListener('scroll', scrollHandler, { passive: true });
   }
 
@@ -623,7 +629,7 @@ function createListMarkerObserver(
 
     // Access the CM6 EditorView via the content element's internal reference
     const cmContent = markerSpan.closest('.cm-content') as HTMLElement | null;
-    const editorView = (cmContent as any)?.cmView?.view;
+    const editorView = (cmContent as unknown as { cmView?: { view?: EditorView } } | null)?.cmView?.view;
 
     if (!editorView || typeof editorView.posAtDOM !== 'function') return;
 
@@ -648,7 +654,7 @@ function createListMarkerObserver(
     document.addEventListener('mouseup', repositionOnMouseUp, true);
   };
 
-  for (const container of contentContainers) {
+  for (const container of Array.from(contentContainers)) {
     container.addEventListener('mousedown', markerClickHandler, true);
   }
 
@@ -686,21 +692,24 @@ function createListMarkerObserver(
       : 'editor:toggle-bullet-list';
 
     // Access Obsidian's global app to execute the toggle command
-    (window as any).app?.commands?.executeCommandById(commandId);
+    const obsidianWindow = window as unknown as {
+      app?: { commands?: { executeCommandById(commandId: string): void } };
+    };
+    obsidianWindow.app?.commands?.executeCommandById(commandId);
   };
 
-  for (const container of contentContainers) {
+  for (const container of Array.from(contentContainers)) {
     container.addEventListener('keydown', backspaceHandler, true);
   }
 
   return () => {
     observer.disconnect();
 
-    for (const container of scrollContainers) {
+    for (const container of Array.from(scrollContainers)) {
       container.removeEventListener('scroll', scrollHandler);
     }
 
-    for (const container of contentContainers) {
+    for (const container of Array.from(contentContainers)) {
       container.removeEventListener('mousedown', markerClickHandler, true);
       container.removeEventListener('keydown', backspaceHandler, true);
     }
@@ -744,7 +753,7 @@ export function useListStyleInjection(): ListStyleContextValue {
           DEFAULT_LIST_STYLE_SETTINGS.numberPresetId,
       );
     });
-  }, []); // intentionally runs once on mount only
+  }, [plugin]);
 
   // Rebuild and inject CSS whenever either preset ID changes
   useEffect(() => {
@@ -776,6 +785,7 @@ export function useListStyleInjection(): ListStyleContextValue {
 
     if (bulletLevels === null && converter === null) return;
 
+    // eslint-disable-next-line no-console
     console.log('[ONR] Creating observer for:', {
       bulletPresetId,
       numberPresetId,
@@ -784,9 +794,11 @@ export function useListStyleInjection(): ListStyleContextValue {
       converter,
       bulletLevels,
     );
+    // eslint-disable-next-line no-console
     console.log('[ONR] Observer created, ref set');
 
     return () => {
+      // eslint-disable-next-line no-console
       console.log('[ONR] Effect cleanup running for:', {
         bulletPresetId,
         numberPresetId,
