@@ -64,8 +64,9 @@ describe('CdpClient', () => {
       'CDP request timed out: Runtime.evaluate',
     );
 
-    await jest.advanceTimersByTimeAsync(10001);
+    // CDP_REQUEST_TIMEOUT_MS is 30000ms, advance past that
+    await jest.advanceTimersByTimeAsync(31000);
 
     await rejectionExpectation;
-  });
+  }, 35000);
 });

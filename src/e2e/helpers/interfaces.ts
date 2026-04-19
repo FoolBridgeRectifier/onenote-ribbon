@@ -1,10 +1,5 @@
-export interface ExplicitRuleResult {
-  pass: boolean;
-  details: string;
-}
-
-export interface HookRuleResult {
+export interface SuiteTestResult {
   test: string;
   pass: boolean;
-  details: string;
+  details?: string;
 }

@@ -1,1 +1,1 @@
-export const HOME_HOOK_RULE_COUNT = 166;
+// E2E helper constants - currently empty after rule-level coverage removal

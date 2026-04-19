@@ -1,6 +1,7 @@
 import {
-  CLI_FLAG_COVERAGE,
-  CLI_FLAG_COVERAGE_SCOPE,
+  CLI_FLAG_CODE_COVERAGE,
+  CLI_FLAG_COVERAGE_HTML,
+  CLI_FLAG_COVERAGE_REPORT,
   CLI_FLAG_COVERAGE_THRESHOLD,
   CLI_FLAG_KEEP_VAULT,
   CLI_FLAG_LAUNCH,
@@ -33,10 +34,6 @@ function getFlagValue(
 export function parseCliArguments(argumentsList: string[]): ParsedCliArguments {
   const portValue = getFlagValue(argumentsList, CLI_FLAG_PORT);
   const suiteValue = getFlagValue(argumentsList, CLI_FLAG_SUITE);
-  const coverageScopeValue = getFlagValue(
-    argumentsList,
-    CLI_FLAG_COVERAGE_SCOPE,
-  );
   const coverageThresholdValue = getFlagValue(
     argumentsList,
     CLI_FLAG_COVERAGE_THRESHOLD,
@@ -80,8 +77,9 @@ export function parseCliArguments(argumentsList: string[]): ParsedCliArguments {
 
   return {
     cdpPort,
-    coverageMode: argumentsList.includes(CLI_FLAG_COVERAGE),
-    coverageScope: coverageScopeValue,
+    codeCoverageMode: argumentsList.includes(CLI_FLAG_CODE_COVERAGE),
+    coverageHtml: argumentsList.includes(CLI_FLAG_COVERAGE_HTML),
+    coverageReport: argumentsList.includes(CLI_FLAG_COVERAGE_REPORT),
     coverageThreshold,
     keepVault: argumentsList.includes(CLI_FLAG_KEEP_VAULT),
     launchFresh: argumentsList.includes(CLI_FLAG_LAUNCH),

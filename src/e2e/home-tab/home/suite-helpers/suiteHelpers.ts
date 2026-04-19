@@ -1,25 +1,7 @@
-import type {
-  ExplicitRuleResult,
-  HookRuleResult,
-  HomeSuiteCallback,
-  RuleIdGroup,
-} from './interfaces';
+import type { SuiteTestResult } from '../../../helpers/interfaces';
+import type { HomeSuiteCallback } from './interfaces';
 
 declare const app: any;
-
-function buildRuleResults(
-  ruleResultsById: Record<number, ExplicitRuleResult>,
-  ruleIdGroups: readonly RuleIdGroup[],
-): HookRuleResult[] {
-  return ruleIdGroups
-    .flat()
-    .sort((leftRuleId, rightRuleId) => leftRuleId - rightRuleId)
-    .map((ruleId) => ({
-      test: `rule-${String(ruleId).padStart(3, '0')}`,
-      pass: ruleResultsById[ruleId]?.pass ?? false,
-      details: ruleResultsById[ruleId]?.details ?? 'Missing explicit result.',
-    }));
-}
 
 export const wait = (milliseconds: number): Promise<void> =>
   new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
@@ -71,16 +53,9 @@ export async function ensureHomePanel(): Promise<void> {
 }
 
 export async function runHomeTabSuite(
-  ruleIdGroups: readonly RuleIdGroup[],
+  testName: string,
   callback: HomeSuiteCallback,
-): Promise<HookRuleResult[]> {
-  const ruleResultsById: Record<number, ExplicitRuleResult> = {};
-  const recordRules = (ruleIds: RuleIdGroup, pass: boolean, details: string) => {
-    ruleIds.forEach((ruleId) => {
-      ruleResultsById[ruleId] = { details, pass };
-    });
-  };
-
+): Promise<SuiteTestResult[]> {
   try {
     await ensureHomePanel();
 
@@ -97,31 +72,27 @@ export async function runHomeTabSuite(
       return originalExecuteCommandById(commandId);
     };
 
+    let testPassed = true;
+    let testDetails = '';
+
     try {
       await callback({
         commandCalls,
         clickByCommand,
         editor,
-        recordRules,
         selectToken: (tokenValue: string) => selectToken(editor, tokenValue),
         wait,
       });
+      testDetails = 'Test completed successfully';
+    } catch (error) {
+      testPassed = false;
+      testDetails = String(error);
     } finally {
       app.commands.executeCommandById = originalExecuteCommandById;
     }
 
-    return buildRuleResults(ruleResultsById, ruleIdGroups);
+    return [{ test: testName, pass: testPassed, details: testDetails }];
   } catch (error) {
-    const errorMessage = String(error);
-
-    ruleIdGroups.forEach((ruleIds) => {
-      ruleIds.forEach((ruleId) => {
-        if (!ruleResultsById[ruleId]) {
-          ruleResultsById[ruleId] = { details: errorMessage, pass: false };
-        }
-      });
-    });
-
-    return buildRuleResults(ruleResultsById, ruleIdGroups);
+    return [{ test: testName, pass: false, details: String(error) }];
   }
 }

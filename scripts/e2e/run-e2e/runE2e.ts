@@ -1,4 +1,5 @@
 import { execFileSync } from 'child_process';
+import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -21,12 +22,20 @@ import {
 } from './obsidianVault/obsidianVault';
 import { parseCliArguments } from './parseCliArguments/parseCliArguments';
 import { runSuites } from './suiteExecution/suiteExecution';
-import {
-  calculateRuleCoverage,
-  formatCoveragePercent,
-} from './coverage/coverageReport';
-import { STYLING_ENGINE_RULE_IDS } from './coverage/constants';
+import { formatCoveragePercent } from './coverage/coverageReport';
 import { readJestCoverageLineThreshold } from './coverage/readJestCoverageThreshold';
+import {
+  startCoverageCollection,
+  stopCoverageCollection,
+  loadSourceFiles,
+  generateCoverageReport,
+} from './coverage/cdpCoverage';
+import {
+  generateDetailedReport,
+  saveReportJson,
+  saveHtmlReport,
+  generateUncoveredBranchesReport,
+} from './coverage/coverageReportGenerator';
 import {
   cleanupTempNote,
   dismissTrustModal,
@@ -125,73 +134,81 @@ export async function runE2e() {
     );
     console.log('      Active editor ready.');
 
+    // Start code coverage collection if requested
+    let coverageStartTime: number | null = null;
+    if (cliArguments.codeCoverageMode) {
+      console.log('      Starting code coverage collection...');
+      await startCoverageCollection(launchSession.cdpClient);
+      coverageStartTime = Date.now();
+    }
+
     const suiteSummary = await runSuites(
       launchSession.cdpClient,
       runnerPaths.rootPath,
       cliArguments.suiteFilter,
     );
 
+    // Collect and report code coverage if requested
+    let codeCoverageSummary = null;
+    if (cliArguments.codeCoverageMode && coverageStartTime !== null) {
+      console.log('      Collecting code coverage data...');
+      const coverageData = await stopCoverageCollection(launchSession.cdpClient);
+      const coverageDuration = Date.now() - coverageStartTime;
+
+      // Load source files for analysis
+      const sourceFilesResult = await loadSourceFiles(runnerPaths.rootPath);
+
+      // Generate detailed report with source map support
+      const detailedReport = generateDetailedReport(
+        coverageData,
+        sourceFilesResult.files,
+        coverageDuration,
+        sourceFilesResult.bundleContent,
+      );
+      codeCoverageSummary = detailedReport.summary;
+
+      // Save reports
+      const coverageDir = path.join(runnerPaths.rootPath, 'coverage', 'e2e');
+      if (!fs.existsSync(coverageDir)) {
+        fs.mkdirSync(coverageDir, { recursive: true });
+      }
+
+      // Save JSON report
+      if (cliArguments.coverageReport) {
+        saveReportJson(detailedReport, path.join(coverageDir, 'coverage.json'));
+        console.log(`      Coverage JSON saved to: coverage/e2e/coverage.json`);
+      }
+
+      // Save HTML report
+      if (cliArguments.coverageHtml) {
+        saveHtmlReport(detailedReport, path.join(coverageDir, 'index.html'));
+        console.log(`      Coverage HTML saved to: coverage/e2e/index.html`);
+      }
+
+      // Save uncovered branches report
+      const uncoveredReport = generateUncoveredBranchesReport(detailedReport);
+      fs.writeFileSync(
+        path.join(coverageDir, 'uncovered-branches.md'),
+        uncoveredReport,
+      );
+
+      // Print console report
+      console.log('\n' + generateCoverageReport(codeCoverageSummary, coverageData));
+    }
+
     let coverageFailed = false;
 
-    if (cliArguments.coverageMode) {
-      const discoveredRuleIds = Array.from(
-        new Set(
-          suiteSummary.allSuiteResults
-            .map((suiteResult) => suiteResult.test.match(/^rule-(\d{3})$/))
-            .filter(Boolean)
-            .map((ruleMatch) => Number.parseInt(ruleMatch?.[1] || '', 10))
-            .filter((ruleId) => !Number.isNaN(ruleId)),
-        ),
-      ).sort((leftRuleId, rightRuleId) => leftRuleId - rightRuleId);
-
-      const overallRuleCoverage = calculateRuleCoverage(
-        suiteSummary.allSuiteResults,
-        discoveredRuleIds,
-      );
-
-      console.log(`\n  Coverage: Rule-level E2E`);
-      console.log(
-        `  Rule pass coverage: ${overallRuleCoverage.passedRuleCount}/${overallRuleCoverage.totalRuleCount} (${formatCoveragePercent(overallRuleCoverage.coveragePercent)})`,
-      );
-
-      const shouldCheckStylingEngineCoverage =
-        cliArguments.coverageScope === 'styling-engine';
-
-      if (shouldCheckStylingEngineCoverage) {
-        const expectedCoverageThreshold =
-          cliArguments.coverageThreshold ??
-          readJestCoverageLineThreshold(runnerPaths.rootPath);
-
-        const stylingEngineCoverage = calculateRuleCoverage(
-          suiteSummary.allSuiteResults,
-          STYLING_ENGINE_RULE_IDS,
-        );
-
+    // Check code coverage threshold if applicable
+    if (
+      cliArguments.codeCoverageMode &&
+      codeCoverageSummary &&
+      cliArguments.coverageThreshold !== null
+    ) {
+      if (codeCoverageSummary.overallCoverage < cliArguments.coverageThreshold) {
+        coverageFailed = true;
         console.log(
-          `  Styling-engine pass coverage: ${stylingEngineCoverage.passedRuleCount}/${stylingEngineCoverage.totalRuleCount} (${formatCoveragePercent(stylingEngineCoverage.coveragePercent)})`,
+          `  Code coverage threshold not met: expected ${cliArguments.coverageThreshold}%, got ${formatCoveragePercent(codeCoverageSummary.overallCoverage)}`,
         );
-
-        if (stylingEngineCoverage.uncoveredRuleIds.length > 0) {
-          console.log(
-            `  Styling-engine uncovered rules: ${stylingEngineCoverage.uncoveredRuleIds.join(', ')}`,
-          );
-        }
-
-        if (stylingEngineCoverage.failedRuleIds.length > 0) {
-          console.log(
-            `  Styling-engine failed rules: ${stylingEngineCoverage.failedRuleIds.join(', ')}`,
-          );
-        }
-
-        if (
-          expectedCoverageThreshold !== null &&
-          stylingEngineCoverage.coveragePercent < expectedCoverageThreshold
-        ) {
-          coverageFailed = true;
-          console.log(
-            `  Coverage threshold not met: expected ${expectedCoverageThreshold}%, got ${formatCoveragePercent(stylingEngineCoverage.coveragePercent)}`,
-          );
-        }
       }
     }
 

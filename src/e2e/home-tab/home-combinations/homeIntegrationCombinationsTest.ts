@@ -1,17 +1,15 @@
-import { EDITOR_STATE_RULE_IDS } from '../home/constants';
-import type { HookRuleResult } from '../home/interfaces';
+import type { SuiteTestResult } from '../../helpers/interfaces';
 import { runHomeTabSuite } from '../home/suite-helpers/suiteHelpers';
 
 export async function homeCombinationsIntegrationTest(): Promise<
-  HookRuleResult[]
+  SuiteTestResult[]
 > {
   return runHomeTabSuite(
-    [EDITOR_STATE_RULE_IDS],
+    'home-combinations',
     async ({
       clickByCommand,
       commandCalls,
       editor,
-      recordRules,
       selectToken,
       wait,
     }) => {
@@ -31,15 +29,16 @@ export async function homeCombinationsIntegrationTest(): Promise<
         commandCalls.length > 0 ||
         editor.getValue().includes('==beta==');
 
-      recordRules(
-        EDITOR_STATE_RULE_IDS,
-        editorStatePass,
-        [
-          'activeButtons=' + activeButtons.join(', '),
-          'commandCalls=' + commandCalls.join(', '),
-          'document=' + editor.getValue(),
-        ].join(' | '),
-      );
+      if (!editorStatePass) {
+        throw new Error(
+          [
+            'Editor state validation failed:',
+            'activeButtons=' + activeButtons.join(', '),
+            'commandCalls=' + commandCalls.join(', '),
+            'document=' + editor.getValue(),
+          ].join(' | '),
+        );
+      }
     },
   );
 }

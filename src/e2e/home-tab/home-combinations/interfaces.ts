@@ -1,4 +1,1 @@
-export type {
-  ExplicitRuleResult,
-  HookRuleResult,
-} from '../../helpers/interfaces';
+export type { SuiteTestResult } from '../../helpers/interfaces';

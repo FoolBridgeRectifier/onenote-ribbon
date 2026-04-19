@@ -95,7 +95,7 @@ describe('suiteHelpers', () => {
     await expect(ensureHomePanel()).rejects.toThrow('Home panel not visible');
   });
 
-  it('runHomeTabSuite returns sorted rule results for a successful callback', async () => {
+  it('runHomeTabSuite returns test result for a successful callback', async () => {
     const panelElement = document.createElement('div');
     const editor = {
       getValue: () => 'alpha beta gamma',
@@ -118,10 +118,9 @@ describe('suiteHelpers', () => {
     };
 
     const results = await runHomeTabSuite(
-      [[3], [1, 2]],
+      'test-suite',
       async ({
         commandCalls,
-        recordRules,
         selectToken: selectContextToken,
       }) => {
         selectContextToken('beta');
@@ -134,16 +133,11 @@ describe('suiteHelpers', () => {
           { offset: 6 },
           { offset: 10 },
         );
-
-        recordRules([3], true, 'third');
-        recordRules([1, 2], false, 'first-second');
       },
     );
 
     expect(results).toEqual([
-      { details: 'first-second', pass: false, test: 'rule-001' },
-      { details: 'first-second', pass: false, test: 'rule-002' },
-      { details: 'third', pass: true, test: 'rule-003' },
+      { test: 'test-suite', pass: true, details: 'Test completed successfully' },
     ]);
     expect(
       (globalThis as Record<string, any>).app.commands.executeCommandById(
@@ -153,7 +147,7 @@ describe('suiteHelpers', () => {
     expect(originalExecuteCommandById).toHaveBeenCalledWith('editor:italic');
   });
 
-  it('runHomeTabSuite marks every rule as failed when no active editor exists', async () => {
+  it('runHomeTabSuite returns failed result when no active editor exists', async () => {
     const panelElement = document.createElement('div');
 
     panelElement.dataset.panel = 'Home';
@@ -167,23 +161,18 @@ describe('suiteHelpers', () => {
       },
     };
 
-    const results = await runHomeTabSuite([[1], [2]], async () => undefined);
+    const results = await runHomeTabSuite('test-suite', async () => undefined);
 
     expect(results).toEqual([
       {
-        details: 'Error: No active editor for home-tab integration test',
+        test: 'test-suite',
         pass: false,
-        test: 'rule-001',
-      },
-      {
         details: 'Error: No active editor for home-tab integration test',
-        pass: false,
-        test: 'rule-002',
       },
     ]);
   });
 
-  it('runHomeTabSuite preserves recorded rules and fills missing ones after a callback error', async () => {
+  it('runHomeTabSuite returns failed result after a callback error', async () => {
     const panelElement = document.createElement('div');
     const editor = {
       getValue: () => 'alpha beta gamma',
@@ -203,14 +192,12 @@ describe('suiteHelpers', () => {
       },
     };
 
-    const results = await runHomeTabSuite([[1, 2]], async ({ recordRules }) => {
-      recordRules([1], true, 'kept');
+    const results = await runHomeTabSuite('test-suite', async () => {
       throw new Error('boom');
     });
 
     expect(results).toEqual([
-      { details: 'kept', pass: true, test: 'rule-001' },
-      { details: 'Error: boom', pass: false, test: 'rule-002' },
+      { details: 'Error: boom', pass: false, test: 'test-suite' },
     ]);
     (globalThis as Record<string, any>).app.commands.executeCommandById(
       'editor:italic',
