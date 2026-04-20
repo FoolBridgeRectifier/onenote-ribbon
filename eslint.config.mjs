@@ -1,29 +1,158 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import js from '@eslint/js';
 import tsParser from 'typescript-eslint';
+import importPlugin from 'eslint-plugin-import';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import prettierConfig from 'eslint-config-prettier';
+
+const currentDirectoryPath = path.dirname(fileURLToPath(import.meta.url));
+
+const strictStructurePlugin = {
+  rules: {
+    'types-only-in-interfaces-file': {
+      meta: {
+        type: 'problem',
+        docs: {
+          description: 'Allow type/interface/enum declarations only in interfaces.ts files.',
+        },
+        schema: [],
+      },
+      create(context) {
+        const currentFilePath = context.filename.replace(/\\/g, '/');
+        const isInterfacesFile = currentFilePath.endsWith('/interfaces.ts');
+
+        if (isInterfacesFile) {
+          return {};
+        }
+
+        const reportDeclaration = (node, declarationName) => {
+          context.report({
+            node,
+            message: `Only interfaces.ts files can declare ${declarationName}.`,
+          });
+        };
+
+        return {
+          TSInterfaceDeclaration(node) {
+            reportDeclaration(node, 'interfaces');
+          },
+          TSTypeAliasDeclaration(node) {
+            reportDeclaration(node, 'type aliases');
+          },
+          TSEnumDeclaration(node) {
+            reportDeclaration(node, 'enums');
+          },
+        };
+      },
+    },
+
+    'module-consts-only-in-constants-file': {
+      meta: {
+        type: 'problem',
+        docs: {
+          description: 'Disallow non-function top-level const declarations outside constants.ts.',
+        },
+        schema: [],
+      },
+      create(context) {
+        const currentFilePath = context.filename.replace(/\\/g, '/');
+        const isConstantsFile = currentFilePath.endsWith('/constants.ts');
+
+        if (isConstantsFile) {
+          return {};
+        }
+
+        const isFunctionInitializer = (initializerNode) => (
+          initializerNode?.type === 'ArrowFunctionExpression'
+          || initializerNode?.type === 'FunctionExpression'
+        );
+
+        return {
+          Program(programNode) {
+            for (const topLevelNode of programNode.body) {
+              if (topLevelNode.type !== 'VariableDeclaration' || topLevelNode.kind !== 'const') {
+                continue;
+              }
+
+              for (const declaratorNode of topLevelNode.declarations) {
+                if (!isFunctionInitializer(declaratorNode.init)) {
+                  context.report({
+                    node: declaratorNode,
+                    message: 'Top-level const declarations outside constants.ts must initialize with a function.',
+                  });
+                }
+              }
+            }
+          },
+        };
+      },
+    },
+
+    'strict-file-name': {
+      meta: {
+        type: 'problem',
+        docs: {
+          description: 'Require file name to match folder name or be helpers/constants/interfaces.',
+        },
+        schema: [],
+      },
+      create(context) {
+        const currentFilePath = context.filename;
+        const extensionName = path.extname(currentFilePath);
+
+        if (extensionName !== '.ts' && extensionName !== '.tsx') {
+          return {};
+        }
+
+        const baseNameWithoutExtension = path.basename(currentFilePath, extensionName);
+        const parentFolderName = path.basename(path.dirname(currentFilePath));
+        const allowedFileNames = new Set(['helpers', 'constants', 'interfaces']);
+
+        if (allowedFileNames.has(baseNameWithoutExtension)) {
+          return {};
+        }
+
+        return {
+          Program(programNode) {
+            if (baseNameWithoutExtension !== parentFolderName) {
+              context.report({
+                node: programNode,
+                message: `File name must match parent folder name (${parentFolderName}${extensionName}) or use helpers/constants/interfaces.`,
+              });
+            }
+          },
+        };
+      },
+    },
+  },
+};
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   // Base JavaScript rules
   js.configs.recommended,
 
-  // TypeScript rules (without type checking)
+  // TypeScript rules (base)
   ...tsParser.configs.recommended,
 
-  // React rules
+  // TypeScript + React rules
   {
-    files: ['**/*.{js,jsx,ts,tsx}'],
+    files: ['**/*.{ts,tsx}'],
     plugins: {
+      import: importPlugin,
       react: reactPlugin,
       'react-hooks': reactHooksPlugin,
+      'strict-structure': strictStructurePlugin,
     },
     languageOptions: {
       parser: tsParser.parser,
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
+        projectService: true,
+        tsconfigRootDir: currentDirectoryPath,
         ecmaFeatures: {
           jsx: true,
         },
@@ -61,6 +190,13 @@ export default [
       },
     },
     settings: {
+      'import/parsers': {
+        '@typescript-eslint/parser': ['.ts', '.tsx'],
+      },
+      'import/resolver': {
+        typescript: true,
+        node: true,
+      },
       react: {
         version: '18.3',
       },
@@ -89,8 +225,18 @@ export default [
         varsIgnorePattern: '^_',
         caughtErrorsIgnorePattern: '^_',
       }],
+      '@typescript-eslint/no-unused-expressions': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-non-null-assertion': 'off', // Allow in existing codebase
+      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/no-misused-promises': 'error',
+      '@typescript-eslint/consistent-type-imports': 'error',
+
+      // Import strictness
+      'import/no-unresolved': 'error',
+      'import/named': 'error',
+      'import/default': 'error',
+      'import/namespace': 'error',
 
       // General code quality rules
       'no-console': ['warn', { allow: ['warn', 'error'] }],
@@ -111,6 +257,12 @@ export default [
       'no-trailing-spaces': 'warn',
       'eol-last': 'warn',
       'no-useless-assignment': 'warn',
+
+      // Structural strictness
+      'max-lines': ['error', { max: 150, skipBlankLines: false, skipComments: false }],
+      'strict-structure/types-only-in-interfaces-file': 'error',
+      'strict-structure/module-consts-only-in-constants-file': 'error',
+      'strict-structure/strict-file-name': 'error',
     },
   },
 
@@ -189,7 +341,6 @@ export default [
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       'no-console': 'off',
-      '@typescript-eslint/no-unused-vars': 'off', // Tests often have unused vars
     },
   },
 
@@ -199,7 +350,15 @@ export default [
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       'no-console': 'off',
-      '@typescript-eslint/no-unused-vars': 'off',
+    },
+  },
+
+  // Non-test files must strictly keep <= 150 lines
+  {
+    files: ['**/*.{ts,tsx,js,jsx,mjs,cjs}'],
+    ignores: ['**/*.test.{ts,tsx,js,jsx}', '**/__mocks__/**', '**/test-utils/**', '**/tests/**'],
+    rules: {
+      'max-lines': ['error', { max: 150, skipBlankLines: false, skipComments: false }],
     },
   },
 
