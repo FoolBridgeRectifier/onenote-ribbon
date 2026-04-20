@@ -1,20 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import type { HTMLAttributes, ReactNode } from 'react';
-import type { DropdownItem } from './interfaces.ts';
+import type { DropdownItem, DropdownProps } from './interfaces.ts';
 import { usePortalContainer } from '../../context/PortalContext';
 
 import './dropdown.css';
-
-type DropdownProps = {
-  anchor: HTMLElement | null;
-  items?: DropdownItem[];
-  onClose: () => void;
-  children?: ReactNode;
-  offsetY?: number;
-  offsetX?: number;
-  constrainLeftToViewport?: boolean;
-} & Omit<HTMLAttributes<HTMLDivElement>, 'style'>;
 
 export function Dropdown({
   anchor,

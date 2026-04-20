@@ -96,3 +96,36 @@ export const NOTE_EXPORT_STYLES = `
   /* Obsidian th: bg #fafafa, font-weight 600 */
   th { background: #fafafa; font-weight: 600; }
 ` as const;
+
+
+/**
+ * Inline CSS properties transferred to the standalone PDF HTML.
+ * Skips font-family to avoid references to Obsidian-only fonts.
+ */
+export const INLINE_STYLE_PROPERTIES = [
+  'font-size',
+  'font-weight',
+  'font-style',
+  'line-height',
+  'color',
+  'background-color',
+  'margin-top',
+  'margin-right',
+  'margin-bottom',
+  'margin-left',
+  'padding-top',
+  'padding-right',
+  'padding-bottom',
+  'padding-left',
+  'border-left-width',
+  'border-left-color',
+  'border-left-style',
+  'border-top-width',
+  'border-top-color',
+  'border-top-style',
+  'text-decoration',
+  'text-align',
+  'border-radius',
+  'display',
+  'vertical-align',
+] as const;

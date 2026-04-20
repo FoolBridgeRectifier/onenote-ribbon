@@ -1,4 +1,4 @@
-import { canSafelyIndent } from '../canSafelyIndent';
+import { canSafelyIndent } from '../helpers';
 
 /** Creates a minimal mock editor with the given lines and cursor position. */
 function mockEditor(lines: string[], cursorLine: number) {

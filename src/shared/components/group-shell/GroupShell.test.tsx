@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { GroupShell } from './GroupShell';
 
@@ -7,7 +6,7 @@ describe('GroupShell', () => {
     render(
       <GroupShell name="Clipboard">
         <div data-testid="child">Content</div>
-      </GroupShell>,
+      </GroupShell>
     );
 
     expect(screen.getByTestId('child')).toBeInTheDocument();
@@ -18,7 +17,7 @@ describe('GroupShell', () => {
     const { container } = render(
       <GroupShell name="Tags">
         <span>Inner</span>
-      </GroupShell>,
+      </GroupShell>
     );
 
     const outerDiv = container.firstElementChild!;
@@ -29,7 +28,7 @@ describe('GroupShell', () => {
     const { container } = render(
       <GroupShell name="Styles" className="custom-extra">
         <span>Inner</span>
-      </GroupShell>,
+      </GroupShell>
     );
 
     const outerDiv = container.firstElementChild!;
@@ -40,7 +39,7 @@ describe('GroupShell', () => {
     const { container } = render(
       <GroupShell name="Navigate" data-group="nav" aria-label="Navigation">
         <span>Inner</span>
-      </GroupShell>,
+      </GroupShell>
     );
 
     const outerDiv = container.firstElementChild!;
@@ -52,7 +51,7 @@ describe('GroupShell', () => {
     const { container } = render(
       <GroupShell name="Basic Text">
         <div>First</div>
-      </GroupShell>,
+      </GroupShell>
     );
 
     const outerDiv = container.firstElementChild!;

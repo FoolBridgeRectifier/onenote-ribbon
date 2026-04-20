@@ -2,13 +2,7 @@ import { createEnclosingHtmlTagFinder } from '../enclosing-html-tags/enclosingHt
 import { buildTextIndex, offsetToPosition } from '../text-offset/textOffset';
 import { DomainDetectionResult, FormattingDomain } from './interfaces';
 
-const MARKDOWN_TAG_NAMES = new Set([
-  'bold',
-  'italic',
-  'strikethrough',
-  'highlight',
-  'code',
-]);
+const MARKDOWN_TAG_NAMES = new Set(['bold', 'italic', 'strikethrough', 'highlight', 'code']);
 
 /**
  * Detects whether the formatting context around a selection is markdown or HTML.
@@ -19,7 +13,7 @@ const MARKDOWN_TAG_NAMES = new Set([
 export function detectFormattingDomain(
   sourceText: string,
   selectionStartOffset: number,
-  selectionEndOffset: number,
+  selectionEndOffset: number
 ): DomainDetectionResult {
   const textIndex = buildTextIndex(sourceText);
 
@@ -36,11 +30,7 @@ export function detectFormattingDomain(
   const markdownTagNames: string[] = [];
   const htmlTagNames: string[] = [];
 
-  for (
-    let rangeIndex = 0;
-    rangeIndex < enclosingTagRanges.length;
-    rangeIndex += 1
-  ) {
+  for (let rangeIndex = 0; rangeIndex < enclosingTagRanges.length; rangeIndex += 1) {
     const tagName = enclosingTagRanges[rangeIndex].tagName;
 
     if (MARKDOWN_TAG_NAMES.has(tagName)) {

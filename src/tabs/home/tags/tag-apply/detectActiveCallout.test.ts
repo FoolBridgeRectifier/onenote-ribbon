@@ -1,4 +1,4 @@
-import { detectActiveTagKeys } from './detectActiveCallout';
+import { detectActiveTagKeys } from './helpers';
 import { MockEditor } from '../../../../test-utils/MockEditor';
 import { ACTIVE_TAG_KEY_HIGHLIGHT, ACTIVE_TAG_KEY_TASK } from '../constants';
 

@@ -4,11 +4,11 @@ import { createAppWithEditor } from '../../test-utils/mockApp';
 import {
   addTagInEditor,
   copyFormatFromEditor,
-} from '../editor/styling-engine/editorIntegration';
+} from '../editor/styling-engine/editor-integration/helpers';
 import type { CopiedFormat } from '../editor/styling-engine/interfaces';
 import { useFormatPainter } from './useFormatPainter';
 
-jest.mock('../editor/styling-engine/editorIntegration', () => ({
+jest.mock('../editor/styling-engine/editor-integration/helpers', () => ({
   copyFormatFromEditor: jest.fn(),
   addTagInEditor: jest.fn(),
 }));

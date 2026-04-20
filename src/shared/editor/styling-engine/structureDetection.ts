@@ -70,7 +70,7 @@ function collectFencedBlockRanges(
   sourceText: string,
   patternTemplate: RegExp,
   zoneType: InertZoneType,
-  output: InertRange[],
+  output: InertRange[]
 ): void {
   const pattern = new RegExp(patternTemplate.source, patternTemplate.flags);
   const fencePositions: Array<{ startOffset: number; endOffset: number }> = [];
@@ -107,7 +107,7 @@ function collectMatchRanges(
   sourceText: string,
   patternTemplate: RegExp,
   zoneType: InertZoneType,
-  output: InertRange[],
+  output: InertRange[]
 ): void {
   const pattern = new RegExp(patternTemplate.source, patternTemplate.flags);
 
@@ -133,7 +133,7 @@ function collectMatchRanges(
 function findInertZoneForLine(
   lineStartOffset: number,
   lineEndOffset: number,
-  inertRanges: InertRange[],
+  inertRanges: InertRange[]
 ): InertZoneType | null {
   for (let rangeIndex = 0; rangeIndex < inertRanges.length; rangeIndex++) {
     const range = inertRanges[rangeIndex];
@@ -154,9 +154,10 @@ function findInertZoneForLine(
  * Extracts the full composite prefix and innermost type for a single line of text.
  * Handles composite prefixes like "> - [ ] " (callout wrapping todo).
  */
-function extractLinePrefix(
-  lineText: string,
-): { linePrefix: string | null; linePrefixType: LinePrefixType } {
+function extractLinePrefix(lineText: string): {
+  linePrefix: string | null;
+  linePrefixType: LinePrefixType;
+} {
   let fullPrefix = '';
   let innermostType: LinePrefixType = 'none';
   let remainingText = lineText;
@@ -202,7 +203,7 @@ function extractLinePrefix(
 function splitSelectionIntoLines(
   sourceText: string,
   selectionStartOffset: number,
-  selectionEndOffset: number,
+  selectionEndOffset: number
 ): Array<{ lineStartOffset: number; lineEndOffset: number }> {
   const lines: Array<{ lineStartOffset: number; lineEndOffset: number }> = [];
   let currentOffset = selectionStartOffset;
@@ -236,7 +237,7 @@ function splitSelectionIntoLines(
 function scanAtomicTokens(
   sourceText: string,
   selectionStartOffset: number,
-  selectionEndOffset: number,
+  selectionEndOffset: number
 ): ProtectedRange[] {
   const selectedText = sourceText.slice(selectionStartOffset, selectionEndOffset);
   const protectedRanges: ProtectedRange[] = [];
@@ -252,7 +253,7 @@ function scanAtomicTokens(
 
       // Check overlap against all previously claimed ranges
       const overlapsExisting = protectedRanges.some(
-        (existing) => candidateStart < existing.endOffset && candidateEnd > existing.startOffset,
+        (existing) => candidateStart < existing.endOffset && candidateEnd > existing.startOffset
       );
 
       if (!overlapsExisting) {
@@ -281,7 +282,7 @@ function scanAtomicTokens(
 export function detectStructureContext(
   sourceText: string,
   selectionStartOffset: number,
-  selectionEndOffset: number,
+  selectionEndOffset: number
 ): StructureContext {
   const inertRanges = buildInertRanges(sourceText);
 

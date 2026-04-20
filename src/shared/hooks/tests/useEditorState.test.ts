@@ -1,7 +1,8 @@
+import type {
+  HtmlTagRange} from '../../editor/enclosing-html-tags/EnclosingHtmlTags';
 import {
-  createEnclosingHtmlTagFinder,
-  HtmlTagRange,
-} from '../../editor/enclosing-html-tags/enclosingHtmlTags';
+  createEnclosingHtmlTagFinder
+} from '../../editor/enclosing-html-tags/EnclosingHtmlTags';
 
 import { extractSpanAndDivState } from '../useEditorState';
 
@@ -265,3 +266,4 @@ describe('editor state detection via tag finder', () => {
     expect(spanState.highlightColor).toBeNull();
   });
 });
+

@@ -10,9 +10,7 @@
  * finish loading, prints to PDF, destroys the window, and cleans up the
  * temp HTML file. Rejects if printToPDF fails.
  */
-export async function generatePdfFromHtml(
-  htmlContent: string,
-): Promise<Buffer> {
+export async function generatePdfFromHtml(htmlContent: string): Promise<Buffer> {
   // Use runtime requires (not top-level) so esbuild can bundle this
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const os = require('os');
@@ -25,10 +23,7 @@ export async function generatePdfFromHtml(
   const { BrowserWindow } = require('@electron/remote');
 
   // Use a unique temp file so concurrent calls don't collide
-  const tempHtmlPath = path.join(
-    os.tmpdir(),
-    `onenote-ribbon-print-${Date.now()}.html`,
-  );
+  const tempHtmlPath = path.join(os.tmpdir(), `onenote-ribbon-print-${Date.now()}.html`);
 
   fs.writeFileSync(tempHtmlPath, htmlContent, 'utf-8');
 

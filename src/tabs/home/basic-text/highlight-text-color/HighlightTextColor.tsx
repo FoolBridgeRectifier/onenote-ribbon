@@ -4,21 +4,16 @@ import { HighlightIcon } from '../../../../assets/icons';
 import { useApp } from '../../../../shared/context/AppContext';
 import { RibbonButton } from '../../../../shared/components/ribbon-button/RibbonButton';
 import { ColorPicker } from '../../../../shared/components/color-picker/ColorPicker';
+import type { HighlightTextColorProps } from './interfaces';
+import { DEFAULT_HIGHLIGHT_COLOR, DEFAULT_FONT_COLOR } from './constants';
 import {
-  addTagInEditor,
-  removeTagInEditor,
-  toggleTagInEditor,
-} from '../../../../shared/editor/styling-engine/editorIntegration';
-import { HIGHLIGHT_MD_TAG } from '../../../../shared/editor/styling-engine/constants';
-import { buildSpanTagDefinition } from '../../../../shared/editor/styling-engine/tagManipulation';
-import type { EditorState } from '../../../../shared/hooks/useEditorState';
-
-const DEFAULT_HIGHLIGHT_COLOR = '#ffff00';
-const DEFAULT_FONT_COLOR = '#ff0000';
-
-interface HighlightTextColorProps {
-  editorState: EditorState;
-}
+  applyHighlightClick,
+  applyHighlightColorSelect,
+  applyHighlightNoColor,
+  applyFontColorClick,
+  applyFontColorSelect,
+  applyFontColorNoColor,
+} from './helpers';
 
 export function HighlightTextColor({ editorState }: HighlightTextColorProps) {
   const app = useApp();
@@ -32,104 +27,50 @@ export function HighlightTextColor({ editorState }: HighlightTextColorProps) {
 
   const getEditor = () => app.workspace.activeEditor?.editor;
 
-  // Highlight icon click: apply last-used color or toggle markdown highlight
   const handleHighlightClick = () => {
     const editor = getEditor();
     if (!editor) return;
-
-    if (lastHighlightColor === DEFAULT_HIGHLIGHT_COLOR) {
-      // Default yellow — use markdown == highlight (toggles on/off)
-      removeBackgroundSpanIfPresent(editor);
-      toggleTagInEditor(editor, HIGHLIGHT_MD_TAG);
-    } else {
-      // Custom color — toggle: remove if same color present, else apply
-      if (editorState.highlightColor === lastHighlightColor) {
-        removeTagInEditor(editor, buildSpanTagDefinition('background', lastHighlightColor));
-      } else {
-        removeTagInEditor(editor, HIGHLIGHT_MD_TAG);
-        if (editorState.highlightColor) {
-          removeTagInEditor(editor, buildSpanTagDefinition('background', editorState.highlightColor));
-        }
-        addTagInEditor(editor, buildSpanTagDefinition('background', lastHighlightColor));
-      }
-    }
+    applyHighlightClick(editor, editorState, lastHighlightColor);
   };
 
   const handleHighlightColorSelect = (color: string) => {
     const editor = getEditor();
     if (!editor) return;
-
     setLastHighlightColor(color);
-
-    // Remove markdown highlight before applying colored span
-    removeTagInEditor(editor, HIGHLIGHT_MD_TAG);
-    addTagInEditor(editor, buildSpanTagDefinition('background', color));
+    applyHighlightColorSelect(editor, color);
   };
 
   const handleHighlightNoColor = () => {
     const editor = getEditor();
     if (!editor) return;
-
-    // Remove both representations
-    removeTagInEditor(editor, HIGHLIGHT_MD_TAG);
-
-    if (editorState.highlightColor) {
-      removeTagInEditor(
-        editor,
-        buildSpanTagDefinition('background', editorState.highlightColor),
-      );
-    }
-
-    // Reset to default so next click uses == markdown highlight
+    applyHighlightNoColor(editor, editorState.highlightColor);
     setLastHighlightColor(DEFAULT_HIGHLIGHT_COLOR);
   };
 
-  // Font color icon click: apply last-used color
   const handleFontColorClick = () => {
     const editor = getEditor();
     if (!editor) return;
-
-    addTagInEditor(editor, buildSpanTagDefinition('color', lastFontColor));
+    applyFontColorClick(editor, lastFontColor);
   };
 
   const handleFontColorSelect = (color: string) => {
     const editor = getEditor();
     if (!editor) return;
-
     setLastFontColor(color);
-    addTagInEditor(editor, buildSpanTagDefinition('color', color));
+    applyFontColorSelect(editor, color);
   };
 
   const handleFontColorNoColor = () => {
     const editor = getEditor();
     if (!editor) return;
-
-    if (editorState.fontColor) {
-      removeTagInEditor(
-        editor,
-        buildSpanTagDefinition('color', editorState.fontColor),
-      );
-    }
+    applyFontColorNoColor(editor, editorState.fontColor);
   };
-
-  // Remove background span using the color detected at cursor
-  function removeBackgroundSpanIfPresent(editor: ReturnType<typeof getEditor>) {
-    if (!editor) return;
-
-    if (editorState.highlightColor) {
-      removeTagInEditor(
-        editor,
-        buildSpanTagDefinition('background', editorState.highlightColor),
-      );
-    }
-  }
 
   const highlightActive = editorState.highlight || editorState.highlightColor !== null;
   const fontColorActive = editorState.fontColor !== null;
 
   return (
     <>
-      {/* Highlight: icon area + dropdown caret */}
       <div className="onr-highlight-wrapper">
         <RibbonButton
           ref={highlightAnchorRef}
@@ -144,13 +85,7 @@ export function HighlightTextColor({ editorState }: HighlightTextColorProps) {
           <div className="onr-highlight-swatch" style={{ backgroundColor: lastHighlightColor }} />
         </RibbonButton>
 
-        <RibbonButton
-          size="small"
-          className="onr-caret-btn"
-          onClick={() => setHighlightDropdownOpen(!highlightDropdownOpen)}
-        >
-          ▾
-        </RibbonButton>
+        <RibbonButton size="small" className="onr-caret-btn" onClick={() => setHighlightDropdownOpen(!highlightDropdownOpen)}>▾</RibbonButton>
       </div>
 
       {highlightDropdownOpen && highlightAnchorRef.current && (
@@ -166,7 +101,6 @@ export function HighlightTextColor({ editorState }: HighlightTextColorProps) {
 
       <div className="onr-divider" />
 
-      {/* Font color: icon area + dropdown caret */}
       <div className="onr-color-wrapper">
         <RibbonButton
           ref={fontColorAnchorRef}
@@ -181,13 +115,7 @@ export function HighlightTextColor({ editorState }: HighlightTextColorProps) {
           <div className="onr-color-swatch" style={{ backgroundColor: lastFontColor }} />
         </RibbonButton>
 
-        <RibbonButton
-          size="small"
-          className="onr-caret-btn"
-          onClick={() => setFontColorDropdownOpen(!fontColorDropdownOpen)}
-        >
-          ▾
-        </RibbonButton>
+        <RibbonButton size="small" className="onr-caret-btn" onClick={() => setFontColorDropdownOpen(!fontColorDropdownOpen)}>▾</RibbonButton>
       </div>
 
       {fontColorDropdownOpen && fontColorAnchorRef.current && (

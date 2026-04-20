@@ -1,3 +1,5 @@
+import type { EditorState } from '../../../../shared/hooks/interfaces';
+
 /** Defines one bullet style preset: four symbols for nesting levels 1-4. */
 export interface BulletPreset {
   /** Stable identifier used in stored settings. */
@@ -69,4 +71,18 @@ export interface ListStyleContextValue {
   numberPresetId: string;
   setBulletPreset: (presetId: string) => void;
   setNumberPreset: (presetId: string) => void;
+}
+
+/**
+ * Minimal subset of the Obsidian Editor API used for indent-depth checking.
+ * The real Obsidian Editor satisfies this via structural typing.
+ */
+export interface MinimalEditor {
+  getCursor(): { line: number; ch: number };
+  getLine(lineNumber: number): string;
+}
+
+/** Props for the ListButtons component. */
+export interface ListButtonsProps {
+  editorState: Pick<EditorState, 'bulletList' | 'numberedList'>;
 }

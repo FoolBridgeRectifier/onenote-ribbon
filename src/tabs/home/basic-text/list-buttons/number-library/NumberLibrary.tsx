@@ -1,9 +1,9 @@
-import React from 'react';
+
 import './number-library.css';
 import { Dropdown } from '../../../../../shared/components/dropdown/Dropdown';
 import { NUMBER_PRESETS } from '../constants';
 import { NUMBER_LIBRARY_HEADING } from './constants';
-import { formatLevelPreview } from './formatLevelPreview';
+import { formatLevelPreview } from './helpers';
 import type { NumberLibraryProps } from './interfaces';
 
 export function NumberLibrary({

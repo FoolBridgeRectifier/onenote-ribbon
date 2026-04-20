@@ -10,7 +10,7 @@ export async function runRibbonSuite(
   try {
     await callback();
     return [{ test: testName, pass: true }];
-  } catch (error) {
+  } catch (_error) {
     return [{ test: testName, pass: false, details: String(error) }];
   }
 }

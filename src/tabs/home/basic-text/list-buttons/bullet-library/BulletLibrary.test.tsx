@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { BulletLibrary } from './BulletLibrary';
 import { BULLET_PRESETS } from '../constants';

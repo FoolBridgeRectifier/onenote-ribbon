@@ -1,13 +1,6 @@
 import './tab-bar.css';
-import { TABS, TabName } from '../tabs';
-
-interface Props {
-  activeTab: TabName;
-  collapsed: boolean;
-  isTemporarilyExpanded: boolean;
-  onTabClick: (tabName: TabName) => void;
-  onToggleCollapse: () => void;
-}
+import type { TabBarProps } from './interfaces';
+import { TABS } from '../constants';
 
 export function TabBar({
   activeTab,
@@ -15,7 +8,7 @@ export function TabBar({
   isTemporarilyExpanded,
   onTabClick,
   onToggleCollapse,
-}: Props) {
+}: TabBarProps) {
   const isBodyVisible = !collapsed || isTemporarilyExpanded;
   const isPermaOpen = !collapsed;
 

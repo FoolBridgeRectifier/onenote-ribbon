@@ -1,9 +1,10 @@
-import React from 'react';
+import * as React from 'react';
 import { renderHook, act } from '@testing-library/react';
-import { Plugin } from 'obsidian';
+import type { Plugin } from 'obsidian';
 
 import { PluginContext } from '../../context/PluginContext';
-import { createMockPlugin, MockPlugin } from '../../../test-utils/mockApp';
+import type { MockPlugin } from '../../../test-utils/mockApp';
+import { createMockPlugin } from '../../../test-utils/mockApp';
 import { useListStyleInjection } from '../useListStyleInjection';
 import {
   DEFAULT_LIST_STYLE_SETTINGS,
@@ -95,12 +96,8 @@ describe('useListStyleInjection — initial load', () => {
     const mockPlugin = createMockPlugin(null);
     const { result } = await renderAndFlush(mockPlugin);
 
-    expect(result.current.bulletPresetId).toBe(
-      DEFAULT_LIST_STYLE_SETTINGS.bulletPresetId,
-    );
-    expect(result.current.numberPresetId).toBe(
-      DEFAULT_LIST_STYLE_SETTINGS.numberPresetId,
-    );
+    expect(result.current.bulletPresetId).toBe(DEFAULT_LIST_STYLE_SETTINGS.bulletPresetId);
+    expect(result.current.numberPresetId).toBe(DEFAULT_LIST_STYLE_SETTINGS.numberPresetId);
   });
 
   it('merges partial settings with defaults when only bulletPresetId is present', async () => {
@@ -108,9 +105,7 @@ describe('useListStyleInjection — initial load', () => {
     const { result } = await renderAndFlush(mockPlugin);
 
     expect(result.current.bulletPresetId).toBe('classic');
-    expect(result.current.numberPresetId).toBe(
-      DEFAULT_LIST_STYLE_SETTINGS.numberPresetId,
-    );
+    expect(result.current.numberPresetId).toBe(DEFAULT_LIST_STYLE_SETTINGS.numberPresetId);
   });
 });
 
@@ -138,8 +133,7 @@ describe('useListStyleInjection — CSS injection on mount', () => {
     });
     await renderAndFlush(mockPlugin);
 
-    const cssText =
-      document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
+    const cssText = document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
     expect(cssText).toContain('●');
     expect(cssText).toContain('.markdown-preview-view');
   });
@@ -151,8 +145,7 @@ describe('useListStyleInjection — CSS injection on mount', () => {
     });
     await renderAndFlush(mockPlugin);
 
-    const cssText =
-      document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
+    const cssText = document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
     expect(cssText).toContain('○');
   });
 
@@ -163,8 +156,7 @@ describe('useListStyleInjection — CSS injection on mount', () => {
     });
     await renderAndFlush(mockPlugin);
 
-    const cssText =
-      document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
+    const cssText = document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
     expect(cssText).not.toContain('●');
     expect(cssText).not.toContain('○');
   });
@@ -176,8 +168,7 @@ describe('useListStyleInjection — CSS injection on mount', () => {
     });
     await renderAndFlush(mockPlugin);
 
-    const cssText =
-      document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
+    const cssText = document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
     expect(cssText).toContain('list-style-type: decimal');
   });
 
@@ -188,8 +179,7 @@ describe('useListStyleInjection — CSS injection on mount', () => {
     });
     await renderAndFlush(mockPlugin);
 
-    const cssText =
-      document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
+    const cssText = document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
     expect(cssText).toContain('counter(list-item, decimal)');
   });
 
@@ -200,22 +190,19 @@ describe('useListStyleInjection — CSS injection on mount', () => {
     });
     await renderAndFlush(mockPlugin);
 
-    const cssText =
-      document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
+    const cssText = document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
 
     // Transparent color hides raw text while keeping caret visible at normal height
     expect(cssText).toContain(
-      '.HyperMD-list-line-1 .cm-formatting-list-ol { color: transparent !important; caret-color: var(--text-normal) !important; position: relative !important; display: inline-block !important; vertical-align: baseline !important; cursor: text !important; }',
+      '.HyperMD-list-line-1 .cm-formatting-list-ol { color: transparent !important; caret-color: var(--text-normal) !important; position: relative !important; display: inline-block !important; vertical-align: baseline !important; cursor: text !important; }'
     );
 
     // Non-breaking space placeholder keeps layout stable before JS stamps the real marker
-    expect(cssText).toContain(
-      '.HyperMD-list-line-1 .cm-formatting-list-ol::before',
-    );
+    expect(cssText).toContain('.HyperMD-list-line-1 .cm-formatting-list-ol::before');
 
     // Once data-onr-marker is stamped, the converted marker text overrides the placeholder
     expect(cssText).toContain(
-      '.HyperMD-list-line-1 .cm-formatting-list-ol[data-onr-marker]::before { content: attr(data-onr-marker) !important; }',
+      '.HyperMD-list-line-1 .cm-formatting-list-ol[data-onr-marker]::before { content: attr(data-onr-marker) !important; }'
     );
   });
 
@@ -226,16 +213,15 @@ describe('useListStyleInjection — CSS injection on mount', () => {
     });
     await renderAndFlush(mockPlugin);
 
-    const cssText =
-      document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
+    const cssText = document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
     expect(cssText).toContain(
-      '.HyperMD-list-line-1 .cm-formatting-list-ul { color: transparent !important; caret-color: var(--text-normal) !important; position: relative !important; display: inline-block !important; vertical-align: baseline !important; cursor: text !important; }',
+      '.HyperMD-list-line-1 .cm-formatting-list-ul { color: transparent !important; caret-color: var(--text-normal) !important; position: relative !important; display: inline-block !important; vertical-align: baseline !important; cursor: text !important; }'
     );
     expect(cssText).toContain(
-      '.HyperMD-list-line-1 .cm-formatting-list-ul::before { position: absolute !important; left: 0 !important; pointer-events: none !important; font-size: var(--font-text-size, 16px) !important; content: "●  " !important; color: var(--text-muted, #888) !important; }',
+      '.HyperMD-list-line-1 .cm-formatting-list-ul::before { position: absolute !important; left: 0 !important; pointer-events: none !important; font-size: var(--font-text-size, 16px) !important; content: "●  " !important; color: var(--text-muted, #888) !important; }'
     );
     expect(cssText).toContain(
-      '.HyperMD-list-line-1 .cm-formatting-list-ul[data-onr-marker]::before { content: attr(data-onr-marker) !important; }',
+      '.HyperMD-list-line-1 .cm-formatting-list-ul[data-onr-marker]::before { content: attr(data-onr-marker) !important; }'
     );
   });
 });
@@ -270,8 +256,7 @@ describe('useListStyleInjection — setBulletPreset', () => {
       result.current.setBulletPreset('diamond');
     });
 
-    const cssText =
-      document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
+    const cssText = document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
     expect(cssText).toContain('◆');
   });
 
@@ -303,8 +288,7 @@ describe('useListStyleInjection — setBulletPreset', () => {
       result.current.setBulletPreset(BULLET_PRESET_NONE_ID);
     });
 
-    const cssText =
-      document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
+    const cssText = document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
     expect(cssText).not.toContain('◆');
     expect(cssText).not.toContain('●');
   });
@@ -340,8 +324,7 @@ describe('useListStyleInjection — setNumberPreset', () => {
       result.current.setNumberPreset('decimal-period');
     });
 
-    const cssText =
-      document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
+    const cssText = document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
     expect(cssText).toContain('list-style-type: decimal');
   });
 
@@ -356,8 +339,7 @@ describe('useListStyleInjection — setNumberPreset', () => {
       result.current.setNumberPreset(NUMBER_PRESET_NONE_ID);
     });
 
-    const cssText =
-      document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
+    const cssText = document.getElementById(LIST_STYLE_ELEMENT_ID)!.textContent ?? '';
     expect(cssText).not.toContain('list-style-type: decimal');
   });
 
@@ -510,8 +492,7 @@ describe('useListStyleInjection — backspace inside marker span', () => {
 
     const formattingSpan = document.createElement('span');
     formattingSpan.className =
-      `cm-formatting cm-formatting-list ` +
-      `cm-formatting-list-${listType} cm-list-${depth}`;
+      `cm-formatting cm-formatting-list ` + `cm-formatting-list-${listType} cm-list-${depth}`;
     formattingSpan.textContent = textContent;
 
     const textNode = formattingSpan.firstChild!;
@@ -551,9 +532,7 @@ describe('useListStyleInjection — backspace inside marker span', () => {
     const wasDefaultPrevented = !cmContent.dispatchEvent(backspaceEvent);
 
     expect(wasDefaultPrevented).toBe(true);
-    expect(executeCommandSpy).toHaveBeenCalledWith(
-      'editor:toggle-numbered-list',
-    );
+    expect(executeCommandSpy).toHaveBeenCalledWith('editor:toggle-numbered-list');
   });
 
   it('intercepts Backspace inside a UL marker and calls toggle-bullet-list', async () => {

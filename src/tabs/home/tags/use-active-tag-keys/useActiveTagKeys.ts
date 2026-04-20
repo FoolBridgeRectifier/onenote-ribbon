@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { App, Editor } from 'obsidian';
+import type { App, Editor } from 'obsidian';
 
-import { detectActiveTagKeys } from '../tag-apply/detectActiveCallout';
+import { detectActiveTagKeys } from '../tag-apply/helpers';
 import { SELECTION_CHANGE_THROTTLE_MS } from './constants';
 
 /**
@@ -15,9 +15,7 @@ import { SELECTION_CHANGE_THROTTLE_MS } from './constants';
  * selectionchange event (throttled), cleaning up on unmount.
  */
 export function useActiveTagKeys(app: App): Set<string> {
-  const [activeTagKeys, setActiveTagKeys] = useState<Set<string>>(
-    () => new Set<string>(),
-  );
+  const [activeTagKeys, setActiveTagKeys] = useState<Set<string>>(() => new Set<string>());
 
   const throttleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 

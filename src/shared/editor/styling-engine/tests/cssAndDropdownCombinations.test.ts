@@ -1,20 +1,9 @@
-import {
-  toggleTag,
-  addTag,
-  removeTag,
-  removeAllTags,
-} from '../stylingEngine';
+import { toggleTag, addTag, removeTag, removeAllTags } from '../StylingEngine';
 
-import {
-  UNDERLINE_TAG,
-  BOLD_MD_TAG,
-  ITALIC_MD_TAG,
-  STRIKETHROUGH_MD_TAG,
-  HIGHLIGHT_MD_TAG,
-} from '../constants';
+import { UNDERLINE_TAG, BOLD_MD_TAG, HIGHLIGHT_MD_TAG } from '../constants';
 
-import { buildSpanTagDefinition } from '../tagManipulation';
-import { StylingContext, TextReplacement, TagDefinition } from '../interfaces';
+import { buildSpanTagDefinition } from '../tag-manipulation/TagManipulation';
+import type { StylingContext, TextReplacement, TagDefinition } from '../interfaces';
 
 // ============================================================
 // Test Helpers
@@ -33,11 +22,7 @@ function applyReplacements(sourceText: string, replacements: TextReplacement[]):
   return result;
 }
 
-function createContext(
-  sourceText: string,
-  startOffset: number,
-  endOffset: number,
-): StylingContext {
+function createContext(sourceText: string, startOffset: number, endOffset: number): StylingContext {
   return {
     sourceText,
     selectionStartOffset: startOffset,
@@ -50,7 +35,12 @@ function createContext(
  * Applies a tag to sourceText at the given content offsets, returns the new text.
  * Uses addTag (never removes) so sequential calls always wrap/replace.
  */
-function applyAddTag(sourceText: string, startOffset: number, endOffset: number, tagDefinition: TagDefinition): string {
+function applyAddTag(
+  sourceText: string,
+  startOffset: number,
+  endOffset: number,
+  tagDefinition: TagDefinition
+): string {
   const context = createContext(sourceText, startOffset, endOffset);
   const result = addTag(context, tagDefinition);
   return applyReplacements(sourceText, result.replacements);
@@ -90,10 +80,13 @@ const fontTimesNewRoman = buildSpanTagDefinition('font-family', 'Times New Roman
 // Alignment Helpers (extracted from AlignButton logic)
 // ============================================================
 
-const ALIGN_SPAN_PATTERN = /^(#{1,6}\s)?<span style="display:inline-block;width:100%;vertical-align:top;text-align:\s*(\w+)">(.*)<\/span>$/;
-const LEGACY_ALIGN_INLINE_BLOCK_SPAN_PATTERN = /^(#{1,6}\s)?<span style="display:inline-block;width:100%;text-align:\s*(\w+)">(.*)<\/span>$/;
+const ALIGN_SPAN_PATTERN =
+  /^(#{1,6}\s)?<span style="display:inline-block;width:100%;vertical-align:top;text-align:\s*(\w+)">(.*)<\/span>$/;
+const LEGACY_ALIGN_INLINE_BLOCK_SPAN_PATTERN =
+  /^(#{1,6}\s)?<span style="display:inline-block;width:100%;text-align:\s*(\w+)">(.*)<\/span>$/;
 const LEGACY_ALIGN_DIV_PATTERN = /^(#{1,6}\s)?<div style="text-align:\s*(\w+)">(.*)<\/div>$/;
-const LEGACY_ALIGN_BLOCK_SPAN_PATTERN = /^(#{1,6}\s)?<span style="display:block;text-align:\s*(\w+)">(.*)<\/span>$/;
+const LEGACY_ALIGN_BLOCK_SPAN_PATTERN =
+  /^(#{1,6}\s)?<span style="display:block;text-align:\s*(\w+)">(.*)<\/span>$/;
 const HEADING_PREFIX_PATTERN = /^(#{1,6}\s)/;
 
 function matchAlignWrapper(lineText: string): RegExpMatchArray | null {
@@ -145,7 +138,6 @@ function applyAlignmentToLine(lineText: string, alignment: 'left' | 'center' | '
 // ============================================================
 
 describe('Group 1: Font family operations', () => {
-
   it('applies Arial to plain text', () => {
     const sourceText = 'hello world';
     const { start, end } = findOffsets(sourceText, 'world');
@@ -212,7 +204,6 @@ describe('Group 1: Font family operations', () => {
 // ============================================================
 
 describe('Group 2: Font size operations', () => {
-
   it('applies 24pt to plain text', () => {
     const sourceText = 'some text';
     const { start, end } = findOffsets(sourceText, 'text');
@@ -274,7 +265,6 @@ describe('Group 2: Font size operations', () => {
 // ============================================================
 
 describe('Group 3: Font color operations', () => {
-
   it('applies red color to plain text', () => {
     const sourceText = 'hello world';
     const { start, end } = findOffsets(sourceText, 'world');
@@ -348,7 +338,6 @@ describe('Group 3: Font color operations', () => {
 // ============================================================
 
 describe('Group 4: Highlight color operations (span-based)', () => {
-
   it('applies yellow highlight via span', () => {
     const sourceText = 'some text';
     const { start, end } = findOffsets(sourceText, 'text');
@@ -416,22 +405,27 @@ describe('Group 4: Highlight color operations (span-based)', () => {
 // ============================================================
 
 describe('Group 5: Alignment (span wrapping)', () => {
-
   it('plain text + center align', () => {
     const result = applyAlignmentToLine('some text', 'center');
-    expect(result).toBe('<span style="display:inline-block;width:100%;vertical-align:top;text-align: center">some text</span>');
+    expect(result).toBe(
+      '<span style="display:inline-block;width:100%;vertical-align:top;text-align: center">some text</span>'
+    );
   });
 
   it('heading + center align → prefix preserved outside span', () => {
     const result = applyAlignmentToLine('## My Heading', 'center');
-    expect(result).toBe('## <span style="display:inline-block;width:100%;vertical-align:top;text-align: center">My Heading</span>');
+    expect(result).toBe(
+      '## <span style="display:inline-block;width:100%;vertical-align:top;text-align: center">My Heading</span>'
+    );
   });
 
   it('already aligned center + right → replaces to right', () => {
     const centered = applyAlignmentToLine('some text', 'center');
     const result = applyAlignmentToLine(centered, 'right');
 
-    expect(result).toBe('<span style="display:inline-block;width:100%;vertical-align:top;text-align: right">some text</span>');
+    expect(result).toBe(
+      '<span style="display:inline-block;width:100%;vertical-align:top;text-align: right">some text</span>'
+    );
     expect(result).not.toContain('center');
   });
 
@@ -445,11 +439,15 @@ describe('Group 5: Alignment (span wrapping)', () => {
 
   it('heading with alignment → heading prefix preserved outside span', () => {
     const centered = applyAlignmentToLine('## My Heading', 'center');
-    expect(centered).toBe('## <span style="display:inline-block;width:100%;vertical-align:top;text-align: center">My Heading</span>');
+    expect(centered).toBe(
+      '## <span style="display:inline-block;width:100%;vertical-align:top;text-align: center">My Heading</span>'
+    );
 
     // Change to right
     const rightAligned = applyAlignmentToLine(centered, 'right');
-    expect(rightAligned).toBe('## <span style="display:inline-block;width:100%;vertical-align:top;text-align: right">My Heading</span>');
+    expect(rightAligned).toBe(
+      '## <span style="display:inline-block;width:100%;vertical-align:top;text-align: right">My Heading</span>'
+    );
 
     // Back to left removes the span but keeps heading prefix
     const leftAligned = applyAlignmentToLine(rightAligned, 'left');
@@ -462,7 +460,9 @@ describe('Group 5: Alignment (span wrapping)', () => {
       const lineText = `${prefix}Title`;
       const result = applyAlignmentToLine(lineText, 'center');
 
-      expect(result).toBe(`${prefix}<span style="display:inline-block;width:100%;vertical-align:top;text-align: center">Title</span>`);
+      expect(result).toBe(
+        `${prefix}<span style="display:inline-block;width:100%;vertical-align:top;text-align: center">Title</span>`
+      );
     }
   });
 
@@ -474,7 +474,9 @@ describe('Group 5: Alignment (span wrapping)', () => {
   it('legacy div alignment is read and migrated to span on change', () => {
     const legacyLine = '<div style="text-align: center">old content</div>';
     const result = applyAlignmentToLine(legacyLine, 'right');
-    expect(result).toBe('<span style="display:inline-block;width:100%;vertical-align:top;text-align: right">old content</span>');
+    expect(result).toBe(
+      '<span style="display:inline-block;width:100%;vertical-align:top;text-align: right">old content</span>'
+    );
   });
 
   it('legacy div alignment is unwrapped on left', () => {
@@ -486,7 +488,9 @@ describe('Group 5: Alignment (span wrapping)', () => {
   it('legacy display:block span is read and migrated to inline-block on change', () => {
     const legacyLine = '<span style="display:block;text-align: center">old content</span>';
     const result = applyAlignmentToLine(legacyLine, 'right');
-    expect(result).toBe('<span style="display:inline-block;width:100%;vertical-align:top;text-align: right">old content</span>');
+    expect(result).toBe(
+      '<span style="display:inline-block;width:100%;vertical-align:top;text-align: right">old content</span>'
+    );
   });
 
   it('legacy display:block span is unwrapped on left', () => {
@@ -496,9 +500,12 @@ describe('Group 5: Alignment (span wrapping)', () => {
   });
 
   it('legacy inline-block span without vertical-align is migrated on change', () => {
-    const legacyLine = '<span style="display:inline-block;width:100%;text-align: center">old content</span>';
+    const legacyLine =
+      '<span style="display:inline-block;width:100%;text-align: center">old content</span>';
     const result = applyAlignmentToLine(legacyLine, 'right');
-    expect(result).toBe('<span style="display:inline-block;width:100%;vertical-align:top;text-align: right">old content</span>');
+    expect(result).toBe(
+      '<span style="display:inline-block;width:100%;vertical-align:top;text-align: right">old content</span>'
+    );
   });
 });
 
@@ -507,7 +514,6 @@ describe('Group 5: Alignment (span wrapping)', () => {
 // ============================================================
 
 describe('Group 6: Complex multi-property combinations', () => {
-
   it('font color + font size + font family all on same text → 3 nested spans', () => {
     let text = 'hello';
 
@@ -637,7 +643,6 @@ describe('Group 6: Complex multi-property combinations', () => {
 // ============================================================
 
 describe('Group 7: CSS property replacement edge cases', () => {
-
   it('applying same color to already-colored text replaces with identical value', () => {
     const sourceText = '<span style="color: #ff0000">hello</span>';
     const { start, end } = findOffsets(sourceText, 'hello');
@@ -710,7 +715,6 @@ describe('Group 7: CSS property replacement edge cases', () => {
 // ============================================================
 
 describe('Group 8: Removing CSS-based formatting', () => {
-
   it('apply font color, then removeTag with matching tag definition → clean text', () => {
     const step1 = applyAddTag('hello', 0, 5, fontColorRed);
     expect(step1).toBe('<span style="color: #ff0000">hello</span>');

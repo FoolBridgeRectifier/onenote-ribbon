@@ -1,5 +1,5 @@
 import { MockEditor } from '../../../../test-utils/MockEditor';
-import { removeActiveCheckbox } from './removeActiveCheckbox';
+import { removeActiveCheckbox } from './helpers';
 
 describe('removeActiveCheckbox', () => {
   it('removes an unchecked checkbox marker from the current line', () => {

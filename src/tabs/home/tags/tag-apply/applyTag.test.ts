@@ -1,4 +1,4 @@
-import { applyTag } from './applyTag';
+import { applyTag } from './TagApply';
 import { MockEditor } from '../../../../test-utils/MockEditor';
 
 describe('applyTag — command action', () => {

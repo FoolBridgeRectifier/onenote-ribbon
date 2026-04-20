@@ -1,4 +1,4 @@
-import { toggleTag, addTag, removeTag, removeAllTags } from '../stylingEngine';
+import { toggleTag, addTag, removeTag, removeAllTags } from '../StylingEngine';
 
 import {
   UNDERLINE_TAG,
@@ -8,23 +8,16 @@ import {
   ITALIC_MD_TAG,
   STRIKETHROUGH_MD_TAG,
   HIGHLIGHT_MD_TAG,
-  BOLD_HTML_TAG,
-  ITALIC_HTML_TAG,
-  STRIKETHROUGH_HTML_TAG,
-  HIGHLIGHT_HTML_TAG,
 } from '../constants';
 
-import { buildSpanTagDefinition } from '../tagManipulation';
-import { StylingContext, TextReplacement } from '../interfaces';
+import { buildSpanTagDefinition } from '../tag-manipulation/TagManipulation';
+import type { StylingContext, TextReplacement } from '../interfaces';
 
 // ============================================================
 // Test Helpers
 // ============================================================
 
-function applyReplacements(
-  sourceText: string,
-  replacements: TextReplacement[],
-): string {
+function applyReplacements(sourceText: string, replacements: TextReplacement[]): string {
   let result = sourceText;
 
   for (const replacement of replacements) {
@@ -37,11 +30,7 @@ function applyReplacements(
   return result;
 }
 
-function createContext(
-  sourceText: string,
-  startOffset: number,
-  endOffset: number,
-): StylingContext {
+function createContext(sourceText: string, startOffset: number, endOffset: number): StylingContext {
   return {
     sourceText,
     selectionStartOffset: startOffset,
@@ -54,10 +43,7 @@ function createContext(
  * Finds the start and end offsets of a plain-text needle within a source string.
  * Used to locate "world" (or other content) after formatting has changed offsets.
  */
-function findContentOffsets(
-  text: string,
-  needle: string,
-): { start: number; end: number } {
+function findContentOffsets(text: string, needle: string): { start: number; end: number } {
   const start = text.indexOf(needle);
 
   if (start === -1) {
@@ -78,7 +64,7 @@ function applyAndRelocate(
   operation: (context: StylingContext) => {
     replacements: TextReplacement[];
     isNoOp: boolean;
-  },
+  }
 ): { resultText: string; isNoOp: boolean } {
   const context = createContext(sourceText, startOffset, endOffset);
   const result = operation(context);
@@ -99,7 +85,7 @@ describe('Group 1: Multi-format stacking', () => {
   it('Bold + Italic → produces ***world***', () => {
     // Step 1: Apply bold to "world"
     const step1 = applyAndRelocate('hello world', 6, 11, (context) =>
-      toggleTag(context, BOLD_MD_TAG),
+      toggleTag(context, BOLD_MD_TAG)
     );
 
     expect(step1.isNoOp).toBe(false);
@@ -107,11 +93,8 @@ describe('Group 1: Multi-format stacking', () => {
 
     // Step 2: Apply italic to "world" inside bold
     const offsets = findContentOffsets(step1.resultText, 'world');
-    const step2 = applyAndRelocate(
-      step1.resultText,
-      offsets.start,
-      offsets.end,
-      (context) => toggleTag(context, ITALIC_MD_TAG),
+    const step2 = applyAndRelocate(step1.resultText, offsets.start, offsets.end, (context) =>
+      toggleTag(context, ITALIC_MD_TAG)
     );
 
     expect(step2.isNoOp).toBe(false);
@@ -121,29 +104,23 @@ describe('Group 1: Multi-format stacking', () => {
   it('Bold + Italic + Underline → domain conversion to HTML', () => {
     // Step 1: Bold
     const step1 = applyAndRelocate('hello world', 6, 11, (context) =>
-      toggleTag(context, BOLD_MD_TAG),
+      toggleTag(context, BOLD_MD_TAG)
     );
 
     expect(step1.resultText).toBe('hello **world**');
 
     // Step 2: Italic
     const offsets2 = findContentOffsets(step1.resultText, 'world');
-    const step2 = applyAndRelocate(
-      step1.resultText,
-      offsets2.start,
-      offsets2.end,
-      (context) => toggleTag(context, ITALIC_MD_TAG),
+    const step2 = applyAndRelocate(step1.resultText, offsets2.start, offsets2.end, (context) =>
+      toggleTag(context, ITALIC_MD_TAG)
     );
 
     expect(step2.resultText).toBe('hello ***world***');
 
     // Step 3: Underline triggers domain conversion from MD to HTML
     const offsets3 = findContentOffsets(step2.resultText, 'world');
-    const step3 = applyAndRelocate(
-      step2.resultText,
-      offsets3.start,
-      offsets3.end,
-      (context) => toggleTag(context, UNDERLINE_TAG),
+    const step3 = applyAndRelocate(step2.resultText, offsets3.start, offsets3.end, (context) =>
+      toggleTag(context, UNDERLINE_TAG)
     );
 
     expect(step3.isNoOp).toBe(false);
@@ -154,18 +131,15 @@ describe('Group 1: Multi-format stacking', () => {
   it('Bold + Strikethrough → nested MD markers', () => {
     // Step 1: Bold
     const step1 = applyAndRelocate('hello world', 6, 11, (context) =>
-      toggleTag(context, BOLD_MD_TAG),
+      toggleTag(context, BOLD_MD_TAG)
     );
 
     expect(step1.resultText).toBe('hello **world**');
 
     // Step 2: Strikethrough inside bold
     const offsets = findContentOffsets(step1.resultText, 'world');
-    const step2 = applyAndRelocate(
-      step1.resultText,
-      offsets.start,
-      offsets.end,
-      (context) => toggleTag(context, STRIKETHROUGH_MD_TAG),
+    const step2 = applyAndRelocate(step1.resultText, offsets.start, offsets.end, (context) =>
+      toggleTag(context, STRIKETHROUGH_MD_TAG)
     );
 
     expect(step2.isNoOp).toBe(false);
@@ -175,18 +149,15 @@ describe('Group 1: Multi-format stacking', () => {
   it('Highlight + Strikethrough → nested MD markers', () => {
     // Step 1: Highlight
     const step1 = applyAndRelocate('hello world', 6, 11, (context) =>
-      toggleTag(context, HIGHLIGHT_MD_TAG),
+      toggleTag(context, HIGHLIGHT_MD_TAG)
     );
 
     expect(step1.resultText).toBe('hello ==world==');
 
     // Step 2: Strikethrough inside highlight
     const offsets = findContentOffsets(step1.resultText, 'world');
-    const step2 = applyAndRelocate(
-      step1.resultText,
-      offsets.start,
-      offsets.end,
-      (context) => toggleTag(context, STRIKETHROUGH_MD_TAG),
+    const step2 = applyAndRelocate(step1.resultText, offsets.start, offsets.end, (context) =>
+      toggleTag(context, STRIKETHROUGH_MD_TAG)
     );
 
     expect(step2.isNoOp).toBe(false);
@@ -196,18 +167,15 @@ describe('Group 1: Multi-format stacking', () => {
   it('Underline + Subscript → nested HTML tags', () => {
     // Step 1: Underline
     const step1 = applyAndRelocate('hello world', 6, 11, (context) =>
-      toggleTag(context, UNDERLINE_TAG),
+      toggleTag(context, UNDERLINE_TAG)
     );
 
     expect(step1.resultText).toBe('hello <u>world</u>');
 
     // Step 2: Subscript inside underline
     const offsets = findContentOffsets(step1.resultText, 'world');
-    const step2 = applyAndRelocate(
-      step1.resultText,
-      offsets.start,
-      offsets.end,
-      (context) => toggleTag(context, SUBSCRIPT_TAG),
+    const step2 = applyAndRelocate(step1.resultText, offsets.start, offsets.end, (context) =>
+      toggleTag(context, SUBSCRIPT_TAG)
     );
 
     expect(step2.isNoOp).toBe(false);
@@ -217,18 +185,15 @@ describe('Group 1: Multi-format stacking', () => {
   it('Superscript + Bold → triggers domain conversion to HTML bold', () => {
     // Step 1: Superscript (HTML domain)
     const step1 = applyAndRelocate('hello world', 6, 11, (context) =>
-      toggleTag(context, SUPERSCRIPT_TAG),
+      toggleTag(context, SUPERSCRIPT_TAG)
     );
 
     expect(step1.resultText).toBe('hello <sup>world</sup>');
 
     // Step 2: Bold in HTML domain → should use <b> instead of **
     const offsets = findContentOffsets(step1.resultText, 'world');
-    const step2 = applyAndRelocate(
-      step1.resultText,
-      offsets.start,
-      offsets.end,
-      (context) => toggleTag(context, BOLD_MD_TAG),
+    const step2 = applyAndRelocate(step1.resultText, offsets.start, offsets.end, (context) =>
+      toggleTag(context, BOLD_MD_TAG)
     );
 
     expect(step2.isNoOp).toBe(false);
@@ -245,27 +210,21 @@ describe('Group 2: Toggle off in combinations', () => {
   it('Apply Bold + Italic, then toggle Bold off → only italic remains', () => {
     // Step 1: Bold
     const step1 = applyAndRelocate('hello world', 6, 11, (context) =>
-      toggleTag(context, BOLD_MD_TAG),
+      toggleTag(context, BOLD_MD_TAG)
     );
 
     // Step 2: Italic
     const offsets2 = findContentOffsets(step1.resultText, 'world');
-    const step2 = applyAndRelocate(
-      step1.resultText,
-      offsets2.start,
-      offsets2.end,
-      (context) => toggleTag(context, ITALIC_MD_TAG),
+    const step2 = applyAndRelocate(step1.resultText, offsets2.start, offsets2.end, (context) =>
+      toggleTag(context, ITALIC_MD_TAG)
     );
 
     expect(step2.resultText).toBe('hello ***world***');
 
     // Step 3: Toggle bold off
     const offsets3 = findContentOffsets(step2.resultText, 'world');
-    const step3 = applyAndRelocate(
-      step2.resultText,
-      offsets3.start,
-      offsets3.end,
-      (context) => toggleTag(context, BOLD_MD_TAG),
+    const step3 = applyAndRelocate(step2.resultText, offsets3.start, offsets3.end, (context) =>
+      toggleTag(context, BOLD_MD_TAG)
     );
 
     expect(step3.isNoOp).toBe(false);
@@ -275,29 +234,23 @@ describe('Group 2: Toggle off in combinations', () => {
   it('Apply Underline + Bold, then toggle Underline off → only bold remains (HTML bold)', () => {
     // Step 1: Underline
     const step1 = applyAndRelocate('hello world', 6, 11, (context) =>
-      toggleTag(context, UNDERLINE_TAG),
+      toggleTag(context, UNDERLINE_TAG)
     );
 
     expect(step1.resultText).toBe('hello <u>world</u>');
 
     // Step 2: Bold (in HTML domain, so it becomes <b>)
     const offsets2 = findContentOffsets(step1.resultText, 'world');
-    const step2 = applyAndRelocate(
-      step1.resultText,
-      offsets2.start,
-      offsets2.end,
-      (context) => toggleTag(context, BOLD_MD_TAG),
+    const step2 = applyAndRelocate(step1.resultText, offsets2.start, offsets2.end, (context) =>
+      toggleTag(context, BOLD_MD_TAG)
     );
 
     expect(step2.resultText).toBe('hello <u><b>world</b></u>');
 
     // Step 3: Toggle underline off — bold remains
     const offsets3 = findContentOffsets(step2.resultText, 'world');
-    const step3 = applyAndRelocate(
-      step2.resultText,
-      offsets3.start,
-      offsets3.end,
-      (context) => toggleTag(context, UNDERLINE_TAG),
+    const step3 = applyAndRelocate(step2.resultText, offsets3.start, offsets3.end, (context) =>
+      toggleTag(context, UNDERLINE_TAG)
     );
 
     expect(step3.isNoOp).toBe(false);
@@ -307,42 +260,30 @@ describe('Group 2: Toggle off in combinations', () => {
   it('Apply Bold + Italic + Underline, then removeAllTags → plain text', () => {
     // Step 1: Bold
     const step1 = applyAndRelocate('hello world', 6, 11, (context) =>
-      toggleTag(context, BOLD_MD_TAG),
+      toggleTag(context, BOLD_MD_TAG)
     );
 
     // Step 2: Italic
     const offsets2 = findContentOffsets(step1.resultText, 'world');
-    const step2 = applyAndRelocate(
-      step1.resultText,
-      offsets2.start,
-      offsets2.end,
-      (context) => toggleTag(context, ITALIC_MD_TAG),
+    const step2 = applyAndRelocate(step1.resultText, offsets2.start, offsets2.end, (context) =>
+      toggleTag(context, ITALIC_MD_TAG)
     );
 
     // Step 3: Underline (triggers domain conversion)
     const offsets3 = findContentOffsets(step2.resultText, 'world');
-    const step3 = applyAndRelocate(
-      step2.resultText,
-      offsets3.start,
-      offsets3.end,
-      (context) => toggleTag(context, UNDERLINE_TAG),
+    const step3 = applyAndRelocate(step2.resultText, offsets3.start, offsets3.end, (context) =>
+      toggleTag(context, UNDERLINE_TAG)
     );
 
     expect(step3.resultText).toBe('hello <u><b><i>world</i></b></u>');
 
     // Step 4: removeAllTags
     const offsets4 = findContentOffsets(step3.resultText, 'world');
-    const context4 = createContext(
-      step3.resultText,
-      offsets4.start,
-      offsets4.end,
-    );
+    const context4 = createContext(step3.resultText, offsets4.start, offsets4.end);
     const result4 = removeAllTags(context4);
 
     expect(result4.isNoOp).toBe(false);
-    expect(applyReplacements(step3.resultText, result4.replacements)).toBe(
-      'hello world',
-    );
+    expect(applyReplacements(step3.resultText, result4.replacements)).toBe('hello world');
   });
 });
 
@@ -357,26 +298,21 @@ describe('Group 3: CSS property combinations', () => {
 
     // Step 1: Font color
     const step1 = applyAndRelocate('hello world', 6, 11, (context) =>
-      addTag(context, fontColorTag),
+      addTag(context, fontColorTag)
     );
 
     expect(step1.isNoOp).toBe(false);
-    expect(step1.resultText).toBe(
-      'hello <span style="color: #ff0000">world</span>',
-    );
+    expect(step1.resultText).toBe('hello <span style="color: #ff0000">world</span>');
 
     // Step 2: Highlight color (different CSS property → new span, not replacement)
     const offsets = findContentOffsets(step1.resultText, 'world');
-    const step2 = applyAndRelocate(
-      step1.resultText,
-      offsets.start,
-      offsets.end,
-      (context) => addTag(context, highlightColorTag),
+    const step2 = applyAndRelocate(step1.resultText, offsets.start, offsets.end, (context) =>
+      addTag(context, highlightColorTag)
     );
 
     expect(step2.isNoOp).toBe(false);
     expect(step2.resultText).toBe(
-      'hello <span style="color: #ff0000"><span style="background: #00ff00">world</span></span>',
+      'hello <span style="color: #ff0000"><span style="background: #00ff00">world</span></span>'
     );
   });
 
@@ -386,25 +322,20 @@ describe('Group 3: CSS property combinations', () => {
 
     // Step 1: Font family
     const step1 = applyAndRelocate('hello world', 6, 11, (context) =>
-      addTag(context, fontFamilyTag),
+      addTag(context, fontFamilyTag)
     );
 
-    expect(step1.resultText).toBe(
-      'hello <span style="font-family: Arial">world</span>',
-    );
+    expect(step1.resultText).toBe('hello <span style="font-family: Arial">world</span>');
 
     // Step 2: Font size
     const offsets = findContentOffsets(step1.resultText, 'world');
-    const step2 = applyAndRelocate(
-      step1.resultText,
-      offsets.start,
-      offsets.end,
-      (context) => addTag(context, fontSizeTag),
+    const step2 = applyAndRelocate(step1.resultText, offsets.start, offsets.end, (context) =>
+      addTag(context, fontSizeTag)
     );
 
     expect(step2.isNoOp).toBe(false);
     expect(step2.resultText).toBe(
-      'hello <span style="font-family: Arial"><span style="font-size: 24pt">world</span></span>',
+      'hello <span style="font-family: Arial"><span style="font-size: 24pt">world</span></span>'
     );
   });
 
@@ -413,68 +344,47 @@ describe('Group 3: CSS property combinations', () => {
 
     // Step 1: Font color (HTML domain)
     const step1 = applyAndRelocate('hello world', 6, 11, (context) =>
-      addTag(context, fontColorTag),
+      addTag(context, fontColorTag)
     );
 
-    expect(step1.resultText).toBe(
-      'hello <span style="color: #ff0000">world</span>',
-    );
+    expect(step1.resultText).toBe('hello <span style="color: #ff0000">world</span>');
 
     // Step 2: Bold in HTML domain → should use <b>
     const offsets = findContentOffsets(step1.resultText, 'world');
-    const step2 = applyAndRelocate(
-      step1.resultText,
-      offsets.start,
-      offsets.end,
-      (context) => toggleTag(context, BOLD_MD_TAG),
+    const step2 = applyAndRelocate(step1.resultText, offsets.start, offsets.end, (context) =>
+      toggleTag(context, BOLD_MD_TAG)
     );
 
     expect(step2.isNoOp).toBe(false);
     // In HTML domain, MD bold gets substituted with <b>
-    expect(step2.resultText).toBe(
-      'hello <span style="color: #ff0000"><b>world</b></span>',
-    );
+    expect(step2.resultText).toBe('hello <span style="color: #ff0000"><b>world</b></span>');
   });
 
   it('Font size + underline + bold → triple nesting', () => {
     const fontSizeTag = buildSpanTagDefinition('font-size', '24pt');
 
     // Step 1: Font size
-    const step1 = applyAndRelocate('hello world', 6, 11, (context) =>
-      addTag(context, fontSizeTag),
-    );
+    const step1 = applyAndRelocate('hello world', 6, 11, (context) => addTag(context, fontSizeTag));
 
-    expect(step1.resultText).toBe(
-      'hello <span style="font-size: 24pt">world</span>',
-    );
+    expect(step1.resultText).toBe('hello <span style="font-size: 24pt">world</span>');
 
     // Step 2: Underline
     const offsets2 = findContentOffsets(step1.resultText, 'world');
-    const step2 = applyAndRelocate(
-      step1.resultText,
-      offsets2.start,
-      offsets2.end,
-      (context) => toggleTag(context, UNDERLINE_TAG),
+    const step2 = applyAndRelocate(step1.resultText, offsets2.start, offsets2.end, (context) =>
+      toggleTag(context, UNDERLINE_TAG)
     );
 
     expect(step2.isNoOp).toBe(false);
-    expect(step2.resultText).toBe(
-      'hello <span style="font-size: 24pt"><u>world</u></span>',
-    );
+    expect(step2.resultText).toBe('hello <span style="font-size: 24pt"><u>world</u></span>');
 
     // Step 3: Bold (in HTML domain)
     const offsets3 = findContentOffsets(step2.resultText, 'world');
-    const step3 = applyAndRelocate(
-      step2.resultText,
-      offsets3.start,
-      offsets3.end,
-      (context) => toggleTag(context, BOLD_MD_TAG),
+    const step3 = applyAndRelocate(step2.resultText, offsets3.start, offsets3.end, (context) =>
+      toggleTag(context, BOLD_MD_TAG)
     );
 
     expect(step3.isNoOp).toBe(false);
-    expect(step3.resultText).toBe(
-      'hello <span style="font-size: 24pt"><u><b>world</b></u></span>',
-    );
+    expect(step3.resultText).toBe('hello <span style="font-size: 24pt"><u><b>world</b></u></span>');
   });
 });
 
@@ -487,11 +397,8 @@ describe('Group 4: Line prefix + formatting combinations', () => {
     const sourceText = '## Heading text';
     // Select "text" (offsets 11-15)
     const offsets = findContentOffsets(sourceText, 'text');
-    const step1 = applyAndRelocate(
-      sourceText,
-      offsets.start,
-      offsets.end,
-      (context) => toggleTag(context, BOLD_MD_TAG),
+    const step1 = applyAndRelocate(sourceText, offsets.start, offsets.end, (context) =>
+      toggleTag(context, BOLD_MD_TAG)
     );
 
     expect(step1.isNoOp).toBe(false);
@@ -501,11 +408,8 @@ describe('Group 4: Line prefix + formatting combinations', () => {
   it('Todo + Underline → todo prefix preserved', () => {
     const sourceText = '- [ ] todo item';
     const offsets = findContentOffsets(sourceText, 'item');
-    const step1 = applyAndRelocate(
-      sourceText,
-      offsets.start,
-      offsets.end,
-      (context) => toggleTag(context, UNDERLINE_TAG),
+    const step1 = applyAndRelocate(sourceText, offsets.start, offsets.end, (context) =>
+      toggleTag(context, UNDERLINE_TAG)
     );
 
     expect(step1.isNoOp).toBe(false);
@@ -515,11 +419,8 @@ describe('Group 4: Line prefix + formatting combinations', () => {
   it('Callout + Italic → callout prefix preserved', () => {
     const sourceText = '> callout text';
     const offsets = findContentOffsets(sourceText, 'text');
-    const step1 = applyAndRelocate(
-      sourceText,
-      offsets.start,
-      offsets.end,
-      (context) => toggleTag(context, ITALIC_MD_TAG),
+    const step1 = applyAndRelocate(sourceText, offsets.start, offsets.end, (context) =>
+      toggleTag(context, ITALIC_MD_TAG)
     );
 
     expect(step1.isNoOp).toBe(false);
@@ -529,11 +430,8 @@ describe('Group 4: Line prefix + formatting combinations', () => {
   it('Numbered list + Strikethrough → prefix preserved', () => {
     const sourceText = '1. numbered item';
     const offsets = findContentOffsets(sourceText, 'item');
-    const step1 = applyAndRelocate(
-      sourceText,
-      offsets.start,
-      offsets.end,
-      (context) => toggleTag(context, STRIKETHROUGH_MD_TAG),
+    const step1 = applyAndRelocate(sourceText, offsets.start, offsets.end, (context) =>
+      toggleTag(context, STRIKETHROUGH_MD_TAG)
     );
 
     expect(step1.isNoOp).toBe(false);
@@ -546,33 +444,24 @@ describe('Group 4: Line prefix + formatting combinations', () => {
     const offsets1 = findContentOffsets(sourceText, 'item');
 
     // Step 1: Bold
-    const step1 = applyAndRelocate(
-      sourceText,
-      offsets1.start,
-      offsets1.end,
-      (context) => toggleTag(context, BOLD_MD_TAG),
+    const step1 = applyAndRelocate(sourceText, offsets1.start, offsets1.end, (context) =>
+      toggleTag(context, BOLD_MD_TAG)
     );
 
     expect(step1.resultText).toBe('- list **item**');
 
     // Step 2: Italic
     const offsets2 = findContentOffsets(step1.resultText, 'item');
-    const step2 = applyAndRelocate(
-      step1.resultText,
-      offsets2.start,
-      offsets2.end,
-      (context) => toggleTag(context, ITALIC_MD_TAG),
+    const step2 = applyAndRelocate(step1.resultText, offsets2.start, offsets2.end, (context) =>
+      toggleTag(context, ITALIC_MD_TAG)
     );
 
     expect(step2.resultText).toBe('- list ***item***');
 
     // Step 3: Underline (triggers domain conversion)
     const offsets3 = findContentOffsets(step2.resultText, 'item');
-    const step3 = applyAndRelocate(
-      step2.resultText,
-      offsets3.start,
-      offsets3.end,
-      (context) => toggleTag(context, UNDERLINE_TAG),
+    const step3 = applyAndRelocate(step2.resultText, offsets3.start, offsets3.end, (context) =>
+      toggleTag(context, UNDERLINE_TAG)
     );
 
     expect(step3.isNoOp).toBe(false);
@@ -591,88 +480,64 @@ describe('Group 5: Clear formatting on complex combinations', () => {
 
     // Step 1: Bold
     const step1 = applyAndRelocate('hello world', 6, 11, (context) =>
-      toggleTag(context, BOLD_MD_TAG),
+      toggleTag(context, BOLD_MD_TAG)
     );
 
     // Step 2: Italic
     const offsets2 = findContentOffsets(step1.resultText, 'world');
-    const step2 = applyAndRelocate(
-      step1.resultText,
-      offsets2.start,
-      offsets2.end,
-      (context) => toggleTag(context, ITALIC_MD_TAG),
+    const step2 = applyAndRelocate(step1.resultText, offsets2.start, offsets2.end, (context) =>
+      toggleTag(context, ITALIC_MD_TAG)
     );
 
     // Step 3: Underline (triggers domain conversion)
     const offsets3 = findContentOffsets(step2.resultText, 'world');
-    const step3 = applyAndRelocate(
-      step2.resultText,
-      offsets3.start,
-      offsets3.end,
-      (context) => toggleTag(context, UNDERLINE_TAG),
+    const step3 = applyAndRelocate(step2.resultText, offsets3.start, offsets3.end, (context) =>
+      toggleTag(context, UNDERLINE_TAG)
     );
 
     expect(step3.resultText).toBe('hello <u><b><i>world</i></b></u>');
 
     // Step 4: Add font color
     const offsets4 = findContentOffsets(step3.resultText, 'world');
-    const step4 = applyAndRelocate(
-      step3.resultText,
-      offsets4.start,
-      offsets4.end,
-      (context) => addTag(context, fontColorTag),
+    const step4 = applyAndRelocate(step3.resultText, offsets4.start, offsets4.end, (context) =>
+      addTag(context, fontColorTag)
     );
 
     expect(step4.isNoOp).toBe(false);
     expect(step4.resultText).toBe(
-      'hello <u><b><i><span style="color: #ff0000">world</span></i></b></u>',
+      'hello <u><b><i><span style="color: #ff0000">world</span></i></b></u>'
     );
 
     // Step 5: removeAllTags
     const offsets5 = findContentOffsets(step4.resultText, 'world');
-    const context5 = createContext(
-      step4.resultText,
-      offsets5.start,
-      offsets5.end,
-    );
+    const context5 = createContext(step4.resultText, offsets5.start, offsets5.end);
     const result5 = removeAllTags(context5);
 
     expect(result5.isNoOp).toBe(false);
-    expect(applyReplacements(step4.resultText, result5.replacements)).toBe(
-      'hello world',
-    );
+    expect(applyReplacements(step4.resultText, result5.replacements)).toBe('hello world');
   });
 
   it('Apply Bold + Highlight, then removeTag(BOLD_MD_TAG) → only highlight remains', () => {
     // Step 1: Bold
     const step1 = applyAndRelocate('hello world', 6, 11, (context) =>
-      toggleTag(context, BOLD_MD_TAG),
+      toggleTag(context, BOLD_MD_TAG)
     );
 
     // Step 2: Highlight
     const offsets2 = findContentOffsets(step1.resultText, 'world');
-    const step2 = applyAndRelocate(
-      step1.resultText,
-      offsets2.start,
-      offsets2.end,
-      (context) => toggleTag(context, HIGHLIGHT_MD_TAG),
+    const step2 = applyAndRelocate(step1.resultText, offsets2.start, offsets2.end, (context) =>
+      toggleTag(context, HIGHLIGHT_MD_TAG)
     );
 
     expect(step2.resultText).toBe('hello **==world==**');
 
     // Step 3: Remove bold specifically
     const offsets3 = findContentOffsets(step2.resultText, 'world');
-    const context3 = createContext(
-      step2.resultText,
-      offsets3.start,
-      offsets3.end,
-    );
+    const context3 = createContext(step2.resultText, offsets3.start, offsets3.end);
     const result3 = removeTag(context3, BOLD_MD_TAG);
 
     expect(result3.isNoOp).toBe(false);
-    expect(applyReplacements(step2.resultText, result3.replacements)).toBe(
-      'hello ==world==',
-    );
+    expect(applyReplacements(step2.resultText, result3.replacements)).toBe('hello ==world==');
   });
 
   it('Apply font color span on heading, removeAllTags → heading prefix + plain text', () => {
@@ -682,30 +547,19 @@ describe('Group 5: Clear formatting on complex combinations', () => {
     const offsets1 = findContentOffsets(sourceText, 'text');
 
     // Step 1: Add font color to "text"
-    const step1 = applyAndRelocate(
-      sourceText,
-      offsets1.start,
-      offsets1.end,
-      (context) => addTag(context, fontColorTag),
+    const step1 = applyAndRelocate(sourceText, offsets1.start, offsets1.end, (context) =>
+      addTag(context, fontColorTag)
     );
 
-    expect(step1.resultText).toBe(
-      '## Heading <span style="color: #ff0000">text</span>',
-    );
+    expect(step1.resultText).toBe('## Heading <span style="color: #ff0000">text</span>');
 
     // Step 2: removeAllTags on "text"
     const offsets2 = findContentOffsets(step1.resultText, 'text');
-    const context2 = createContext(
-      step1.resultText,
-      offsets2.start,
-      offsets2.end,
-    );
+    const context2 = createContext(step1.resultText, offsets2.start, offsets2.end);
     const result2 = removeAllTags(context2);
 
     expect(result2.isNoOp).toBe(false);
-    expect(applyReplacements(step1.resultText, result2.replacements)).toBe(
-      '## Heading text',
-    );
+    expect(applyReplacements(step1.resultText, result2.replacements)).toBe('## Heading text');
   });
 });
 
@@ -717,18 +571,15 @@ describe('Group 6: Edge cases', () => {
   it('Apply same tag twice (toggleTag Bold twice) → returns to original', () => {
     // Step 1: Bold
     const step1 = applyAndRelocate('hello world', 6, 11, (context) =>
-      toggleTag(context, BOLD_MD_TAG),
+      toggleTag(context, BOLD_MD_TAG)
     );
 
     expect(step1.resultText).toBe('hello **world**');
 
     // Step 2: Toggle bold again — should remove
     const offsets = findContentOffsets(step1.resultText, 'world');
-    const step2 = applyAndRelocate(
-      step1.resultText,
-      offsets.start,
-      offsets.end,
-      (context) => toggleTag(context, BOLD_MD_TAG),
+    const step2 = applyAndRelocate(step1.resultText, offsets.start, offsets.end, (context) =>
+      toggleTag(context, BOLD_MD_TAG)
     );
 
     expect(step2.isNoOp).toBe(false);
@@ -741,11 +592,8 @@ describe('Group 6: Edge cases', () => {
     // "world" is at offsets 3-8
     const offsets = findContentOffsets(sourceText, 'world');
 
-    const step1 = applyAndRelocate(
-      sourceText,
-      offsets.start,
-      offsets.end,
-      (context) => toggleTag(context, BOLD_MD_TAG),
+    const step1 = applyAndRelocate(sourceText, offsets.start, offsets.end, (context) =>
+      toggleTag(context, BOLD_MD_TAG)
     );
 
     expect(step1.isNoOp).toBe(false);
@@ -797,18 +645,15 @@ describe('Group 6: Edge cases', () => {
   it('Toggle underline twice → returns to original', () => {
     // Step 1: Add underline
     const step1 = applyAndRelocate('hello world', 6, 11, (context) =>
-      toggleTag(context, UNDERLINE_TAG),
+      toggleTag(context, UNDERLINE_TAG)
     );
 
     expect(step1.resultText).toBe('hello <u>world</u>');
 
     // Step 2: Toggle underline again — should remove
     const offsets = findContentOffsets(step1.resultText, 'world');
-    const step2 = applyAndRelocate(
-      step1.resultText,
-      offsets.start,
-      offsets.end,
-      (context) => toggleTag(context, UNDERLINE_TAG),
+    const step2 = applyAndRelocate(step1.resultText, offsets.start, offsets.end, (context) =>
+      toggleTag(context, UNDERLINE_TAG)
     );
 
     expect(step2.isNoOp).toBe(false);
@@ -826,33 +671,24 @@ describe('Group 6: Edge cases', () => {
   it('Bold then Strikethrough then remove Strikethrough → only bold remains', () => {
     // Step 1: Bold
     const step1 = applyAndRelocate('hello world', 6, 11, (context) =>
-      toggleTag(context, BOLD_MD_TAG),
+      toggleTag(context, BOLD_MD_TAG)
     );
 
     // Step 2: Strikethrough
     const offsets2 = findContentOffsets(step1.resultText, 'world');
-    const step2 = applyAndRelocate(
-      step1.resultText,
-      offsets2.start,
-      offsets2.end,
-      (context) => toggleTag(context, STRIKETHROUGH_MD_TAG),
+    const step2 = applyAndRelocate(step1.resultText, offsets2.start, offsets2.end, (context) =>
+      toggleTag(context, STRIKETHROUGH_MD_TAG)
     );
 
     expect(step2.resultText).toBe('hello **~~world~~**');
 
     // Step 3: Remove strikethrough
     const offsets3 = findContentOffsets(step2.resultText, 'world');
-    const context3 = createContext(
-      step2.resultText,
-      offsets3.start,
-      offsets3.end,
-    );
+    const context3 = createContext(step2.resultText, offsets3.start, offsets3.end);
     const result3 = removeTag(context3, STRIKETHROUGH_MD_TAG);
 
     expect(result3.isNoOp).toBe(false);
-    expect(applyReplacements(step2.resultText, result3.replacements)).toBe(
-      'hello **world**',
-    );
+    expect(applyReplacements(step2.resultText, result3.replacements)).toBe('hello **world**');
   });
 
   it('Span attribute replacement: change font color on already colored text', () => {
@@ -860,27 +696,18 @@ describe('Group 6: Edge cases', () => {
     const blueTag = buildSpanTagDefinition('color', '#0000ff');
 
     // Step 1: Red color
-    const step1 = applyAndRelocate('hello world', 6, 11, (context) =>
-      addTag(context, redTag),
-    );
+    const step1 = applyAndRelocate('hello world', 6, 11, (context) => addTag(context, redTag));
 
-    expect(step1.resultText).toBe(
-      'hello <span style="color: #ff0000">world</span>',
-    );
+    expect(step1.resultText).toBe('hello <span style="color: #ff0000">world</span>');
 
     // Step 2: Change to blue (addTag replaces same CSS property)
     const offsets = findContentOffsets(step1.resultText, 'world');
-    const step2 = applyAndRelocate(
-      step1.resultText,
-      offsets.start,
-      offsets.end,
-      (context) => addTag(context, blueTag),
+    const step2 = applyAndRelocate(step1.resultText, offsets.start, offsets.end, (context) =>
+      addTag(context, blueTag)
     );
 
     expect(step2.isNoOp).toBe(false);
-    expect(step2.resultText).toBe(
-      'hello <span style="color: #0000ff">world</span>',
-    );
+    expect(step2.resultText).toBe('hello <span style="color: #0000ff">world</span>');
   });
 
   it('Multiple CSS properties then removeAllTags strips everything', () => {
@@ -889,35 +716,26 @@ describe('Group 6: Edge cases', () => {
 
     // Step 1: Font color
     const step1 = applyAndRelocate('hello world', 6, 11, (context) =>
-      addTag(context, fontColorTag),
+      addTag(context, fontColorTag)
     );
 
     // Step 2: Font size
     const offsets2 = findContentOffsets(step1.resultText, 'world');
-    const step2 = applyAndRelocate(
-      step1.resultText,
-      offsets2.start,
-      offsets2.end,
-      (context) => addTag(context, fontSizeTag),
+    const step2 = applyAndRelocate(step1.resultText, offsets2.start, offsets2.end, (context) =>
+      addTag(context, fontSizeTag)
     );
 
     expect(step2.resultText).toBe(
-      'hello <span style="color: #ff0000"><span style="font-size: 24pt">world</span></span>',
+      'hello <span style="color: #ff0000"><span style="font-size: 24pt">world</span></span>'
     );
 
     // Step 3: removeAllTags
     const offsets3 = findContentOffsets(step2.resultText, 'world');
-    const context3 = createContext(
-      step2.resultText,
-      offsets3.start,
-      offsets3.end,
-    );
+    const context3 = createContext(step2.resultText, offsets3.start, offsets3.end);
     const result3 = removeAllTags(context3);
 
     expect(result3.isNoOp).toBe(false);
-    expect(applyReplacements(step2.resultText, result3.replacements)).toBe(
-      'hello world',
-    );
+    expect(applyReplacements(step2.resultText, result3.replacements)).toBe('hello world');
   });
 });
 
@@ -931,11 +749,8 @@ describe('Group 7: Bullet list + formatting combinations', () => {
   it('Bullet + Highlight → prefix preserved', () => {
     const source = '- list item';
     const offsets = findContentOffsets(source, 'item');
-    const result = applyAndRelocate(
-      source,
-      offsets.start,
-      offsets.end,
-      (context) => toggleTag(context, HIGHLIGHT_MD_TAG),
+    const result = applyAndRelocate(source, offsets.start, offsets.end, (context) =>
+      toggleTag(context, HIGHLIGHT_MD_TAG)
     );
 
     expect(result.isNoOp).toBe(false);
@@ -947,11 +762,8 @@ describe('Group 7: Bullet list + formatting combinations', () => {
   it('Bullet + Subscript → prefix preserved', () => {
     const source = '- H2O formula';
     const offsets = findContentOffsets(source, '2');
-    const result = applyAndRelocate(
-      source,
-      offsets.start,
-      offsets.end,
-      (context) => toggleTag(context, SUBSCRIPT_TAG),
+    const result = applyAndRelocate(source, offsets.start, offsets.end, (context) =>
+      toggleTag(context, SUBSCRIPT_TAG)
     );
 
     expect(result.isNoOp).toBe(false);
@@ -963,11 +775,8 @@ describe('Group 7: Bullet list + formatting combinations', () => {
   it('Bullet + Superscript → prefix preserved', () => {
     const source = '- E=mc2 energy';
     const offsets = findContentOffsets(source, '2');
-    const result = applyAndRelocate(
-      source,
-      offsets.start,
-      offsets.end,
-      (context) => toggleTag(context, SUPERSCRIPT_TAG),
+    const result = applyAndRelocate(source, offsets.start, offsets.end, (context) =>
+      toggleTag(context, SUPERSCRIPT_TAG)
     );
 
     expect(result.isNoOp).toBe(false);
@@ -980,38 +789,27 @@ describe('Group 7: Bullet list + formatting combinations', () => {
     const source = '- colored text';
     const fontColorTag = buildSpanTagDefinition('color', '#ff0000');
     const offsets = findContentOffsets(source, 'colored');
-    const result = applyAndRelocate(
-      source,
-      offsets.start,
-      offsets.end,
-      (context) => addTag(context, fontColorTag),
+    const result = applyAndRelocate(source, offsets.start, offsets.end, (context) =>
+      addTag(context, fontColorTag)
     );
 
     expect(result.isNoOp).toBe(false);
-    expect(result.resultText).toBe(
-      '- <span style="color: #ff0000">colored</span> text',
-    );
+    expect(result.resultText).toBe('- <span style="color: #ff0000">colored</span> text');
   });
 
   // -- Background color (span CSS) on bullet content --
 
   it('Bullet + Background color → prefix preserved', () => {
     const source = '- highlighted text';
-    const backgroundColorTag = buildSpanTagDefinition(
-      'background-color',
-      '#ffff00',
-    );
+    const backgroundColorTag = buildSpanTagDefinition('background-color', '#ffff00');
     const offsets = findContentOffsets(source, 'highlighted');
-    const result = applyAndRelocate(
-      source,
-      offsets.start,
-      offsets.end,
-      (context) => addTag(context, backgroundColorTag),
+    const result = applyAndRelocate(source, offsets.start, offsets.end, (context) =>
+      addTag(context, backgroundColorTag)
     );
 
     expect(result.isNoOp).toBe(false);
     expect(result.resultText).toBe(
-      '- <span style="background-color: #ffff00">highlighted</span> text',
+      '- <span style="background-color: #ffff00">highlighted</span> text'
     );
   });
 
@@ -1021,17 +819,12 @@ describe('Group 7: Bullet list + formatting combinations', () => {
     const source = '- sized text';
     const fontSizeTag = buildSpanTagDefinition('font-size', '24pt');
     const offsets = findContentOffsets(source, 'sized');
-    const result = applyAndRelocate(
-      source,
-      offsets.start,
-      offsets.end,
-      (context) => addTag(context, fontSizeTag),
+    const result = applyAndRelocate(source, offsets.start, offsets.end, (context) =>
+      addTag(context, fontSizeTag)
     );
 
     expect(result.isNoOp).toBe(false);
-    expect(result.resultText).toBe(
-      '- <span style="font-size: 24pt">sized</span> text',
-    );
+    expect(result.resultText).toBe('- <span style="font-size: 24pt">sized</span> text');
   });
 
   // -- removeAllTags on formatted bullet content --
@@ -1055,9 +848,7 @@ describe('Group 7: Bullet list + formatting combinations', () => {
     const result = removeAllTags(context);
 
     expect(result.isNoOp).toBe(false);
-    expect(applyReplacements(source, result.replacements)).toBe(
-      '- styled text',
-    );
+    expect(applyReplacements(source, result.replacements)).toBe('- styled text');
   });
 
   // -- Nested bullet + font color --
@@ -1066,17 +857,12 @@ describe('Group 7: Bullet list + formatting combinations', () => {
     const source = '  - nested item';
     const fontColorTag = buildSpanTagDefinition('color', '#00ff00');
     const offsets = findContentOffsets(source, 'nested');
-    const result = applyAndRelocate(
-      source,
-      offsets.start,
-      offsets.end,
-      (context) => addTag(context, fontColorTag),
+    const result = applyAndRelocate(source, offsets.start, offsets.end, (context) =>
+      addTag(context, fontColorTag)
     );
 
     expect(result.isNoOp).toBe(false);
-    expect(result.resultText).toBe(
-      '  - <span style="color: #00ff00">nested</span> item',
-    );
+    expect(result.resultText).toBe('  - <span style="color: #00ff00">nested</span> item');
   });
 
   // -- Numbered list + highlight --
@@ -1084,11 +870,8 @@ describe('Group 7: Bullet list + formatting combinations', () => {
   it('Numbered list + Highlight → prefix preserved', () => {
     const source = '1. numbered item';
     const offsets = findContentOffsets(source, 'item');
-    const result = applyAndRelocate(
-      source,
-      offsets.start,
-      offsets.end,
-      (context) => toggleTag(context, HIGHLIGHT_MD_TAG),
+    const result = applyAndRelocate(source, offsets.start, offsets.end, (context) =>
+      toggleTag(context, HIGHLIGHT_MD_TAG)
     );
 
     expect(result.isNoOp).toBe(false);
@@ -1100,11 +883,8 @@ describe('Group 7: Bullet list + formatting combinations', () => {
   it('Task + Subscript → task prefix preserved', () => {
     const source = '- [ ] H2O formula';
     const offsets = findContentOffsets(source, '2');
-    const result = applyAndRelocate(
-      source,
-      offsets.start,
-      offsets.end,
-      (context) => toggleTag(context, SUBSCRIPT_TAG),
+    const result = applyAndRelocate(source, offsets.start, offsets.end, (context) =>
+      toggleTag(context, SUBSCRIPT_TAG)
     );
 
     expect(result.isNoOp).toBe(false);
@@ -1118,22 +898,16 @@ describe('Group 7: Bullet list + formatting combinations', () => {
     const offsets1 = findContentOffsets(source, 'item');
 
     // Step 1: Bold
-    const step1 = applyAndRelocate(
-      source,
-      offsets1.start,
-      offsets1.end,
-      (context) => toggleTag(context, BOLD_MD_TAG),
+    const step1 = applyAndRelocate(source, offsets1.start, offsets1.end, (context) =>
+      toggleTag(context, BOLD_MD_TAG)
     );
 
     expect(step1.resultText).toBe('- list **item**');
 
     // Step 2: Highlight on "item" inside bold
     const offsets2 = findContentOffsets(step1.resultText, 'item');
-    const step2 = applyAndRelocate(
-      step1.resultText,
-      offsets2.start,
-      offsets2.end,
-      (context) => toggleTag(context, HIGHLIGHT_MD_TAG),
+    const step2 = applyAndRelocate(step1.resultText, offsets2.start, offsets2.end, (context) =>
+      toggleTag(context, HIGHLIGHT_MD_TAG)
     );
 
     expect(step2.resultText).toBe('- list **==item==**');
@@ -1147,25 +921,18 @@ describe('Group 7: Bullet list + formatting combinations', () => {
     const fontSizeTag = buildSpanTagDefinition('font-size', '18pt');
 
     // Step 1: Font color
-    const step1 = applyAndRelocate(source, 2, 8, (context) =>
-      addTag(context, fontColorTag),
-    );
+    const step1 = applyAndRelocate(source, 2, 8, (context) => addTag(context, fontColorTag));
 
-    expect(step1.resultText).toBe(
-      '- <span style="color: #ff0000">styled</span> text',
-    );
+    expect(step1.resultText).toBe('- <span style="color: #ff0000">styled</span> text');
 
     // Step 2: Font size on "styled" inside color span
     const offsets2 = findContentOffsets(step1.resultText, 'styled');
-    const step2 = applyAndRelocate(
-      step1.resultText,
-      offsets2.start,
-      offsets2.end,
-      (context) => addTag(context, fontSizeTag),
+    const step2 = applyAndRelocate(step1.resultText, offsets2.start, offsets2.end, (context) =>
+      addTag(context, fontSizeTag)
     );
 
     expect(step2.resultText).toBe(
-      '- <span style="color: #ff0000"><span style="font-size: 18pt">styled</span></span> text',
+      '- <span style="color: #ff0000"><span style="font-size: 18pt">styled</span></span> text'
     );
   });
 
@@ -1178,9 +945,7 @@ describe('Group 7: Bullet list + formatting combinations', () => {
     const result = removeAllTags(context);
 
     expect(result.isNoOp).toBe(false);
-    expect(applyReplacements(source, result.replacements)).toBe(
-      '- colored text',
-    );
+    expect(applyReplacements(source, result.replacements)).toBe('- colored text');
   });
 });
 
@@ -1196,7 +961,7 @@ describe('Group 8: Multi-line list formatting', () => {
 
     expect(result.isNoOp).toBe(false);
     expect(applyReplacements(source, result.replacements)).toBe(
-      '- **Item one**\n- **Item two**\n- **Item three**',
+      '- **Item one**\n- **Item two**\n- **Item three**'
     );
   });
 
@@ -1207,7 +972,7 @@ describe('Group 8: Multi-line list formatting', () => {
 
     expect(result.isNoOp).toBe(false);
     expect(applyReplacements(source, result.replacements)).toBe(
-      '- Item one\n- Item two\n- Item three',
+      '- Item one\n- Item two\n- Item three'
     );
   });
 
@@ -1218,7 +983,7 @@ describe('Group 8: Multi-line list formatting', () => {
 
     expect(result.isNoOp).toBe(false);
     expect(applyReplacements(source, result.replacements)).toBe(
-      '1. <u>First</u>\n2. <u>Second</u>',
+      '1. <u>First</u>\n2. <u>Second</u>'
     );
   });
 
@@ -1230,7 +995,7 @@ describe('Group 8: Multi-line list formatting', () => {
 
     expect(result.isNoOp).toBe(false);
     expect(applyReplacements(source, result.replacements)).toBe(
-      '- <span style="color: #ff0000">Item one</span>\n- <span style="color: #ff0000">Item two</span>',
+      '- <span style="color: #ff0000">Item one</span>\n- <span style="color: #ff0000">Item two</span>'
     );
   });
 
@@ -1242,9 +1007,7 @@ describe('Group 8: Multi-line list formatting', () => {
     const result = toggleTag(context, BOLD_MD_TAG);
 
     expect(result.isNoOp).toBe(false);
-    expect(applyReplacements(source, result.replacements)).toBe(
-      '- Item **one**\n- **Item** two',
-    );
+    expect(applyReplacements(source, result.replacements)).toBe('- Item **one**\n- **Item** two');
   });
 
   it('Bold on mixed bullet + plain text lines → per-line wrap', () => {
@@ -1254,7 +1017,7 @@ describe('Group 8: Multi-line list formatting', () => {
 
     expect(result.isNoOp).toBe(false);
     expect(applyReplacements(source, result.replacements)).toBe(
-      '- **Item one**\n**Plain text**\n- **Item two**',
+      '- **Item one**\n**Plain text**\n- **Item two**'
     );
   });
 
@@ -1266,7 +1029,7 @@ describe('Group 8: Multi-line list formatting', () => {
     expect(result.isNoOp).toBe(false);
     // Only line 2 gets bold added; lines 1 and 3 already have it
     expect(applyReplacements(source, result.replacements)).toBe(
-      '- **Item one**\n- **Item two**\n- **Item three**',
+      '- **Item one**\n- **Item two**\n- **Item three**'
     );
   });
 
@@ -1277,7 +1040,7 @@ describe('Group 8: Multi-line list formatting', () => {
 
     expect(result.isNoOp).toBe(false);
     expect(applyReplacements(source, result.replacements)).toBe(
-      '- [ ] *Task one*\n- [ ] *Task two*',
+      '- [ ] *Task one*\n- [ ] *Task two*'
     );
   });
 
@@ -1287,9 +1050,7 @@ describe('Group 8: Multi-line list formatting', () => {
     const result = removeAllTags(context);
 
     expect(result.isNoOp).toBe(false);
-    expect(applyReplacements(source, result.replacements)).toBe(
-      '- bold one\n- italic two',
-    );
+    expect(applyReplacements(source, result.replacements)).toBe('- bold one\n- italic two');
   });
 
   it('Highlight on multi-line callout list → per-line wrap after prefix', () => {
@@ -1298,9 +1059,7 @@ describe('Group 8: Multi-line list formatting', () => {
     const result = toggleTag(context, HIGHLIGHT_MD_TAG);
 
     expect(result.isNoOp).toBe(false);
-    expect(applyReplacements(source, result.replacements)).toBe(
-      '> ==Line one==\n> ==Line two==',
-    );
+    expect(applyReplacements(source, result.replacements)).toBe('> ==Line one==\n> ==Line two==');
   });
 
   it('Header + bullet list full selection + bold → keeps structure on every line', () => {
@@ -1310,7 +1069,7 @@ describe('Group 8: Multi-line list formatting', () => {
 
     expect(result.isNoOp).toBe(false);
     expect(applyReplacements(source, result.replacements)).toBe(
-      '## **Header line**\n- **list item one**\n- **list item two**',
+      '## **Header line**\n- **list item one**\n- **list item two**'
     );
   });
 
@@ -1321,7 +1080,7 @@ describe('Group 8: Multi-line list formatting', () => {
 
     expect(result.isNoOp).toBe(false);
     expect(applyReplacements(source, result.replacements)).toBe(
-      '- [ ] *Task one *#todo\n- [ ] *Task two *#todo',
+      '- [ ] *Task one *#todo\n- [ ] *Task two *#todo'
     );
   });
 
@@ -1332,7 +1091,7 @@ describe('Group 8: Multi-line list formatting', () => {
 
     expect(result.isNoOp).toBe(false);
     expect(applyReplacements(source, result.replacements)).toBe(
-      '- **<u>html underlined</u>**\n- **markdown bold**\n- **plain**',
+      '- **<u>html underlined</u>**\n- **markdown bold**\n- **plain**'
     );
   });
 });

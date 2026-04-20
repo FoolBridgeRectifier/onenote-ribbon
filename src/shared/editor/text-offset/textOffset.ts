@@ -1,5 +1,5 @@
 import { NEWLINE_DELIMITER } from './constants';
-import { TextIndex, TextPosition } from './interfaces';
+import type { TextIndex, TextPosition } from './interfaces';
 
 export type { TextIndex, TextPosition } from './interfaces';
 

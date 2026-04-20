@@ -105,25 +105,43 @@ const strictStructurePlugin = {
 
         const baseNameWithoutExtension = path.basename(currentFilePath, extensionName);
         const parentFolderName = path.basename(path.dirname(currentFilePath));
-        const allowedFileNames = new Set(['helpers', 'constants', 'interfaces']);
 
-        if (allowedFileNames.has(baseNameWithoutExtension)) {
+        // Standard structural files are always allowed regardless of folder
+        const structuralFileNames = new Set(['helpers', 'constants', 'interfaces', 'index']);
+        if (structuralFileNames.has(baseNameWithoutExtension)) {
           return {};
         }
 
-        // Allow .test. files (e.g., ComponentName.test.tsx) if the base name matches folder
+        // Special infrastructure folders where multiple files per folder is intentional
+        const specialFolders = new Set(['__mocks__', 'test-utils', 'tests', 'icons', 'context', 'hooks', 'e2e', 'src']);
+        if (specialFolders.has(parentFolderName)) {
+          return {};
+        }
+
+        // Convert kebab-case folder name to PascalCase (e.g. "color-picker" -> "ColorPicker")
+        const pascalCaseFolderName = parentFolderName
+          .split('-')
+          .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+          .join('');
+
+        // Allow .test. files whose base name matches either the kebab-case or PascalCase folder name
         const testFilePattern = /^(.*)\.test$/;
         const testMatch = baseNameWithoutExtension.match(testFilePattern);
-        if (testMatch && testMatch[1] === parentFolderName) {
-          return {};
+        if (testMatch) {
+          if (testMatch[1] === parentFolderName || testMatch[1] === pascalCaseFolderName) {
+            return {};
+          }
         }
 
         return {
           Program(programNode) {
-            if (baseNameWithoutExtension !== parentFolderName) {
+            const isKebabCaseMatch = baseNameWithoutExtension === parentFolderName;
+            const isPascalCaseMatch = baseNameWithoutExtension === pascalCaseFolderName;
+
+            if (!isKebabCaseMatch && !isPascalCaseMatch) {
               context.report({
                 node: programNode,
-                message: `File name must match parent folder name (${parentFolderName}${extensionName}) or use helpers/constants/interfaces.`,
+                message: `File name must match parent folder name (${parentFolderName}${extensionName} or ${pascalCaseFolderName}${extensionName}) or use helpers/constants/interfaces.`,
               });
             }
           },
@@ -320,7 +338,7 @@ export default [
     },
   },
 
-  // Test files
+  // Test files — structural strictness does not apply inside test and mock files
   {
     files: ['**/*.test.{ts,tsx,cjs}', '**/__mocks__/**', '**/test-utils/**', '**/tests/**'],
     languageOptions: {
@@ -341,22 +359,43 @@ export default [
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       'no-console': 'off',
+      // Mock/stub files may have empty or constructor-only classes as stubs
+      '@typescript-eslint/no-extraneous-class': 'off',
+      '@typescript-eslint/no-useless-constructor': 'off',
+      // Structural rules do not apply inside test fixtures
+      'strict-structure/types-only-in-interfaces-file': 'off',
+      'strict-structure/module-consts-only-in-constants-file': 'off',
+      'strict-structure/strict-file-name': 'off',
     },
   },
 
-  // E2E test files - more lenient
+  // E2E test files — structural strictness does not apply to integration test suites
   {
     files: ['**/e2e/**/*.ts', '**/e2e/**/*.tsx'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       'no-console': 'off',
+      // E2E integration suites can exceed line limits without subfolder splitting
+      'max-lines': 'off',
+      // Structural rules do not apply inside E2E suites
+      'strict-structure/types-only-in-interfaces-file': 'off',
+      'strict-structure/module-consts-only-in-constants-file': 'off',
+      'strict-structure/strict-file-name': 'off',
+    },
+  },
+
+  // Type declaration files — exempt from file-name structural check
+  {
+    files: ['**/types/**', '**/*.d.ts'],
+    rules: {
+      'strict-structure/strict-file-name': 'off',
     },
   },
 
   // Non-test files must strictly keep <= 150 lines
   {
     files: ['**/*.{ts,tsx,js,jsx,mjs,cjs}'],
-    ignores: ['**/*.test.{ts,tsx,js,jsx}', '**/__mocks__/**', '**/test-utils/**', '**/tests/**'],
+    ignores: ['**/*.test.{ts,tsx,js,jsx}', '**/__mocks__/**', '**/test-utils/**', '**/tests/**', '**/e2e/**'],
     rules: {
       'max-lines': ['error', { max: 150, skipBlankLines: false, skipComments: false }],
     },

@@ -12,15 +12,14 @@ import { HtmlTagRange } from '../enclosing-html-tags/interfaces';
 export function wrapTextWithTag(
   selectionStartOffset: number,
   selectionEndOffset: number,
-  tagDefinition: TagDefinition,
+  tagDefinition: TagDefinition
 ): TextReplacement[] {
   if (selectionStartOffset === selectionEndOffset) {
     return [
       {
         fromOffset: selectionStartOffset,
         toOffset: selectionStartOffset,
-        replacementText:
-          tagDefinition.openingMarkup + tagDefinition.closingMarkup,
+        replacementText: tagDefinition.openingMarkup + tagDefinition.closingMarkup,
       },
     ];
   }
@@ -64,10 +63,7 @@ export function unwrapTag(tagRange: HtmlTagRange): TextReplacement[] {
 // Span Tag Construction
 // ============================================================
 
-export function buildSpanTagDefinition(
-  cssProperty: string,
-  cssValue: string,
-): TagDefinition {
+export function buildSpanTagDefinition(cssProperty: string, cssValue: string): TagDefinition {
   return {
     tagName: 'span',
     domain: 'html',
@@ -91,7 +87,7 @@ const STYLE_PROPERTY_VALUE_REGEX = /^\s*([^:]+?)\s*:\s*(.+?)\s*;?\s*$/;
  * multi-property style attributes.
  */
 export function extractStylePropertyFromOpeningTag(
-  openingTagText: string,
+  openingTagText: string
 ): { propertyName: string; propertyValue: string } | null {
   const styleMatch = openingTagText.match(STYLE_ATTRIBUTE_REGEX);
 
@@ -118,7 +114,7 @@ export function extractStylePropertyFromOpeningTag(
  * Returns an empty array if the tag has no style attribute.
  */
 export function extractAllStyleProperties(
-  openingTagText: string,
+  openingTagText: string
 ): Array<{ propertyName: string; propertyValue: string }> {
   const styleMatch = openingTagText.match(STYLE_ATTRIBUTE_REGEX);
 
@@ -168,10 +164,9 @@ export function replaceOpeningTagAttribute(
   sourceText: string,
   tagRange: HtmlTagRange,
   cssProperty: string,
-  newCssValue: string,
+  newCssValue: string
 ): TextReplacement {
-  const newOpeningTag =
-    '<span style="' + cssProperty + ': ' + newCssValue + '">';
+  const newOpeningTag = '<span style="' + cssProperty + ': ' + newCssValue + '">';
 
   return {
     fromOffset: tagRange.openingTagStartOffset,
@@ -192,7 +187,7 @@ export function findOverlappingTagRanges(
   tagRanges: HtmlTagRange[],
   selectionStartOffset: number,
   selectionEndOffset: number,
-  tagName: string,
+  tagName: string
 ): HtmlTagRange[] {
   const overlapping: HtmlTagRange[] = [];
 
@@ -207,8 +202,7 @@ export function findOverlappingTagRanges(
     const contentEnd = tagRange.closingTagStartOffset;
 
     // Two ranges overlap when each starts before the other ends
-    const hasOverlap =
-      contentStart < selectionEndOffset && selectionStartOffset < contentEnd;
+    const hasOverlap = contentStart < selectionEndOffset && selectionStartOffset < contentEnd;
 
     if (hasOverlap) {
       overlapping.push(tagRange);
@@ -232,18 +226,14 @@ export function splitFormattingAroundProtectedRanges(
   selectionStartOffset: number,
   selectionEndOffset: number,
   protectedRanges: ProtectedRange[],
-  tagDefinition: TagDefinition,
+  tagDefinition: TagDefinition
 ): TextReplacement[] {
   if (protectedRanges.length === 0) {
-    return wrapTextWithTag(
-      selectionStartOffset,
-      selectionEndOffset,
-      tagDefinition,
-    );
+    return wrapTextWithTag(selectionStartOffset, selectionEndOffset, tagDefinition);
   }
 
   const sortedRanges = [...protectedRanges].sort(
-    (rangeA, rangeB) => rangeA.startOffset - rangeB.startOffset,
+    (rangeA, rangeB) => rangeA.startOffset - rangeB.startOffset
   );
 
   const allReplacements: TextReplacement[] = [];
@@ -252,8 +242,7 @@ export function splitFormattingAroundProtectedRanges(
   const gaps: Array<{ absoluteStart: number; absoluteEnd: number }> = [];
 
   // Gap before the first protected range
-  const firstProtectedAbsoluteStart =
-    selectionStartOffset + sortedRanges[0].startOffset;
+  const firstProtectedAbsoluteStart = selectionStartOffset + sortedRanges[0].startOffset;
   if (firstProtectedAbsoluteStart > selectionStartOffset) {
     gaps.push({
       absoluteStart: selectionStartOffset,
@@ -263,10 +252,8 @@ export function splitFormattingAroundProtectedRanges(
 
   // Gaps between consecutive protected ranges
   for (let gapIndex = 0; gapIndex < sortedRanges.length - 1; gapIndex++) {
-    const currentRangeAbsoluteEnd =
-      selectionStartOffset + sortedRanges[gapIndex].endOffset;
-    const nextRangeAbsoluteStart =
-      selectionStartOffset + sortedRanges[gapIndex + 1].startOffset;
+    const currentRangeAbsoluteEnd = selectionStartOffset + sortedRanges[gapIndex].endOffset;
+    const nextRangeAbsoluteStart = selectionStartOffset + sortedRanges[gapIndex + 1].startOffset;
 
     if (nextRangeAbsoluteStart > currentRangeAbsoluteEnd) {
       gaps.push({
@@ -278,8 +265,7 @@ export function splitFormattingAroundProtectedRanges(
 
   // Gap after the last protected range
   const lastSortedRange = sortedRanges[sortedRanges.length - 1];
-  const lastProtectedAbsoluteEnd =
-    selectionStartOffset + lastSortedRange.endOffset;
+  const lastProtectedAbsoluteEnd = selectionStartOffset + lastSortedRange.endOffset;
   if (lastProtectedAbsoluteEnd < selectionEndOffset) {
     gaps.push({
       absoluteStart: lastProtectedAbsoluteEnd,
@@ -290,18 +276,13 @@ export function splitFormattingAroundProtectedRanges(
   // Generate wrap replacements for each gap
   for (let gapIndex = 0; gapIndex < gaps.length; gapIndex++) {
     const gap = gaps[gapIndex];
-    const wrapReplacements = wrapTextWithTag(
-      gap.absoluteStart,
-      gap.absoluteEnd,
-      tagDefinition,
-    );
+    const wrapReplacements = wrapTextWithTag(gap.absoluteStart, gap.absoluteEnd, tagDefinition);
     allReplacements.push(...wrapReplacements);
   }
 
   // Sort all replacements in last-to-first offset order for safe sequential apply
   allReplacements.sort(
-    (replacementA, replacementB) =>
-      replacementB.fromOffset - replacementA.fromOffset,
+    (replacementA, replacementB) => replacementB.fromOffset - replacementA.fromOffset
   );
 
   return allReplacements;

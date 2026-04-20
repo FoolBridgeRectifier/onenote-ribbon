@@ -4,48 +4,8 @@ import { useApp } from '../../../../shared/context/AppContext';
 import { Dropdown } from '../../../../shared/components/dropdown/Dropdown';
 import { RibbonButton } from '../../../../shared/components/ribbon-button/RibbonButton';
 import { applyFontFamily, applyFontSize } from './helpers';
-import type { EditorState } from '../../../../shared/hooks/useEditorState';
-
-const FONTS = [
-  'Arial',
-  'Arial Black',
-  'Book Antiqua',
-  'Calibri',
-  'Comic Sans MS',
-  'Courier New',
-  'Franklin Gothic Medium',
-  'Georgia',
-  'Helvetica',
-  'Impact',
-  'Palatino',
-  'Tahoma',
-  'Times New Roman',
-  'Trebuchet MS',
-  'Verdana',
-];
-
-const SIZES = [
-  '8',
-  '9',
-  '10',
-  '11',
-  '12',
-  '14',
-  '16',
-  '18',
-  '20',
-  '22',
-  '24',
-  '26',
-  '28',
-  '36',
-  '48',
-  '72',
-];
-
-interface FontPickerProps {
-  editorState: EditorState;
-}
+import type { FontPickerProps } from './interfaces';
+import { FONTS, SIZES } from './constants';
 
 export function FontPicker({ editorState }: FontPickerProps) {
   const app = useApp();

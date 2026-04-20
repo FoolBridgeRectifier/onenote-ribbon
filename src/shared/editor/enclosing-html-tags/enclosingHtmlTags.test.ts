@@ -1,8 +1,9 @@
+import type {
+  TextPosition} from './EnclosingHtmlTags';
 import {
   createEnclosingHtmlTagFinder,
-  getEnclosingHtmlTagNames,
-  TextPosition,
-} from './enclosingHtmlTags';
+  getEnclosingHtmlTagNames
+} from './EnclosingHtmlTags';
 
 function createPosition(line: number, ch: number): TextPosition {
   return { line, ch };
@@ -272,3 +273,4 @@ describe('enclosingHtmlTags', () => {
     expect(tagNames).toEqual(['sup', 'div']);
   });
 });
+

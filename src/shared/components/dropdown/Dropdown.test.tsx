@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Dropdown } from './Dropdown';
 import type { DropdownItem } from './interfaces';

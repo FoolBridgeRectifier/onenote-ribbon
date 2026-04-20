@@ -1,7 +1,4 @@
-interface IconProps {
-  className?: string;
-}
-
+import type { IconProps } from './interfaces';
 export function QuestionTagIcon({ className }: IconProps) {
   return (
     <svg viewBox="0 0 16 16" className={className}>

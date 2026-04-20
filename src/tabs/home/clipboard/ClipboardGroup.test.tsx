@@ -3,7 +3,7 @@ import { fireEvent } from '@testing-library/react';
 import { useFormatPainter } from '../../../shared/hooks/useFormatPainter';
 import { createAppWithEditor } from '../../../test-utils/mockApp';
 import { renderWithApp } from '../../../test-utils/renderWithApp';
-import { ClipboardGroup } from './ClipboardGroup';
+import { ClipboardGroup } from './Clipboard';
 
 jest.mock('../../../shared/hooks/useFormatPainter', () => ({
   useFormatPainter: jest.fn(),

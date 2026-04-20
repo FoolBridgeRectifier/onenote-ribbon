@@ -25,11 +25,14 @@ export function StylesGroup() {
   const getEditor = () => app.workspace.activeEditor?.editor;
 
   // Determine which style is currently active based on editor state
-  const isStyleActive = useCallback((style: StyleEntry) => {
-    if (style.level > 0) return editorState.headLevel === style.level;
-    if (style.level === 0 && !style.type) return editorState.headLevel === 0;
-    return false;
-  }, [editorState.headLevel]);
+  const isStyleActive = useCallback(
+    (style: StyleEntry) => {
+      if (style.level > 0) return editorState.headLevel === style.level;
+      if (style.level === 0 && !style.type) return editorState.headLevel === 0;
+      return false;
+    },
+    [editorState.headLevel]
+  );
 
   // Auto-scroll the visible style window to keep the active heading in view
   useEffect(() => {
@@ -71,7 +74,7 @@ export function StylesGroup() {
 
     // Heading 1-6 — Obsidian uses "set-heading" not "toggle-heading"
     (app as unknown as AppWithCommands).commands.executeCommandById(
-      `editor:set-heading-${style.level}`,
+      `editor:set-heading-${style.level}`
     );
   };
 
@@ -179,15 +182,10 @@ export function StylesGroup() {
                     setExpandOpen(false);
                   }}
                 >
-                  <span className={`onr-dd-label ${levelClass(style)}`}>
-                    {style.name}
-                  </span>
+                  <span className={`onr-dd-label ${levelClass(style)}`}>{style.name}</span>
                 </div>
               ))}
-              <div
-                className="onr-clear-formatting-btn"
-                onClick={handleClearFormatting}
-              >
+              <div className="onr-clear-formatting-btn" onClick={handleClearFormatting}>
                 <ClearFormattingIcon className="onr-clear-formatting-icon" />
                 <span>Clear Formatting</span>
               </div>

@@ -1,7 +1,9 @@
-import React from 'react';
-import { render, RenderOptions } from '@testing-library/react';
-import { Plugin } from 'obsidian';
-import { AppContext, AppWithCommands } from '../shared/context/AppContext';
+import * as React from 'react';
+import type { RenderOptions } from '@testing-library/react';
+import { render } from '@testing-library/react';
+import type { Plugin } from 'obsidian';
+import type { AppWithCommands } from '../shared/context/AppContext';
+import { AppContext } from '../shared/context/AppContext';
 import { PluginContext } from '../shared/context/PluginContext';
 import type { MockApp, MockPlugin } from './mockApp';
 
@@ -12,7 +14,7 @@ type RenderWithAppOptions = Omit<RenderOptions, 'wrapper'> & {
 export function renderWithApp(
   component: React.ReactElement,
   app: MockApp,
-  options?: RenderWithAppOptions,
+  options?: RenderWithAppOptions
 ) {
   const { plugin, ...renderOptions } = options ?? {};
 
@@ -38,4 +40,3 @@ export function renderWithApp(
 
   return render(component, { wrapper, ...renderOptions });
 }
-

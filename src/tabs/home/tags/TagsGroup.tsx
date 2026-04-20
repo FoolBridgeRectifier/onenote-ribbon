@@ -97,7 +97,7 @@ export function TagsGroup() {
     (key) =>
       key !== ACTIVE_TAG_KEY_TASK &&
       key !== ACTIVE_TAG_KEY_HIGHLIGHT &&
-      !key.startsWith('task-prefix:'),
+      !key.startsWith('task-prefix:')
   );
 
   // Build the displayed tag list by merging custom tags before the footer items
@@ -145,7 +145,7 @@ export function TagsGroup() {
     applyTag(
       editor,
       { type: 'callout', calloutType: 'important', calloutTitle: 'Important' },
-      executeCommand,
+      executeCommand
     );
   };
 
@@ -161,14 +161,14 @@ export function TagsGroup() {
     applyTag(
       editor,
       { type: 'callout', calloutType: 'question', calloutTitle: 'Question' },
-      executeCommand,
+      executeCommand
     );
   };
 
   const handleFindTags = () => {
     executeCommand('global-search:open');
     const searchInputElement = document.querySelector(
-      'input[placeholder*="Search"]',
+      'input[placeholder*="Search"]'
     ) as HTMLInputElement | null;
     if (searchInputElement) {
       searchInputElement.value = '#';
@@ -271,9 +271,7 @@ export function TagsGroup() {
             <span className="onr-tag-label">Important</span>
             <span
               className={
-                activeTagKeys.has('Important')
-                  ? 'onr-tag-cb onr-tag-cb--checked'
-                  : 'onr-tag-cb'
+                activeTagKeys.has('Important') ? 'onr-tag-cb onr-tag-cb--checked' : 'onr-tag-cb'
               }
               aria-hidden="true"
             />
@@ -289,9 +287,7 @@ export function TagsGroup() {
             <span className="onr-tag-label">Question</span>
             <span
               className={
-                activeTagKeys.has('Question')
-                  ? 'onr-tag-cb onr-tag-cb--checked'
-                  : 'onr-tag-cb'
+                activeTagKeys.has('Question') ? 'onr-tag-cb onr-tag-cb--checked' : 'onr-tag-cb'
               }
               aria-hidden="true"
             />
@@ -334,8 +330,7 @@ export function TagsGroup() {
 
                 // "Remove Tag" disabled state is dynamic — depends on active callout
                 const isEffectivelyDisabled =
-                  tagDefinition.isDisabled ||
-                  (tagDefinition.isRemoveTag && !canRemoveTag);
+                  tagDefinition.isDisabled || (tagDefinition.isRemoveTag && !canRemoveTag);
 
                 // Whether this tag is currently active at the cursor
                 const isChecked =
@@ -344,8 +339,7 @@ export function TagsGroup() {
                   activeTagKeys.has(tagDefinition.calloutKey);
 
                 // Footer items ("Customize Tags…", "Remove Tag") don't get a checkbox
-                const showCheckbox =
-                  !tagDefinition.isCustomizeTags && !tagDefinition.isRemoveTag;
+                const showCheckbox = !tagDefinition.isCustomizeTags && !tagDefinition.isRemoveTag;
 
                 return (
                   <div
@@ -360,22 +354,16 @@ export function TagsGroup() {
                     title={tagDefinition.label}
                   >
                     {/* Small colored tag icon */}
-                    <span className="onr-tags-dd-icon">
-                      {tagDefinition.icon}
-                    </span>
+                    <span className="onr-tags-dd-icon">{tagDefinition.icon}</span>
 
                     {/* Tag label text */}
-                    <span className="onr-tags-dd-label">
-                      {tagDefinition.label}
-                    </span>
+                    <span className="onr-tags-dd-label">{tagDefinition.label}</span>
 
                     {/* Right-side checkbox: checked when cursor is inside this tag type */}
                     {showCheckbox && (
                       <span
                         className={
-                          isChecked
-                            ? 'onr-tags-dd-cb onr-tags-dd-cb--checked'
-                            : 'onr-tags-dd-cb'
+                          isChecked ? 'onr-tags-dd-cb onr-tags-dd-cb--checked' : 'onr-tags-dd-cb'
                         }
                         aria-hidden="true"
                       />

@@ -24,7 +24,7 @@ async function testNoEditorScenario(): Promise<SuiteTestResult[]> {
     for (const button of buttons) {
       button.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     }
-  } catch (error) {
+  } catch (_error) {
     noEditorPass = false;
   }
 
@@ -125,7 +125,7 @@ async function testEmptyContent(): Promise<SuiteTestResult[]> {
       boldButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
       await wait(50);
       testPassed = true;
-    } catch (error) {
+    } catch (_error) {
       testPassed = false;
     }
   }
@@ -160,7 +160,7 @@ async function testLongContent(): Promise<SuiteTestResult[]> {
         await wait(10);
       }
       testPassed = true;
-    } catch (error) {
+    } catch (_error) {
       testPassed = false;
     }
   }
@@ -239,7 +239,7 @@ async function testMultipleCursors(): Promise<SuiteTestResult[]> {
         await wait(20);
       }
       testPassed = true;
-    } catch (error) {
+    } catch (_error) {
       testPassed = false;
     }
   }
@@ -255,8 +255,8 @@ async function testMultipleCursors(): Promise<SuiteTestResult[]> {
  * Tests error recovery.
  */
 async function testErrorRecovery(): Promise<SuiteTestResult[]> {
-  // Simulate various error conditions
-  let recovered = true;
+  // Simulate various error conditions — set by try or catch before being read
+  let recovered: boolean;
 
   try {
     // Try to access non-existent elements
@@ -277,7 +277,7 @@ async function testErrorRecovery(): Promise<SuiteTestResult[]> {
 
     // Verify ribbon still works
     recovered = !!document.querySelector('.onr-ribbon');
-  } catch (error) {
+  } catch (_error) {
     recovered = false;
   }
 
@@ -293,7 +293,9 @@ async function testErrorRecovery(): Promise<SuiteTestResult[]> {
  */
 async function testMemoryLeaks(): Promise<SuiteTestResult[]> {
   // Open and close dropdowns multiple times
-  const dropdownTriggers = document.querySelectorAll('[data-cmd*="dropdown"], [data-cmd="styles-expand"], [data-cmd="more-tags"]');
+  const dropdownTriggers = document.querySelectorAll(
+    '[data-cmd*="dropdown"], [data-cmd="styles-expand"], [data-cmd="more-tags"]'
+  );
 
   for (let iteration = 0; iteration < 20; iteration++) {
     for (const trigger of dropdownTriggers) {
@@ -326,16 +328,16 @@ async function testMemoryLeaks(): Promise<SuiteTestResult[]> {
 export async function edgeCasesIntegrationTest(): Promise<SuiteTestResult[]> {
   const results: SuiteTestResult[] = [];
 
-  results.push(...await testNoEditorScenario());
-  results.push(...await testCollapsedRibbon());
-  results.push(...await testRapidTabSwitching());
-  results.push(...await testEmptyContent());
-  results.push(...await testLongContent());
-  results.push(...await testSpecialCharacters());
-  results.push(...await testUnicode());
-  results.push(...await testMultipleCursors());
-  results.push(...await testErrorRecovery());
-  results.push(...await testMemoryLeaks());
+  results.push(...(await testNoEditorScenario()));
+  results.push(...(await testCollapsedRibbon()));
+  results.push(...(await testRapidTabSwitching()));
+  results.push(...(await testEmptyContent()));
+  results.push(...(await testLongContent()));
+  results.push(...(await testSpecialCharacters()));
+  results.push(...(await testUnicode()));
+  results.push(...(await testMultipleCursors()));
+  results.push(...(await testErrorRecovery()));
+  results.push(...(await testMemoryLeaks()));
 
   return results;
 }

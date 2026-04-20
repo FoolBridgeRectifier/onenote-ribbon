@@ -1,5 +1,5 @@
 import { MockEditor } from '../../../../test-utils/MockEditor';
-import { toggleInlineTodoTag } from './toggleInlineTodoTag';
+import { toggleInlineTodoTag } from './helpers';
 
 describe('toggleInlineTodoTag', () => {
   it('inserts #todo at cursor when no #todo exists at cursor', () => {

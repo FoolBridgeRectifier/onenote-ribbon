@@ -1,4 +1,4 @@
-import { detectStructureContext } from './structureDetection';
+import { detectStructureContext } from './structure-detection/StructureDetection';
 
 describe('structureDetection', () => {
 

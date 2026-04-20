@@ -23,7 +23,7 @@ export async function clipboardIntegrationTest(): Promise<SuiteTestResult[]> {
     clickByCommand('paste-dropdown');
     await wait(120);
 
-    const dropdownItemTexts = Array.from(
+    const _dropdownItemTexts = Array.from(
       document.querySelectorAll('.onr-dd-item'),
     )
       .map((itemElement) => (itemElement.textContent || '').trim())

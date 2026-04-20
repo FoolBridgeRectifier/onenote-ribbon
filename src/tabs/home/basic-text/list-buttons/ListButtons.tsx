@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import './list-buttons.css';
 import { useApp } from '../../../../shared/context/AppContext';
 import {
@@ -11,8 +11,8 @@ import { RibbonButton } from '../../../../shared/components/ribbon-button/Ribbon
 import { BulletLibrary } from './bullet-library/BulletLibrary';
 import { NumberLibrary } from './number-library/NumberLibrary';
 import { useListStyleInjection } from '../../../../shared/hooks/useListStyleInjection';
-import type { EditorState } from '../../../../shared/hooks/useEditorState';
-import { canSafelyIndent } from './canSafelyIndent';
+import type { ListButtonsProps } from './interfaces';
+import { canSafelyIndent } from './helpers';
 import {
   LIST_BTN_CMD_BULLET_TOGGLE,
   LIST_BTN_CMD_BULLET_CARET,
@@ -27,10 +27,6 @@ import {
   BULLET_PRESET_NONE_ID,
   NUMBER_PRESET_NONE_ID,
 } from './constants';
-
-interface ListButtonsProps {
-  editorState: Pick<EditorState, 'bulletList' | 'numberedList'>;
-}
 
 export function ListButtons({ editorState }: ListButtonsProps) {
   const app = useApp();
@@ -49,16 +45,11 @@ export function ListButtons({ editorState }: ListButtonsProps) {
   const [lastNumberPresetId, setLastNumberPresetId] = useState(numberPresetId);
 
   const handleBulletToggle = () => {
-    // Re-apply the last chosen bullet preset so the new list uses it immediately.
-    if (lastBulletPresetId !== BULLET_PRESET_NONE_ID) {
-      setBulletPreset(lastBulletPresetId);
-    }
-
+    if (lastBulletPresetId !== BULLET_PRESET_NONE_ID) setBulletPreset(lastBulletPresetId);
     app.commands.executeCommandById(OBSIDIAN_CMD_TOGGLE_BULLET_LIST);
   };
 
   const handleBulletCaretClick = () => {
-    // Close the other library before opening this one.
     setNumberLibraryOpen(false);
     setBulletLibraryOpen((isOpen) => !isOpen);
   };
@@ -69,16 +60,11 @@ export function ListButtons({ editorState }: ListButtonsProps) {
   };
 
   const handleNumberToggle = () => {
-    // Re-apply the last chosen number preset so the new list uses it immediately.
-    if (lastNumberPresetId !== NUMBER_PRESET_NONE_ID) {
-      setNumberPreset(lastNumberPresetId);
-    }
-
+    if (lastNumberPresetId !== NUMBER_PRESET_NONE_ID) setNumberPreset(lastNumberPresetId);
     app.commands.executeCommandById(OBSIDIAN_CMD_TOGGLE_NUMBER_LIST);
   };
 
   const handleNumberCaretClick = () => {
-    // Close the other library before opening this one.
     setBulletLibraryOpen(false);
     setNumberLibraryOpen((isOpen) => !isOpen);
   };
@@ -94,16 +80,12 @@ export function ListButtons({ editorState }: ListButtonsProps) {
 
   const handleIndent = () => {
     const editor = app.workspace.activeEditor?.editor;
-
-    // Block indent when it would create an invalid depth gap in list structure
     if (editor && !canSafelyIndent(editor)) return;
-
     app.commands.executeCommandById(OBSIDIAN_CMD_INDENT_LIST);
   };
 
   return (
     <>
-      {/* Bullet list button: icon above, caret below — same layout as highlight/color buttons */}
       <div className="onr-list-btn-wrapper" ref={bulletAnchorRef}>
         <RibbonButton
           className="onr-list-main-btn"
@@ -126,7 +108,6 @@ export function ListButtons({ editorState }: ListButtonsProps) {
         </RibbonButton>
       </div>
 
-      {/* Number list button: icon above, caret below */}
       <div className="onr-list-btn-wrapper" ref={numberAnchorRef}>
         <RibbonButton
           className="onr-list-main-btn"
@@ -149,42 +130,20 @@ export function ListButtons({ editorState }: ListButtonsProps) {
         </RibbonButton>
       </div>
 
-      {/* Outdent button */}
-      <RibbonButton
-        data-cmd={LIST_BTN_CMD_OUTDENT}
-        title="Decrease indent"
-        onClick={handleOutdent}
-      >
+      <RibbonButton data-cmd={LIST_BTN_CMD_OUTDENT} title="Decrease indent" onClick={handleOutdent}>
         <OutdentIcon className="onr-icon-sm" />
       </RibbonButton>
 
-      {/* Indent button */}
-      <RibbonButton
-        data-cmd={LIST_BTN_CMD_INDENT}
-        title="Increase indent"
-        onClick={handleIndent}
-      >
+      <RibbonButton data-cmd={LIST_BTN_CMD_INDENT} title="Increase indent" onClick={handleIndent}>
         <IndentIcon className="onr-icon-sm" />
       </RibbonButton>
 
-      {/* Bullet Library dropdown (portal) */}
       {bulletLibraryOpen && (
-        <BulletLibrary
-          anchor={bulletAnchorRef.current}
-          activePresetId={bulletPresetId}
-          onSelectPreset={handleBulletPresetSelect}
-          onClose={() => setBulletLibraryOpen(false)}
-        />
+        <BulletLibrary anchor={bulletAnchorRef.current} activePresetId={bulletPresetId} onSelectPreset={handleBulletPresetSelect} onClose={() => setBulletLibraryOpen(false)} />
       )}
 
-      {/* Number Library dropdown (portal) */}
       {numberLibraryOpen && (
-        <NumberLibrary
-          anchor={numberAnchorRef.current}
-          activePresetId={numberPresetId}
-          onSelectPreset={handleNumberPresetSelect}
-          onClose={() => setNumberLibraryOpen(false)}
-        />
+        <NumberLibrary anchor={numberAnchorRef.current} activePresetId={numberPresetId} onSelectPreset={handleNumberPresetSelect} onClose={() => setNumberLibraryOpen(false)} />
       )}
     </>
   );

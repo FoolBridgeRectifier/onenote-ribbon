@@ -1,5 +1,5 @@
-import { levelClass } from '../levelClass';
-import type { StyleEntry } from '../../styles-data';
+import { levelClass } from '../LevelClass';
+import type { StyleEntry } from '../../interfaces';
 
 const normal: StyleEntry     = { name: 'Normal',    level: 0 };
 const heading1: StyleEntry   = { name: 'Heading 1', level: 1 };

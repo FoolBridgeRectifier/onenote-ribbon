@@ -5,7 +5,7 @@ import {
   createMockApp,
 } from '../../../test-utils/mockApp';
 import { renderWithApp } from '../../../test-utils/renderWithApp';
-import { EmailGroup } from './EmailGroup';
+import { EmailGroup } from './Email';
 import * as helpers from './helpers';
 
 jest.mock('./helpers', () => ({

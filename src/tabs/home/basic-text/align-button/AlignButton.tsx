@@ -4,32 +4,16 @@ import { AlignLeftIcon, AlignCenterIcon, AlignRightIcon } from '../../../../asse
 import { useApp } from '../../../../shared/context/AppContext';
 import { RibbonButton } from '../../../../shared/components/ribbon-button/RibbonButton';
 import { Dropdown } from '../../../../shared/components/dropdown/Dropdown';
-import { convertMarkdownTokensToHtml } from '../../../../shared/editor/styling-engine/markdownToHtmlConversion';
-import type { EditorState } from '../../../../shared/hooks/useEditorState';
-
-type TextAlign = 'left' | 'center' | 'right';
-
-const ALIGNMENT_OPTIONS: Array<{ value: TextAlign; label: string }> = [
-  { value: 'left', label: 'Align Left' },
-  { value: 'center', label: 'Align Center' },
-  { value: 'right', label: 'Align Right' },
-];
-
-// Matches alignment spans: <span style="display:inline-block;width:100%;vertical-align:top;text-align: VALUE"> ... </span>
-// optionally preceded by a heading prefix.
-const ALIGN_SPAN_PATTERN = /^(#{1,6}\s)?<span style="display:inline-block;width:100%;vertical-align:top;text-align:\s*(\w+)">(.*)<\/span>$/;
-
-// Legacy: matches old <div style="text-align: VALUE"> for backward-compatible reading
-const LEGACY_ALIGN_DIV_PATTERN = /^(#{1,6}\s)?<div style="text-align:\s*(\w+)">(.*)<\/div>$/;
-
-// Legacy: matches old inline-block span WITHOUT vertical-align:top for backward-compatible reading
-const LEGACY_ALIGN_INLINE_BLOCK_SPAN_PATTERN = /^(#{1,6}\s)?<span style="display:inline-block;width:100%;text-align:\s*(\w+)">(.*)<\/span>$/;
-
-// Legacy: matches old display:block span format for backward-compatible reading
-const LEGACY_ALIGN_BLOCK_SPAN_PATTERN = /^(#{1,6}\s)?<span style="display:block;text-align:\s*(\w+)">(.*)<\/span>$/;
-
-// Matches a heading prefix (e.g., "## ") at the start of a line
-const HEADING_PREFIX_PATTERN = /^(#{1,6}\s)/;
+import { convertMarkdownTokensToHtml } from '../../../../shared/editor/styling-engine/markdown-to-html-conversion/MarkdownToHtmlConversion';
+import type { AlignButtonProps, TextAlign } from './interfaces';
+import {
+  ALIGNMENT_OPTIONS,
+  ALIGN_SPAN_PATTERN,
+  LEGACY_ALIGN_DIV_PATTERN,
+  LEGACY_ALIGN_INLINE_BLOCK_SPAN_PATTERN,
+  LEGACY_ALIGN_BLOCK_SPAN_PATTERN,
+  HEADING_PREFIX_PATTERN,
+} from './constants';
 
 /**
  * Tries to match the line against both the new span pattern and the
@@ -104,10 +88,6 @@ function applyAlignment(
       `${prefix}<span style="display:inline-block;width:100%;vertical-align:top;text-align: ${alignment}">${convertedContent}</span>`,
     );
   }
-}
-
-interface AlignButtonProps {
-  editorState: EditorState;
 }
 
 export function AlignButton({ editorState }: AlignButtonProps) {

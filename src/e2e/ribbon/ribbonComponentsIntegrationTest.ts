@@ -165,7 +165,7 @@ async function testBodyToggle(): Promise<SuiteTestResult[]> {
 
   // Get initial state
   const bodyBefore = document.querySelector('.onr-body');
-  const wasVisible = !!bodyBefore;
+  const _wasVisible = !!bodyBefore;
 
   // Toggle collapse
   pinButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -231,7 +231,7 @@ async function testKeyboardNavigation(): Promise<SuiteTestResult[]> {
 async function testResponsiveLayout(): Promise<SuiteTestResult[]> {
   const ribbon = document.querySelector('.onr-ribbon');
   const tabBar = document.querySelector('.onr-tab-bar');
-  const body = document.querySelector('.onr-body');
+  const _body = document.querySelector('.onr-body');
 
   // Check that elements have proper layout classes
   const hasProperStructure = !!ribbon && !!tabBar;

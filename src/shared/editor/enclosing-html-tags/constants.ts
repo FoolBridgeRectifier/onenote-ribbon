@@ -1,4 +1,4 @@
-import { MarkdownTagPatternDefinition } from './interfaces';
+import type { MarkdownTagPatternDefinition } from './interfaces';
 
 export const NEWLINE_DELIMITER = '\n';
 export const CLOSING_TAG_PREFIX = '</';

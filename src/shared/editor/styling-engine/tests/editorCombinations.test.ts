@@ -1,34 +1,29 @@
 import { MockEditor } from '../../../../test-utils/MockEditor';
 
+import type { ObsidianEditor } from '../interfaces';
+import { buildStylingContextFromEditor } from '../editor-integration/EditorIntegration';
 import {
-  buildStylingContextFromEditor,
-  applyStylingResult,
   toggleTagInEditor,
   addTagInEditor,
   removeTagInEditor,
   removeAllTagsInEditor,
   copyFormatFromEditor,
-  ObsidianEditor,
-} from '../editorIntegration';
+} from '../editor-integration/helpers';
 
 import {
   UNDERLINE_TAG,
   BOLD_MD_TAG,
   ITALIC_MD_TAG,
-  BOLD_HTML_TAG,
-  ITALIC_HTML_TAG,
   SUBSCRIPT_TAG,
   SUPERSCRIPT_TAG,
   STRIKETHROUGH_MD_TAG,
   HIGHLIGHT_MD_TAG,
+  BOLD_HTML_TAG,
 } from '../constants';
 
-import { buildSpanTagDefinition } from '../tagManipulation';
+import { buildSpanTagDefinition } from '../tag-manipulation/TagManipulation';
 
-import {
-  createEnclosingHtmlTagFinder,
-  HtmlTagRange,
-} from '../../enclosing-html-tags/enclosingHtmlTags';
+import { createEnclosingHtmlTagFinder } from '../../enclosing-html-tags/EnclosingHtmlTags';
 
 import { extractSpanAndDivState } from '../../../hooks/useEditorState';
 
@@ -40,9 +35,7 @@ import { extractSpanAndDivState } from '../../../hooks/useEditorState';
  * Creates a mock editor that satisfies the ObsidianEditor interface.
  * Wraps MockEditor to add getCursor(which) and transaction() support.
  */
-function createTestEditor(
-  content: string,
-): ObsidianEditor & { transaction: jest.Mock } {
+function createTestEditor(content: string): ObsidianEditor & { transaction: jest.Mock } {
   const innerEditor = new MockEditor();
   innerEditor.setValue(content);
 
@@ -97,10 +90,7 @@ function createTestEditor(
       innerEditor.setCursor(position);
     },
 
-    setSelection(
-      from: { line: number; ch: number },
-      to: { line: number; ch: number },
-    ): void {
+    setSelection(from: { line: number; ch: number }, to: { line: number; ch: number }): void {
       selectionFrom = { ...from };
       selectionTo = { ...to };
       innerEditor.setSelection(from, to);
@@ -115,9 +105,7 @@ function createTestEditor(
  * After toggleTagInEditor/addTagInEditor mutate the underlying content,
  * we need to rebuild the editor so subsequent operations see the new text.
  */
-function rebuildEditor(
-  editor: ObsidianEditor,
-): ObsidianEditor & { transaction: jest.Mock } {
+function rebuildEditor(editor: ObsidianEditor): ObsidianEditor & { transaction: jest.Mock } {
   return createTestEditor(editor.getValue());
 }
 
@@ -130,9 +118,7 @@ function selectSubstring(editor: ObsidianEditor, substring: string): void {
   const startIndex = content.indexOf(substring);
 
   if (startIndex === -1) {
-    throw new Error(
-      `Substring "${substring}" not found in content "${content}"`,
-    );
+    throw new Error(`Substring "${substring}" not found in content "${content}"`);
   }
 
   // Convert flat offset to line/ch — simple approach for single-line text
@@ -142,10 +128,7 @@ function selectSubstring(editor: ObsidianEditor, substring: string): void {
   for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
     const lineLength = lines[lineIndex].length;
 
-    if (
-      startIndex >= currentOffset &&
-      startIndex <= currentOffset + lineLength
-    ) {
+    if (startIndex >= currentOffset && startIndex <= currentOffset + lineLength) {
       const startCh = startIndex - currentOffset;
       const endOffset = startIndex + substring.length;
 
@@ -169,10 +152,7 @@ function selectSubstring(editor: ObsidianEditor, substring: string): void {
         }
       }
 
-      editor.setSelection(
-        { line: lineIndex, ch: startCh },
-        { line: endLine, ch: endCh },
-      );
+      editor.setSelection({ line: lineIndex, ch: startCh }, { line: endLine, ch: endCh });
       return;
     }
 
@@ -324,32 +304,26 @@ describe('Group 2: Copy format + apply format pipeline', () => {
     expect(copiedFormat).not.toBeNull();
     expect(copiedFormat!.domain).toBe('html');
 
-    const tagNames = copiedFormat!.tagDefinitions.map(
-      (tagDefinition) => tagDefinition.tagName,
-    );
+    const tagNames = copiedFormat!.tagDefinitions.map((tagDefinition) => tagDefinition.tagName);
     expect(tagNames).toContain('b');
     expect(tagNames).toContain('i');
   });
 
   it('copies underline + font color from formatted text', () => {
-    const editor = createTestEditor(
-      '<u><span style="color: red">colored</span></u>',
-    );
+    const editor = createTestEditor('<u><span style="color: red">colored</span></u>');
     selectSubstring(editor, 'colored');
 
     const copiedFormat = copyFormatFromEditor(editor);
 
     expect(copiedFormat).not.toBeNull();
 
-    const tagNames = copiedFormat!.tagDefinitions.map(
-      (tagDefinition) => tagDefinition.tagName,
-    );
+    const tagNames = copiedFormat!.tagDefinitions.map((tagDefinition) => tagDefinition.tagName);
     expect(tagNames).toContain('u');
     expect(tagNames).toContain('span');
 
     // Verify the span tag has the color attribute
     const spanTag = copiedFormat!.tagDefinitions.find(
-      (tagDefinition) => tagDefinition.tagName === 'span',
+      (tagDefinition) => tagDefinition.tagName === 'span'
     );
     expect(spanTag).toBeDefined();
     expect(spanTag!.attributes).toBeDefined();
@@ -397,9 +371,7 @@ describe('Group 2: Copy format + apply format pipeline', () => {
 
 describe('Group 3: removeAllTags on complex formatting', () => {
   it('removes all nested tags: bold + italic + underline + font-color', () => {
-    const editor = createTestEditor(
-      '<span style="color: red"><u><b><i>text</i></b></u></span>',
-    );
+    const editor = createTestEditor('<span style="color: red"><u><b><i>text</i></b></u></span>');
     selectSubstring(editor, 'text');
 
     removeAllTagsInEditor(editor);
@@ -427,7 +399,7 @@ describe('Group 3: removeAllTags on complex formatting', () => {
 
   it('removes all formatting from multi-nested HTML tags', () => {
     const editor = createTestEditor(
-      '<span style="font-size: 14pt"><span style="color: blue"><b>styled</b></span></span>',
+      '<span style="font-size: 14pt"><span style="color: blue"><b>styled</b></span></span>'
     );
     selectSubstring(editor, 'styled');
 
@@ -494,7 +466,7 @@ describe('Group 4: Editor state derivation via tag finder + extractSpanAndDivSta
       tagRanges,
       sourceText,
       defaults.defaultFontFamily,
-      defaults.defaultFontSize,
+      defaults.defaultFontSize
     );
 
     expect(spanState.fontColor).toBe('red');
@@ -515,7 +487,7 @@ describe('Group 4: Editor state derivation via tag finder + extractSpanAndDivSta
       tagRanges,
       sourceText,
       defaults.defaultFontFamily,
-      defaults.defaultFontSize,
+      defaults.defaultFontSize
     );
 
     expect(spanState.fontFamily).toBe('Courier');
@@ -533,14 +505,15 @@ describe('Group 4: Editor state derivation via tag finder + extractSpanAndDivSta
       tagRanges,
       sourceText,
       defaults.defaultFontFamily,
-      defaults.defaultFontSize,
+      defaults.defaultFontSize
     );
 
     expect(spanState.textAlign).toBe('center');
   });
 
   it('detects text-align from alignment span with display:inline-block', () => {
-    const sourceText = '<span style="display:inline-block;width:100%;vertical-align:top;text-align: center">centered text</span>';
+    const sourceText =
+      '<span style="display:inline-block;width:100%;vertical-align:top;text-align: center">centered text</span>';
     const finder = createEnclosingHtmlTagFinder(sourceText);
     const tagRanges = finder.getEnclosingTagRanges({
       cursorPosition: { line: 0, ch: 88 },
@@ -550,14 +523,15 @@ describe('Group 4: Editor state derivation via tag finder + extractSpanAndDivSta
       tagRanges,
       sourceText,
       defaults.defaultFontFamily,
-      defaults.defaultFontSize,
+      defaults.defaultFontSize
     );
 
     expect(spanState.textAlign).toBe('center');
   });
 
   it('detects text-align from alignment span inside heading', () => {
-    const sourceText = '## <span style="display:inline-block;width:100%;vertical-align:top;text-align: right">heading text</span>';
+    const sourceText =
+      '## <span style="display:inline-block;width:100%;vertical-align:top;text-align: right">heading text</span>';
     const finder = createEnclosingHtmlTagFinder(sourceText);
     const tagRanges = finder.getEnclosingTagRanges({
       cursorPosition: { line: 0, ch: 92 },
@@ -567,7 +541,7 @@ describe('Group 4: Editor state derivation via tag finder + extractSpanAndDivSta
       tagRanges,
       sourceText,
       defaults.defaultFontFamily,
-      defaults.defaultFontSize,
+      defaults.defaultFontSize
     );
 
     expect(spanState.textAlign).toBe('right');
@@ -628,7 +602,7 @@ describe('Group 4: Editor state derivation via tag finder + extractSpanAndDivSta
       tagRanges,
       sourceText,
       defaults.defaultFontFamily,
-      defaults.defaultFontSize,
+      defaults.defaultFontSize
     );
 
     expect(spanState.fontColor).toBe('red');
@@ -674,7 +648,7 @@ describe('Group 4: Editor state derivation via tag finder + extractSpanAndDivSta
       tagRanges,
       sourceText,
       defaults.defaultFontFamily,
-      defaults.defaultFontSize,
+      defaults.defaultFontSize
     );
 
     expect(spanState.fontColor).toBeNull();
@@ -919,16 +893,12 @@ describe('Additional integration scenarios', () => {
     editor.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 12 });
 
     addTagInEditor(editor, yellowHighlight);
-    expect(editor.getValue()).toBe(
-      '<span style="background: yellow">highlight me</span>',
-    );
+    expect(editor.getValue()).toBe('<span style="background: yellow">highlight me</span>');
 
     editor = rebuildEditor(editor);
     selectSubstring(editor, 'highlight me');
     addTagInEditor(editor, greenHighlight);
 
-    expect(editor.getValue()).toBe(
-      '<span style="background: green">highlight me</span>',
-    );
+    expect(editor.getValue()).toBe('<span style="background: green">highlight me</span>');
   });
 });

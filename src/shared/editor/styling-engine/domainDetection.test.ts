@@ -1,4 +1,4 @@
-import { detectFormattingDomain } from './domainDetection';
+import { detectFormattingDomain } from './domain-detection/DomainDetection';
 
 describe('domainDetection', () => {
   it('returns markdown domain with no tokens for plain text', () => {

@@ -1,7 +1,4 @@
-interface IconProps {
-  className?: string;
-}
-
+import type { IconProps } from './interfaces';
 // Clipboard with code angle brackets — represents "Paste as code block"
 export function PasteCodeIcon({ className }: IconProps) {
   return (

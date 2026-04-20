@@ -1,4 +1,4 @@
-import type { StyleEntry } from '../styles-data';
+import type { StyleEntry } from '../interfaces';
 
 /**
  * Maps a StyleEntry to the CSS modifier class that controls its visual

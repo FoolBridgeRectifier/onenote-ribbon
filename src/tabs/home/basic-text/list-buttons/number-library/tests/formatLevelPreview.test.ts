@@ -1,4 +1,4 @@
-import { formatLevelPreview } from '../formatLevelPreview';
+import { formatLevelPreview } from '../helpers';
 import type { NumberLevelConfig } from '../../interfaces';
 
 describe('formatLevelPreview', () => {

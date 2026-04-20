@@ -3,7 +3,7 @@ import type { App } from 'obsidian';
 
 import { createAppWithEditor } from '../../../../test-utils/mockApp';
 import { ACTIVE_TAG_KEY_TASK } from '../constants';
-import { useActiveTagKeys } from './useActiveTagKeys';
+import { useActiveTagKeys } from './UseActiveTagKeys';
 
 describe('useActiveTagKeys', () => {
   beforeEach(() => {

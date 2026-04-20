@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TabName } from '../../ribbon/tabs';
+import type { TabName } from '../../ribbon/interfaces';
 
 export function useRibbonState() {
   const [activeTab, setActiveTab] = useState<TabName>('Home');

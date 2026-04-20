@@ -1,7 +1,4 @@
-interface IconProps {
-  className?: string;
-}
-
+import type { IconProps } from './interfaces';
 /* Stroke-based eraser icon — consistent with the ribbon's fill:none / stroke:currentColor SVG convention.
  * Three elements: outer eraser body (diagonal rectangle), internal band dividing
  * the eraser halves, and a flat baseline — all pure stroke paths, no fills. */

@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AppContext } from '../../../shared/context/AppContext';
@@ -75,9 +75,9 @@ function renderWithMockApp(component: React.ReactElement) {
 
 // ── Imports after mocks ─────────────────────────────────────────────────────
 
-import { BasicTextGroup } from '../basic-text/BasicTextGroup';
-import { StylesGroup } from '../styles/StylesGroup';
-import { TagsGroup } from '../tags/TagsGroup';
+import { BasicTextGroup } from '../basic-text/BasicText';
+import { StylesGroup } from '../styles/Styles';
+import { TagsGroup } from '../tags/Tags';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 

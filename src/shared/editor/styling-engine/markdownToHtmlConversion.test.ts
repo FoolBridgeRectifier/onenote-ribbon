@@ -1,7 +1,7 @@
 import {
   convertMarkdownTokensToHtml,
   containsMarkdownTokens,
-} from './markdownToHtmlConversion';
+} from './markdown-to-html-conversion/MarkdownToHtmlConversion';
 
 describe('markdownToHtmlConversion', () => {
   describe('convertMarkdownTokensToHtml', () => {

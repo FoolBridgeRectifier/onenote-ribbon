@@ -4,7 +4,7 @@
  */
 
 import type { SuiteTestResult } from '../interfaces';
-import { runRibbonSuite, wait } from '../suiteHelpers';
+import { wait } from '../suiteHelpers';
 
 /**
  * Tests useFormatPainter hook functionality.
@@ -15,11 +15,11 @@ async function testUseFormatPainterHook(): Promise<SuiteTestResult[]> {
   const hasFormatPainter = !!formatPainterButton;
 
   // Test format painter activation
-  let formatPainterActive = false;
+  let _formatPainterActive = false;
   if (formatPainterButton) {
     formatPainterButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await wait(100);
-    formatPainterActive = formatPainterButton.classList.contains('onr-active');
+    _formatPainterActive = formatPainterButton.classList.contains('onr-active');
   }
 
   if (!hasFormatPainter) {

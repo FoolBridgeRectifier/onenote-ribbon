@@ -1,3 +1,5 @@
+import type * as React from 'react';
+
 /** A user-created custom tag persisted to localStorage. */
 export interface CustomTag {
   /** UUID-style string that uniquely identifies this tag. */
@@ -18,4 +20,29 @@ export interface CustomizeTagsModalProps {
   onChange: (updatedTags: CustomTag[]) => void;
   /** Called when the user dismisses the modal. */
   onClose: () => void;
+}
+
+/** Props for the ModalHeader sub-component. */
+export interface ModalHeaderProps {
+  onClose: () => void;
+}
+
+/** Props for the TagList sub-component. */
+export interface TagListProps {
+  customTags: CustomTag[];
+  calloutTypeLabelForValue: (value: string) => string;
+  onDeleteTag: (id: string) => void;
+}
+
+/** Props for the AddTagForm sub-component. */
+export interface AddTagFormProps {
+  nameInputRef: React.RefObject<HTMLInputElement>;
+  newTagName: string;
+  newTagColor: string;
+  newTagCalloutType: string;
+  onNameChange: (name: string) => void;
+  onColorChange: (color: string) => void;
+  onCalloutTypeChange: (type: string) => void;
+  onNameKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+  onAddTag: () => void;
 }

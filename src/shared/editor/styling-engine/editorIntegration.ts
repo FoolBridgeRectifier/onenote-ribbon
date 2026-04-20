@@ -6,19 +6,9 @@ import {
   RemoveAllTagsOptions,
 } from './interfaces';
 
-import {
-  toggleTag,
-  addTag,
-  removeTag,
-  removeAllTags,
-  copyFormat,
-} from './stylingEngine';
+import { toggleTag, addTag, removeTag, removeAllTags, copyFormat } from './stylingEngine';
 
-import {
-  buildTextIndex,
-  positionToOffset,
-  offsetToPosition,
-} from '../text-offset/textOffset';
+import { buildTextIndex, positionToOffset, offsetToPosition } from '../text-offset/textOffset';
 
 // ============================================================
 // Editor Interface
@@ -33,10 +23,7 @@ export interface ObsidianEditor {
   getValue(): string;
   getCursor(which?: 'from' | 'to' | 'head' | 'anchor'): { line: number; ch: number };
   setCursor(position: { line: number; ch: number }): void;
-  setSelection(
-    anchor: { line: number; ch: number },
-    head: { line: number; ch: number },
-  ): void;
+  setSelection(anchor: { line: number; ch: number }, head: { line: number; ch: number }): void;
   transaction(spec: {
     changes: Array<{
       from: { line: number; ch: number };
@@ -56,9 +43,7 @@ export interface ObsidianEditor {
  * to flat offsets for the styling engine's pure functions.
  * Returns null only if something is fundamentally wrong (in practice, always returns a context).
  */
-export function buildStylingContextFromEditor(
-  editor: ObsidianEditor,
-): StylingContext | null {
+export function buildStylingContextFromEditor(editor: ObsidianEditor): StylingContext | null {
   const sourceText = editor.getValue();
 
   const textIndex = buildTextIndex(sourceText);
@@ -95,7 +80,7 @@ export function buildStylingContextFromEditor(
 export function applyStylingResult(
   editor: ObsidianEditor,
   sourceText: string,
-  result: StylingResult,
+  result: StylingResult
 ): void {
   if (result.isNoOp || result.replacements.length === 0) {
     return;
@@ -137,10 +122,7 @@ export function applyStylingResult(
  * Toggles a formatting tag on or off for the current editor selection.
  * If the tag is present, removes it. If absent, adds it.
  */
-export function toggleTagInEditor(
-  editor: ObsidianEditor,
-  tagDefinition: TagDefinition,
-): void {
+export function toggleTagInEditor(editor: ObsidianEditor, tagDefinition: TagDefinition): void {
   const context = buildStylingContextFromEditor(editor);
 
   if (context === null) {
@@ -155,10 +137,7 @@ export function toggleTagInEditor(
  * Adds a formatting tag to the current editor selection (never removes).
  * For span tags with the same CSS property, replaces the value instead of double-wrapping.
  */
-export function addTagInEditor(
-  editor: ObsidianEditor,
-  tagDefinition: TagDefinition,
-): void {
+export function addTagInEditor(editor: ObsidianEditor, tagDefinition: TagDefinition): void {
   const context = buildStylingContextFromEditor(editor);
 
   if (context === null) {
@@ -172,10 +151,7 @@ export function addTagInEditor(
 /**
  * Removes a specific formatting tag from around the current editor selection.
  */
-export function removeTagInEditor(
-  editor: ObsidianEditor,
-  tagDefinition: TagDefinition,
-): void {
+export function removeTagInEditor(editor: ObsidianEditor, tagDefinition: TagDefinition): void {
   const context = buildStylingContextFromEditor(editor);
 
   if (context === null) {
@@ -191,7 +167,7 @@ export function removeTagInEditor(
  */
 export function removeAllTagsInEditor(
   editor: ObsidianEditor,
-  options?: RemoveAllTagsOptions,
+  options?: RemoveAllTagsOptions
 ): void {
   const context = buildStylingContextFromEditor(editor);
 
@@ -208,18 +184,12 @@ export function removeAllTagsInEditor(
  * Returns the enclosing tag definitions and detected domain for later use with addTagInEditor.
  * Returns null if the editor context cannot be built.
  */
-export function copyFormatFromEditor(
-  editor: ObsidianEditor,
-): CopiedFormat | null {
+export function copyFormatFromEditor(editor: ObsidianEditor): CopiedFormat | null {
   const context = buildStylingContextFromEditor(editor);
 
   if (context === null) {
     return null;
   }
 
-  return copyFormat(
-    context.sourceText,
-    context.selectionStartOffset,
-    context.selectionEndOffset,
-  );
+  return copyFormat(context.sourceText, context.selectionStartOffset, context.selectionEndOffset);
 }

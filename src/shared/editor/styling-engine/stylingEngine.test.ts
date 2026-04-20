@@ -1,10 +1,4 @@
-import {
-  toggleTag,
-  addTag,
-  removeTag,
-  removeAllTags,
-  copyFormat,
-} from './stylingEngine';
+import { toggleTag, addTag, removeTag, removeAllTags, copyFormat } from './StylingEngine';
 
 import {
   UNDERLINE_TAG,
@@ -15,26 +9,16 @@ import {
   STRIKETHROUGH_MD_TAG,
   HIGHLIGHT_MD_TAG,
   BOLD_HTML_TAG,
-  ITALIC_HTML_TAG,
-  STRIKETHROUGH_HTML_TAG,
-  HIGHLIGHT_HTML_TAG,
 } from './constants';
 
-import { buildSpanTagDefinition } from './tagManipulation';
-import {
-  StylingContext,
-  TextReplacement,
-  RemoveAllTagsOptions,
-} from './interfaces';
+import { buildSpanTagDefinition } from './tag-manipulation/TagManipulation';
+import type { StylingContext, TextReplacement } from './interfaces';
 
 // ============================================================
 // Test Helpers
 // ============================================================
 
-function applyReplacements(
-  sourceText: string,
-  replacements: TextReplacement[],
-): string {
+function applyReplacements(sourceText: string, replacements: TextReplacement[]): string {
   let result = sourceText;
 
   // Replacements are already in last-to-first order
@@ -48,11 +32,7 @@ function applyReplacements(
   return result;
 }
 
-function createContext(
-  sourceText: string,
-  startOffset: number,
-  endOffset: number,
-): StylingContext {
+function createContext(sourceText: string, startOffset: number, endOffset: number): StylingContext {
   return {
     sourceText,
     selectionStartOffset: startOffset,
@@ -116,9 +96,7 @@ describe('toggleTag', () => {
       const result = toggleTag(context, SUPERSCRIPT_TAG);
 
       expect(result.isNoOp).toBe(false);
-      expect(applyReplacements(sourceText, result.replacements)).toBe(
-        '<sup>2</sup>',
-      );
+      expect(applyReplacements(sourceText, result.replacements)).toBe('<sup>2</sup>');
     });
 
     it('switches superscript to subscript instead of nesting both tags', () => {
@@ -128,9 +106,7 @@ describe('toggleTag', () => {
       const result = toggleTag(context, SUBSCRIPT_TAG);
 
       expect(result.isNoOp).toBe(false);
-      expect(applyReplacements(sourceText, result.replacements)).toBe(
-        '<sub>2</sub>',
-      );
+      expect(applyReplacements(sourceText, result.replacements)).toBe('<sub>2</sub>');
     });
 
     it('removes * delimiters when toggling italic on italic text', () => {
@@ -160,9 +136,7 @@ describe('toggleTag', () => {
       const result = toggleTag(context, HIGHLIGHT_MD_TAG);
 
       expect(result.isNoOp).toBe(false);
-      expect(applyReplacements(sourceText, result.replacements)).toBe(
-        'highlight',
-      );
+      expect(applyReplacements(sourceText, result.replacements)).toBe('highlight');
     });
 
     it('removes outer <b> tag when selecting text inside nested <b><i>text</i></b>', () => {
@@ -173,9 +147,7 @@ describe('toggleTag', () => {
       const result = toggleTag(context, BOLD_HTML_TAG);
 
       expect(result.isNoOp).toBe(false);
-      expect(applyReplacements(sourceText, result.replacements)).toBe(
-        '<i>text</i>',
-      );
+      expect(applyReplacements(sourceText, result.replacements)).toBe('<i>text</i>');
     });
 
     it('removes <u> tags when selection includes the delimiters (Ctrl+A / delimiter-inclusive)', () => {
@@ -218,9 +190,7 @@ describe('toggleTag', () => {
       const result = toggleTag(context, ITALIC_MD_TAG);
 
       expect(result.isNoOp).toBe(false);
-      expect(applyReplacements(sourceText, result.replacements)).toBe(
-        '**both**',
-      );
+      expect(applyReplacements(sourceText, result.replacements)).toBe('**both**');
     });
   });
 
@@ -234,9 +204,7 @@ describe('toggleTag', () => {
       const result = toggleTag(context, UNDERLINE_TAG);
 
       expect(result.isNoOp).toBe(false);
-      expect(applyReplacements(sourceText, result.replacements)).toBe(
-        '<u>hello</u>',
-      );
+      expect(applyReplacements(sourceText, result.replacements)).toBe('<u>hello</u>');
     });
 
     it('wraps plain text with ** when toggling bold in MD domain', () => {
@@ -246,9 +214,7 @@ describe('toggleTag', () => {
       const result = toggleTag(context, BOLD_MD_TAG);
 
       expect(result.isNoOp).toBe(false);
-      expect(applyReplacements(sourceText, result.replacements)).toBe(
-        '**hello**',
-      );
+      expect(applyReplacements(sourceText, result.replacements)).toBe('**hello**');
     });
 
     it('wraps plain text with * when toggling italic in MD domain', () => {
@@ -258,9 +224,7 @@ describe('toggleTag', () => {
       const result = toggleTag(context, ITALIC_MD_TAG);
 
       expect(result.isNoOp).toBe(false);
-      expect(applyReplacements(sourceText, result.replacements)).toBe(
-        '*hello*',
-      );
+      expect(applyReplacements(sourceText, result.replacements)).toBe('*hello*');
     });
 
     it('wraps plain text with <sub> when toggling subscript', () => {
@@ -270,9 +234,7 @@ describe('toggleTag', () => {
       const result = toggleTag(context, SUBSCRIPT_TAG);
 
       expect(result.isNoOp).toBe(false);
-      expect(applyReplacements(sourceText, result.replacements)).toBe(
-        'H<sub>2</sub>O',
-      );
+      expect(applyReplacements(sourceText, result.replacements)).toBe('H<sub>2</sub>O');
     });
   });
 
@@ -600,9 +562,7 @@ describe('addTag', () => {
     const result = addTag(context, UNDERLINE_TAG);
 
     expect(result.isNoOp).toBe(false);
-    expect(applyReplacements(sourceText, result.replacements)).toBe(
-      '<u>hello world</u>',
-    );
+    expect(applyReplacements(sourceText, result.replacements)).toBe('<u>hello world</u>');
   });
 
   it('replaces color attribute when adding color to already colored text', () => {
@@ -631,7 +591,7 @@ describe('addTag', () => {
 
     const applied = applyReplacements(sourceText, result.replacements);
     expect(applied).toBe(
-      '<span style="color: red"><span style="font-family: Arial">text</span></span>',
+      '<span style="color: red"><span style="font-family: Arial">text</span></span>'
     );
   });
 
@@ -686,9 +646,7 @@ describe('copyFormat', () => {
     expect(result.domain).toBe('html');
     expect(result.tagDefinitions.length).toBeGreaterThanOrEqual(2);
 
-    const tagNames = result.tagDefinitions.map(
-      (tagDefinition) => tagDefinition.tagName,
-    );
+    const tagNames = result.tagDefinitions.map((tagDefinition) => tagDefinition.tagName);
     expect(tagNames).toContain('b');
     expect(tagNames).toContain('u');
   });
@@ -710,9 +668,7 @@ describe('copyFormat', () => {
     expect(result.domain).toBe('markdown');
     expect(result.tagDefinitions.length).toBeGreaterThanOrEqual(1);
 
-    const tagNames = result.tagDefinitions.map(
-      (tagDefinition) => tagDefinition.tagName,
-    );
+    const tagNames = result.tagDefinitions.map((tagDefinition) => tagDefinition.tagName);
     expect(tagNames).toContain('bold');
   });
 
@@ -725,7 +681,7 @@ describe('copyFormat', () => {
     expect(result.tagDefinitions.length).toBeGreaterThanOrEqual(1);
 
     const spanDefinition = result.tagDefinitions.find(
-      (tagDefinition) => tagDefinition.tagName === 'span',
+      (tagDefinition) => tagDefinition.tagName === 'span'
     );
     expect(spanDefinition).toBeDefined();
     expect(spanDefinition!.attributes).toEqual({ color: 'red' });
@@ -739,9 +695,7 @@ describe('copyFormat', () => {
     expect(result.domain).toBe('html');
     expect(result.tagDefinitions.length).toBeGreaterThanOrEqual(3);
 
-    const tagNames = result.tagDefinitions.map(
-      (tagDefinition) => tagDefinition.tagName,
-    );
+    const tagNames = result.tagDefinitions.map((tagDefinition) => tagDefinition.tagName);
     expect(tagNames).toContain('b');
     expect(tagNames).toContain('span');
     expect(tagNames).toContain('u');

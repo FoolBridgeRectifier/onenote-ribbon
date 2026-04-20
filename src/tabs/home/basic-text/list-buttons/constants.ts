@@ -1,46 +1,5 @@
 import type { BulletPreset, NumberPreset } from './interfaces';
-
-type NumberStyleType =
-  | 'decimal'
-  | 'lower-alpha'
-  | 'upper-alpha'
-  | 'lower-roman'
-  | 'upper-roman';
-
-type NumberSuffixType = 'period' | 'paren' | 'wrapped';
-
-const DEPTH_STYLE_CYCLE: NumberStyleType[] = [
-  'decimal',
-  'lower-alpha',
-  'lower-roman',
-  'upper-alpha',
-  'upper-roman',
-];
-
-function buildNumberLevels(
-  baseStyle: NumberStyleType,
-  suffix: NumberSuffixType,
-): NumberPreset['levels'] {
-  const baseIndex = DEPTH_STYLE_CYCLE.indexOf(baseStyle);
-
-  const getStyleAtDepth = (depthOffset: number): NumberStyleType => {
-    const index = (baseIndex + depthOffset) % DEPTH_STYLE_CYCLE.length;
-    return DEPTH_STYLE_CYCLE[index];
-  };
-
-  return [
-    { style: getStyleAtDepth(0), suffix },
-    { style: getStyleAtDepth(1), suffix },
-    { style: getStyleAtDepth(2), suffix },
-    { style: getStyleAtDepth(3), suffix },
-  ];
-}
-
-/** CSS selector targeting reading-view list items at a given nesting depth. */
-export const READING_VIEW_SCOPES = [
-  '.markdown-preview-view',
-  '.markdown-rendered',
-] as const;
+import { buildNumberLevels } from './presets/helpers';
 
 /** ID used when no override is active for bullet style. */
 export const BULLET_PRESET_NONE_ID = 'none';

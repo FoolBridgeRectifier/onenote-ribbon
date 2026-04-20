@@ -3,7 +3,7 @@ import {
   positionToOffset,
   offsetToPosition,
   clamp,
-} from './textOffset';
+} from './TextOffset';
 
 describe('textOffset', () => {
   describe('clamp', () => {

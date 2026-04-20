@@ -1,7 +1,4 @@
-interface IconProps {
-  className?: string;
-}
-
+import type { IconProps } from './interfaces';
 export function EmailPageIcon({ className }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24">

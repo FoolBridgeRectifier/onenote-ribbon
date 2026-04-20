@@ -1,0 +1,23 @@
+/** Color palette swatches shown in the color picker dropdown. */
+export const COLOR_PALETTE = [
+  '#000000',
+  '#434343',
+  '#666666',
+  '#999999',
+  '#cccccc',
+  '#ffffff',
+  '#ff0000',
+  '#ff6600',
+  '#ffcc00',
+  '#33cc33',
+  '#00cccc',
+  '#0066ff',
+  '#9933ff',
+  '#ff33cc',
+  '#cc0000',
+  '#996600',
+  '#669900',
+  '#006666',
+  '#003399',
+  '#660066',
+];

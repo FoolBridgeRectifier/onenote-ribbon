@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import { Plugin } from 'obsidian';
+import type { Plugin } from 'obsidian';
 
 export const PluginContext = createContext<Plugin>(null!);
 

@@ -1,4 +1,4 @@
-import { removeActiveCallout } from './removeActiveCallout';
+import { removeActiveCallout } from './helpers';
 import { MockEditor } from '../../../../test-utils/MockEditor';
 
 describe('removeActiveCallout — no-op cases', () => {

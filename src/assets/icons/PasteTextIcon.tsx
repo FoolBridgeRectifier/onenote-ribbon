@@ -1,7 +1,4 @@
-interface IconProps {
-  className?: string;
-}
-
+import type { IconProps } from './interfaces';
 // Clipboard with a "T" — represents "Paste as plain text (keep text only)"
 export function PasteTextIcon({ className }: IconProps) {
   return (

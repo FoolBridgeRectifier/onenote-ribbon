@@ -13,9 +13,7 @@ export function clickByCommand(commandId: string): void {
     throw new Error('Missing command button: ' + commandId);
   }
 
-  commandElement.dispatchEvent(
-    new MouseEvent('click', { bubbles: true, cancelable: true }),
-  );
+  commandElement.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
 }
 
 export function selectToken(editor: any, tokenValue: string): void {
@@ -28,7 +26,7 @@ export function selectToken(editor: any, tokenValue: string): void {
 
   editor.setSelection(
     editor.offsetToPos(tokenStartIndex),
-    editor.offsetToPos(tokenStartIndex + tokenValue.length),
+    editor.offsetToPos(tokenStartIndex + tokenValue.length)
   );
 }
 
@@ -36,9 +34,7 @@ export async function ensureHomePanel(): Promise<void> {
   const homeTabElement = document.querySelector('[data-tab="Home"]');
 
   if (homeTabElement) {
-    homeTabElement.dispatchEvent(
-      new MouseEvent('click', { bubbles: true, cancelable: true }),
-    );
+    homeTabElement.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
   }
 
   for (let index = 0; index < 20; index += 1) {
@@ -54,7 +50,7 @@ export async function ensureHomePanel(): Promise<void> {
 
 export async function runHomeTabSuite(
   testName: string,
-  callback: HomeSuiteCallback,
+  callback: HomeSuiteCallback
 ): Promise<SuiteTestResult[]> {
   try {
     await ensureHomePanel();
@@ -84,15 +80,15 @@ export async function runHomeTabSuite(
         wait,
       });
       testDetails = 'Test completed successfully';
-    } catch (error) {
+    } catch (_error) {
       testPassed = false;
-      testDetails = String(error);
+      testDetails = String(_error);
     } finally {
       app.commands.executeCommandById = originalExecuteCommandById;
     }
 
     return [{ test: testName, pass: testPassed, details: testDetails }];
-  } catch (error) {
-    return [{ test: testName, pass: false, details: String(error) }];
+  } catch (_error) {
+    return [{ test: testName, pass: false, details: String(_error) }];
   }
 }

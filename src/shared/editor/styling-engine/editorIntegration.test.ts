@@ -1,20 +1,19 @@
 import { MockEditor } from '../../../test-utils/MockEditor';
 
+import type { ObsidianEditor } from './interfaces';
 import {
   buildStylingContextFromEditor,
   applyStylingResult,
+} from './editor-integration/EditorIntegration';
+import {
   toggleTagInEditor,
   removeAllTagsInEditor,
   copyFormatFromEditor,
-  ObsidianEditor,
-} from './editorIntegration';
+} from './editor-integration/helpers';
 
-import { StylingResult } from './interfaces';
+import type { StylingResult } from './interfaces';
 
-import {
-  UNDERLINE_TAG,
-  BOLD_MD_TAG,
-} from './constants';
+import { UNDERLINE_TAG, BOLD_MD_TAG } from './constants';
 
 // ============================================================
 // Test Helper
@@ -38,15 +37,13 @@ function createTestEditor(content: string): ObsidianEditor & { transaction: jest
    * Mimics Obsidian's atomic transaction behavior where all positions reference
    * the original document state.
    */
-  const applyTransaction = (
-    spec: {
-      changes: Array<{
-        from: { line: number; ch: number };
-        to: { line: number; ch: number };
-        text: string;
-      }>;
-    },
-  ): void => {
+  const applyTransaction = (spec: {
+    changes: Array<{
+      from: { line: number; ch: number };
+      to: { line: number; ch: number };
+      text: string;
+    }>;
+  }): void => {
     const sortedChanges = [...spec.changes].sort((changeA, changeB) => {
       if (changeA.from.line !== changeB.from.line) {
         return changeB.from.line - changeA.from.line;
@@ -98,7 +95,6 @@ function createTestEditor(content: string): ObsidianEditor & { transaction: jest
 // ============================================================
 
 describe('buildStylingContextFromEditor', () => {
-
   it('builds context with correct sourceText, offsets, and selectedText for a selection', () => {
     const editor = createTestEditor('hello world');
     editor.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 5 });
@@ -143,7 +139,6 @@ describe('buildStylingContextFromEditor', () => {
 // ============================================================
 
 describe('applyStylingResult', () => {
-
   it('does not mutate the editor when result is isNoOp', () => {
     const editor = createTestEditor('hello');
 
@@ -162,9 +157,7 @@ describe('applyStylingResult', () => {
     const editor = createTestEditor('hello');
 
     const result: StylingResult = {
-      replacements: [
-        { fromOffset: 0, toOffset: 0, replacementText: '<u>' },
-      ],
+      replacements: [{ fromOffset: 0, toOffset: 0, replacementText: '<u>' }],
       isNoOp: false,
     };
 
@@ -172,9 +165,7 @@ describe('applyStylingResult', () => {
 
     expect(editor.transaction).toHaveBeenCalledTimes(1);
     expect(editor.transaction).toHaveBeenCalledWith({
-      changes: [
-        { from: { line: 0, ch: 0 }, to: { line: 0, ch: 0 }, text: '<u>' },
-      ],
+      changes: [{ from: { line: 0, ch: 0 }, to: { line: 0, ch: 0 }, text: '<u>' }],
     });
   });
 
@@ -206,7 +197,6 @@ describe('applyStylingResult', () => {
 // ============================================================
 
 describe('toggleTagInEditor end-to-end', () => {
-
   it('toggles underline ON: wraps plain text with <u> tags', () => {
     const editor = createTestEditor('hello');
     editor.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 5 });
@@ -241,7 +231,6 @@ describe('toggleTagInEditor end-to-end', () => {
 // ============================================================
 
 describe('removeAllTagsInEditor end-to-end', () => {
-
   it('removes all nested tags from formatted text', () => {
     const editor = createTestEditor('<u><b>hello</b></u>');
     // "hello" is at ch:6 to ch:11
@@ -258,7 +247,6 @@ describe('removeAllTagsInEditor end-to-end', () => {
 // ============================================================
 
 describe('copyFormatFromEditor', () => {
-
   it('returns tag definitions for text inside formatted tags', () => {
     const editor = createTestEditor('<u><b>text</b></u>');
     // "text" is at ch:6 to ch:10
@@ -269,9 +257,7 @@ describe('copyFormatFromEditor', () => {
     expect(copiedFormat).not.toBeNull();
     expect(copiedFormat!.domain).toBe('html');
 
-    const tagNames = copiedFormat!.tagDefinitions.map(
-      (tagDefinition) => tagDefinition.tagName,
-    );
+    const tagNames = copiedFormat!.tagDefinitions.map((tagDefinition) => tagDefinition.tagName);
     expect(tagNames).toContain('b');
     expect(tagNames).toContain('u');
   });
@@ -292,7 +278,6 @@ describe('copyFormatFromEditor', () => {
 // ============================================================
 
 describe('edge cases', () => {
-
   it('handles empty editor content — returns a valid context', () => {
     const editor = createTestEditor('');
     editor.setCursor({ line: 0, ch: 0 });

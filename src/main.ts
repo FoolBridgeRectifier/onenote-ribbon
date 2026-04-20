@@ -1,5 +1,5 @@
 import { Plugin } from 'obsidian';
-import { RibbonShell } from './ribbon/RibbonShell';
+import { RibbonShell } from './ribbon/Ribbon';
 
 export default class OneNoteRibbonPlugin extends Plugin {
   private shell!: RibbonShell;

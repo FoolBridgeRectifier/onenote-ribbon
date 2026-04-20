@@ -1,4 +1,4 @@
-import React, { createRef } from 'react';
+import { createRef } from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { RibbonButton } from './RibbonButton';
 
@@ -10,21 +10,13 @@ describe('RibbonButton', () => {
   });
 
   it('renders with onr-btn class when size is large', () => {
-    const { container } = render(
-      <RibbonButton size="large" onClick={() => {}} />,
-    );
+    const { container } = render(<RibbonButton size="large" onClick={() => {}} />);
 
     expect(container.firstElementChild!.className).toBe('onr-btn');
   });
 
   it('renders icon and label with onr-btn-label-sm for small size', () => {
-    render(
-      <RibbonButton
-        icon={<svg data-testid="icon" />}
-        label="Cut"
-        onClick={() => {}}
-      />,
-    );
+    render(<RibbonButton icon={<svg data-testid="icon" />} label="Cut" onClick={() => {}} />);
 
     expect(screen.getByTestId('icon')).toBeInTheDocument();
 
@@ -39,7 +31,7 @@ describe('RibbonButton', () => {
         icon={<svg data-testid="icon" />}
         label="Paste"
         onClick={() => {}}
-      />,
+      />
     );
 
     const labelSpan = screen.getByText('Paste');
@@ -48,7 +40,7 @@ describe('RibbonButton', () => {
 
   it('renders icon without label when label is omitted', () => {
     const { container } = render(
-      <RibbonButton icon={<svg data-testid="icon" />} onClick={() => {}} />,
+      <RibbonButton icon={<svg data-testid="icon" />} onClick={() => {}} />
     );
 
     expect(screen.getByTestId('icon')).toBeInTheDocument();
@@ -63,7 +55,7 @@ describe('RibbonButton', () => {
         onClick={() => {}}
       >
         <span data-testid="custom-child">Custom</span>
-      </RibbonButton>,
+      </RibbonButton>
     );
 
     expect(screen.getByTestId('custom-child')).toBeInTheDocument();
@@ -72,41 +64,29 @@ describe('RibbonButton', () => {
   });
 
   it('appends onr-active class when active is true', () => {
-    const { container } = render(
-      <RibbonButton active={true} onClick={() => {}} />,
-    );
+    const { container } = render(<RibbonButton active={true} onClick={() => {}} />);
 
-    expect(container.firstElementChild!.className).toBe(
-      'onr-btn-sm onr-active',
-    );
+    expect(container.firstElementChild!.className).toBe('onr-btn-sm onr-active');
   });
 
   it('does not add onr-active class when active is false', () => {
-    const { container } = render(
-      <RibbonButton active={false} onClick={() => {}} />,
-    );
+    const { container } = render(<RibbonButton active={false} onClick={() => {}} />);
 
     expect(container.firstElementChild!.className).toBe('onr-btn-sm');
   });
 
   it('merges additional className after base and active classes', () => {
     const { container } = render(
-      <RibbonButton
-        active={true}
-        className="onr-format-btn onr-format-bold"
-        onClick={() => {}}
-      />,
+      <RibbonButton active={true} className="onr-format-btn onr-format-bold" onClick={() => {}} />
     );
 
     expect(container.firstElementChild!.className).toBe(
-      'onr-btn-sm onr-active onr-format-btn onr-format-bold',
+      'onr-btn-sm onr-active onr-format-btn onr-format-bold'
     );
   });
 
   it('passes through HTML attributes (title, data-cmd)', () => {
-    const { container } = render(
-      <RibbonButton title="Bold" data-cmd="bold" onClick={() => {}} />,
-    );
+    const { container } = render(<RibbonButton title="Bold" data-cmd="bold" onClick={() => {}} />);
 
     const element = container.firstElementChild!;
     expect(element.getAttribute('title')).toBe('Bold');

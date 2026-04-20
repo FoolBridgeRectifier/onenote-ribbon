@@ -1,6 +1,6 @@
-import React from 'react';
+
 import { fireEvent, render, screen } from '@testing-library/react';
-import { PasteOptionsDropdown } from './PasteOptionsDropdown';
+import { PasteOptionsDropdown } from './PasteOptions';
 
 function createAnchorElement(left = 88, bottom = 120): HTMLElement {
   const anchorElement = document.createElement('div');

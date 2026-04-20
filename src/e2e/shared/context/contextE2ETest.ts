@@ -4,7 +4,7 @@
  */
 
 import type { SuiteTestResult } from '../interfaces';
-import { runRibbonSuite, wait } from '../suiteHelpers';
+import { wait } from '../suiteHelpers';
 
 /**
  * Tests AppContext provider functionality.
@@ -33,11 +33,11 @@ async function testFormatPainterContext(): Promise<SuiteTestResult[]> {
   const formatPainterAvailable = !!formatPainterButton;
 
   // Try to activate format painter to test context state
-  let contextWorking = false;
+  let _contextWorking = false;
   if (formatPainterButton) {
     formatPainterButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await wait(100);
-    contextWorking = formatPainterButton.classList.contains('onr-active') ||
+    _contextWorking = formatPainterButton.classList.contains('onr-active') ||
       document.body.classList.contains('onr-format-painter-active');
   }
 

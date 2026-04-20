@@ -1,4 +1,4 @@
-import React from 'react';
+
 import './bullet-library.css';
 import { Dropdown } from '../../../../../shared/components/dropdown/Dropdown';
 import { BULLET_PRESETS } from '../constants';
