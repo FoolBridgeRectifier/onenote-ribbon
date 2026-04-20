@@ -28,7 +28,7 @@ const {
   discoverAllAgentNames,
   discoverMcpServerNames,
   GLOBAL_AGENTS_FILE_EXCLUSIONS,
-} = require('../discoverContext.cjs');
+} = require('./discoverContext.cjs');
 
 // ---------------------------------------------------------------------------
 // Helpers

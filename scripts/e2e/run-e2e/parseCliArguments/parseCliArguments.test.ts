@@ -1,6 +1,6 @@
 /** @jest-environment node */
 
-import { parseCliArguments } from '../parseCliArguments';
+import { parseCliArguments } from './parseCliArguments';
 
 describe('parseCliArguments', () => {
   it('returns defaults when no flags are provided', () => {

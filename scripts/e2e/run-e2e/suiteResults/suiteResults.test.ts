@@ -1,6 +1,6 @@
 /** @jest-environment node */
 
-import { printSuiteResults } from '../suiteResults';
+import { printSuiteResults } from './suiteResults';
 
 describe('printSuiteResults', () => {
   beforeEach(() => {

@@ -1,6 +1,6 @@
 /** @jest-environment node */
 
-import { pollUntil, sleep } from '../polling';
+import { pollUntil, sleep } from './polling';
 
 describe('polling utilities', () => {
   describe('sleep', () => {

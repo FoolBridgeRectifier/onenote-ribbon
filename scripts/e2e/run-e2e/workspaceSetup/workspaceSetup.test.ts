@@ -3,16 +3,16 @@
 import {
   RIBBON_READY_TIMEOUT_MS,
   WORKSPACE_READY_TIMEOUT_MS,
-} from '../../constants';
-import { pollUntil, sleep } from '../../polling/polling';
+} from '../constants';
+import { pollUntil, sleep } from '../polling/polling';
 import {
   dismissTrustModal,
   waitForWorkspaceAndRibbon,
-} from '../workspaceSetup';
+} from './workspaceSetup';
 
-import type { CdpClient } from '../../cdpClient/cdpClient';
+import type { CdpClient } from '../cdpClient/cdpClient';
 
-jest.mock('../../polling/polling', () => ({
+jest.mock('../polling/polling', () => ({
   pollUntil: jest.fn(),
   sleep: jest.fn(),
 }));
