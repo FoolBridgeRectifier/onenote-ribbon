@@ -3,9 +3,9 @@
 > **Read this entire document before writing, editing, or reviewing any code in this project.**
 > This is the single source of truth for structure, naming, testing, and quality rules.
 
-### Global Instruction File
+### Global Instruction File (Strict)
 
-Also treat `CLAUDE.md` as required guidance for every task.
+These rules are strict and mandatory.
 
 - Preferred stack: React, React Testing Library, Node, Java, TypeScript.
 - Extract new logical blocks into dedicated files and add full path-coverage tests.
@@ -17,165 +17,74 @@ Also treat `CLAUDE.md` as required guidance for every task.
 
 ---
 
-## 1. Project Overview
-
-An Obsidian plugin that renders a Microsoft OneNote-style ribbon toolbar.
-
-- **Runtime**: Obsidian desktop (Electron + Chromium). No Node.js runtime inside tests.
-- **UI**: React 18 (JSX, hooks, context). All components use the React model — no imperative DOM manipulation.
-- **Language**: TypeScript strict mode throughout.
-- **Build**: esbuild (ESM output → `main.js`). Tests use ts-jest (CommonJS transform only during tests).
-
----
-
-## 2. Toolchain
-
-| Tool                        | Version | Purpose                                                             |
-| --------------------------- | ------- | ------------------------------------------------------------------- |
-| TypeScript                  | ^5.3    | Strict mode: `strict: true`, `noImplicitAny: true`                  |
-| React                       | ^18.3   | UI components                                                       |
-| esbuild                     | ^0.20   | Production bundle (`npm run build`, `npm run dev`)                  |
-| Jest                        | ^30     | Unit + integration test runner                                      |
-| ts-jest                     | ^29     | TypeScript transform for Jest (CommonJS, `moduleResolution: node`)  |
-| jest-environment-jsdom      | ^30     | Browser environment simulation                                      |
-| @testing-library/react      | ^16     | RTL for component rendering                                         |
-| @testing-library/jest-dom   | ^6      | Custom DOM matchers                                                 |
-| @testing-library/user-event | ^14     | Higher-level user interaction simulation (available, use sparingly) |
-
-### Commands
-
-```
-npm run build                 # production bundle
-npm run dev                   # watch mode
-npm test                      # all Jest tests
-npm run test:watch            # jest --watch
-npm run test:coverage         # jest --coverage (threshold: 80% lines)
-npm run test:e2e              # E2E via CDP (requires running Obsidian on port 9222)
-npm run test:e2e:launch       # kill Obsidian, create fresh .e2e-vault/, relaunch
-npm run test:e2e:home         # E2E home tab suites only
-npm run test:e2e:insert       # E2E insert tab suites only
-```
-
----
-
 ## 3. Directory Structure
 
 ```
 onenote-ribbon/
 ├── src/
-│   ├── main.ts              ← plugin entry; registers RibbonShell only
+│   ├── main.ts
 │   ├── __mocks__/
-│   │   └── obsidian.ts      ← Jest mock for 'obsidian' module
-│   ├── test-utils/          ← shared test helpers (excluded from coverage)
-│   │   ├── MockEditor.ts
-│   │   ├── mockApp.ts
-│   │   ├── renderWithApp.tsx
-│   │   └── setup.ts
-│   ├── ribbon/              ← top-level ribbon wiring
-│   │   ├── ribbon-app.css
-│   │   ├── RibbonApp.tsx
-│   │   ├── RibbonShell.ts
-│   │   ├── tabs.ts
-│   │   └── tab-bar/
-│   │       ├── tab-bar.css
-│   │       └── TabBar.tsx
+│   ├── assets/
+│   ├── e2e/
+│   ├── ribbon/
 │   ├── shared/
 │   │   ├── components/
-│   │   │   └── dropdown/
-│   │   │       ├── dropdown.css
-│   │   │       └── Dropdown.tsx
-│   │   ├── context/         ← AppContext, FormatPainterContext
-│   │   │   ├── AppContext.ts
-│   │   │   └── FormatPainterContext.ts
-│   │   ├── dropdown/
-│   │   │   ├── Dropdown.ts
+│   │   │   ├── color-picker/
+│   │   │   ├── dropdown/
+│   │   │   ├── group-shell/
+│   │   │   └── ribbon-button/
+│   │   ├── context/
+│   │   ├── editor/
 │   │   └── hooks/
-│   │   │   ├── useFormatPainter.ts
-│   │   │   └── useRibbonState.ts
-│   └── tabs/
-│       ├── home/
-│       │   ├── home-tab-panel.css
-│       │   ├── HomeTabPanel.test.tsx
-│       │   ├── HomeTabPanel.tsx
-│       │   ├── __snapshots__/
-│       │   │   └── HomeTabPanel.test.tsx.snap
-│       │   ├── clipboard/
-│       │   │   ├── clipboard-group.css
-│       │   │   ├── ClipboardGroup.tsx
-│       │   │   ├── format-painter/
-│       │   │   │   └── helpers.ts
-│       │   │   └── paste-options/
-│       │   │       ├── paste-options-dropdown.css
-│       │   │       └── PasteOptionsDropdown.tsx
-│       │   ├── basic-text/
-│       │   │   ├── basic-text-group.css
-│       │   │   ├── BasicTextGroup.tsx
-│       │   │   ├── helpers.ts
-│       │   │   ├── align-button/
-│       │   │   │   ├── align-button.css
-│       │   │   │   └── AlignButton.tsx
-│       │   │   ├── font-picker/
-│       │   │   │   ├── font-picker.css
-│       │   │   │   ├── FontPicker.tsx
-│       │   │   │   └── helpers.ts
-│       │   │   ├── highlight-text-color/
-│       │   │   │   ├── highlight-text-color.css
-│       │   │   │   └── HighlightTextColor.tsx
-│       │   │   └── script-buttons/
-│       │   │       ├── script-buttons.css
-│       │   │       └── ScriptButtons.tsx
-│       │   ├── styles/
-│       │   │   ├── styles-group.css
-│       │   │   ├── StylesGroup.tsx
-│       │   │   ├── styles-data.ts
-│       │   ├── tags/
-│       │   │   ├── tags-group.css
-│       │   │   ├── TagsGroup.tsx
-│       │   ├── email/
-│       │   │   ├── EmailGroup.tsx
-│       │   └── navigate/
-│       │       ├── NavigateGroup.tsx
-│       ├── insert/
-│       │   ├── InsertTabPanel.tsx
-│       │   └── (sub-groups planned, not scaffolded yet)
-│       └── draw/ history/ review/ view/ help/   ← stub tabs (no src files yet)
+│   ├── tabs/
+│   │   ├── home/
+│   │   │   ├── basic-text/
+│   │   │   ├── clipboard/
+│   │   │   ├── email/
+│   │   │   ├── navigate/
+│   │   │   ├── styles/
+│   │   │   ├── tags/
+│   │   │   ├── tests/
+│   │   └── insert/
+│   ├── test-utils/
+│   └── types/
+├── scripts/
+│   ├── e2e/
+│   ├── esbuild/
+│   ├── hooks/
+│   └── jest/
+├── docs/
+├── plans/
+├── coverage/
+├── dist/
+├── main.js
+├── styles.css
+├── package.json
+└── tsconfig.json
 ```
 
 ---
 
-## 4. Module Layout (Per-Feature Pattern)
+## 4. Module Layout And File Limits (Strict)
 
-Every feature module (group, button, helper) follows this layout:
+Every feature folder must follow this limit-first structure:
 
 ```
 <feature>/
-├── README.md                ← purpose, props, behavior summary
-├── <Feature>.tsx            ← React component (PascalCase)
-├── <feature>.css            ← scoped CSS (if any)
-├── constants.ts             ← ALL constants for this feature (required)
-├── interfaces.ts            ← ALL types and interfaces for this feature (required)
-├── <helper>.ts              ← pure logic extracted from component (if any)
-├── <Feature>.test.tsx       ← colocated RTL test (same folder as component)
-└── __snapshots__/           ← optional Jest snapshots
+├── <Feature>.tsx or <feature>.ts   ← one primary implementation file only
+├── constants.ts                    ← one constants file only. All constants should only be here.
+├── interfaces.ts                   ← one interfaces file only. All types, interfaces should only be here.
+└── helpers.ts                      ← one helper file only. Any function that can be separated should be separated to helpers
 ```
 
-**Rules:**
+**Required limits (no exceptions):**
 
-- `constants.ts` and `interfaces.ts` are **strictly required** in every feature folder. No constants or type definitions may be inlined inside `.tsx` or `.ts` source files — they must live in these dedicated files and be imported from them.
-- Source files (`.ts`, `.tsx`, `.css`) live **directly** in the feature folder.
-- Test files (`.test.ts`, `.test.tsx`) live **in the same folder** as the source they test.
-- Snapshot files live in `__snapshots__/` next to the colocated test file when Jest creates them.
-- `README.md` files are allowed at folder level — not test files.
-- Every new logical block (pure function, hook, utility, transformation) must be extracted into its own file, exported from that file, and called from the editing file. Its unit tests must be colocated in the same folder and cover every variation of parameters and every return path.
-
-### Folder Organization Rules
-
-- **One index file per folder:** Each feature folder may have **at most one main component** (e.g., `BasicTextGroup.tsx`) and **at most one helper file** (e.g., `clearFormatting.ts`).
-- **Mandatory constants and interfaces:** Every feature folder must contain `constants.ts` (all magic values, string literals, default configs) and `interfaces.ts` (all TypeScript types and interfaces). These are not optional — a feature folder without them is incomplete.
-- **Subfolder pattern for overflow:** If a folder needs more than one component or helper, create a subfolder with its own index and helper, following the same pattern.
-- **No sibling files at the same level:** Related utilities, helpers, and data files must be organized into their own subfolders (e.g., `format-painter/`, `tag-apply/`) with their own index files.
-- **Always check for redundancy:** Before adding a new file, verify that similar logic does not already exist elsewhere in the codebase. Consolidate duplicated logic into a shared utility (e.g., `src/shared/`).
-- **Naming consistency:** The folder name (kebab-case) must match the file purpose. Example: `format-painter/` contains `helpers.ts` (and optional colocated `helpers.test.ts`).
+- Each folder may contain only one primary implementation file, one `constants.ts`, one `interfaces.ts`, and one `helpers.ts`.
+- Each source file must stay at or below 150 lines, excluding import lines.
+- If any file would exceed 150 lines, split the logic into a subfolder and apply the exact same limits there.
+- If `helpers.ts` would exceed 150 lines, create a `helpers/` folder and split helper logic into helper subfolders; each helper subfolder must follow the same one-file + `constants.ts` + `interfaces.ts` + `helpers.ts` rule and the same 150-line limit.
+- Keep naming consistent: folder names in kebab-case, component files in PascalCase, and logic/helper files in camelCase.
+- Avoid duplicate logic across sibling folders; move shared logic into a shared subfolder with the same limits.
 
 ---
 
@@ -220,20 +129,19 @@ export function MyGroup({ editorState }: Props) {
 
 ### Buttons And Groups
 
-- Button markup uses `onr-btn` (large) and `onr-btn-sm` (small) classes.
+- Use the shared `RibbonButton` component for ribbon buttons (large and small), which applies the `onr-btn` / `onr-btn-sm` classes and shared interaction behavior.
 - Groups use `onr-group` wrappers with a `onr-group-name` label element.
 - Use `data-cmd` attributes on interactive controls for test and automation targeting.
 
 ### Dropdown
 
-- Use `<Dropdown>` React component (portal) for all dropdowns — never imperative DOM.
+- Use the shared `<Dropdown>` React component (portal) for all dropdowns — never imperative DOM.
 - Pass `anchor` (HTMLElement | null) to control open/close.
 - Items use `className="onr-dd-item"` and `data-cmd` for test selection.
 
 ### Active state
 
 - Active/toggled UI state is managed locally per group and via shared contexts (for example, format painter context).
-- There is no shared `useEditorState` hook in the current structure.
 
 ---
 
@@ -299,7 +207,6 @@ import { parseCssString } from '../../../shared/components/dropdown/Dropdown';
 ## 7. CSS Conventions
 
 - **Design gate**: before adding any new component or style, read `design.md`. Every visual choice (color, spacing, shadow, icon, transition) must trace back to a named principle in that document. If the choice is not covered, update `design.md` first, then add the code.
-- **Tokens**: global design tokens live in `src/styles/tokens.css` (CSS custom properties).
 - **Scoped CSS**: each feature may have a `<feature>.css` with `onr-` prefixed class names.
 - **No inline styles** in components except for dynamic values (e.g., dropdown position).
 - **Class naming**: BEM-inspired with `onr-` prefix. Block = `onr-<component>`, modifier = `onr-<state>`.
@@ -312,30 +219,12 @@ import { parseCssString } from '../../../shared/components/dropdown/Dropdown';
 
 ## 8. Test Conventions (CRITICAL)
 
-### Three test layers
-
-| Layer           | Files                 | Tool          | What it tests                                                                                     |
-| --------------- | --------------------- | ------------- | ------------------------------------------------------------------------------------------------- |
-| **Unit**        | `*.test.ts`           | Jest (no DOM) | Pure logic functions (clearFormatting, stripFormatting, applyFormatPainter, parseCssString, etc.) |
-| **Integration** | `*.test.tsx`          | Jest + RTL    | React components: render, click → editor mutation, dropdown open/close, active state              |
-| **E2E**         | `scripts/e2e/` runner | CDP (Node)    | Live Obsidian with real vault; see `npm run test:e2e`                                             |
-
-### File location rule
-
-```
-✅ src/tabs/home/basic-text/BasicTextGroup.test.tsx
-✅ src/shared/hooks/useRibbonState.test.ts
-❌ src/tabs/home/basic-text/tests/BasicTextGroup.test.tsx
-❌ src/shared/hooks/tests/useRibbonState.test.ts
-```
-
 **All test files must be colocated in the same folder as the module they test.**
 
 ### Test file naming
 
 - Unit tests for pure logic: `<fileName>.test.ts`
 - RTL integration tests for components: `<ComponentName>.test.tsx`
-- Panel-level smoke tests: `<PanelName>TabPanel.test.tsx`
 
 ### Test utilities (src/test-utils/)
 
@@ -343,13 +232,6 @@ import { parseCssString } from '../../../shared/components/dropdown/Dropdown';
 // Factories
 createMockApp(editor?)               // app with no active editor (pass MockEditor to attach one)
 createAppWithEditor(content)         // { app, editor } with content pre-loaded
-
-// Render wrapper (provides AppContext + FormatPainterContext)
-renderWithApp(<Component />, app)
-
-// Finding dropdown items (sublabels — do not use getByText directly)
-const ddItem = (phrase) =>
-  screen.getByText((t, el) => !!el?.classList.contains('onr-dd-item') && t.includes(phrase));
 ```
 
 ### RTL test patterns
@@ -374,9 +256,7 @@ describe('FeatureGroup — description (integration)', () => {
   it('is no-op when no active editor', () => {
     const app = createMockApp();
     renderWithApp(<FeatureGroup />, app);
-    expect(() =>
-      fireEvent.click(screen.getByText('Button Label')),
-    ).not.toThrow();
+    expect(() => fireEvent.click(screen.getByText('Button Label'))).not.toThrow();
   });
 });
 ```
@@ -408,39 +288,6 @@ await act(async () => {
 - `jest-dom` matchers (`.toBeInTheDocument()`, `.toHaveClass()`, etc.) loaded in `src/test-utils/setup.ts` via `setupFilesAfterEnv`
 - `window.moment` is not available in jsdom — timestamp tests use regex patterns (`/^\d{4}-\d{2}-\d{2}$/`)
 
-### Coverage
-
-- `npm run test:coverage` must pass threshold: **80% lines** (currently ~97%)
-- Each test file must cover **every variation of parameters and every return path** of the logic it tests.
-- Excluded from coverage:
-  - `src/__mocks__/**` — mocks
-  - `src/test-utils/**` — test helpers
-  - `src/main.ts` — plugin entry
-  - `src/ribbon/RibbonShell.ts` — DOM mount (untestable in jsdom)
-  - `src/tabs/draw/**` `src/tabs/history/**` `src/tabs/review/**` `src/tabs/view/**` `src/tabs/help/**` — stub tabs
-  - `src/**/*.integration.ts` `src/**/*.combinations.ts` — E2E eval strings (if any remain)
-
----
-
-## 9. Build Configuration
-
-### tsconfig.json (production)
-
-- `module: ESNext`, `moduleResolution: bundler` — for esbuild
-- `jsx: react-jsx`, `jsxImportSource: react`
-- `strict: true`, `noImplicitAny: true`
-
-### ts-jest override (tests only, in jest.config.js)
-
-- `module: commonjs`, `moduleResolution: node` — Jest requires CJS
-- `diagnostics: false` — type errors are caught by `tsc`; ts-jest is transpile-only in tests
-
-### esbuild.config.mjs
-
-- Output: `main.js` at project root
-- External: `obsidian`, `electron`, NodeJS builtins
-- Source maps: off in production
-
 ---
 
 ## 10. Code Quality Rules
@@ -466,99 +313,17 @@ await act(async () => {
 
 ---
 
-## 11. E2E Test Runner
-
-The CDP runner (`scripts/e2e/run-e2e.mjs`) is a zero-dependency Node 24 script:
-
-- Connects to Obsidian at `localhost:9222` via Chrome DevTools Protocol (WebSocket + fetch)
-- Use `npm run test:e2e:launch` to kill existing `Obsidian.exe`, create `.e2e-vault/`, and relaunch
-- `--suite <names>` flag: comma-separated suite filter (also available as `test:e2e:home` / `test:e2e:insert`)
-- E2E runner and connector infrastructure live in `scripts/e2e/` (for example: `run-e2e.ts`, `suite-loader/`, `cdp-qa/`).
-- E2E suite definition files live in `src/e2e/` and are executed by the runner through `--suite` filtering.
-- Legacy `src/**/*.integration.ts` and `src/**/*.combinations.ts` patterns are excluded from coverage for historical reasons; no new files should use those patterns
-
-> **Do not confuse E2E with RTL integration tests.** RTL tests run in jsdom with mock Obsidian — they are the primary test layer. E2E only runs against a live Obsidian instance.
-
----
-
-## 12. Plan File Location
-
-Every new plan must be created in its own dated subfolder:
-
-```
-plans/YYYY-MM-DD-<short-name>/plan.md
-```
-
-Examples:
-
-- `plans/2026-04-09-css-refactor/plan.md`
-- `plans/2026-04-09-insert-tab-icons/plan.md`
-
-Use today's date (ISO 8601) and a short kebab-case name derived from the task. The folder must contain only `plan.md` unless the plan explicitly calls for additional files (e.g. mockups, screenshots).
-
----
-
 ## 13. Enforce before any task completion
 
-1. All new test files are colocated with source files
-2. `npm test` must pass with 0 failures
-3. No imports from `vitest` — Jest only
-4. TypeScript strict mode — no unguarded `any`
-5. Every editor handler guards: `const editor = getEditor(); if (!editor) return;`
-6. Dropdown and modal tests include both snapshot assertions and computed CSS assertions
-7. Any new component or CSS addition traces back to a principle in `design.md` — if the design choice is not covered, update `design.md` first
-8. Every new feature folder contains both `constants.ts` and `interfaces.ts` — no constants or type definitions inlined in component files
-9. Source files do not exceed 150 lines, excluding import statements
+4. Strict Lint. And TypeScript strict mode — no unguarded `any`
+5. Dropdown and modal tests include both snapshot assertions and computed CSS assertions
+6. Any new component or CSS addition traces back to a principle in `design.md` — if the design choice is not covered, update `design.md` first
+7. Every new feature folder contains both `constants.ts` and `interfaces.ts` — no constants or type definitions inlined in component files
 
 ---
 
 ## 14. Obsidian Plugin Development Workflow
 
-### Before any task: Verify Obsidian MCP is Running
-
-1. **Check if Obsidian is running in debug mode** on port 9222 (Chrome DevTools Protocol)
-2. If Obsidian is not running or MCP is unavailable:
-   - Kill any running Obsidian process: `taskkill /IM Obsidian.exe /F`
-   - Relaunch Obsidian in debug mode via MCP
-3. **Never proceed with development tasks until MCP is verified running** — it is required for E2E testing and live plugin verification
-
-### After completing any code change: Test in Obsidian
-
-1. **Run Jest unit tests first**: `npm test` must pass with 0 failures
-2. **Test the change live in Obsidian** via E2E tests or manual verification using MCP:
-   - Use `npm run test:e2e` to run E2E test suite (requires Obsidian running on port 9222)
-   - Or manually verify in the live Obsidian instance connected via MCP
-3. **Do not claim work is complete** until changes are tested in the actual Obsidian environment
-4. If live testing reveals issues not caught by unit tests, investigate and fix before completion
-
-### Obsidian MCP Connection Checklist
-
-- [ ] Obsidian.exe is running in debug mode (port 9222)
-- [ ] MCP is connected and responding
-- [ ] `npm run dev` watch build is running
-- [ ] Plugin is reloaded in Obsidian (`app.plugins.disablePlugin → enablePlugin`)
-- [ ] Changes are visible in the ribbon UI
-- [ ] E2E tests pass or manual testing confirms behavior
+Before any task, verify Obsidian is running in debug mode on port 9222 (CDP); if not, kill any running `Obsidian.exe` and relaunch via MCP — never proceed until MCP is confirmed. After every code change, run `npm test` first (must pass with 0 failures), then test live in Obsidian via `npm run test:e2e` or manual MCP verification (`npm run dev` watch build running, plugin reloaded via `disablePlugin → enablePlugin`). Do not claim work is complete until changes are confirmed in the actual Obsidian environment. When stuck, do not give up — add debug logging or instrumentation, re-run with the added output, and continue with evidence-based fixes. If still unable to proceed, ask the user to run the code and share the debug output. Never declare defeat without first exhausting debug-driven investigation.
 
 ---
-
-## 15. Debugging Behavior
-
-When stuck or unable to find a solution:
-
-1. Do **not** give up or ask the user to figure it out.
-2. Add debug logging or instrumentation to the code to gather more information.
-3. Re-run or re-analyse with the added debug output.
-4. If still unable to proceed, ask the user to run the code and share the debug output.
-
-Never declare defeat without first exhausting debug-driven investigation. If analysis is taking too long without a clear answer, stop reasoning and add debug logging to gather concrete evidence instead.
-
----
-
-## 16. Non-obvious Behaviors
-
-- `clearFormatting` repeatedly strips `<span ...>...</span>` wrappers until stable, so nested font wrappers are fully removed.
-- `stripFormatting(sourceText, stripInline)` treats `stripInline = true` as preserve headings and strip only inline markup; default behavior strips headings too.
-- `applyFormatPainter` is a no-op for empty selections and only wraps non-empty selection text.
-- Enclosing-tag detection (HTML + Markdown) only returns tags that enclose the **entire** cursor/selection range. Tags that are merely inside a broader selection are intentionally ignored. Example: in `<u>as<b>s</b>asgs</u>`, selecting `as<b>s</b>asgs` returns `u` only; `b` is returned only when the cursor is inside `s` or the selection is within `b`'s content.
-- **Plugin reload for dev**: `app.plugins.disablePlugin('onenote-ribbon')` then `enablePlugin` — NOT `plugin.shell.mount()` (doesn't reload JS)
