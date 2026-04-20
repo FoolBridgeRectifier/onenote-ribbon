@@ -22,8 +22,8 @@ import {
 } from './obsidianVault/obsidianVault';
 import { parseCliArguments } from './parseCliArguments/parseCliArguments';
 import { runSuites } from './suiteExecution/suiteExecution';
-import { formatCoveragePercent } from './coverage/coverageReport';
-import { readJestCoverageLineThreshold } from './coverage/readJestCoverageThreshold';
+import { formatCoveragePercent } from './coverage/helpers';
+import { readJestCoverageLineThreshold } from './coverage/read-jest-coverage-threshold/readJestCoverageThreshold';
 import {
   startCoverageCollection,
   stopCoverageCollection,
@@ -35,7 +35,7 @@ import {
   saveReportJson,
   saveHtmlReport,
   generateUncoveredBranchesReport,
-} from './coverage/coverageReportGenerator';
+} from './coverage/coverage-report-generator/coverageReportGenerator';
 import {
   cleanupTempNote,
   dismissTrustModal,

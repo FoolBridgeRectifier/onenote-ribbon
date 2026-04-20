@@ -9,7 +9,7 @@ import {
   extractInlineSourceMap,
   findOriginalPosition,
   getOriginalSourceFiles,
-} from './sourceMapResolver';
+} from './source-map-resolver/sourceMapResolver';
 
 export interface CoverageRange {
   startOffset: number;

@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 
-import { readJestCoverageLineThreshold } from '../readJestCoverageThreshold';
+import { readJestCoverageLineThreshold } from './readJestCoverageThreshold';
 
 describe('readJestCoverageLineThreshold', () => {
   const temporaryDirectoryPath = fs.mkdtempSync(

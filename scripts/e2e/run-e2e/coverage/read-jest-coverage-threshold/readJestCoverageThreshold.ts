@@ -1,12 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const COVERAGE_LINES_PATTERN =
-  /coverageThreshold\s*:\s*\{[\s\S]*?global\s*:\s*\{[\s\S]*?lines\s*:\s*(\d+(?:\.\d+)?)/m;
+import { COVERAGE_LINES_PATTERN } from './constants';
 
-export function readJestCoverageLineThreshold(
-  rootPath: string,
-): number | null {
+export function readJestCoverageLineThreshold(rootPath: string): number | null {
   const jestConfigFilePath = path.join(rootPath, 'jest.config.js');
 
   if (!fs.existsSync(jestConfigFilePath)) {

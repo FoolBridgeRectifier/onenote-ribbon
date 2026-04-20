@@ -7,8 +7,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import type { CoverageData, CoverageSummary, SourceMappedCoverage } from './cdpCoverage';
-import { mapCoverageToSource } from './cdpCoverage';
+import type { CoverageData, CoverageSummary, SourceMappedCoverage } from '../cdpCoverage';
+import { mapCoverageToSource } from '../cdpCoverage';
 
 export interface FileCoverage {
   filePath: string;
