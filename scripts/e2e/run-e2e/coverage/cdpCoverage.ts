@@ -4,7 +4,7 @@
  */
 
 import type { CdpClient } from '../cdpClient/cdpClient';
-import type { ParsedSourceMap } from './sourceMapResolver';
+import type { ParsedSourceMap } from './source-map-resolver/sourceMapResolver';
 import {
   extractInlineSourceMap,
   findOriginalPosition,
