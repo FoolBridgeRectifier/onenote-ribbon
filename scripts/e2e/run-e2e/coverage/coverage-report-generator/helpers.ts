@@ -4,6 +4,7 @@ import type { FileCoverage } from './interfaces';
 import { analyzeFileCoverage } from './analyze-file-coverage/analyzeFileCoverage';
 
 export { analyzeFileCoverage };
+export { inferBranchType, isExecutableLine, getLineFromOffset } from './analyze-file-coverage/analyzeFileCoverage';
 
 /**
  * Calculate summary from file coverages.
