@@ -5,8 +5,11 @@ import {
   buildStylingContextFromEditor,
   applyStylingResult,
 } from './editor-integration/EditorIntegration';
+import * as EditorIntegrationModule from './editor-integration/EditorIntegration';
 import {
   toggleTagInEditor,
+  addTagInEditor,
+  removeTagInEditor,
   removeAllTagsInEditor,
   copyFormatFromEditor,
 } from './editor-integration/helpers';
@@ -309,5 +312,77 @@ describe('edge cases', () => {
     expect(context!.selectionStartOffset).toBe(0);
     expect(context!.selectionEndOffset).toBe(0);
     expect(context!.selectedText).toBe('');
+  });
+});
+
+// ============================================================
+// addTagInEditor and removeTagInEditor end-to-end
+// ============================================================
+
+describe('addTagInEditor end-to-end', () => {
+  it('adds underline tag to the selected text', () => {
+    const editor = createTestEditor('hello');
+    editor.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 5 });
+
+    addTagInEditor(editor, UNDERLINE_TAG);
+
+    expect(editor.getValue()).toBe('<u>hello</u>');
+  });
+});
+
+describe('removeTagInEditor end-to-end', () => {
+  it('removes the underline tag from the selected text', () => {
+    const editor = createTestEditor('<u>hello</u>');
+    editor.setSelection({ line: 0, ch: 3 }, { line: 0, ch: 8 });
+
+    removeTagInEditor(editor, UNDERLINE_TAG);
+
+    expect(editor.getValue()).toBe('hello');
+  });
+});
+
+// ============================================================
+// Null context guard (mocked buildStylingContextFromEditor)
+// ============================================================
+
+describe('null context guard — all helpers return early when context is null', () => {
+  beforeEach(() => {
+    jest.spyOn(EditorIntegrationModule, 'buildStylingContextFromEditor').mockReturnValue(null);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('toggleTagInEditor returns without throwing when context is null', () => {
+    const editor = createTestEditor('hello');
+    expect(() => toggleTagInEditor(editor, UNDERLINE_TAG)).not.toThrow();
+    expect(editor.getValue()).toBe('hello');
+  });
+
+  it('addTagInEditor returns without throwing when context is null', () => {
+    const editor = createTestEditor('hello');
+    expect(() => addTagInEditor(editor, UNDERLINE_TAG)).not.toThrow();
+    expect(editor.getValue()).toBe('hello');
+  });
+
+  it('removeTagInEditor returns without throwing when context is null', () => {
+    const editor = createTestEditor('hello');
+    expect(() => removeTagInEditor(editor, UNDERLINE_TAG)).not.toThrow();
+    expect(editor.getValue()).toBe('hello');
+  });
+
+  it('removeAllTagsInEditor returns without throwing when context is null', () => {
+    const editor = createTestEditor('<u>hello</u>');
+    expect(() => removeAllTagsInEditor(editor)).not.toThrow();
+    expect(editor.getValue()).toBe('<u>hello</u>');
+  });
+
+  it('copyFormatFromEditor returns null when context is null', () => {
+    const editor = createTestEditor('<u>hello</u>');
+
+    const result = copyFormatFromEditor(editor);
+
+    expect(result).toBeNull();
   });
 });

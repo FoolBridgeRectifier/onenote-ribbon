@@ -1,4 +1,3 @@
-
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ColorPicker } from '../ColorPicker';
 
@@ -43,7 +42,7 @@ describe('ColorPicker', () => {
         onColorSelect={jest.fn()}
         onNoColor={jest.fn()}
         onClose={jest.fn()}
-      />,
+      />
     );
 
     const swatches = document.body.querySelectorAll('.onr-cp-swatch');
@@ -64,7 +63,7 @@ describe('ColorPicker', () => {
         onColorSelect={handleColorSelect}
         onNoColor={jest.fn()}
         onClose={handleClose}
-      />,
+      />
     );
 
     const swatches = document.body.querySelectorAll('.onr-cp-swatch');
@@ -86,7 +85,7 @@ describe('ColorPicker', () => {
         onColorSelect={jest.fn()}
         onNoColor={handleNoColor}
         onClose={handleClose}
-      />,
+      />
     );
 
     fireEvent.click(screen.getByText('Automatic / No Color'));
@@ -105,12 +104,10 @@ describe('ColorPicker', () => {
         onColorSelect={jest.fn()}
         onNoColor={jest.fn()}
         onClose={jest.fn()}
-      />,
+      />
     );
 
-    const activeSwatches = document.body.querySelectorAll(
-      '.onr-cp-swatch-active',
-    );
+    const activeSwatches = document.body.querySelectorAll('.onr-cp-swatch-active');
 
     expect(activeSwatches.length).toBe(1);
     expect(activeSwatches[0].getAttribute('title')).toBe('#ff0000');
@@ -128,12 +125,10 @@ describe('ColorPicker', () => {
         onColorSelect={handleColorSelect}
         onNoColor={jest.fn()}
         onClose={handleClose}
-      />,
+      />
     );
 
-    const hexInput = document.body.querySelector(
-      '.onr-cp-hex-input',
-    ) as HTMLInputElement;
+    const hexInput = document.body.querySelector('.onr-cp-hex-input') as HTMLInputElement;
 
     fireEvent.change(hexInput, { target: { value: '#abcdef' } });
     fireEvent.click(screen.getByText('Apply'));
@@ -153,12 +148,10 @@ describe('ColorPicker', () => {
         onColorSelect={handleColorSelect}
         onNoColor={jest.fn()}
         onClose={jest.fn()}
-      />,
+      />
     );
 
-    const hexInput = document.body.querySelector(
-      '.onr-cp-hex-input',
-    ) as HTMLInputElement;
+    const hexInput = document.body.querySelector('.onr-cp-hex-input') as HTMLInputElement;
 
     fireEvent.change(hexInput, { target: { value: 'not-a-color' } });
     fireEvent.click(screen.getByText('Apply'));
@@ -177,12 +170,10 @@ describe('ColorPicker', () => {
         onColorSelect={handleColorSelect}
         onNoColor={jest.fn()}
         onClose={jest.fn()}
-      />,
+      />
     );
 
-    const hexInput = document.body.querySelector(
-      '.onr-cp-hex-input',
-    ) as HTMLInputElement;
+    const hexInput = document.body.querySelector('.onr-cp-hex-input') as HTMLInputElement;
 
     // 5-digit hex is not valid CSS
     fireEvent.change(hexInput, { target: { value: '#12345' } });
@@ -206,9 +197,101 @@ describe('ColorPicker', () => {
         onNoColor={jest.fn()}
         onClose={jest.fn()}
         label="Highlight Color"
-      />,
+      />
     );
 
     expect(screen.getByText('Highlight Color')).toBeInTheDocument();
+  });
+
+  it('accepts hex value without # prefix and prepends it automatically', () => {
+    const anchorElement = createAnchorElement();
+    const handleColorSelect = jest.fn();
+    const handleClose = jest.fn();
+
+    render(
+      <ColorPicker
+        anchor={anchorElement}
+        selectedColor={null}
+        onColorSelect={handleColorSelect}
+        onNoColor={jest.fn()}
+        onClose={handleClose}
+      />
+    );
+
+    const hexInput = document.body.querySelector('.onr-cp-hex-input') as HTMLInputElement;
+
+    // Input without leading # — should be accepted and prepended automatically
+    fireEvent.change(hexInput, { target: { value: 'aabbcc' } });
+    fireEvent.click(screen.getByText('Apply'));
+
+    expect(handleColorSelect).toHaveBeenCalledWith('#aabbcc');
+    expect(handleClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('submits on Enter key in the hex input field', () => {
+    const anchorElement = createAnchorElement();
+    const handleColorSelect = jest.fn();
+    const handleClose = jest.fn();
+
+    render(
+      <ColorPicker
+        anchor={anchorElement}
+        selectedColor={null}
+        onColorSelect={handleColorSelect}
+        onNoColor={jest.fn()}
+        onClose={handleClose}
+      />
+    );
+
+    const hexInput = document.body.querySelector('.onr-cp-hex-input') as HTMLInputElement;
+
+    fireEvent.change(hexInput, { target: { value: '#112233' } });
+    fireEvent.keyDown(hexInput, { key: 'Enter' });
+
+    expect(handleColorSelect).toHaveBeenCalledWith('#112233');
+    expect(handleClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not submit on non-Enter keys in the hex input field', () => {
+    const anchorElement = createAnchorElement();
+    const handleColorSelect = jest.fn();
+
+    render(
+      <ColorPicker
+        anchor={anchorElement}
+        selectedColor={null}
+        onColorSelect={handleColorSelect}
+        onNoColor={jest.fn()}
+        onClose={jest.fn()}
+      />
+    );
+
+    const hexInput = document.body.querySelector('.onr-cp-hex-input') as HTMLInputElement;
+
+    fireEvent.change(hexInput, { target: { value: '#112233' } });
+    fireEvent.keyDown(hexInput, { key: 'Tab' });
+
+    expect(handleColorSelect).not.toHaveBeenCalled();
+  });
+
+  it('does nothing when Apply is clicked with an empty hex input', () => {
+    const anchorElement = createAnchorElement();
+    const handleColorSelect = jest.fn();
+    const handleClose = jest.fn();
+
+    render(
+      <ColorPicker
+        anchor={anchorElement}
+        selectedColor={null}
+        onColorSelect={handleColorSelect}
+        onNoColor={jest.fn()}
+        onClose={handleClose}
+      />
+    );
+
+    fireEvent.click(screen.getByText('Apply'));
+
+    expect(handleColorSelect).not.toHaveBeenCalled();
+    expect(handleClose).not.toHaveBeenCalled();
   });
 });

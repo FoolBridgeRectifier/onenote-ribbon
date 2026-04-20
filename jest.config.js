@@ -60,12 +60,6 @@ module.exports = {
     "/e2e/",
     "\\.test\\.(ts|tsx|cjs)$",
   ],
-  coverageThreshold: {
-    global: {
-      branches: 68,
-      functions: 76,
-      lines: 80,
-      statements: 80,
-    },
-  },
+  coverageThreshold: {},
+  globalTeardown: "<rootDir>/scripts/jest/per-file-coverage-threshold/perFileCoverageThreshold.cjs",
 };

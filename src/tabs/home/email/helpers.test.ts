@@ -12,9 +12,7 @@ import type { SendNoteByEmailDependencies } from './interfaces';
 
 describe('convertMarkdownToHtmlBody', () => {
   it('converts h1 through h6 ATX headings', () => {
-    const result = convertMarkdownToHtmlBody(
-      '# H1\n## H2\n### H3\n#### H4\n##### H5\n###### H6',
-    );
+    const result = convertMarkdownToHtmlBody('# H1\n## H2\n### H3\n#### H4\n##### H5\n###### H6');
     expect(result).toContain('<h1>H1</h1>');
     expect(result).toContain('<h2>H2</h2>');
     expect(result).toContain('<h3>H3</h3>');
@@ -109,9 +107,7 @@ describe('convertMarkdownToHtmlBody', () => {
   });
 
   it('wraps fenced code block content in pre/code and escapes HTML inside', () => {
-    const result = convertMarkdownToHtmlBody(
-      '```\n<script>evil()</script>\n```',
-    );
+    const result = convertMarkdownToHtmlBody('```\n<script>evil()</script>\n```');
     expect(result).toContain('<pre><code>');
     expect(result).toContain('&lt;script&gt;evil()&lt;/script&gt;');
     expect(result).toContain('</code></pre>');
@@ -246,9 +242,7 @@ describe('stripMarkdownToPlainText', () => {
   });
 
   it('converts markdown links to their visible text only', () => {
-    expect(stripMarkdownToPlainText('[click here](https://example.com)')).toBe(
-      'click here',
-    );
+    expect(stripMarkdownToPlainText('[click here](https://example.com)')).toBe('click here');
   });
 
   it('trims leading and trailing whitespace from the result', () => {
@@ -299,9 +293,7 @@ describe('buildEmlContent', () => {
 
   it('marks both parts as base64 encoded', () => {
     const result = buildEmlContent('html', 'text', 'Subject');
-    const base64OccurrenceCount = (
-      result.match(/Content-Transfer-Encoding: base64/g) ?? []
-    ).length;
+    const base64OccurrenceCount = (result.match(/Content-Transfer-Encoding: base64/g) ?? []).length;
     expect(base64OccurrenceCount).toBe(2);
   });
 
@@ -321,6 +313,14 @@ describe('buildEmlContent', () => {
   it('ends with the closing boundary marker', () => {
     const result = buildEmlContent('html', 'text', 'Subject');
     expect(result.trimEnd()).toMatch(/--onenote-ribbon-v1--$/);
+  });
+
+  it('handles empty htmlContent without throwing (covers the base64 null-coalescing fallback)', () => {
+    // Empty string → Buffer.from('', 'utf-8').toString('base64') = ''
+    // ''.match(/.{1,76}/g) returns null → falls back to [base64String] = ['']
+    const result = buildEmlContent('', '', 'Empty Subject');
+    expect(result).toContain('Subject: Empty Subject');
+    expect(result).toContain('--onenote-ribbon-v1--');
   });
 });
 
@@ -355,7 +355,7 @@ describe('buildEmlWithPdfAttachment', () => {
     // EML wraps base64 at 76 chars per RFC 2045 — check for the first 76-char line of the encoded body.
     const fullBase64 = Buffer.from(
       'Your note is attached and ready to share.\n\nHope this makes your day a little brighter.',
-      'utf-8',
+      'utf-8'
     ).toString('base64');
     expect(result).toContain(fullBase64.slice(0, 76));
   });
@@ -372,11 +372,7 @@ describe('buildEmlWithPdfAttachment', () => {
   });
 
   it('strips unsafe characters from the attachment filename', () => {
-    const result = buildEmlWithPdfAttachment(
-      fakePdf,
-      'Subject',
-      'Note: <Draft>',
-    );
+    const result = buildEmlWithPdfAttachment(fakePdf, 'Subject', 'Note: <Draft>');
     // Colon, space, angle brackets are stripped — only word chars, spaces, hyphens remain
     expect(result).toContain('filename="Note Draft.pdf"');
   });
@@ -407,9 +403,7 @@ describe('sendNoteByEmail', () => {
   } => {
     const buildHtml = jest
       .fn()
-      .mockResolvedValue(
-        '<!DOCTYPE html><html><body>rendered note</body></html>',
-      );
+      .mockResolvedValue('<!DOCTYPE html><html><body>rendered note</body></html>');
     const writeEmlToTemp = jest.fn().mockReturnValue('/tmp/My Note.eml');
     const openEmlFile = jest.fn().mockResolvedValue(undefined);
     const displayNotice = jest.fn();
@@ -443,18 +437,13 @@ describe('sendNoteByEmail', () => {
   it('calls generatePdf with the HTML returned by buildHtml', async () => {
     const { mockDependencies, generatePdf } = buildMockDependencies();
     await sendNoteByEmail('# My Note\nHello', 'My Note', mockDependencies);
-    expect(generatePdf).toHaveBeenCalledWith(
-      expect.stringContaining('<!DOCTYPE html>'),
-    );
+    expect(generatePdf).toHaveBeenCalledWith(expect.stringContaining('<!DOCTYPE html>'));
   });
 
   it('calls writeEmlToTemp with EML containing a PDF attachment and the note title', async () => {
     const { mockDependencies, writeEmlToTemp } = buildMockDependencies();
     await sendNoteByEmail('# My Note\nHello', 'My Note', mockDependencies);
-    expect(writeEmlToTemp).toHaveBeenCalledWith(
-      expect.stringContaining('MIME-Version'),
-      'My Note',
-    );
+    expect(writeEmlToTemp).toHaveBeenCalledWith(expect.stringContaining('MIME-Version'), 'My Note');
   });
 
   it('EML passed to writeEmlToTemp includes the note subject', async () => {
@@ -502,16 +491,16 @@ describe('sendNoteByEmail', () => {
   it('propagates errors thrown by openEmlFile', async () => {
     const { mockDependencies, openEmlFile } = buildMockDependencies();
     openEmlFile.mockRejectedValue(new Error('Cannot open file'));
-    await expect(
-      sendNoteByEmail('content', 'My Note', mockDependencies),
-    ).rejects.toThrow('Cannot open file');
+    await expect(sendNoteByEmail('content', 'My Note', mockDependencies)).rejects.toThrow(
+      'Cannot open file'
+    );
   });
 
   it('propagates errors thrown by generatePdf', async () => {
     const { mockDependencies, generatePdf } = buildMockDependencies();
     generatePdf.mockRejectedValue(new Error('PDF failed'));
-    await expect(
-      sendNoteByEmail('content', 'My Note', mockDependencies),
-    ).rejects.toThrow('PDF failed');
+    await expect(sendNoteByEmail('content', 'My Note', mockDependencies)).rejects.toThrow(
+      'PDF failed'
+    );
   });
 });

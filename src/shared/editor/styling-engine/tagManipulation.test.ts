@@ -259,6 +259,39 @@ describe('tagManipulation', () => {
       expect(result[0]).toEqual({ propertyName: 'font-size', propertyValue: '14pt' });
       expect(result[1]).toEqual({ propertyName: 'color', propertyValue: 'red' });
     });
+
+    it('skips declarations without a colon separator', () => {
+      // "display block" has no colon — should be ignored
+      const result = extractAllStyleProperties('<span style="display block;color:red">');
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({ propertyName: 'color', propertyValue: 'red' });
+    });
+
+    it('skips declarations with an empty property name', () => {
+      // ":red" has colon at index 0, so propertyName is ''
+      const result = extractAllStyleProperties('<span style=":red;color:blue">');
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({ propertyName: 'color', propertyValue: 'blue' });
+    });
+
+    it('skips declarations with an empty property value', () => {
+      // "color:" has propertyValue '' after trimming
+      const result = extractAllStyleProperties('<span style="color:;font-size:14pt">');
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({ propertyName: 'font-size', propertyValue: '14pt' });
+    });
+  });
+
+  describe('extractStylePropertyFromOpeningTag — no-match style content branch', () => {
+    it('returns null when style attribute exists but content has no colon-separated property', () => {
+      // The style attribute exists but contains content that the property regex does not match
+      const result = extractStylePropertyFromOpeningTag('<span style="">');
+
+      expect(result).toBeNull();
+    });
   });
 
   // ============================================================

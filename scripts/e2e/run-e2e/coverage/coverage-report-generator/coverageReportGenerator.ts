@@ -2,6 +2,12 @@
 
 import type { CoverageData } from '../cdpCoverage';
 import { mapCoverageToSource } from '../cdpCoverage';
+import type { MappedCoverageData } from '../interfaces';
+import {
+  readCollectCoverageFrom,
+  normalizeRawSourcePath,
+  shouldIncludeSourceFile,
+} from '../jest-coverage-filter/jestCoverageFilter';
 
 import type { FileCoverage, DetailedCoverageReport } from './interfaces';
 import {
@@ -24,14 +30,22 @@ export function generateDetailedReport(
   sourceFiles: Map<string, string>,
   duration: number,
   bundleContent?: string,
+  rootPath?: string
 ): DetailedCoverageReport {
   // If we have bundle content with source maps, use source-mapped coverage
   if (bundleContent) {
     const mappedCoverage = mapCoverageToSource(coverageData, bundleContent);
-    const files = convertMappedToFileCoverage(mappedCoverage.files);
+
+    // Filter to only the files jest would include via collectCoverageFrom
+    const coverageFromPatterns = rootPath ? readCollectCoverageFrom(rootPath) : [];
+    const filteredFiles = filterAndNormalizeMappedFiles(mappedCoverage.files, coverageFromPatterns);
+
+    const files = convertMappedToFileCoverage(filteredFiles);
+    // Recalculate summary so it reflects the filtered file set
+    const summary = calculateSummaryFromFiles(files);
 
     return {
-      summary: mappedCoverage.summary,
+      summary,
       files: files.sort((a, b) => b.lineCoverage - a.lineCoverage),
       timestamp: new Date().toISOString(),
       duration,
@@ -72,10 +86,45 @@ export function generateDetailedReport(
 }
 
 /**
+ * Filters mapped coverage files using jest's collectCoverageFrom patterns and
+ * normalizes raw source map paths (e.g. ../../src/foo.ts → src/foo.ts).
+ * When no patterns are provided every file is retained as-is.
+ */
+function filterAndNormalizeMappedFiles(
+  mappedFiles: Map<string, MappedCoverageData>,
+  collectCoverageFromPatterns: string[]
+): Map<string, MappedCoverageData> {
+  const filtered = new Map<string, MappedCoverageData>();
+
+  for (const [rawPath, data] of mappedFiles) {
+    const normalizedPath = normalizeRawSourcePath(rawPath);
+
+    if (!shouldIncludeSourceFile(normalizedPath, collectCoverageFromPatterns)) {
+      continue;
+    }
+
+    filtered.set(normalizedPath, { ...data, filePath: normalizedPath });
+  }
+
+  return filtered;
+}
+
+/**
  * Converts mapped coverage data to FileCoverage format.
  */
 function convertMappedToFileCoverage(
-  mappedFiles: Map<string, { filePath: string; coveredLines: Set<number>; uncoveredLines: Set<number>; coveredBranches: number; totalBranches: number; coveredFunctions: number; totalFunctions: number }>,
+  mappedFiles: Map<
+    string,
+    {
+      filePath: string;
+      coveredLines: Set<number>;
+      uncoveredLines: Set<number>;
+      coveredBranches: number;
+      totalBranches: number;
+      coveredFunctions: number;
+      totalFunctions: number;
+    }
+  >
 ): FileCoverage[] {
   const files: FileCoverage[] = [];
 
@@ -92,8 +141,10 @@ function convertMappedToFileCoverage(
       totalFunctions: data.totalFunctions,
       coveredFunctions: data.coveredFunctions,
       lineCoverage: totalLines > 0 ? (data.coveredLines.size / totalLines) * 100 : 0,
-      branchCoverage: data.totalBranches > 0 ? (data.coveredBranches / data.totalBranches) * 100 : 0,
-      functionCoverage: data.totalFunctions > 0 ? (data.coveredFunctions / data.totalFunctions) * 100 : 0,
+      branchCoverage:
+        data.totalBranches > 0 ? (data.coveredBranches / data.totalBranches) * 100 : 0,
+      functionCoverage:
+        data.totalFunctions > 0 ? (data.coveredFunctions / data.totalFunctions) * 100 : 0,
       uncoveredLines,
       uncoveredBranches: [],
       uncoveredFunctions: [],
@@ -106,9 +157,6 @@ function convertMappedToFileCoverage(
 /**
  * Save coverage report to JSON file.
  */
-export function saveReportJson(
-  report: DetailedCoverageReport,
-  outputPath: string,
-): void {
+export function saveReportJson(report: DetailedCoverageReport, outputPath: string): void {
   fs.writeFileSync(outputPath, JSON.stringify(report, null, 2));
 }

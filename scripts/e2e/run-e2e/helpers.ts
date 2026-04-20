@@ -87,12 +87,13 @@ export async function collectCoverageData(
   // Load source files for analysis
   const sourceFilesResult = await loadSourceFiles(rootPath);
 
-  // Generate detailed report with source map support
+  // Generate detailed report with source map support, filtering via jest collectCoverageFrom
   const detailedReport = generateDetailedReport(
     coverageData,
     sourceFilesResult.files,
     coverageDuration,
-    sourceFilesResult.bundleContent
+    sourceFilesResult.bundleContent,
+    rootPath
   );
 
   // Save reports to coverage/e2e directory
