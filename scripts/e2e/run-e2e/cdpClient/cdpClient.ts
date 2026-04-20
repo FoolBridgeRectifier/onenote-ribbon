@@ -1,4 +1,5 @@
 import { CDP_REQUEST_TIMEOUT_MS, WEBSOCKET_TIMEOUT_MS } from '../constants';
+import { isRecord } from './helpers';
 
 import type {
   CdpPendingRequest,
@@ -6,10 +7,6 @@ import type {
   CdpRuntimeEvaluateResponse,
   CdpTarget,
 } from '../interfaces';
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
 
 function parseProtocolResponse(rawMessage: string): CdpProtocolResponse {
   const parsedMessage = JSON.parse(rawMessage) as unknown;
