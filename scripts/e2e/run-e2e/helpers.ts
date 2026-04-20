@@ -1,6 +1,6 @@
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import { fileURLToPath } from 'url';
 
 import {
@@ -14,10 +14,7 @@ import {
   launchFreshObsidian,
   relaunchLiveObsidianDebug,
 } from './connectionStrategy/connectionStrategy';
-import {
-  loadSourceFiles,
-  stopCoverageCollection,
-} from './coverage/cdpCoverage';
+import { loadSourceFiles, stopCoverageCollection } from './coverage/cdpCoverage';
 import {
   generateDetailedReport,
   generateUncoveredBranchesReport,
@@ -46,7 +43,7 @@ export function createRunnerPaths(): RunnerPaths {
 export async function createLaunchSession(
   runnerPaths: RunnerPaths,
   cdpPort: number,
-  launchFresh: boolean,
+  launchFresh: boolean
 ): Promise<LaunchSession> {
   if (!launchFresh) {
     try {
@@ -60,7 +57,7 @@ export async function createLaunchSession(
       };
     } catch {
       console.log(
-        `      No running Obsidian CDP target detected on port ${cdpPort}. Restarting Obsidian in debug mode...`,
+        `      No running Obsidian CDP target detected on port ${cdpPort}. Restarting Obsidian in debug mode...`
       );
 
       const cdpClient = await relaunchLiveObsidianDebug(runnerPaths, cdpPort);
@@ -81,7 +78,7 @@ export async function collectCoverageData(
   cdpClient: CdpClient,
   rootPath: string,
   coverageStartTime: number,
-  options: { coverageReport: boolean; coverageHtml: boolean },
+  options: { coverageReport: boolean; coverageHtml: boolean }
 ): Promise<CoverageSummary> {
   console.log('      Collecting code coverage data...');
   const coverageData = await stopCoverageCollection(cdpClient);
@@ -95,7 +92,7 @@ export async function collectCoverageData(
     coverageData,
     sourceFilesResult.files,
     coverageDuration,
-    sourceFilesResult.bundleContent,
+    sourceFilesResult.bundleContent
   );
 
   // Save reports to coverage/e2e directory
@@ -116,10 +113,7 @@ export async function collectCoverageData(
 
   // Save uncovered branches report
   const uncoveredReport = generateUncoveredBranchesReport(detailedReport);
-  fs.writeFileSync(
-    path.join(coverageDir, 'uncovered-branches.md'),
-    uncoveredReport,
-  );
+  fs.writeFileSync(path.join(coverageDir, 'uncovered-branches.md'), uncoveredReport);
 
   // Print console report
   console.log('\n' + generateCoverageReport(detailedReport.summary, coverageData));

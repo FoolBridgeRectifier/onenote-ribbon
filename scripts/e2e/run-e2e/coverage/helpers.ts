@@ -1,3 +1,5 @@
+import type * as NodeFs from 'fs';
+
 import type { CoverageData, CoverageSummary } from './interfaces';
 import { PERCENT_DISPLAY_DECIMALS } from './constants';
 
@@ -68,7 +70,7 @@ export function isExecutableLine(line: string): boolean {
 /** Generates a text-format coverage report from a summary. */
 export function generateCoverageReport(
   summary: CoverageSummary,
-  coverageData: CoverageData,
+  coverageData: CoverageData
 ): string {
   const lines: string[] = [];
 
@@ -78,18 +80,22 @@ export function generateCoverageReport(
   lines.push('');
 
   lines.push('Summary:');
-  lines.push(`  Line Coverage:     ${formatCoveragePercent(summary.lineCoverage)} (${summary.coveredLines}/${summary.totalLines} lines)`);
-  lines.push(`  Branch Coverage:   ${formatCoveragePercent(summary.branchCoverage)} (${summary.coveredBranches}/${summary.totalBranches} branches)`);
-  lines.push(`  Function Coverage: ${formatCoveragePercent(summary.functionCoverage)} (${summary.coveredFunctions}/${summary.totalFunctions} functions)`);
+  lines.push(
+    `  Line Coverage:     ${formatCoveragePercent(summary.lineCoverage)} (${summary.coveredLines}/${summary.totalLines} lines)`
+  );
+  lines.push(
+    `  Branch Coverage:   ${formatCoveragePercent(summary.branchCoverage)} (${summary.coveredBranches}/${summary.totalBranches} branches)`
+  );
+  lines.push(
+    `  Function Coverage: ${formatCoveragePercent(summary.functionCoverage)} (${summary.coveredFunctions}/${summary.totalFunctions} functions)`
+  );
   lines.push(`  Overall Coverage:  ${formatCoveragePercent(summary.overallCoverage)}`);
   lines.push('');
 
   const uncoveredScripts = coverageData.result.filter(
     (script) =>
       isPluginScript(script.url) &&
-      !script.functions.some((func) =>
-        func.ranges.some((range) => range.count > 0),
-      ),
+      !script.functions.some((func) => func.ranges.some((range) => range.count > 0))
   );
 
   if (uncoveredScripts.length > 0) {
@@ -106,11 +112,8 @@ export function generateCoverageReport(
 }
 
 /** Saves raw coverage data as JSON for further analysis. */
-export function saveCoverageData(
-  coverageData: CoverageData,
-  outputPath: string,
-): void {
+export function saveCoverageData(coverageData: CoverageData, outputPath: string): void {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const fs = require('fs') as typeof import('fs');
+  const fs = require('fs') as typeof NodeFs;
   fs.writeFileSync(outputPath, JSON.stringify(coverageData, null, 2));
 }

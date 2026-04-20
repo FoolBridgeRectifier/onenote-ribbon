@@ -8,14 +8,17 @@ export function NavigateGroup() {
   const app = useApp();
 
   const handleOutline = () => {
+    // eslint-disable-next-line strict-structure/no-double-cast -- Obsidian's public App doesn't expose `commands`; internal API required
     (app as unknown as AppWithCommands).commands.executeCommandById('outline:open');
   };
 
   const handleFoldAll = () => {
+    // eslint-disable-next-line strict-structure/no-double-cast -- Obsidian's public App doesn't expose `commands`; internal API required
     (app as unknown as AppWithCommands).commands.executeCommandById('editor:fold-all');
   };
 
   const handleUnfoldAll = () => {
+    // eslint-disable-next-line strict-structure/no-double-cast -- Obsidian's public App doesn't expose `commands`; internal API required
     (app as unknown as AppWithCommands).commands.executeCommandById('editor:unfold-all');
   };
 

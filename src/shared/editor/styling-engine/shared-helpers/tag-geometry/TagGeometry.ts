@@ -1,5 +1,5 @@
-import type { TagDefinition } from '../../../interfaces';
-import type { HtmlTagRange } from '../../../../enclosing-html-tags/interfaces';
+import type { TagDefinition } from '../../interfaces';
+import type { HtmlTagRange } from '../../../enclosing-html-tags/interfaces';
 import { extractStylePropertyFromOpeningTag } from '../../tag-manipulation/style-parsing/StyleParsing';
 /** Comparator: sorts tag ranges by content width (inner-to-outer). */
 export function compareByContentWidth(rangeA: HtmlTagRange, rangeB: HtmlTagRange): number {

@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 
 import { buildSuiteExpression } from '../../suite-loader/buildSuiteExpression';
 import { SUITES } from '../../constants';
@@ -11,7 +11,7 @@ import type { SuiteResult } from '../../interfaces';
 export async function runSuites(
   cdpClient: CdpClient,
   rootPath: string,
-  suiteFilter: string[] | null,
+  suiteFilter: string[] | null
 ) {
   const suitesToRun = suiteFilter
     ? SUITES.filter((suite) => suiteFilter.includes(suite.name))
@@ -45,8 +45,7 @@ export async function runSuites(
         failedSuites.push(suite.name);
       }
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       console.log(`\n  Suite: ${suite.name}`);
       console.log(`  ERROR: ${errorMessage}`);
       failedSuites.push(suite.name);

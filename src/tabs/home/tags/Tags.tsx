@@ -5,23 +5,16 @@ import { useApp } from '../../../shared/context/AppContext';
 import { GroupShell } from '../../../shared/components/group-shell/GroupShell';
 import { RibbonButton } from '../../../shared/components/ribbon-button/RibbonButton';
 import { Dropdown } from '../../../shared/components/dropdown/Dropdown';
-import {
-  FindTagsIcon,
-  ImportantTagIcon,
-  QuestionTagIcon,
-  TodoTagButtonIcon,
-  TodoTagIcon,
-} from '../../../assets/icons';
-import { isTagSeparator, isTagGroupHeader } from './interfaces';
+import { FindTagsIcon, TodoTagButtonIcon } from '../../../assets/icons';
 import type { TagOrSeparator } from './interfaces';
-import { ALL_TAGS } from './helpers';
+import { ALL_TAGS, renderTagItems } from './helpers';
 import { ACTIVE_TAG_KEY_HIGHLIGHT, ACTIVE_TAG_KEY_TASK } from './constants';
 import { useActiveTagKeys } from './use-active-tag-keys/UseActiveTagKeys';
 import type { CustomTag } from './customize-modal/interfaces';
 import { CustomizeTagsModal } from './customize-modal/CustomizeModal';
 import { loadCustomTags, buildCustomTagDefinition } from './tag-storage/TagStorage';
-import { TagDropdownItem } from './tag-dropdown-item/TagDropdownItem';
 import { useTagHandlers } from './use-tag-handlers/UseTagHandlers';
+import { TagStack } from './tag-stack/TagStack';
 
 export function TagsGroup() {
   const app = useApp();
@@ -73,58 +66,12 @@ export function TagsGroup() {
   return (
     <GroupShell name="Tags">
       <div className="onr-tags-group">
-        <div className="onr-tags-stack">
-          <RibbonButton
-            className="onr-tag-row"
-            onClick={handleTodo}
-            data-cmd="todo"
-            title="Toggle to-do"
-          >
-            <TodoTagIcon className="onr-tag-icon" />
-            <span className="onr-tag-label">To Do</span>
-            {/* Visual-only checkbox: indicates whether cursor is on a task line */}
-            <span
-              className={
-                activeTagKeys.has(ACTIVE_TAG_KEY_TASK)
-                  ? 'onr-tag-cb onr-tag-cb--checked'
-                  : 'onr-tag-cb'
-              }
-              aria-hidden="true"
-            />
-          </RibbonButton>
-
-          <RibbonButton
-            className="onr-tag-row"
-            onClick={handleImportant}
-            data-cmd="important"
-            title="Mark as important"
-          >
-            <ImportantTagIcon className="onr-tag-icon" />
-            <span className="onr-tag-label">Important</span>
-            <span
-              className={
-                activeTagKeys.has('Important') ? 'onr-tag-cb onr-tag-cb--checked' : 'onr-tag-cb'
-              }
-              aria-hidden="true"
-            />
-          </RibbonButton>
-
-          <RibbonButton
-            className="onr-tag-row"
-            onClick={handleQuestion}
-            data-cmd="question"
-            title="Mark as question"
-          >
-            <QuestionTagIcon className="onr-tag-icon" />
-            <span className="onr-tag-label">Question</span>
-            <span
-              className={
-                activeTagKeys.has('Question') ? 'onr-tag-cb onr-tag-cb--checked' : 'onr-tag-cb'
-              }
-              aria-hidden="true"
-            />
-          </RibbonButton>
-        </div>
+        <TagStack
+          activeTagKeys={activeTagKeys}
+          handleTodo={handleTodo}
+          handleImportant={handleImportant}
+          handleQuestion={handleQuestion}
+        />
 
         {/* Narrow accordion trigger: opens the full OneNote tag list */}
         <div className="onr-tags-more">
@@ -144,36 +91,12 @@ export function TagsGroup() {
               className="onr-tags-dropdown"
               onClose={() => setMoreMenuOpen(false)}
             >
-              {allDisplayedTags.map((tagOrSeparator, index) => {
-                if (isTagSeparator(tagOrSeparator))
-                  return <div key={index} className="onr-tags-dd-separator" />;
-                if (isTagGroupHeader(tagOrSeparator))
-                  return (
-                    <div key={index} className="onr-tags-dd-group-header">
-                      {tagOrSeparator.groupLabel}
-                    </div>
-                  );
-
-                const tagDefinition = tagOrSeparator;
-                // "Remove Tag" disabled state depends on whether cursor is in an active callout
-                const isEffectivelyDisabled =
-                  tagDefinition.isDisabled || (tagDefinition.isRemoveTag && !canRemoveTag);
-                // Whether this tag is currently active at the cursor
-                const isChecked =
-                  tagDefinition.calloutKey !== null &&
-                  tagDefinition.calloutKey !== undefined &&
-                  activeTagKeys.has(tagDefinition.calloutKey);
-
-                return (
-                  <TagDropdownItem
-                    key={index}
-                    tagDefinition={tagDefinition}
-                    isDisabled={isEffectivelyDisabled}
-                    isChecked={isChecked}
-                    onSelect={handleTagDropdownSelect}
-                  />
-                );
-              })}
+              {renderTagItems(
+                allDisplayedTags,
+                activeTagKeys,
+                canRemoveTag,
+                handleTagDropdownSelect
+              )}
             </Dropdown>
           )}
         </div>

@@ -45,22 +45,10 @@ export interface InstrumentResult {
   fnMap: Record<string, FunctionInfo>;
   statementMap: Record<string, StatementInfo>;
 }
-export interface CoverageInstrumentOptions {
-  rootDir: string;
-  include?: string[];
-  exclude?: string[];
-}
 
 export type SupportedLoader = 'js' | 'jsx' | 'ts' | 'tsx';
 
 export type CoverageMetadataMap = Record<string, Record<string, unknown>>;
-
-export interface InstrumentedFile {
-  filePath: string;
-  branchMap: CoverageMetadataMap;
-  fnMap: CoverageMetadataMap;
-  statementMap: CoverageMetadataMap;
-}
 
 export interface RawCoverageFile {
   branchMap: CoverageMetadataMap;

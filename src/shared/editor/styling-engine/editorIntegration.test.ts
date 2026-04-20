@@ -86,6 +86,26 @@ function createTestEditor(content: string): ObsidianEditor & { transaction: jest
       innerEditor.setSelection(from, to);
     },
 
+    getLine(lineNumber: number): string {
+      return innerEditor.getLine(lineNumber);
+    },
+
+    setLine(lineNumber: number, text: string): void {
+      innerEditor.setLine(lineNumber, text);
+    },
+
+    getSelection(): string {
+      return innerEditor.getSelection();
+    },
+
+    replaceSelection(replacement: string): void {
+      innerEditor.replaceSelection(replacement);
+    },
+
+    lastLine(): number {
+      return innerEditor.lastLine();
+    },
+
     transaction: jest.fn(applyTransaction),
   };
 }

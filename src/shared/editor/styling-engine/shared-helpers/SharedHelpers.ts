@@ -1,5 +1,5 @@
-import type { TagDefinition, TextReplacement, FormattingDomain } from '../../interfaces';
-import type { HtmlTagRange } from '../../../enclosing-html-tags/interfaces';
+import type { TagDefinition, TextReplacement, FormattingDomain } from '../interfaces';
+import type { HtmlTagRange } from '../../enclosing-html-tags/interfaces';
 import { MARKDOWN_TO_HTML_TAG_MAP, SUBSCRIPT_TAG, SUPERSCRIPT_TAG } from '../constants';
 
 /** Sorts replacements by fromOffset descending (last-to-first) for safe sequential application. */

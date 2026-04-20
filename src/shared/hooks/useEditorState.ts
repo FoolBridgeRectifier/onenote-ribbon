@@ -3,6 +3,7 @@ import type { App } from 'obsidian';
 import type { EditorState, CachedFinderData } from './interfaces';
 import { CONTENT_CHANGE_DEBOUNCE_MS, SELECTION_CHANGE_THROTTLE_MS } from './constants';
 import { deriveEditorState, buildDefaultState } from './editorStateHelpers';
+import { createEnclosingHtmlTagFinder } from '../editor/enclosing-html-tags/EnclosingHtmlTags';
 
 export type { EditorState };
 export { extractSpanAndDivState, deriveEditorState } from './editorStateHelpers';

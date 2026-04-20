@@ -5,12 +5,12 @@ export const wait = (milliseconds: number): Promise<void> =>
 
 export async function runRibbonSuite(
   testName: string,
-  callback: () => Promise<void> | void,
+  callback: () => Promise<void> | void
 ): Promise<SuiteTestResult[]> {
   try {
     await callback();
     return [{ test: testName, pass: true }];
   } catch (_error) {
-    return [{ test: testName, pass: false, details: String(error) }];
+    return [{ test: testName, pass: false, details: String(_error) }];
   }
 }

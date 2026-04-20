@@ -1,5 +1,5 @@
 import { execFileSync, spawn } from 'child_process';
-import fs from 'fs';
+import * as fs from 'fs';
 
 import { CDP_LAUNCH_TIMEOUT_MS, POST_KILL_WAIT_MS } from '../constants';
 import { connectCdp, fetchJson, findMainPage } from '../cdpClient/cdpClient';
@@ -17,10 +17,7 @@ export async function connectLiveObsidian(cdpPort: number) {
   return connectCdp(webSocketUrl);
 }
 
-export async function relaunchLiveObsidianDebug(
-  runnerPaths: RunnerPaths,
-  cdpPort: number,
-) {
+export async function relaunchLiveObsidianDebug(runnerPaths: RunnerPaths, cdpPort: number) {
   try {
     execFileSync('taskkill', ['/IM', 'Obsidian.exe', '/F'], {
       stdio: 'ignore',
@@ -38,7 +35,7 @@ export async function relaunchLiveObsidianDebug(
   const obsidianProcess = spawn(
     runnerPaths.obsidianExePath,
     [`--remote-debugging-port=${cdpPort}`],
-    { detached: true, stdio: 'ignore' },
+    { detached: true, stdio: 'ignore' }
   );
 
   // Keep the relaunched live Obsidian process independent from the runner lifecycle.
@@ -56,12 +53,10 @@ export async function relaunchLiveObsidianDebug(
       interval: 1000,
       label: `CDP on port ${cdpPort}`,
       timeout: CDP_LAUNCH_TIMEOUT_MS,
-    },
+    }
   );
 
-  console.log(
-    `      Obsidian relaunched in debug mode (${targets.length} CDP targets found).`,
-  );
+  console.log(`      Obsidian relaunched in debug mode (${targets.length} CDP targets found).`);
 
   const webSocketUrl = await findMainPage(cdpPort);
   return connectCdp(webSocketUrl);
@@ -69,7 +64,7 @@ export async function relaunchLiveObsidianDebug(
 
 export async function launchFreshObsidian(
   runnerPaths: RunnerPaths,
-  cdpPort: number,
+  cdpPort: number
 ): Promise<LaunchSession> {
   try {
     execFileSync('taskkill', ['/IM', 'Obsidian.exe', '/F'], {
@@ -92,7 +87,7 @@ export async function launchFreshObsidian(
   const obsidianProcess = spawn(
     runnerPaths.obsidianExePath,
     [`--remote-debugging-port=${cdpPort}`],
-    { detached: false, stdio: 'ignore' },
+    { detached: false, stdio: 'ignore' }
   );
 
   const targets = await pollUntil(
@@ -107,7 +102,7 @@ export async function launchFreshObsidian(
       interval: 1000,
       label: `CDP on port ${cdpPort}`,
       timeout: CDP_LAUNCH_TIMEOUT_MS,
-    },
+    }
   );
 
   console.log(`      Obsidian launched (${targets.length} CDP targets found).`);

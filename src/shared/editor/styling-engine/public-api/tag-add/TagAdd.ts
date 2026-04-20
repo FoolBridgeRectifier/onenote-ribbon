@@ -1,4 +1,4 @@
-import type { TagDefinition, StylingResult, StylingContext } from '../../../interfaces';
+import type { TagDefinition, StylingResult, StylingContext } from '../../interfaces';
 import { buildTagRanges } from '../../../enclosing-html-tags/EnclosingHtmlTags';
 import { replaceOpeningTagAttribute } from '../../tag-manipulation/TagManipulation';
 import { detectStructureContext } from '../../structure-detection/StructureDetection';

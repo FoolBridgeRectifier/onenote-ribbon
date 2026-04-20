@@ -21,7 +21,7 @@ export interface TextReplacement {
 }
 
 export interface StylingResult {
-  replacements: TextReplacement[];  // ordered last-to-first for safe sequential apply
+  replacements: TextReplacement[]; // ordered last-to-first for safe sequential apply
   isNoOp: boolean;
   newSelectionStart?: number;
   newSelectionEnd?: number;
@@ -59,7 +59,7 @@ export type InertZoneType =
 // === Protected (Atomic) Ranges ===
 
 export interface ProtectedRange {
-  startOffset: number;  // relative to selection start
+  startOffset: number; // relative to selection start
   endOffset: number;
   tokenType: 'wikilink' | 'mdLink' | 'embed' | 'footnoteRef' | 'hashtag';
 }
@@ -71,8 +71,8 @@ export interface LineStructureContext {
   lineEndOffset: number;
   linePrefix: string | null;
   linePrefixType: LinePrefixType;
-  contentStartOffset: number;       // absolute offset where formattable content starts (after prefix)
-  inertZone: InertZoneType | null;  // non-null means entire line is isNoOp
+  contentStartOffset: number; // absolute offset where formattable content starts (after prefix)
+  inertZone: InertZoneType | null; // non-null means entire line is isNoOp
 }
 
 // === Aggregate Structure Context for a Selection ===
@@ -80,7 +80,7 @@ export interface LineStructureContext {
 export interface StructureContext {
   lines: LineStructureContext[];
   protectedRanges: ProtectedRange[];
-  isFullyInert: boolean;  // true if ALL lines are inert — isNoOp for entire selection
+  isFullyInert: boolean; // true if ALL lines are inert — isNoOp for entire selection
 }
 
 // === Format Painter Types ===
@@ -94,14 +94,14 @@ export interface CopiedFormat {
 
 export interface DomainDetectionResult {
   domain: FormattingDomain;
-  hasMarkdownTokens: boolean;  // true if MD delimiters (**, *, ~~, ==) detected in/around selection
-  hasHtmlTags: boolean;        // true if HTML tags (<u>, <span>, etc.) detected in/around selection
+  hasMarkdownTokens: boolean; // true if MD delimiters (**, *, ~~, ==) detected in/around selection
+  hasHtmlTags: boolean; // true if HTML tags (<u>, <span>, etc.) detected in/around selection
 }
 
 // === Options for Removing All Tags ===
 
 export interface RemoveAllTagsOptions {
-  preserveLinePrefix?: boolean;  // default true; false strips heading prefixes too
+  preserveLinePrefix?: boolean; // default true; false strips heading prefixes too
 }
 
 // === Markdown-to-HTML Conversion Entry ===
@@ -113,7 +113,7 @@ export interface RemoveAllTagsOptions {
 export interface MarkdownToHtmlConversionEntry {
   markdownOpening: string;
   markdownClosing: string;
-  htmlTags: TagDefinition[];  // multiple entries for combined formats like bold+italic
+  htmlTags: TagDefinition[]; // multiple entries for combined formats like bold+italic
 }
 
 // === Editor Integration ===
@@ -123,13 +123,14 @@ export interface ObsidianEditor {
   getValue(): string;
   getCursor(which?: 'from' | 'to' | 'head' | 'anchor'): { line: number; ch: number };
   setCursor(position: { line: number; ch: number }): void;
-  setSelection(
-    anchor: { line: number; ch: number },
-    head: { line: number; ch: number },
-  ): void;
+  setSelection(anchor: { line: number; ch: number }, head: { line: number; ch: number }): void;
   transaction(spec: {
-    changes?: Array<{ from: { line: number; ch: number }; to: { line: number; ch: number }; text: string }>;
-    selection?: { anchor: { line: number; ch: number }; head: { line: number; ch: number } };
+    changes?: Array<{
+      from: { line: number; ch: number };
+      to: { line: number; ch: number };
+      text: string;
+    }>;
+    selection?: { from: { line: number; ch: number }; to?: { line: number; ch: number } };
   }): void;
   getLine(lineNumber: number): string;
   setLine(lineNumber: number, text: string): void;

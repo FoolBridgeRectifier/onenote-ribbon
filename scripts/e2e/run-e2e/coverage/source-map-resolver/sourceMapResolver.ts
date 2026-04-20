@@ -21,7 +21,8 @@ const sourceMapCache = new Map<string, ParsedSourceMap>();
  * Looks for //# sourceMappingURL=data:application/json;base64,... pattern.
  */
 export function extractInlineSourceMap(bundleContent: string): ParsedSourceMap | null {
-  const sourceMapPattern = /\/\/#\s*sourceMappingURL=data:application\/json[^;]*;base64,([A-Za-z0-9+/=]+)/;
+  const sourceMapPattern =
+    /\/\/#\s*sourceMappingURL=data:application\/json[^;]*;base64,([A-Za-z0-9+/=]+)/;
   const match = bundleContent.match(sourceMapPattern);
 
   if (!match) {
@@ -53,7 +54,7 @@ export function extractInlineSourceMap(bundleContent: string): ParsedSourceMap |
 export function findOriginalPosition(
   sourceMap: ParsedSourceMap,
   generatedLine: number,
-  generatedColumn: number,
+  generatedColumn: number
 ): { sourcePath: string; line: number; column: number } | null {
   let bestMapping: SourceMapping | null = null;
   let bestDistance = Number.MAX_SAFE_INTEGER;
@@ -68,8 +69,7 @@ export function findOriginalPosition(
     }
 
     const distance =
-      (generatedLine - mapping.generatedLine) * 10000 +
-      (generatedColumn - mapping.generatedColumn);
+      (generatedLine - mapping.generatedLine) * 10000 + (generatedColumn - mapping.generatedColumn);
 
     if (distance < bestDistance) {
       bestDistance = distance;
@@ -133,11 +133,8 @@ export function clearSourceMapCache(): void {
 }
 
 /** Converts a source path to be relative to the project src/ directory. */
-export function normalizeSourcePath(
-  sourcePath: string,
-  rootDir: string,
-): string {
-  let normalized = sourcePath.replace(/^\.\.?\//, '');
+export function normalizeSourcePath(sourcePath: string, _rootDir: string): string {
+  const normalized = sourcePath.replace(/^\.\.?\//, '');
 
   if (normalized.startsWith('src/')) {
     return normalized;

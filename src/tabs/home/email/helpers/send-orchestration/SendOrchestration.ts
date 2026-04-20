@@ -18,7 +18,7 @@ import { generatePdfFromHtml } from '../pdf-generator/PdfGenerator';
 export function createDefaultSendDependencies(): SendNoteByEmailDependencies {
   return {
     buildHtml: (markdown: string, noteTitle: string): Promise<string> => {
-      // Access the global Obsidian App instance — always available in the renderer process
+      // eslint-disable-next-line strict-structure/no-double-cast -- Obsidian attaches `app` to `window` at runtime; not exposed in the DOM Window type
       const obsidianApp = (window as unknown as { app: App }).app;
       const file = obsidianApp.workspace.getActiveFile();
       return buildObsidianHtml(obsidianApp, markdown, noteTitle, file);

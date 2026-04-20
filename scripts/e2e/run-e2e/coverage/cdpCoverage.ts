@@ -3,6 +3,9 @@
  * Uses Chrome DevTools Protocol to collect JavaScript coverage data.
  */
 
+import type * as NodeFs from 'fs';
+import type * as NodePath from 'path';
+
 import type { CdpClient } from '../cdpClient/cdpClient';
 
 import type { CoverageData, SourceFilesResult } from './interfaces';
@@ -26,9 +29,7 @@ export { mapCoverageToSource } from './coverage-mapper/coverageMapper';
 export { calculateCoverageSummary } from './coverage-calculator/coverageCalculator';
 
 /** Start collecting JavaScript coverage data via CDP. */
-export async function startCoverageCollection(
-  cdpClient: CdpClient,
-): Promise<void> {
+export async function startCoverageCollection(cdpClient: CdpClient): Promise<void> {
   await cdpClient.send('Profiler.enable');
 
   await cdpClient.send('Profiler.startPreciseCoverage', {
@@ -38,12 +39,8 @@ export async function startCoverageCollection(
 }
 
 /** Stop collecting coverage data and return the results. */
-export async function stopCoverageCollection(
-  cdpClient: CdpClient,
-): Promise<CoverageData> {
-  const coverage = await cdpClient.send<CoverageData>(
-    'Profiler.takePreciseCoverage',
-  );
+export async function stopCoverageCollection(cdpClient: CdpClient): Promise<CoverageData> {
+  const coverage = await cdpClient.send<CoverageData>('Profiler.takePreciseCoverage');
 
   await cdpClient.send('Profiler.stopPreciseCoverage');
   await cdpClient.send('Profiler.disable');
@@ -52,9 +49,7 @@ export async function stopCoverageCollection(
 }
 
 /** Get coverage data without stopping collection (for incremental updates). */
-export async function takeCoverageDelta(
-  cdpClient: CdpClient,
-): Promise<CoverageData> {
+export async function takeCoverageDelta(cdpClient: CdpClient): Promise<CoverageData> {
   return cdpClient.send<CoverageData>('Profiler.takePreciseCoverage');
 }
 
@@ -62,13 +57,11 @@ export async function takeCoverageDelta(
  * Load source files for coverage analysis.
  * Loads the bundled main.js that executes in Obsidian.
  */
-export async function loadSourceFiles(
-  rootPath: string,
-): Promise<SourceFilesResult> {
+export async function loadSourceFiles(rootPath: string): Promise<SourceFilesResult> {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const fs = require('fs') as typeof import('fs');
+  const fs = require('fs') as typeof NodeFs;
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const path = require('path') as typeof import('path');
+  const path = require('path') as typeof NodePath;
   const sourceFiles = new Map<string, string>();
 
   const mainJsPath = path.join(rootPath, 'main.js');
@@ -86,4 +79,3 @@ export async function loadSourceFiles(
     bundlePath: mainJsPath,
   };
 }
-

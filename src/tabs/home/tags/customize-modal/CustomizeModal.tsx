@@ -20,7 +20,7 @@ export function CustomizeTagsModal({ customTags, onChange, onClose }: CustomizeT
   const portalContainer = usePortalContainer();
   const [newTagName, setNewTagName] = useState('');
   const [newTagColor, setNewTagColor] = useState(CUSTOM_TAG_PRESET_COLORS[0]);
-  const [newTagCalloutType, setNewTagCalloutType] = useState(DEFAULT_CALLOUT_TYPE);
+  const [newTagCalloutType, setNewTagCalloutType] = useState<string>(DEFAULT_CALLOUT_TYPE);
 
   const nameInputRef = useRef<HTMLInputElement>(null);
 

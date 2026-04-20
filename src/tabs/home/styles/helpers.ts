@@ -22,6 +22,7 @@ export function resolveStyleLevelClass(style: StyleEntry): string {
  * Handles block-quote, code-block, normal paragraph, and heading levels 1-6.
  */
 export function applyStyle(app: App, style: StyleEntry): void {
+  // eslint-disable-next-line strict-structure/no-double-cast -- Obsidian's public App doesn't expose `commands`; internal API required
   const commandApp = app as unknown as AppWithCommands;
 
   if (style.type === 'quote') {

@@ -14,10 +14,7 @@ jest.mock('child_process', () => ({
 }));
 
 jest.mock('fs', () => ({
-  __esModule: true,
-  default: {
-    existsSync: (...arguments_: unknown[]) => existsSyncMock(...arguments_),
-  },
+  existsSync: (...arguments_: unknown[]) => existsSyncMock(...arguments_),
 }));
 
 jest.mock('../polling/polling', () => ({
@@ -38,8 +35,7 @@ import type { RunnerPaths } from '../interfaces';
 describe('relaunchLiveObsidianDebug', () => {
   const runnerPaths: RunnerPaths = {
     obsidianConfigPath: 'config-path',
-    obsidianExePath:
-      'C:/Users/test/AppData/Local/Programs/Obsidian/Obsidian.exe',
+    obsidianExePath: 'C:/Users/test/AppData/Local/Programs/Obsidian/Obsidian.exe',
     rootPath: 'root-path',
     tempNoteFileName: 'temp-note',
     vaultDirPath: 'vault-path',
@@ -58,13 +54,9 @@ describe('relaunchLiveObsidianDebug', () => {
   it('kills Obsidian, relaunches with debug port, and returns a CDP client', async () => {
     const cdpClient = await relaunchLiveObsidianDebug(runnerPaths, 9222);
 
-    expect(execFileSyncMock).toHaveBeenCalledWith(
-      'taskkill',
-      ['/IM', 'Obsidian.exe', '/F'],
-      {
-        stdio: 'ignore',
-      },
-    );
+    expect(execFileSyncMock).toHaveBeenCalledWith('taskkill', ['/IM', 'Obsidian.exe', '/F'], {
+      stdio: 'ignore',
+    });
 
     expect(spawnMock).toHaveBeenCalledWith(
       runnerPaths.obsidianExePath,
@@ -72,7 +64,7 @@ describe('relaunchLiveObsidianDebug', () => {
       {
         detached: true,
         stdio: 'ignore',
-      },
+      }
     );
 
     expect(pollUntilMock).toHaveBeenCalled();
@@ -95,7 +87,7 @@ describe('relaunchLiveObsidianDebug', () => {
     existsSyncMock.mockReturnValue(false);
 
     await expect(relaunchLiveObsidianDebug(runnerPaths, 9222)).rejects.toThrow(
-      `Obsidian not found at: ${runnerPaths.obsidianExePath}`,
+      `Obsidian not found at: ${runnerPaths.obsidianExePath}`
     );
 
     expect(spawnMock).not.toHaveBeenCalled();

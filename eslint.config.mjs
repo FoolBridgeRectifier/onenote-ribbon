@@ -87,6 +87,40 @@ const strictStructurePlugin = {
       },
     },
 
+    'no-double-cast': {
+      meta: {
+        type: 'problem',
+        docs: {
+          description: 'Disallow double-casting via "as unknown as T". Use proper types or explicit type guards instead.',
+        },
+        schema: [],
+      },
+      create(context) {
+        return {
+          // Matches: expr as unknown as T  (TSAsExpression whose expression is also a TSAsExpression to unknown)
+          TSAsExpression(node) {
+            const innerExpression = node.expression;
+
+            if (innerExpression.type !== 'TSAsExpression') {
+              return;
+            }
+
+            const innerType = innerExpression.typeAnnotation;
+
+            if (
+              innerType.type === 'TSUnknownKeyword'
+              || (innerType.type === 'TSTypeReference' && innerType.typeName?.name === 'unknown')
+            ) {
+              context.report({
+                node,
+                message: 'Double-casting via "as unknown as T" bypasses type safety. Use a proper type or type guard instead.',
+              });
+            }
+          },
+        };
+      },
+    },
+
     'strict-file-name': {
       meta: {
         type: 'problem',
@@ -263,7 +297,7 @@ export default [
       'no-var': 'error',
       'prefer-const': 'error',
       'no-unused-vars': 'off', // Handled by TypeScript
-      'no-undef': 'off', // Handled by TypeScript
+      'no-undef': 'off', // TypeScript already catches undefined names via tsc; ESLint's no-undef doesn't understand DOM lib types
       'eqeqeq': ['error', 'always'],
       'curly': ['error', 'all'],
       'no-throw-literal': 'error',
@@ -281,6 +315,7 @@ export default [
       'strict-structure/types-only-in-interfaces-file': 'error',
       'strict-structure/module-consts-only-in-constants-file': 'error',
       'strict-structure/strict-file-name': 'error',
+      'strict-structure/no-double-cast': 'error',
     },
   },
 
@@ -366,6 +401,8 @@ export default [
       'strict-structure/types-only-in-interfaces-file': 'off',
       'strict-structure/module-consts-only-in-constants-file': 'off',
       'strict-structure/strict-file-name': 'off',
+      // Test stubs and mock adapters legitimately use double casts to satisfy interfaces
+      'strict-structure/no-double-cast': 'off',
     },
   },
 
@@ -381,6 +418,8 @@ export default [
       'strict-structure/types-only-in-interfaces-file': 'off',
       'strict-structure/module-consts-only-in-constants-file': 'off',
       'strict-structure/strict-file-name': 'off',
+      // E2E runtime adapters may use double casts to bridge Obsidian/test types
+      'strict-structure/no-double-cast': 'off',
     },
   },
 
@@ -395,7 +434,15 @@ export default [
   // Non-test files must strictly keep <= 150 lines
   {
     files: ['**/*.{ts,tsx,js,jsx,mjs,cjs}'],
-    ignores: ['**/*.test.{ts,tsx,js,jsx}', '**/__mocks__/**', '**/test-utils/**', '**/tests/**', '**/e2e/**'],
+    ignores: [
+      '**/*.test.{ts,tsx,js,jsx,cjs}',
+      '**/__mocks__/**',
+      '**/test-utils/**',
+      '**/tests/**',
+      '**/e2e/**',
+      // The ESLint config itself is a single structured file; splitting it would reduce clarity
+      'eslint.config.mjs',
+    ],
     rules: {
       'max-lines': ['error', { max: 150, skipBlankLines: false, skipComments: false }],
     },

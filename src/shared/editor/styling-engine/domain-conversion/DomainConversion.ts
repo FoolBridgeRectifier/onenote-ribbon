@@ -1,5 +1,5 @@
-import type { TagDefinition, TextReplacement } from '../../interfaces';
-import type { HtmlTagRange } from '../../../enclosing-html-tags/interfaces';
+import type { TagDefinition, TextReplacement } from '../interfaces';
+import type { HtmlTagRange } from '../../enclosing-html-tags/interfaces';
 import { MARKDOWN_TO_HTML_TAG_MAP } from '../constants';
 import { tagEnclosesSelection } from '../shared-helpers/tag-geometry/TagGeometry';
 import { wrapTextWithTag } from '../tag-manipulation/TagManipulation';

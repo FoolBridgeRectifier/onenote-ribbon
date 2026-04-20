@@ -7,18 +7,16 @@ export function instrumentFunctions(
   code: string,
   fileId: string,
   filePath: string,
-  fnMap: Record<string, FunctionInfo>,
+  fnMap: Record<string, FunctionInfo>
 ): string {
   // Pattern for function declarations: function name(...) { ... }
-  const functionDeclarationPattern =
-    /function\s+(\w+)\s*\([^)]*\)\s*\{/g;
+  const functionDeclarationPattern = /function\s+(\w+)\s*\([^)]*\)\s*\{/g;
 
   // Pattern for arrow functions: const name = (...) => { ... }
-  const arrowFunctionPattern =
-    /(?:const|let|var)\s+(\w+)\s*=\s*(?:\([^)]*\)|[^=]+)\s*=>\s*\{/g;
+  const _arrowFunctionPattern = /(?:const|let|var)\s+(\w+)\s*=\s*(?:\([^)]*\)|[^=]+)\s*=>\s*\{/g;
 
   // Pattern for method definitions: methodName(...) { ... }
-  const methodPattern = /(\w+)\s*\([^)]*\)\s*\{/g;
+  const _methodPattern = /(\w+)\s*\([^)]*\)\s*\{/g;
 
   let result = code;
   let match;
@@ -40,8 +38,7 @@ export function instrumentFunctions(
     const insertPos = match.index + match[0].length;
     const counterCode = `__coverage_${fileId}.f[${functionId}] = (__coverage_${fileId}.f[${functionId}] || 0) + 1; `;
 
-    result =
-      result.slice(0, insertPos) + counterCode + result.slice(insertPos);
+    result = result.slice(0, insertPos) + counterCode + result.slice(insertPos);
   }
 
   return result;
@@ -52,15 +49,14 @@ export function instrumentIfStatements(
   code: string,
   fileId: string,
   filePath: string,
-  branchMap: Record<string, BranchInfo>,
+  branchMap: Record<string, BranchInfo>
 ): string {
   // Pattern for if statements: if (condition) { ... }
   const ifPattern = /if\s*\(([^)]+)\)\s*\{/g;
 
   let result = code;
   let match;
-  const matches: Array<{ index: number; length: number; condition: string }> =
-    [];
+  const matches: Array<{ index: number; length: number; condition: string }> = [];
 
   // Collect all matches first
   while ((match = ifPattern.exec(code)) !== null) {
@@ -90,8 +86,7 @@ export function instrumentIfStatements(
     const insertPos = matchInfo.index + matchInfo.length;
     const trueCounter = `__coverage_${fileId}.b[${branchId}] = __coverage_${fileId}.b[${branchId}] || [0, 0]; __coverage_${fileId}.b[${branchId}][0]++; `;
 
-    result =
-      result.slice(0, insertPos) + trueCounter + result.slice(insertPos);
+    result = result.slice(0, insertPos) + trueCounter + result.slice(insertPos);
   }
 
   return result;
@@ -102,7 +97,7 @@ export function instrumentTernaryOperators(
   code: string,
   fileId: string,
   filePath: string,
-  branchMap: Record<string, BranchInfo>,
+  branchMap: Record<string, BranchInfo>
 ): string {
   // Pattern for ternary: condition ? trueExpr : falseExpr
   // This is complex - we wrap the entire ternary in a function
@@ -132,9 +127,7 @@ export function instrumentTernaryOperators(
     const instrumented = `((__cov_${branchId} = ${condition}) ? (__coverage_${fileId}.b[${branchId}] = __coverage_${fileId}.b[${branchId}] || [0, 0], __coverage_${fileId}.b[${branchId}][0]++, ${trueExpr}) : (__coverage_${fileId}.b[${branchId}][1]++, ${falseExpr}))`;
 
     result =
-      result.slice(0, match.index) +
-      instrumented +
-      result.slice(match.index + match[0].length);
+      result.slice(0, match.index) + instrumented + result.slice(match.index + match[0].length);
   }
 
   return result;

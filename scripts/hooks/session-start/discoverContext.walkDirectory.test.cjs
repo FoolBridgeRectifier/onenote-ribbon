@@ -6,14 +6,10 @@ const path = require('path');
 // Spy on fs methods so tests control filesystem behaviour without babel hoisting.
 // CJS test files are not transformed by babel-jest, so jest.mock() cannot be hoisted.
 // jest.spyOn works because fs is a singleton shared between the test and source module.
-let readdirSyncSpy;
-let statSyncSpy;
-let readFileSyncSpy;
-
 beforeEach(() => {
-  readdirSyncSpy = jest.spyOn(fs, 'readdirSync');
-  statSyncSpy = jest.spyOn(fs, 'statSync');
-  readFileSyncSpy = jest.spyOn(fs, 'readFileSync');
+  jest.spyOn(fs, 'readdirSync');
+  jest.spyOn(fs, 'statSync');
+  jest.spyOn(fs, 'readFileSync');
 });
 
 afterEach(() => {

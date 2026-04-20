@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 
 import {
   BUILD_ARTIFACT_FILE_NAMES,
@@ -27,36 +27,25 @@ export function cleanupTestVault(vaultDirPath: string) {
 }
 
 export function ensureTestVault(runnerPaths: RunnerPaths) {
-  const pluginDirPath = path.join(
-    runnerPaths.vaultDirPath,
-    TEST_PLUGIN_DIRECTORY,
-  );
+  const pluginDirPath = path.join(runnerPaths.vaultDirPath, TEST_PLUGIN_DIRECTORY);
 
   fs.mkdirSync(pluginDirPath, { recursive: true });
 
   writeIfMissing(
     path.join(runnerPaths.vaultDirPath, '.obsidian/app.json'),
-    JSON.stringify(
-      { legacyEditor: false, livePreview: true, safeMode: false },
-      null,
-      2,
-    ),
+    JSON.stringify({ legacyEditor: false, livePreview: true, safeMode: false }, null, 2)
   );
 
-  writeJson(
-    path.join(runnerPaths.vaultDirPath, '.obsidian/community-plugins.json'),
-    ['onenote-ribbon'],
-  );
+  writeJson(path.join(runnerPaths.vaultDirPath, '.obsidian/community-plugins.json'), [
+    'onenote-ribbon',
+  ]);
 
-  writeJson(
-    path.join(runnerPaths.vaultDirPath, '.obsidian/core-plugins.json'),
-    {
-      'file-explorer': true,
-      'global-search': true,
-      'markdown-importer': false,
-      'word-count': false,
-    },
-  );
+  writeJson(path.join(runnerPaths.vaultDirPath, '.obsidian/core-plugins.json'), {
+    'file-explorer': true,
+    'global-search': true,
+    'markdown-importer': false,
+    'word-count': false,
+  });
 
   writeJson(path.join(runnerPaths.vaultDirPath, '.obsidian/workspace.json'), {
     active: 'e2e-leaf',
@@ -98,17 +87,14 @@ export function ensureTestVault(runnerPaths: RunnerPaths) {
 
   writeIfMissing(
     path.join(runnerPaths.vaultDirPath, runnerPaths.tempNoteFileName),
-    TEST_NOTE_CONTENT,
+    TEST_NOTE_CONTENT
   );
 
   for (const artifactFileName of BUILD_ARTIFACT_FILE_NAMES) {
     const sourceFilePath = path.join(runnerPaths.rootPath, artifactFileName);
 
     if (fs.existsSync(sourceFilePath)) {
-      fs.copyFileSync(
-        sourceFilePath,
-        path.join(pluginDirPath, artifactFileName),
-      );
+      fs.copyFileSync(sourceFilePath, path.join(pluginDirPath, artifactFileName));
     }
   }
 
@@ -116,10 +102,7 @@ export function ensureTestVault(runnerPaths: RunnerPaths) {
 }
 
 export function registerTestVault(runnerPaths: RunnerPaths) {
-  const rawObsidianConfig = fs.readFileSync(
-    runnerPaths.obsidianConfigPath,
-    'utf8',
-  );
+  const rawObsidianConfig = fs.readFileSync(runnerPaths.obsidianConfigPath, 'utf8');
   const parsedObsidianConfig = JSON.parse(rawObsidianConfig) as ObsidianConfig;
 
   for (const vaultKey of Object.keys(parsedObsidianConfig.vaults)) {
@@ -132,17 +115,11 @@ export function registerTestVault(runnerPaths: RunnerPaths) {
     ts: Date.now(),
   };
 
-  fs.writeFileSync(
-    runnerPaths.obsidianConfigPath,
-    JSON.stringify(parsedObsidianConfig, null, 2),
-  );
+  fs.writeFileSync(runnerPaths.obsidianConfigPath, JSON.stringify(parsedObsidianConfig, null, 2));
 
   return rawObsidianConfig;
 }
 
-export function restoreObsidianConfig(
-  obsidianConfigPath: string,
-  backupConfig: string,
-) {
+export function restoreObsidianConfig(obsidianConfigPath: string, backupConfig: string) {
   fs.writeFileSync(obsidianConfigPath, backupConfig);
 }

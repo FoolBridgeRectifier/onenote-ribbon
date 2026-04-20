@@ -1,4 +1,5 @@
 import type { ChildProcess } from 'child_process';
+import type { CdpClient } from './cdpClient/cdpClient';
 
 export interface ParsedCliArguments {
   cdpPort: number;
@@ -56,7 +57,7 @@ export interface ObsidianConfig {
 }
 
 export interface LaunchSession {
-  cdpClient: import('./cdpClient').CdpClient;
+  cdpClient: CdpClient;
   isLiveMode: boolean;
   obsidianConfigBackup: string | null;
   obsidianProcess: ChildProcess | null;

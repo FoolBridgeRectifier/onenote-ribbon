@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-
 import { applyTag } from '../tag-apply/TagApply';
 import {
   removeActiveCallout,
@@ -25,7 +24,7 @@ export function useTagHandlers({
 
   const executeCommand = useCallback(
     (commandId: string) => {
-      (app as unknown as AppWithCommands).commands.executeCommandById(commandId);
+      (app as unknown as AppWithCommands).commands.executeCommandById(commandId); // eslint-disable-line strict-structure/no-double-cast -- Obsidian's public App doesn't expose `commands`; internal API required
     },
     [app]
   );
@@ -113,7 +112,6 @@ export function useTagHandlers({
       const calloutKey = tagDefinition.calloutKey;
       const isCurrentlyActive =
         calloutKey !== null && calloutKey !== undefined && activeTagKeys.has(calloutKey);
-
       if (isCurrentlyActive && tagDefinition.action.type === 'callout') {
         const editor = getEditor();
         if (editor) removeActiveCallout(editor);

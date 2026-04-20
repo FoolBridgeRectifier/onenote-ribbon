@@ -1,10 +1,5 @@
-import type {
-  TagDefinition,
-  StylingResult,
-  FormattingDomain,
-  ProtectedRange,
-} from '../../interfaces';
-import type { HtmlTagRange } from '../../../enclosing-html-tags/interfaces';
+import type { TagDefinition, StylingResult, FormattingDomain, ProtectedRange } from '../interfaces';
+import type { HtmlTagRange } from '../../enclosing-html-tags/interfaces';
 import { buildTagRanges } from '../../enclosing-html-tags/EnclosingHtmlTags';
 import { wrapTextWithTag } from '../tag-manipulation/TagManipulation';
 import { splitFormattingAroundProtectedRanges } from '../tag-manipulation/range-splitting/RangeSplitting';
@@ -54,8 +49,9 @@ export function buildWrapReplacements(
         const selectedTextPosition = replacement.replacementText.indexOf(selectedText);
 
         if (selectedTextPosition !== -1) {
-          newSelectionStart = replacement.fromOffset + selectedTextPosition;
-          newSelectionEnd = newSelectionStart + selectedText.length;
+          const selectedStart = replacement.fromOffset + selectedTextPosition;
+          newSelectionStart = selectedStart;
+          newSelectionEnd = selectedStart + selectedText.length;
         }
       } else {
         // Cursor only — place cursor after the outermost opening markup

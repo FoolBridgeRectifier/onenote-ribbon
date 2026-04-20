@@ -47,6 +47,7 @@ export class RibbonShell {
         { value: this.plugin },
         createElement(
           AppContext.Provider,
+          // eslint-disable-next-line strict-structure/no-double-cast -- Obsidian's public App type doesn't expose `commands`; cast required
           { value: this.app as unknown as AppWithCommands },
           createElement(
             PortalContext.Provider,

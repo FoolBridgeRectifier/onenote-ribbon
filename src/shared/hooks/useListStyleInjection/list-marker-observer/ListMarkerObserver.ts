@@ -76,7 +76,7 @@ export function createListMarkerObserver(
     if (markerSpan.closest('.HyperMD-task-line')) return;
 
     const cmContent = markerSpan.closest('.cm-content') as HTMLElement | null;
-    const editorView = (cmContent as unknown as { cmView?: { view?: EditorView } } | null)?.cmView
+    const editorView = (cmContent as unknown as { cmView?: { view?: EditorView } } | null)?.cmView // eslint-disable-line strict-structure/no-double-cast -- CM6 attaches `cmView` to the DOM element; not in standard HTMLElement types
       ?.view;
 
     if (!editorView || typeof editorView.posAtDOM !== 'function') return;
@@ -122,6 +122,7 @@ export function createListMarkerObserver(
 
     const commandId = isOlMarker ? 'editor:toggle-numbered-list' : 'editor:toggle-bullet-list';
     const obsidianWindow = window as unknown as {
+      // eslint-disable-line strict-structure/no-double-cast -- Obsidian attaches `app` and `commands` to `window` at runtime; not in the standard Window type
       app?: { commands?: { executeCommandById(commandId: string): void } };
     };
     obsidianWindow.app?.commands?.executeCommandById(commandId);

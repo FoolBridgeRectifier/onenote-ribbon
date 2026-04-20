@@ -1,4 +1,4 @@
-import type { TagDefinition, StylingResult, StylingContext } from '../../../interfaces';
+import type { TagDefinition, StylingResult, StylingContext } from '../../interfaces';
 import { MARKDOWN_TO_HTML_TAG_MAP } from '../../constants';
 import { buildTagRanges } from '../../../enclosing-html-tags/EnclosingHtmlTags';
 import { unwrapTag } from '../../tag-manipulation/TagManipulation';

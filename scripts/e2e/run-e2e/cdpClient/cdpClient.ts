@@ -16,8 +16,7 @@ function parseProtocolResponse(rawMessage: string): CdpProtocolResponse {
   }
 
   const error =
-    isRecord(parsedMessage.error) &&
-    typeof parsedMessage.error.message === 'string'
+    isRecord(parsedMessage.error) && typeof parsedMessage.error.message === 'string'
       ? { message: parsedMessage.error.message }
       : undefined;
 
@@ -66,14 +65,11 @@ export class CdpClient {
   }
 
   async eval<TResult = unknown>(expression: string, awaitPromise = true) {
-    const result = await this.send<CdpRuntimeEvaluateResponse>(
-      'Runtime.evaluate',
-      {
-        awaitPromise,
-        expression,
-        returnByValue: true,
-      },
-    );
+    const result = await this.send<CdpRuntimeEvaluateResponse>('Runtime.evaluate', {
+      awaitPromise,
+      expression,
+      returnByValue: true,
+    });
 
     if (result.exceptionDetails) {
       const message =
@@ -95,7 +91,11 @@ export class CdpClient {
         reject(new Error(`CDP request timed out: ${method}`));
       }, CDP_REQUEST_TIMEOUT_MS);
 
-      this.#pending.set(id, { resolve, reject, timeoutHandle });
+      this.#pending.set(id, {
+        resolve: resolve as (value: unknown) => void,
+        reject,
+        timeoutHandle,
+      });
       this.#webSocket.send(JSON.stringify({ id, method, params }));
     });
   }
@@ -117,11 +117,7 @@ export async function connectCdp(webSocketUrl: string) {
     webSocket.addEventListener('open', () => resolve(new CdpClient(webSocket)));
     webSocket.addEventListener('error', (event: Event) => {
       const possibleError = event as ErrorEvent;
-      reject(
-        new Error(
-          `WebSocket error: ${possibleError.message || 'Unknown error'}`,
-        ),
-      );
+      reject(new Error(`WebSocket error: ${possibleError.message || 'Unknown error'}`));
     });
 
     setTimeout(() => {
@@ -137,17 +133,15 @@ export async function findMainPage(port: number) {
       (target) =>
         target.type === 'page' &&
         target.webSocketDebuggerUrl &&
-        target.url?.startsWith('app://obsidian.md'),
+        target.url?.startsWith('app://obsidian.md')
     ) ||
     targets.find(
       (target) =>
         target.type === 'page' &&
         target.webSocketDebuggerUrl &&
-        !target.url?.startsWith('devtools://'),
+        !target.url?.startsWith('devtools://')
     ) ||
-    targets.find(
-      (target) => target.type === 'page' && target.webSocketDebuggerUrl,
-    );
+    targets.find((target) => target.type === 'page' && target.webSocketDebuggerUrl);
 
   if (!pageTarget?.webSocketDebuggerUrl) {
     throw new Error('No page target found in CDP targets');

@@ -28,6 +28,7 @@ export { buildNumberConverter } from './useListStyleInjection/number-format-conv
  * JS-based conversion instead.
  */
 export function useListStyleInjection(): ListStyleContextValue {
+  // eslint-disable-next-line strict-structure/no-double-cast -- hook returns Plugin; cast to StoragePlugin to access data settings not in the public type
   const plugin = usePlugin() as unknown as StoragePlugin;
 
   const [bulletPresetId, setBulletPresetId] = useState<string>(

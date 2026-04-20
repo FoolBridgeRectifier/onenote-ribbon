@@ -4,7 +4,7 @@ import type {
   StylingResult,
   StylingContext,
   RemoveAllTagsOptions,
-} from '../../../interfaces';
+} from '../../interfaces';
 import { buildTagRanges } from '../../../enclosing-html-tags/EnclosingHtmlTags';
 import { unwrapTag } from '../../tag-manipulation/TagManipulation';
 import { detectStructureContext } from '../../structure-detection/StructureDetection';
