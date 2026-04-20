@@ -22,13 +22,12 @@ import {
 } from './obsidianVault/obsidianVault';
 import { parseCliArguments } from './parseCliArguments/parseCliArguments';
 import { runSuites } from './suiteExecution/suiteExecution';
-import { formatCoveragePercent } from './coverage/helpers';
+import { formatCoveragePercent, generateCoverageReport } from './coverage/helpers';
 import { readJestCoverageLineThreshold } from './coverage/read-jest-coverage-threshold/readJestCoverageThreshold';
 import {
   startCoverageCollection,
   stopCoverageCollection,
   loadSourceFiles,
-  generateCoverageReport,
 } from './coverage/cdpCoverage';
 import {
   generateDetailedReport,
