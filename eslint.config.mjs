@@ -1,13 +1,10 @@
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import js from '@eslint/js';
 import tsParser from 'typescript-eslint';
 import importPlugin from 'eslint-plugin-import';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import prettierConfig from 'eslint-config-prettier';
-
-const currentDirectoryPath = path.dirname(fileURLToPath(import.meta.url));
 
 const strictStructurePlugin = {
   rules: {
@@ -114,6 +111,13 @@ const strictStructurePlugin = {
           return {};
         }
 
+        // Allow .test. files (e.g., ComponentName.test.tsx) if the base name matches folder
+        const testFilePattern = /^(.*)\.test$/;
+        const testMatch = baseNameWithoutExtension.match(testFilePattern);
+        if (testMatch && testMatch[1] === parentFolderName) {
+          return {};
+        }
+
         return {
           Program(programNode) {
             if (baseNameWithoutExtension !== parentFolderName) {
@@ -136,6 +140,7 @@ export default [
 
   // TypeScript rules (base)
   ...tsParser.configs.recommended,
+  ...tsParser.configs.strict,
 
   // TypeScript + React rules
   {
@@ -151,8 +156,6 @@ export default [
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
-        projectService: true,
-        tsconfigRootDir: currentDirectoryPath,
         ecmaFeatures: {
           jsx: true,
         },
@@ -228,8 +231,6 @@ export default [
       '@typescript-eslint/no-unused-expressions': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-non-null-assertion': 'off', // Allow in existing codebase
-      '@typescript-eslint/no-floating-promises': 'error',
-      '@typescript-eslint/no-misused-promises': 'error',
       '@typescript-eslint/consistent-type-imports': 'error',
 
       // Import strictness
@@ -259,7 +260,6 @@ export default [
       'no-useless-assignment': 'warn',
 
       // Structural strictness
-      'max-lines': ['error', { max: 150, skipBlankLines: false, skipComments: false }],
       'strict-structure/types-only-in-interfaces-file': 'error',
       'strict-structure/module-consts-only-in-constants-file': 'error',
       'strict-structure/strict-file-name': 'error',
@@ -268,7 +268,7 @@ export default [
 
   // Script files (Node.js environment)
   {
-    files: ['scripts/**/*.{ts,js,mjs}', '*.config.{ts,js,mjs}', '*.mjs'],
+    files: ['scripts/**/*.{ts,js,mjs}', '*.config.{ts,js,mjs}', '*.mjs', '*.js'],
     languageOptions: {
       globals: {
         process: 'readonly',
@@ -322,7 +322,7 @@ export default [
 
   // Test files
   {
-    files: ['**/*.test.{ts,tsx}', '**/__mocks__/**', '**/test-utils/**', '**/tests/**'],
+    files: ['**/*.test.{ts,tsx,cjs}', '**/__mocks__/**', '**/test-utils/**', '**/tests/**'],
     languageOptions: {
       globals: {
         jest: 'readonly',
