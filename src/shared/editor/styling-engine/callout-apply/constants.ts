@@ -32,8 +32,12 @@ export const TASK_PREFIX_PATTERN = /^\s*-\s+\[.\]\s+([^:\s][^:]*:)/;
 
 // ── Callout-removal patterns (used by removeActiveCallout) ───────────────────
 
-/** Matches a callout header line, e.g. "> [!tip]" or "> [!WARNING] Optional title". */
-export const CALLOUT_HEADER_LINE_PATTERN = /^>\s*\[!.*?\]/;
+/**
+ * Matches a callout header line at any nesting depth.
+ * Uses `(?:>\s*)+` so it handles both single-level (`> [!tip]`) and nested
+ * callouts produced by the plugin (`>> [!important]`, `>>> [!note]`).
+ */
+export const CALLOUT_HEADER_LINE_PATTERN = /^(?:>\s*)+\[!.*?\]/;
 
 /** Strips the blockquote prefix (">") with optional space from a continuation line. */
 export const BLOCKQUOTE_PREFIX_PATTERN = /^>\s?/;

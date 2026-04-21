@@ -1,6 +1,5 @@
 /**
- * Describes how a tag transforms the current line in the editor.
- * Each variant maps to a distinct formatting strategy.
+ * Describes how a callout tag transforms the current editor line.
  */
 export type TagAction =
   | { type: 'command'; commandId: string }
@@ -10,8 +9,7 @@ export type TagAction =
       /** Optional title text written after [!type] and used for cursor detection. */
       calloutTitle?: string;
     }
-  | { type: 'task'; taskPrefix: string }
-  | { type: 'highlight' };
+  | { type: 'task'; taskPrefix: string };
 
 /** Match result for a #todo tag at cursor position within a line. */
 export interface TodoTagMatch {

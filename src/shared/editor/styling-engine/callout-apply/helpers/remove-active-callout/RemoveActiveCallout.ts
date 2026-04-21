@@ -1,11 +1,15 @@
 import type { Editor } from 'obsidian';
 
 import { CALLOUT_HEADER_LINE_PATTERN, BLOCKQUOTE_PREFIX_PATTERN } from '../../constants';
+import { countPrefixBlockquotes } from './helpers';
 
 /**
  * Removes the Obsidian callout block surrounding the cursor.
- * Scans up to find block start, confirms callout header, scans down for end,
- * then removes the header line and strips "> " prefixes from body lines.
+ *
+ * For nested callouts (e.g. `>> [!type]` inside an outer `> [!type]`), only
+ * the innermost block touching the cursor is removed; outer blocks are left intact.
+ * For sibling callouts stacked without a blank separator, only the callout block
+ * whose header is directly above the cursor line is affected.
  */
 export function removeActiveCallout(editor: Editor): void {
   const cursor = editor.getCursor();
@@ -14,23 +18,32 @@ export function removeActiveCallout(editor: Editor): void {
   // Callout blocks always start lines with ">"
   if (!currentLine.startsWith('>')) return;
 
-  // Walk backward to find the first line of the block
+  // Walk backward to the nearest callout header line (innermost block around cursor).
+  // Stop when the current line IS a callout header, or when the block boundary is crossed.
   let startLine = cursor.line;
-  while (startLine > 0) {
+  while (!CALLOUT_HEADER_LINE_PATTERN.test(editor.getLine(startLine)) && startLine > 0) {
     const prevLine = editor.getLine(startLine - 1);
     if (!prevLine.startsWith('>')) break;
     startLine -= 1;
   }
 
-  // Confirm the block begins with a valid callout header
+  // Confirm the resolved start line is a valid callout header
   const headerLine = editor.getLine(startLine);
   if (!CALLOUT_HEADER_LINE_PATTERN.test(headerLine)) return;
 
-  // Walk forward to find the last line of the block
+  // Track the nesting depth of the header so the forward walk stays within the same block
+  const headerDepth = countPrefixBlockquotes(headerLine);
+
+  // Walk forward — stop when the next line is shallower than the header (we have left the
+  // nested block) or when another callout header at the exact same depth is encountered
+  // (sibling block starts).
   let endLine = cursor.line;
   while (endLine < editor.lastLine()) {
     const nextLine = editor.getLine(endLine + 1);
     if (!nextLine.startsWith('>')) break;
+    const nextDepth = countPrefixBlockquotes(nextLine);
+    if (nextDepth < headerDepth) break;
+    if (CALLOUT_HEADER_LINE_PATTERN.test(nextLine) && nextDepth === headerDepth) break;
     endLine += 1;
   }
 

@@ -110,3 +110,88 @@ describe('removeActiveCallout — surrounding content preserved', () => {
     expect(editor.getValue()).toBe('Top\nQ body\nBottom');
   });
 });
+
+describe('removeActiveCallout — nested callout blocks (>> prefix)', () => {
+  // The plugin uses ">".repeat(depth) to create nested callouts.
+  // When cursor is inside a depth-2 block (>> [!type]), only that inner block
+  // should be removed; the outer block must be left intact.
+
+  it('removes a depth-2 nested callout header and strips one level from its body', () => {
+    const editor = new MockEditor();
+    editor.setValue('>> [!important]\n>> Inner body');
+    editor.setCursor({ line: 1, ch: 0 });
+
+    removeActiveCallout(editor as any);
+
+    // Header gone, one ">" stripped from body (">>" → ">")
+    expect(editor.getValue()).toBe('> Inner body');
+  });
+
+  it('removes only the inner block when cursor is inside a nested callout', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!note] Outer\n> Outer body\n>> [!important] Inner\n>> Inner body');
+    editor.setCursor({ line: 3, ch: 0 });
+
+    removeActiveCallout(editor as any);
+
+    // Inner callout removed; outer callout left untouched; inner body de-nested by one level
+    expect(editor.getValue()).toBe('> [!note] Outer\n> Outer body\n> Inner body');
+  });
+
+  it('removes the inner callout when cursor is on the nested header line', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!note] Outer\n> Outer body\n>> [!important] Inner\n>> Inner body');
+    editor.setCursor({ line: 2, ch: 0 });
+
+    removeActiveCallout(editor as any);
+
+    expect(editor.getValue()).toBe('> [!note] Outer\n> Outer body\n> Inner body');
+  });
+
+  it('does nothing when cursor is on a plain nested body line with no header above', () => {
+    const editor = new MockEditor();
+    editor.setValue('>> Plain nested blockquote');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    removeActiveCallout(editor as any);
+
+    expect(editor.getValue()).toBe('>> Plain nested blockquote');
+  });
+});
+
+describe('removeActiveCallout — stacked sibling callouts', () => {
+  // Stacked callouts share the same depth but are separate blocks.
+  // Only the callout directly surrounding the cursor should be removed.
+
+  it('removes only the second sibling callout when cursor is in it', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!important] A\n> Content A\n> [!question] B\n> Content B');
+    editor.setCursor({ line: 3, ch: 0 });
+
+    removeActiveCallout(editor as any);
+
+    // Only the "B" callout is removed; "A" callout stays
+    expect(editor.getValue()).toBe('> [!important] A\n> Content A\nContent B');
+  });
+
+  it('removes only the first sibling callout when cursor is in it', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!important] A\n> Content A\n> [!question] B\n> Content B');
+    editor.setCursor({ line: 1, ch: 0 });
+
+    removeActiveCallout(editor as any);
+
+    // Only the "A" callout is removed; "B" callout stays
+    expect(editor.getValue()).toBe('Content A\n> [!question] B\n> Content B');
+  });
+
+  it('removes the middle callout from three stacked siblings', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!a] A\n> Body A\n> [!b] B\n> Body B\n> [!c] C\n> Body C');
+    editor.setCursor({ line: 3, ch: 0 });
+
+    removeActiveCallout(editor as any);
+
+    expect(editor.getValue()).toBe('> [!a] A\n> Body A\nBody B\n> [!c] C\n> Body C');
+  });
+});

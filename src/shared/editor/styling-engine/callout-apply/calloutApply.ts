@@ -1,0 +1,86 @@
+import type { Editor } from 'obsidian';
+
+import {
+  CALLOUT_HEADER_WITH_TITLE_PATTERN,
+  LEADING_BLOCKQUOTE_SEGMENTS_PATTERN,
+  TASK_LINE_WITH_CONTENT_PATTERN,
+  TASK_CONTENT_PREFIX_PATTERN,
+} from './constants';
+import { countBlockquoteDepth } from './helpers/countBlockquoteDepth';
+
+function stripLeadingBlockquoteSegments(lineText: string): string {
+  return lineText.replace(LEADING_BLOCKQUOTE_SEGMENTS_PATTERN, '').trimStart();
+}
+
+function stripTaskPrefix(taskContent: string): string {
+  const prefixMatch = taskContent.match(TASK_CONTENT_PREFIX_PATTERN);
+  if (!prefixMatch) return taskContent;
+  // group 2 is the content following the prefix and its colon
+  return prefixMatch[2];
+}
+
+/**
+ * Wraps the cursor line in an Obsidian callout block.
+ * If the line is already inside a callout, nests the new callout one level deeper.
+ */
+export function applyCallout(editor: Editor, calloutType: string, calloutTitle?: string): void {
+  const cursor = editor.getCursor();
+  const lineContent = editor.getLine(cursor.line);
+
+  const currentDepth = countBlockquoteDepth(lineContent);
+  const nestedDepth = currentDepth > 0 ? currentDepth + 1 : 1;
+  const nestedPrefix = '>'.repeat(nestedDepth);
+
+  const bodyContent =
+    currentDepth > 0 ? stripLeadingBlockquoteSegments(lineContent) : lineContent;
+
+  const titleSegment = calloutTitle ? ` ${calloutTitle}` : '';
+  editor.setLine(
+    cursor.line,
+    `${nestedPrefix} [!${calloutType}]${titleSegment}\n${nestedPrefix} ${bodyContent}`
+  );
+}
+
+/**
+ * Converts the cursor line into a Markdown task list item with the given prefix.
+ * Handles cursor-in-callout-title extraction and re-stamping of existing task lines.
+ */
+export function applyTask(editor: Editor, taskPrefix: string): void {
+  const cursor = editor.getCursor();
+  const lineContent = editor.getLine(cursor.line);
+  const prefixSegment = taskPrefix ? `${taskPrefix} ` : '';
+
+  const calloutHeaderMatch = lineContent.match(CALLOUT_HEADER_WITH_TITLE_PATTERN);
+  if (calloutHeaderMatch) {
+    const headerWithoutTitle = calloutHeaderMatch[1];
+    const calloutTitle = calloutHeaderMatch[3]?.trim() ?? '';
+    const titleStartIndex = lineContent.indexOf(calloutTitle);
+    // title always ends the callout header line, so line end is the safe upper bound
+    const cursorIsInCalloutTitle =
+      calloutTitle.length > 0 &&
+      titleStartIndex >= 0 &&
+      cursor.ch >= titleStartIndex &&
+      cursor.ch <= lineContent.length;
+
+    if (cursorIsInCalloutTitle) {
+      editor.setLine(cursor.line, `- [ ] ${prefixSegment}${calloutTitle}\n${headerWithoutTitle}`);
+      return;
+    }
+  }
+
+  const existingTaskMatch = lineContent.match(TASK_LINE_WITH_CONTENT_PATTERN);
+  if (existingTaskMatch) {
+    const blockquotePrefix = existingTaskMatch[1];
+    const indentation = existingTaskMatch[2];
+    const existingTaskContent = existingTaskMatch[3];
+    const contentWithoutTaskPrefix = stripTaskPrefix(existingTaskContent);
+
+    editor.setLine(
+      cursor.line,
+      `${blockquotePrefix}${indentation}- [ ] ${prefixSegment}${contentWithoutTaskPrefix}`
+    );
+    return;
+  }
+
+  editor.setLine(cursor.line, `- [ ] ${prefixSegment}${lineContent}`);
+}
