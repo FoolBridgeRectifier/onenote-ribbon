@@ -1,10 +1,9 @@
 import { useCallback } from 'react';
 
 import {
-  applyCallout,
-  applyTask,
-  removeCalloutByKey,
-  toggleInlineTodo,
+  addTag,
+  removeTag,
+  toggleTag,
 } from '../../../../shared/editor/styling-engine/stylingEngine';
 import { ACTIVE_TAG_KEY_TASK, EDITOR_COMMAND_OPEN_GLOBAL_SEARCH } from '../constants';
 import { saveCustomTags } from '../tag-storage/TagStorage';
@@ -44,7 +43,7 @@ export function useTagHandlers({
       const isOnCalloutTitleLine = CALLOUT_TITLE_WITH_CONTENT_PATTERN.test(lineContent);
 
       if (activeTagKeys.has(ACTIVE_TAG_KEY_TASK) || isOnCalloutTitleLine) {
-        applyTask(editor, '');
+        addTag(editor, { kind: 'task', taskPrefix: '' });
         return;
       }
     }
@@ -57,20 +56,20 @@ export function useTagHandlers({
     const editor = getEditor();
     if (!editor) return;
     if (activeTagKeys.has('Important')) {
-      removeCalloutByKey(editor, 'Important');
+      removeTag(editor, { kind: 'callout', calloutTitle: 'Important' });
       return;
     }
-    applyCallout(editor, 'important', 'Important');
+    addTag(editor, { kind: 'callout', calloutType: 'important', calloutTitle: 'Important' });
   }, [getEditor, activeTagKeys]);
 
   const handleQuestion = useCallback(() => {
     const editor = getEditor();
     if (!editor) return;
     if (activeTagKeys.has('Question')) {
-      removeCalloutByKey(editor, 'Question');
+      removeTag(editor, { kind: 'callout', calloutTitle: 'Question' });
       return;
     }
-    applyCallout(editor, 'question', 'Question');
+    addTag(editor, { kind: 'callout', calloutType: 'question', calloutTitle: 'Question' });
   }, [getEditor, activeTagKeys]);
 
   const handleFindTags = useCallback(() => {
@@ -87,7 +86,7 @@ export function useTagHandlers({
   const handleToDoTag = useCallback(() => {
     const editor = getEditor();
     if (!editor) return;
-    toggleInlineTodo(editor);
+    toggleTag(editor, { kind: 'inline-todo' });
   }, [getEditor]);
 
   const handleCustomTagsChange = useCallback(

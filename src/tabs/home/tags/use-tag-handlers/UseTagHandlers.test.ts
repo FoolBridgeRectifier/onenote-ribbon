@@ -2,20 +2,16 @@ import { renderHook } from '@testing-library/react';
 import { useTagHandlers } from './UseTagHandlers';
 import type { TagHandlersOptions } from './interfaces';
 
-const applyCalloutMock = jest.fn();
-const applyTaskMock = jest.fn();
-const removeCalloutByKeyMock = jest.fn();
-const removeCheckboxMock = jest.fn();
-const toggleInlineTodoMock = jest.fn();
+const addTagMock = jest.fn();
+const removeTagMock = jest.fn();
+const toggleTagMock = jest.fn();
 const saveCustomTagsMock = jest.fn();
 const selectTagFromDropdownMock = jest.fn();
 
 jest.mock('../../../../shared/editor/styling-engine/stylingEngine', () => ({
-  applyCallout: (...args: unknown[]) => applyCalloutMock(...args),
-  applyTask: (...args: unknown[]) => applyTaskMock(...args),
-  removeCalloutByKey: (...args: unknown[]) => removeCalloutByKeyMock(...args),
-  removeCheckbox: (...args: unknown[]) => removeCheckboxMock(...args),
-  toggleInlineTodo: (...args: unknown[]) => toggleInlineTodoMock(...args),
+  addTag: (...args: unknown[]) => addTagMock(...args),
+  removeTag: (...args: unknown[]) => removeTagMock(...args),
+  toggleTag: (...args: unknown[]) => toggleTagMock(...args),
 }));
 
 jest.mock('../tag-storage/TagStorage', () => ({
@@ -91,7 +87,7 @@ describe('useTagHandlers — handleTodo', () => {
     });
     const { result } = renderHook(() => useTagHandlers(options));
     result.current.handleTodo();
-    expect(applyTaskMock).toHaveBeenCalledWith(mockEditor, '');
+    expect(addTagMock).toHaveBeenCalledWith(mockEditor, { kind: 'task', taskPrefix: '' });
     expect(executeCommandById).not.toHaveBeenCalled();
   });
 
@@ -109,8 +105,7 @@ describe('useTagHandlers — handleTodo', () => {
     });
     const { result } = renderHook(() => useTagHandlers(options));
     result.current.handleTodo();
-    expect(applyTaskMock).toHaveBeenCalledWith(mockEditor, '');
-    expect(removeCheckboxMock).not.toHaveBeenCalled();
+    expect(addTagMock).toHaveBeenCalledWith(mockEditor, { kind: 'task', taskPrefix: '' });
   });
 });
 
@@ -126,7 +121,7 @@ describe('useTagHandlers — handleImportant', () => {
     });
     const { result } = renderHook(() => useTagHandlers(options));
     result.current.handleImportant();
-    expect(applyCalloutMock).toHaveBeenCalledWith(mockEditor, 'important', 'Important');
+    expect(addTagMock).toHaveBeenCalledWith(mockEditor, { kind: 'callout', calloutType: 'important', calloutTitle: 'Important' });
   });
 
   it('calls removeCalloutByKey("Important") when Important is active', () => {
@@ -140,8 +135,8 @@ describe('useTagHandlers — handleImportant', () => {
     });
     const { result } = renderHook(() => useTagHandlers(options));
     result.current.handleImportant();
-    expect(removeCalloutByKeyMock).toHaveBeenCalledWith(mockEditor, 'Important');
-    expect(applyCalloutMock).not.toHaveBeenCalled();
+    expect(removeTagMock).toHaveBeenCalledWith(mockEditor, { kind: 'callout', calloutTitle: 'Important' });
+    expect(addTagMock).not.toHaveBeenCalled();
   });
 
   it('does nothing when no active editor', () => {
@@ -153,7 +148,7 @@ describe('useTagHandlers — handleImportant', () => {
     });
     const { result } = renderHook(() => useTagHandlers(options));
     expect(() => result.current.handleImportant()).not.toThrow();
-    expect(applyCalloutMock).not.toHaveBeenCalled();
+    expect(addTagMock).not.toHaveBeenCalled();
   });
 });
 
@@ -169,7 +164,7 @@ describe('useTagHandlers — handleQuestion', () => {
     });
     const { result } = renderHook(() => useTagHandlers(options));
     result.current.handleQuestion();
-    expect(applyCalloutMock).toHaveBeenCalledWith(mockEditor, 'question', 'Question');
+    expect(addTagMock).toHaveBeenCalledWith(mockEditor, { kind: 'callout', calloutType: 'question', calloutTitle: 'Question' });
   });
 
   it('calls removeCalloutByKey("Question") when Question is active', () => {
@@ -183,7 +178,7 @@ describe('useTagHandlers — handleQuestion', () => {
     });
     const { result } = renderHook(() => useTagHandlers(options));
     result.current.handleQuestion();
-    expect(removeCalloutByKeyMock).toHaveBeenCalledWith(mockEditor, 'Question');
+    expect(removeTagMock).toHaveBeenCalledWith(mockEditor, { kind: 'callout', calloutTitle: 'Question' });
   });
 });
 
@@ -198,7 +193,7 @@ describe('useTagHandlers — handleToDoTag', () => {
     });
     const { result } = renderHook(() => useTagHandlers(options));
     result.current.handleToDoTag();
-    expect(toggleInlineTodoMock).toHaveBeenCalledWith(mockEditor);
+    expect(toggleTagMock).toHaveBeenCalledWith(mockEditor, { kind: 'inline-todo' });
   });
 
   it('does nothing when no editor is active', () => {
@@ -210,7 +205,7 @@ describe('useTagHandlers — handleToDoTag', () => {
     });
     const { result } = renderHook(() => useTagHandlers(options));
     result.current.handleToDoTag();
-    expect(toggleInlineTodoMock).not.toHaveBeenCalled();
+    expect(toggleTagMock).not.toHaveBeenCalled();
   });
 });
 
