@@ -18,8 +18,11 @@ import {
   AddressTagIcon,
   PhoneTagIcon,
   GlobeTagIcon,
-} from '../../tag-icons/basic-icons/BasicIcons';
-import { IdeaTagIcon, LockTagIcon } from '../../tag-icons/extended-icons/ExtendedIcons';
+} from '../../../../../../assets/tag-icons/basic-icons/BasicIcons';
+import {
+  IdeaTagIcon,
+  LockTagIcon,
+} from '../../../../../../assets/tag-icons/extended-icons/ExtendedIcons';
 
 /** First section of the callout tag list (Important through Critical). */
 export const CALLOUT_TAGS_A: TagOrSeparator[] = [

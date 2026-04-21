@@ -3,6 +3,7 @@ import type { ObsidianEditor } from '../interfaces';
 import {
   CALLOUT_HEADER_WITH_TITLE_PATTERN,
   LEADING_BLOCKQUOTE_SEGMENTS_PATTERN,
+  TASK_LINE_PATTERN,
   TASK_LINE_WITH_CONTENT_PATTERN,
   TASK_CONTENT_PREFIX_PATTERN,
 } from './constants';
@@ -23,7 +24,11 @@ function stripTaskPrefix(taskContent: string): string {
  * Wraps the cursor line in an Obsidian callout block.
  * If the line is already inside a callout, nests the new callout one level deeper.
  */
-export function applyCallout(editor: ObsidianEditor, calloutType: string, calloutTitle?: string): void {
+export function applyCallout(
+  editor: ObsidianEditor,
+  calloutType: string,
+  calloutTitle?: string
+): void {
   const cursor = editor.getCursor();
   const lineContent = editor.getLine(cursor.line);
 
@@ -31,8 +36,11 @@ export function applyCallout(editor: ObsidianEditor, calloutType: string, callou
   const nestedDepth = currentDepth > 0 ? currentDepth + 1 : 1;
   const nestedPrefix = '>'.repeat(nestedDepth);
 
-  const bodyContent =
+  const rawBodyContent =
     currentDepth > 0 ? stripLeadingBlockquoteSegments(lineContent) : lineContent;
+
+  // Strip the task list marker when converting a checkbox line into a callout body.
+  const bodyContent = rawBodyContent.replace(TASK_LINE_PATTERN, '');
 
   const titleSegment = calloutTitle ? ` ${calloutTitle}` : '';
   editor.setLine(
@@ -56,30 +64,20 @@ export function applyTask(editor: ObsidianEditor, taskPrefix: string): void {
 
   const calloutHeaderMatch = lineContent.match(CALLOUT_HEADER_WITH_TITLE_PATTERN);
   if (calloutHeaderMatch) {
+    // Cursor is anywhere on a callout header line — always insert checkbox on next line.
+    // Extract the blockquote prefix (e.g. "> " from "> [!note]") so the task body sits
+    // inside the same callout nesting level.
     const headerWithoutTitle = calloutHeaderMatch[1];
-    const calloutTitle = calloutHeaderMatch[3]?.trim() ?? '';
-    const titleStartIndex = lineContent.indexOf(calloutTitle);
-    // title always ends the callout header line, so line end is the safe upper bound
-    const cursorIsInCalloutTitle =
-      calloutTitle.length > 0 &&
-      titleStartIndex >= 0 &&
-      cursor.ch >= titleStartIndex &&
-      cursor.ch <= lineContent.length;
+    const headerBlockquoteMatch = headerWithoutTitle.match(/^((?:>\s*)+)/);
+    const headerBlockquotePrefix = headerBlockquoteMatch ? headerBlockquoteMatch[1] : '> ';
 
-    if (cursorIsInCalloutTitle) {
-      // Extract the blockquote prefix from the header (e.g. "> " from "> [!note]")
-      // so the new task body line sits correctly inside the same callout nesting level.
-      const headerBlockquoteMatch = headerWithoutTitle.match(/^((?:>\s*)+)/);
-      const headerBlockquotePrefix = headerBlockquoteMatch ? headerBlockquoteMatch[1] : '> ';
+    // Leave the header line intact and append the task body line below it.
+    editor.setLine(cursor.line, `${lineContent}\n${headerBlockquotePrefix}- [ ] ${prefixSegment}`);
 
-      // Insert a blank task body line below the header, leaving the title intact.
-      editor.setLine(cursor.line, `${lineContent}\n${headerBlockquotePrefix}- [ ] ${prefixSegment}`);
-
-      // Park cursor at the end of the new task body line, ready for typing.
-      const taskBodyColumn = headerBlockquotePrefix.length + '- [ ] '.length + prefixSegment.length;
-      editor.setCursor({ line: cursor.line + 1, ch: taskBodyColumn });
-      return;
-    }
+    // Park cursor at the end of the new task body line, ready for typing.
+    const taskBodyColumn = headerBlockquotePrefix.length + '- [ ] '.length + prefixSegment.length;
+    editor.setCursor({ line: cursor.line + 1, ch: taskBodyColumn });
+    return;
   }
 
   const existingTaskMatch = lineContent.match(TASK_LINE_WITH_CONTENT_PATTERN);
@@ -100,9 +98,7 @@ export function applyTask(editor: ObsidianEditor, taskPrefix: string): void {
   // the task marker is inserted after the quote prefix, not before it.
   const leadingBlockquoteMatch = lineContent.match(/^((?:>\s*)+)/);
   const blockquotePrefix = leadingBlockquoteMatch ? leadingBlockquoteMatch[1] : '';
-  const plainContent = blockquotePrefix
-    ? lineContent.slice(blockquotePrefix.length)
-    : lineContent;
+  const plainContent = blockquotePrefix ? lineContent.slice(blockquotePrefix.length) : lineContent;
 
   editor.setLine(cursor.line, `${blockquotePrefix}- [ ] ${prefixSegment}${plainContent}`);
 }

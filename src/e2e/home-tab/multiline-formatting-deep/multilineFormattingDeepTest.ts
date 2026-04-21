@@ -33,6 +33,11 @@ export async function multilineFormattingDeepTest(): Promise<SuiteTestResult[]> 
       clickByCommand('bold');
       await wait(120);
 
+      const afterMultilineBold = editor.getValue();
+      if (afterMultilineBold !== '- **first line**\n- **second line**\n- third line') {
+        throw new Error('Multi-line bold (per-line): ' + afterMultilineBold);
+      }
+
       // Test 2: Apply bold to multi-line where some lines already have bold.
       // This triggers lineHasMatchingTag returning true on some lines.
       editor.setValue('- **already bold**\n- plain line');

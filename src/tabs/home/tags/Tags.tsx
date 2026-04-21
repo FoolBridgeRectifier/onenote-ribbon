@@ -83,7 +83,7 @@ export function TagsGroup() {
             onClick={() => setMoreMenuOpen(!moreMenuOpen)}
             data-cmd="more-tags"
           >
-            ?
+            ▾
           </RibbonButton>
 
           {moreMenuOpen && moreButtonRef.current && (

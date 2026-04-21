@@ -70,9 +70,7 @@ describe('applyCallout', () => {
 
     applyCallout(editor as any, 'important', 'Important');
 
-    expect(editor.getValue()).toBe(
-      '>> [!important] Important\n>> Existing callout body',
-    );
+    expect(editor.getValue()).toBe('>> [!important] Important\n>> Existing callout body');
   });
 
   it('preserves deeper nesting by adding one extra blockquote level', () => {
@@ -105,9 +103,57 @@ describe('applyCallout', () => {
     // Cursor is now on the body line — apply a second callout
     applyCallout(editor as any, 'question', 'Question');
 
-    expect(editor.getValue()).toBe(
-      '> [!important] Important\n>> [!question] Question\n>> my note',
-    );
+    expect(editor.getValue()).toBe('> [!important] Important\n>> [!question] Question\n>> my note');
+  });
+
+  it('strips the checkbox marker when the cursor line is an unchecked task item', () => {
+    const editor = new MockEditor();
+    editor.setValue('- [ ] Follow up with team');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    applyCallout(editor as any, 'important', 'Important');
+
+    expect(editor.getValue()).toBe('> [!important] Important\n> Follow up with team');
+  });
+
+  it('strips the checkbox marker when the cursor line is a checked task item', () => {
+    const editor = new MockEditor();
+    editor.setValue('- [x] Completed task');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    applyCallout(editor as any, 'note');
+
+    expect(editor.getValue()).toBe('> [!note]\n> Completed task');
+  });
+
+  it('strips the checkbox marker from an indented task item', () => {
+    const editor = new MockEditor();
+    editor.setValue('  - [ ] Indented task');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    applyCallout(editor as any, 'tip');
+
+    expect(editor.getValue()).toBe('> [!tip]\n> Indented task');
+  });
+
+  it('strips the checkbox marker from a nested blockquote task item', () => {
+    const editor = new MockEditor();
+    editor.setValue('> - [ ] Nested task');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    applyCallout(editor as any, 'note');
+
+    expect(editor.getValue()).toBe('>> [!note]\n>> Nested task');
+  });
+
+  it('produces an empty callout body when the checkbox line has no content after the marker', () => {
+    const editor = new MockEditor();
+    editor.setValue('- [ ] ');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    applyCallout(editor as any, 'note');
+
+    expect(editor.getValue()).toBe('> [!note]\n> ');
   });
 });
 
@@ -153,6 +199,26 @@ describe('applyTask', () => {
     expect(editor.getValue()).toBe('> [!note] Follow up with team\n> - [ ] ');
   });
 
+  it('inserts a blank task body line inside the callout when cursor is at start of header line', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!question] Question');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    applyTask(editor as any, '');
+
+    expect(editor.getValue()).toBe('> [!question] Question\n> - [ ] ');
+  });
+
+  it('inserts a blank task body line when cursor is inside the bracket part of the header', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!question] Question');
+    editor.setCursor({ line: 0, ch: 5 });
+
+    applyTask(editor as any, '');
+
+    expect(editor.getValue()).toBe('> [!question] Question\n> - [ ] ');
+  });
+
   it('inserts a prefixed task body line inside the callout when cursor is on the title', () => {
     const editor = new MockEditor();
     editor.setValue('> [!tip] Send in email');
@@ -161,6 +227,26 @@ describe('applyTask', () => {
     applyTask(editor as any, 'P2:');
 
     expect(editor.getValue()).toBe('> [!tip] Send in email\n> - [ ] P2: ');
+  });
+
+  it('inserts a prefixed task body line when cursor is at start of header line', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!tip] Send in email');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    applyTask(editor as any, 'P2:');
+
+    expect(editor.getValue()).toBe('> [!tip] Send in email\n> - [ ] P2: ');
+  });
+
+  it('inserts task body line for a callout header without a title', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!note]');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    applyTask(editor as any, '');
+
+    expect(editor.getValue()).toBe('> [!note]\n> - [ ] ');
   });
 
   it('replaces an existing task prefix when applying a different checkbox tag', () => {

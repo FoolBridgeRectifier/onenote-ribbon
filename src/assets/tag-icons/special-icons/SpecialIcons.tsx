@@ -1,4 +1,4 @@
-import { TAG_FILL_MEDIUM_GRAY } from '../../../constants';
+import { TAG_FILL_MEDIUM_GRAY } from '../../../tabs/home/tags/constants';
 
 /** Document page for Source / Blog tags. */
 export function DocumentTagIcon({ fill }: { fill: string }) {

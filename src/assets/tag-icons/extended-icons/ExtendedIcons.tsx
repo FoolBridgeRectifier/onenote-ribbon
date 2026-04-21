@@ -1,4 +1,4 @@
-import { TAG_FILL_MEDIUM_GRAY, TAG_FILL_DARK } from '../../../constants';
+import { TAG_FILL_MEDIUM_GRAY, TAG_FILL_DARK } from '../../../tabs/home/tags/constants';
 
 /** Lightbulb for Idea tag. */
 export function IdeaTagIcon() {

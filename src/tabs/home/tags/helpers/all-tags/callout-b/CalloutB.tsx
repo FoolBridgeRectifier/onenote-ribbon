@@ -11,13 +11,16 @@ import {
   TAG_SWATCH_PRIORITY_1,
   TAG_SWATCH_PRIORITY_2,
 } from '../../../constants';
-import { TagIconText } from '../../tag-icons/basic-icons/BasicIcons';
+import { TagIconText } from '../../../../../../assets/tag-icons/basic-icons/BasicIcons';
 import {
   MovieTagIcon,
   BookTagIcon,
   MusicTagIcon,
-} from '../../tag-icons/extended-icons/ExtendedIcons';
-import { DocumentTagIcon, PriorityTodoIcon } from '../../tag-icons/special-icons/SpecialIcons';
+} from '../../../../../../assets/tag-icons/extended-icons/ExtendedIcons';
+import {
+  DocumentTagIcon,
+  PriorityTodoIcon,
+} from '../../../../../../assets/tag-icons/special-icons/SpecialIcons';
 
 /** Second section of the callout tag list (Project A through To Do priority 2). */
 export const CALLOUT_TAGS_B: TagOrSeparator[] = [

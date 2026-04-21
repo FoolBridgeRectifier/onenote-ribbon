@@ -9,8 +9,11 @@ import {
   TAG_SWATCH_TODO,
   TAG_SWATCH_NEUTRAL,
 } from '../../../constants';
-import { TagIconText } from '../../tag-icons/basic-icons/BasicIcons';
-import { ChecklistTagIcon, EmailTagIcon } from '../../tag-icons/special-icons/SpecialIcons';
+import { TagIconText } from '../../../../../../assets/tag-icons/basic-icons/BasicIcons';
+import {
+  ChecklistTagIcon,
+  EmailTagIcon,
+} from '../../../../../../assets/tag-icons/special-icons/SpecialIcons';
 
 /** Checkbox group, separator, and footer items (Customize Tags, Remove Tag). */
 export const CHECKBOX_TAGS: TagOrSeparator[] = [

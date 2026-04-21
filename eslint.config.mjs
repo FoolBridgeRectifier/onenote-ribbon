@@ -125,30 +125,82 @@ const strictStructurePlugin = {
       meta: {
         type: 'problem',
         docs: {
-          description: 'SVG files must live only inside src/assets/.',
+          description: 'SVG files and SVG component definitions must live only inside src/assets/.',
         },
         schema: [],
       },
       create(context) {
         const currentFilePath = context.filename.replace(/\\/g, '/');
-        const isSvgFile = currentFilePath.endsWith('.svg');
-
-        if (!isSvgFile) {
-          return {};
-        }
-
         const isInsideAssetsFolder = currentFilePath.includes('/src/assets/');
 
+        // Allow SVG files and TSX with SVG components inside assets folder
         if (isInsideAssetsFolder) {
           return {};
         }
 
+        // Skip test files - they may contain inline SVG for mocking purposes
+        const isTestFile = currentFilePath.endsWith('.test.tsx') || currentFilePath.endsWith('.test.ts');
+
+        if (isTestFile) {
+          return {};
+        }
+
+        const isSvgFile = currentFilePath.endsWith('.svg');
+
+        // Report SVG files outside assets
+        if (isSvgFile) {
+          return {
+            Program(programNode) {
+              context.report({
+                node: programNode,
+                message: 'SVG files must be placed inside src/assets/.',
+              });
+            },
+          };
+        }
+
+        // For TSX files outside assets, check for JSX SVG elements
+        const isTsxFile = currentFilePath.endsWith('.tsx');
+
+        if (!isTsxFile) {
+          return {};
+        }
+
         return {
-          Program(programNode) {
-            context.report({
-              node: programNode,
-              message: 'SVG files must be placed inside src/assets/.',
-            });
+          JSXOpeningElement(node) {
+            const elementName = node.name?.name;
+
+            // Check for SVG element or common SVG child elements
+            const svgElementNames = new Set([
+              'svg',
+              'rect',
+              'circle',
+              'ellipse',
+              'line',
+              'polyline',
+              'polygon',
+              'path',
+              'text',
+              'g',
+              'defs',
+              'use',
+              'symbol',
+              'linearGradient',
+              'radialGradient',
+              'stop',
+              'clipPath',
+              'mask',
+              'pattern',
+              'image',
+              'foreignObject',
+            ]);
+
+            if (svgElementNames.has(elementName)) {
+              context.report({
+                node,
+                message: `SVG components (${elementName}) must be defined inside src/assets/. Move this component to the assets folder.`,
+              });
+            }
           },
         };
       },

@@ -22,14 +22,25 @@ export async function clearFormattingDeepTest(): Promise<SuiteTestResult[]> {
       clickByCommand('clear-all');
       await wait(120);
 
+      const afterClearHtmlNested = editor.getValue();
+      if (afterClearHtmlNested !== 'heavily formatted text') {
+        throw new Error('Clear nested HTML tags: ' + afterClearHtmlNested);
+      }
+
       // Test 2: Clear all formatting on markdown formatted text.
       // removeAllTags: handles **bold** and _italic_ delimiter-inclusive matches.
       editor.setValue('**bold** and _italic_ and ~~strikethrough~~ text');
       await wait(60);
-      // Select the whole line
-      editor.setSelection(editor.offsetToPos(0), editor.offsetToPos(49));
+      // Select the whole line using the actual string length (48 chars, not 49).
+      const markdownLine = editor.getValue();
+      editor.setSelection(editor.offsetToPos(0), editor.offsetToPos(markdownLine.length));
       clickByCommand('clear-all');
       await wait(120);
+
+      const afterClearMarkdown = editor.getValue();
+      if (afterClearMarkdown !== 'bold and italic and strikethrough text') {
+        throw new Error('Clear markdown formatting: ' + afterClearMarkdown);
+      }
 
       // Test 3: Clear all formatting on fully inert content (code block).
       // removeAllTags: isFullyInert → early return (no-op).
@@ -52,9 +63,14 @@ export async function clearFormattingDeepTest(): Promise<SuiteTestResult[]> {
       editor.setValue('**bold markdown text**');
       await wait(60);
       selectToken('bold markdown text');
-      // Click bold to toggle-off (which calls removeTag → findDelimiterInclusiveMatch)
+      // Click bold to toggle-off (which calls removeTag → findDelimiterInclusiveMatch).
       clickByCommand('bold');
       await wait(100);
+
+      const afterMarkdownBoldToggleOff = editor.getValue();
+      if (afterMarkdownBoldToggleOff !== 'bold markdown text') {
+        throw new Error('Markdown bold toggle-off: ' + afterMarkdownBoldToggleOff);
+      }
 
       // Test 6: removeTag — no match → isNoOp.
       // Attempt to remove italic from plain text (no italic present).

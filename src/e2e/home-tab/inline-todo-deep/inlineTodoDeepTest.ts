@@ -11,47 +11,67 @@ import { runHomeTabSuite } from '../home/suite-helpers/suiteHelpers';
  */
 export async function inlineTodoDeepTest(): Promise<SuiteTestResult[]> {
   return runHomeTabSuite('inline-todo-deep', async ({ clickByCommand, editor, wait }) => {
-    // Test 1: selection === '#todo' → replaceSelection('').
-    // Setting selection to exactly '#todo' triggers the "remove tag" branch.
+    // Test 1: selection === '#todo' → replaceSelection('') (remove the selected tag).
     editor.setValue('#todo');
     await wait(60);
     editor.setSelection(editor.offsetToPos(0), editor.offsetToPos(5));
     clickByCommand('todo-tag');
     await wait(80);
 
-    // Test 2: selection is non-empty but not '#todo' → replaceSelection('#todo') (insert branch).
-    // This is already likely covered but ensures the `selection.length > 0` true branch is hit
-    // with a non-matching selection value.
+    const afterSelectedTagRemoval = editor.getValue();
+    if (afterSelectedTagRemoval !== '') {
+      throw new Error('Selected #todo removal: ' + afterSelectedTagRemoval);
+    }
+
+    // Test 2: selection is non-empty and not '#todo' → replaceSelection('#todo').
+    // Selects 'plain' (offset 5-10) in 'some plain text' and replaces it with '#todo'.
     editor.setValue('some plain text');
     await wait(60);
     editor.setSelection(editor.offsetToPos(5), editor.offsetToPos(10));
     clickByCommand('todo-tag');
     await wait(80);
 
+    const afterSelectionInsert = editor.getValue();
+    if (afterSelectionInsert !== 'some #todo text') {
+      throw new Error('Selection replaced with #todo: ' + afterSelectionInsert);
+    }
+
     // Test 3: cursor inside existing #todo tag → !todoTagMatch === false → removeTodoTagFromLine.
-    // Cursor at position 7 (inside the '#todo' token).
     editor.setValue('text #todo more');
     await wait(60);
     editor.setCursor({ line: 0, ch: 7 });
     clickByCommand('todo-tag');
     await wait(80);
 
+    const afterCursorInsideRemoval = editor.getValue();
+    if (afterCursorInsideRemoval !== 'text more') {
+      throw new Error('Cursor-inside #todo removal: ' + afterCursorInsideRemoval);
+    }
+
     // Test 4: removeTodoTagFromLine double-space collapse.
-    // 'before #todo after': beforeTag = 'before ', afterTag = ' after'
-    // → beforeTag.endsWith(' ') && afterTag.startsWith(' ') → remove one space → 'before after'.
+    // 'before #todo after': beforeTag ends with ' ', afterTag starts with ' '
+    // → one space is removed → 'before after'.
     editor.setValue('before #todo after');
     await wait(60);
-    // Position cursor at ch=10 (inside '#todo')
     editor.setCursor({ line: 0, ch: 10 });
     clickByCommand('todo-tag');
     await wait(80);
 
-    // Test 5: cursor NOT inside any #todo (no match) → replaceSelection('#todo') insert.
-    // This tests the !todoTagMatch === true branch (cursor elsewhere).
+    const afterDoubleSpaceCollapse = editor.getValue();
+    if (afterDoubleSpaceCollapse !== 'before after') {
+      throw new Error('Double-space collapse on #todo removal: ' + afterDoubleSpaceCollapse);
+    }
+
+    // Test 5: cursor NOT inside any #todo → insert '#todo' at cursor position.
     editor.setValue('hello world');
     await wait(60);
     editor.setCursor({ line: 0, ch: 5 });
     clickByCommand('todo-tag');
     await wait(80);
+
+    const afterInsertAtCursor = editor.getValue();
+    if (afterInsertAtCursor !== 'hello#todo world') {
+      throw new Error('Insert #todo at cursor: ' + afterInsertAtCursor);
+    }
   });
 }

@@ -1,4 +1,4 @@
-import { TAG_FILL_MEDIUM_GRAY } from '../../../constants';
+import { TAG_FILL_MEDIUM_GRAY } from '../../../tabs/home/tags/constants';
 
 /** Renders a colored 16×16 rounded square with a white text symbol centred inside. */
 export function TagIconText({ fill, symbol }: { fill: string; symbol: string }) {
