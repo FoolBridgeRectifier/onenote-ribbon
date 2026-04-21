@@ -192,4 +192,24 @@ describe('applyTask', () => {
 
     expect(editor.getValue()).toBe('> - [ ] Call back: Sarah');
   });
+
+  it('preserves blockquote prefix when converting a plain blockquote body line to a task', () => {
+    const editor = new MockEditor();
+    editor.setValue('> body inside callout');
+    editor.setCursor({ line: 0, ch: 5 });
+
+    applyTask(editor as any, '');
+
+    expect(editor.getValue()).toBe('> - [ ] body inside callout');
+  });
+
+  it('preserves multi-level blockquote prefix on a plain body line', () => {
+    const editor = new MockEditor();
+    editor.setValue('>> nested body');
+    editor.setCursor({ line: 0, ch: 3 });
+
+    applyTask(editor as any, 'P2:');
+
+    expect(editor.getValue()).toBe('>> - [ ] P2: nested body');
+  });
 });

@@ -86,5 +86,13 @@ export function applyTask(editor: Editor, taskPrefix: string): void {
     return;
   }
 
-  editor.setLine(cursor.line, `- [ ] ${prefixSegment}${lineContent}`);
+  // Strip any leading blockquote segments (e.g. "> " or ">> ") so that
+  // the task marker is inserted after the quote prefix, not before it.
+  const leadingBlockquoteMatch = lineContent.match(/^((?:>\s*)+)/);
+  const blockquotePrefix = leadingBlockquoteMatch ? leadingBlockquoteMatch[1] : '';
+  const plainContent = blockquotePrefix
+    ? lineContent.slice(blockquotePrefix.length)
+    : lineContent;
+
+  editor.setLine(cursor.line, `${blockquotePrefix}- [ ] ${prefixSegment}${plainContent}`);
 }
