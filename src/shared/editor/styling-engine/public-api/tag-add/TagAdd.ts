@@ -1,4 +1,3 @@
-import type { Editor } from 'obsidian';
 import type { HtmlTagDefinition, StylingResult, StylingContext, ObsidianEditor, TagDefinition, CalloutTagDefinition, TaskTagDefinition } from '../../interfaces';
 import { buildTagRanges } from '../../../enclosing-html-tags/enclosingHtmlTags';
 import { replaceOpeningTagAttribute } from '../../tag-manipulation/TagManipulation';
@@ -9,7 +8,7 @@ import { resolveTagForDomain } from '../../shared-helpers/SharedHelpers';
 import { buildWrapReplacements } from '../../wrap-replacements/WrapReplacements';
 import { shouldProcessPerLine, addTagPerLine } from '../../per-line-processing/PerLineProcessing';
 import { applyCallout, applyTask } from '../../callout-apply/calloutApply';
-import { isObsidianEditor } from '../isObsidianEditor';
+import { isObsidianEditor } from '../helpers';
 
 /**
  * Adds a formatting tag to the selection (never removes).
@@ -90,16 +89,16 @@ export function addTag(
 ): StylingResult | void {
   if (isObsidianEditor(input)) {
     if (tagDefinition.kind === 'callout') {
-      if (tagDefinition.calloutType == null) {
+      if (tagDefinition.calloutType === undefined || tagDefinition.calloutType === null) {
         return;
       }
-      // ObsidianEditor is structurally compatible with Obsidian's Editor; cast required due to nominal type difference
-      applyCallout(input as unknown as Editor, tagDefinition.calloutType, tagDefinition.calloutTitle);
+      // ObsidianEditor is structurally compatible; applyCallout accepts ObsidianEditor directly
+      applyCallout(input, tagDefinition.calloutType, tagDefinition.calloutTitle);
       return;
     }
     if (tagDefinition.kind === 'task') {
-      // ObsidianEditor is structurally compatible with Obsidian's Editor; cast required due to nominal type difference
-      applyTask(input as unknown as Editor, tagDefinition.taskPrefix ?? '');
+      // ObsidianEditor is structurally compatible; applyTask accepts ObsidianEditor directly
+      applyTask(input, tagDefinition.taskPrefix ?? '');
       return;
     }
     return;

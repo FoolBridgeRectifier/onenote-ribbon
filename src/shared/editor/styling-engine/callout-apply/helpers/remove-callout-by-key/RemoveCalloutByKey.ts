@@ -1,18 +1,18 @@
-import type { Editor } from 'obsidian';
+import type { ObsidianEditor } from '../../../interfaces';
 
 import {
   CALLOUT_HEADER_LINE_PATTERN,
   CALLOUT_HEADER_WITH_TITLE_PATTERN,
   BLOCKQUOTE_PREFIX_PATTERN,
 } from '../../constants';
-import { countBlockquoteDepth } from '../countBlockquoteDepth';
+import { countBlockquoteDepth } from '../count-blockquote-depth/helpers';
 
 /**
  * Removes the specific callout block whose title or type matches `calloutKey`.
  * Unlike removeActiveCallout, this targets a named callout regardless of nesting depth.
  * Body lines are unwrapped one level (one ">" prefix stripped) so nested content is preserved.
  */
-export function removeCalloutByKey(editor: Editor, calloutKey: string): void {
+export function removeCalloutByKey(editor: ObsidianEditor, calloutKey: string): void {
   const cursor = editor.getCursor();
   const currentLine = editor.getLine(cursor.line);
 

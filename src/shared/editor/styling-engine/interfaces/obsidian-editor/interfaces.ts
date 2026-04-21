@@ -18,5 +18,6 @@ export interface ObsidianEditor {
   setLine(lineNumber: number, text: string): void;
   getSelection(): string;
   replaceSelection(replacement: string): void;
+  replaceRange(replacement: string, from: { line: number; ch: number }, to: { line: number; ch: number }): void;
   lastLine(): number;
 }

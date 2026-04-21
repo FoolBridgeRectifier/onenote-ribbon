@@ -1,4 +1,4 @@
-import type { HtmlTagDefinition, FormattingDomain } from './TagDefinitions';
+import type { HtmlTagDefinition, FormattingDomain } from '../tag-definitions/interfaces';
 
 // === Text Replacement and Result Types ===
 

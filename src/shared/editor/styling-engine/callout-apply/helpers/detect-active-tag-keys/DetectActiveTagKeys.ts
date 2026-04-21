@@ -8,7 +8,7 @@ import {
   CALLOUT_HEADER_WITH_TITLE_PATTERN,
   TASK_PREFIX_PATTERN,
 } from '../../constants';
-import { countBlockquoteDepth } from '../countBlockquoteDepth';
+import { countBlockquoteDepth } from '../count-blockquote-depth/helpers';
 
 /**
  * Detects which OneNote-style tag types are currently active at the editor cursor.

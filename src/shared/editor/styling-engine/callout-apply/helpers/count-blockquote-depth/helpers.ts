@@ -1,4 +1,4 @@
-import { LEADING_BLOCKQUOTE_SEGMENTS_PATTERN } from '../constants';
+import { LEADING_BLOCKQUOTE_SEGMENTS_PATTERN } from '../../constants';
 
 /**
  * Counts the number of ">" blockquote prefix characters on a line.

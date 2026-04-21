@@ -1,4 +1,3 @@
-import type { Editor } from 'obsidian';
 import type {
   HtmlTagDefinition,
   TextReplacement,
@@ -27,7 +26,7 @@ import {
 import { removeActiveCallout as removeInnermostCallout } from '../../callout-apply/helpers/remove-active-callout/RemoveActiveCallout';
 import { removeCalloutByKey } from '../../callout-apply/helpers/remove-callout-by-key/RemoveCalloutByKey';
 import { removeActiveCheckbox as removeCheckbox } from '../../callout-apply/helpers/remove-active-checkbox/RemoveActiveCheckbox';
-import { isObsidianEditor } from '../isObsidianEditor';
+import { isObsidianEditor } from '../helpers';
 
 /**
  * Removes the first matching tag (enclosing or delimiter-inclusive) from the selection.
@@ -65,19 +64,19 @@ export function removeTag(
 ): StylingResult | void {
   if (isObsidianEditor(input)) {
     if (tagDefinition.kind === 'callout') {
-      if (tagDefinition.calloutTitle != null) {
-        // ObsidianEditor is structurally compatible with Obsidian's Editor; cast required due to nominal type difference
-        removeCalloutByKey(input as unknown as Editor, tagDefinition.calloutTitle);
+      if (tagDefinition.calloutTitle !== undefined && tagDefinition.calloutTitle !== null) {
+        // ObsidianEditor is structurally compatible; removeCalloutByKey accepts ObsidianEditor directly
+        removeCalloutByKey(input, tagDefinition.calloutTitle);
       } else {
-        // ObsidianEditor is structurally compatible with Obsidian's Editor; cast required due to nominal type difference
-        removeInnermostCallout(input as unknown as Editor);
+        // ObsidianEditor is structurally compatible; removeInnermostCallout accepts ObsidianEditor directly
+        removeInnermostCallout(input);
       }
       return;
     }
 
     if (tagDefinition.kind === 'checkbox') {
-      // ObsidianEditor is structurally compatible with Obsidian's Editor; cast required due to nominal type difference
-      removeCheckbox(input as unknown as Editor);
+      // ObsidianEditor is structurally compatible; removeCheckbox accepts ObsidianEditor directly
+      removeCheckbox(input);
       return;
     }
 

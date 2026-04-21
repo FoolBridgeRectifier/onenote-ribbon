@@ -1,4 +1,4 @@
-import type { Editor } from 'obsidian';
+import type { ObsidianEditor } from '../../../interfaces';
 
 import { INLINE_TODO_TAG_PATTERN } from '../../constants';
 import type { TodoTagMatch } from '../../interfaces';
@@ -35,7 +35,7 @@ function removeTodoTagFromLine(lineText: string, todoTagMatch: TodoTagMatch): st
  * If selection is "#todo", removes it. If cursor is inside "#todo", removes it.
  * Otherwise inserts "#todo" at cursor.
  */
-export function toggleInlineTodoTag(editor: Editor): void {
+export function toggleInlineTodoTag(editor: ObsidianEditor): void {
   const selection = editor.getSelection();
 
   if (selection.length > 0) {

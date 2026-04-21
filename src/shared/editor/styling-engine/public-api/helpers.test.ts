@@ -1,4 +1,4 @@
-import { isObsidianEditor } from './isObsidianEditor';
+import { isObsidianEditor } from './helpers';
 
 describe('isObsidianEditor', () => {
   it('returns true when input has a getCursor function', () => {

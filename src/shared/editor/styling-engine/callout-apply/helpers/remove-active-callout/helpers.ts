@@ -1,4 +1,4 @@
-import { countBlockquoteDepth } from '../countBlockquoteDepth';
+import { countBlockquoteDepth } from '../count-blockquote-depth/helpers';
 
 /**
  * Counts the number of ">" characters in the leading blockquote prefix of a line.

@@ -1,4 +1,4 @@
-import { countBlockquoteDepth } from './countBlockquoteDepth';
+import { countBlockquoteDepth } from './helpers';
 
 describe('countBlockquoteDepth', () => {
   it('returns 0 for a line with no blockquote prefix', () => {

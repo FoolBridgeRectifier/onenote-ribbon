@@ -105,6 +105,10 @@ function createTestEditor(content: string): ObsidianEditor & { transaction: jest
       innerEditor.replaceSelection(replacement);
     },
 
+    replaceRange(replacement: string, from: { line: number; ch: number }, to: { line: number; ch: number }): void {
+      innerEditor.replaceRange(replacement, from, to);
+    },
+
     lastLine(): number {
       return innerEditor.lastLine();
     },

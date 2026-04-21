@@ -1,4 +1,4 @@
-import type { Editor } from 'obsidian';
+import type { ObsidianEditor } from '../interfaces';
 
 import {
   CALLOUT_HEADER_WITH_TITLE_PATTERN,
@@ -6,7 +6,7 @@ import {
   TASK_LINE_WITH_CONTENT_PATTERN,
   TASK_CONTENT_PREFIX_PATTERN,
 } from './constants';
-import { countBlockquoteDepth } from './helpers/countBlockquoteDepth';
+import { countBlockquoteDepth } from './helpers/count-blockquote-depth/helpers';
 
 function stripLeadingBlockquoteSegments(lineText: string): string {
   return lineText.replace(LEADING_BLOCKQUOTE_SEGMENTS_PATTERN, '').trimStart();
@@ -23,7 +23,7 @@ function stripTaskPrefix(taskContent: string): string {
  * Wraps the cursor line in an Obsidian callout block.
  * If the line is already inside a callout, nests the new callout one level deeper.
  */
-export function applyCallout(editor: Editor, calloutType: string, calloutTitle?: string): void {
+export function applyCallout(editor: ObsidianEditor, calloutType: string, calloutTitle?: string): void {
   const cursor = editor.getCursor();
   const lineContent = editor.getLine(cursor.line);
 
@@ -49,7 +49,7 @@ export function applyCallout(editor: Editor, calloutType: string, calloutTitle?:
  * Converts the cursor line into a Markdown task list item with the given prefix.
  * Handles cursor-in-callout-title extraction and re-stamping of existing task lines.
  */
-export function applyTask(editor: Editor, taskPrefix: string): void {
+export function applyTask(editor: ObsidianEditor, taskPrefix: string): void {
   const cursor = editor.getCursor();
   const lineContent = editor.getLine(cursor.line);
   const prefixSegment = taskPrefix ? `${taskPrefix} ` : '';

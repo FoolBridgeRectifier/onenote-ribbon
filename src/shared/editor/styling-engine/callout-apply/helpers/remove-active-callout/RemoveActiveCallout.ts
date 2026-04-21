@@ -1,4 +1,4 @@
-import type { Editor } from 'obsidian';
+import type { ObsidianEditor } from '../../../interfaces';
 
 import { CALLOUT_HEADER_LINE_PATTERN, BLOCKQUOTE_PREFIX_PATTERN } from '../../constants';
 import { countPrefixBlockquotes } from './helpers';
@@ -11,7 +11,7 @@ import { countPrefixBlockquotes } from './helpers';
  * For sibling callouts stacked without a blank separator, only the callout block
  * whose header is directly above the cursor line is affected.
  */
-export function removeActiveCallout(editor: Editor): void {
+export function removeActiveCallout(editor: ObsidianEditor): void {
   const cursor = editor.getCursor();
   const currentLine = editor.getLine(cursor.line);
 
