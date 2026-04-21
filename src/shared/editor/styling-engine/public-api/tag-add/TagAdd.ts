@@ -1,3 +1,4 @@
+import type { Editor } from 'obsidian';
 import type { HtmlTagDefinition, StylingResult, StylingContext, ObsidianEditor, TagDefinition, CalloutTagDefinition, TaskTagDefinition } from '../../interfaces';
 import { buildTagRanges } from '../../../enclosing-html-tags/enclosingHtmlTags';
 import { replaceOpeningTagAttribute } from '../../tag-manipulation/TagManipulation';
@@ -93,11 +94,16 @@ export function addTag(
 ): StylingResult | void {
   if (isObsidianEditor(input)) {
     if (tagDefinition.kind === 'callout') {
-      applyCallout(input as any, tagDefinition.calloutType!, tagDefinition.calloutTitle);
+      if (tagDefinition.calloutType == null) {
+        return;
+      }
+      // ObsidianEditor is structurally compatible with Obsidian's Editor; cast required due to nominal type difference
+      applyCallout(input as unknown as Editor, tagDefinition.calloutType, tagDefinition.calloutTitle);
       return;
     }
     if (tagDefinition.kind === 'task') {
-      applyTask(input as any, tagDefinition.taskPrefix ?? '');
+      // ObsidianEditor is structurally compatible with Obsidian's Editor; cast required due to nominal type difference
+      applyTask(input as unknown as Editor, tagDefinition.taskPrefix ?? '');
       return;
     }
     return;

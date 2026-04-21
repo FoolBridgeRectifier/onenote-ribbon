@@ -54,7 +54,18 @@ describe('addTag — editor overload', () => {
   it('does not call applyCallout or applyTask for StylingContext input', () => {
     const context = { sourceText: 'hello', selectionStartOffset: 0, selectionEndOffset: 5, selectedText: 'hello' };
     const htmlTag = { tagName: 'b', domain: 'html' as const, openingMarkup: '<b>', closingMarkup: '</b>' };
-    addTag(context, htmlTag);
+    const result = addTag(context, htmlTag);
+    expect(result).toBeDefined();
+    expect(Array.isArray(result.replacements)).toBe(true);
+    expect(typeof result.isNoOp).toBe('boolean');
+    expect(mockApplyCallout).not.toHaveBeenCalled();
+    expect(mockApplyTask).not.toHaveBeenCalled();
+  });
+
+  it('returns undefined when kind is not callout or task (unsupported editor operation)', () => {
+    const editor = buildMockEditor();
+    const result = addTag(editor as any, { kind: 'checkbox' } as any);
+    expect(result).toBeUndefined();
     expect(mockApplyCallout).not.toHaveBeenCalled();
     expect(mockApplyTask).not.toHaveBeenCalled();
   });
