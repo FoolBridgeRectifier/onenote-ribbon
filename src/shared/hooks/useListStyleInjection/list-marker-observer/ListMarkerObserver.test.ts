@@ -248,3 +248,271 @@ describe('createListMarkerObserver — null parameters', () => {
     cleanup();
   });
 });
+
+describe('createListMarkerObserver — scrollHandler and selectionHandler', () => {
+  let mockScroller: HTMLElement;
+  let cleanup: () => void;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockScroller = document.createElement('div');
+    mockScroller.className = 'cm-scroller';
+    document.body.appendChild(mockScroller);
+
+    cleanup = createListMarkerObserver(null, null);
+    // Clear the initial stamp call so we can track scheduleStamp calls
+    mockStampAllOlSpans.mockClear();
+    mockStampAllUlSpans.mockClear();
+  });
+
+  afterEach(() => {
+    cleanup();
+    document.body.removeChild(mockScroller);
+  });
+
+  it('calls scheduleStamp when scroll fires on a cm-scroller element', async () => {
+    const converter = (_value: number, _depth: number) => '1.';
+    cleanup();
+    cleanup = createListMarkerObserver(converter, null);
+    mockStampAllOlSpans.mockClear();
+
+    // scrollHandler calls scheduleStamp() which queues a microtask
+    mockScroller.dispatchEvent(new Event('scroll'));
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    // scheduleStamp → queueMicrotask → stampAllOlSpans (since converter is set)
+    expect(mockStampAllOlSpans).toHaveBeenCalled();
+  });
+
+  it('calls scheduleStamp when selectionchange fires on document', async () => {
+    const converter = (_value: number, _depth: number) => '1.';
+    cleanup();
+    cleanup = createListMarkerObserver(converter, null);
+    mockStampAllOlSpans.mockClear();
+
+    // selectionHandler calls scheduleStamp()
+    document.dispatchEvent(new Event('selectionchange'));
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(mockStampAllOlSpans).toHaveBeenCalled();
+  });
+});
+
+describe('createListMarkerObserver — markerClickHandler', () => {
+  let mockContent: HTMLElement;
+  let cleanup: () => void;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockContent = document.createElement('div');
+    mockContent.className = 'cm-content';
+    document.body.appendChild(mockContent);
+
+    cleanup = createListMarkerObserver(null, null);
+  });
+
+  afterEach(() => {
+    cleanup();
+    document.body.removeChild(mockContent);
+  });
+
+  it('does nothing when mousedown target has no list-marker parent class', () => {
+    const span = document.createElement('span');
+    span.className = 'some-other-class';
+    mockContent.appendChild(span);
+
+    // Dispatching on child — handler fires but finds no list marker → returns early
+    expect(() => {
+      span.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+    }).not.toThrow();
+  });
+
+  it('does nothing when OL marker is inside a HyperMD-task-line', () => {
+    const taskLine = document.createElement('div');
+    taskLine.className = 'HyperMD-task-line';
+    const olMarker = document.createElement('span');
+    olMarker.className = 'cm-formatting-list-ol';
+    taskLine.appendChild(olMarker);
+    mockContent.appendChild(taskLine);
+
+    // Handler returns early at the HyperMD-task-line check
+    expect(() => {
+      olMarker.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+    }).not.toThrow();
+  });
+
+  it('handles OL marker without CM6 editorView (returns at editorView check)', () => {
+    const olMarker = document.createElement('span');
+    olMarker.className = 'cm-formatting-list-ol';
+    mockContent.appendChild(olMarker);
+
+    // Handler executes but exits at editorView === undefined check (no CM6 in JSDOM)
+    expect(() => {
+      olMarker.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+    }).not.toThrow();
+  });
+
+  it('handles UL marker without CM6 editorView', () => {
+    const ulMarker = document.createElement('span');
+    ulMarker.className = 'cm-formatting-list-ul';
+    mockContent.appendChild(ulMarker);
+
+    expect(() => {
+      ulMarker.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+    }).not.toThrow();
+  });
+});
+
+describe('createListMarkerObserver — backspaceHandler', () => {
+  let mockContent: HTMLElement;
+  let cleanup: () => void;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockContent = document.createElement('div');
+    mockContent.className = 'cm-content';
+    document.body.appendChild(mockContent);
+
+    cleanup = createListMarkerObserver(null, null);
+  });
+
+  afterEach(() => {
+    cleanup();
+    document.body.removeChild(mockContent);
+    // Restore any collapsed selection to avoid leaking state between tests
+    window.getSelection()?.removeAllRanges();
+  });
+
+  it('does nothing when keydown is not Backspace', () => {
+    expect(() => {
+      mockContent.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'Delete', bubbles: true, cancelable: true })
+      );
+    }).not.toThrow();
+  });
+
+  it('does nothing when Backspace is pressed outside a list marker', () => {
+    const regularSpan = document.createElement('span');
+    regularSpan.className = 'some-other-class';
+    const textNode = document.createTextNode('text');
+    regularSpan.appendChild(textNode);
+    mockContent.appendChild(regularSpan);
+
+    // Collapse selection inside the regular span (not a list marker)
+    const range = document.createRange();
+    range.setStart(textNode, 0);
+    range.collapse(true);
+    window.getSelection()?.removeAllRanges();
+    window.getSelection()?.addRange(range);
+
+    expect(() => {
+      mockContent.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'Backspace', bubbles: true, cancelable: true })
+      );
+    }).not.toThrow();
+  });
+
+  it('handles Backspace inside an OL marker and calls preventDefault', () => {
+    const olMarker = document.createElement('span');
+    olMarker.className = 'cm-formatting-list-ol';
+    const textNode = document.createTextNode('1.');
+    olMarker.appendChild(textNode);
+    mockContent.appendChild(olMarker);
+
+    // Collapse selection inside the OL marker span
+    const range = document.createRange();
+    range.setStart(textNode, 0);
+    range.collapse(true);
+    window.getSelection()?.removeAllRanges();
+    window.getSelection()?.addRange(range);
+
+    const event = new KeyboardEvent('keydown', {
+      key: 'Backspace',
+      bubbles: true,
+      cancelable: true,
+    });
+    const preventDefaultSpy = jest.spyOn(event, 'preventDefault');
+
+    mockContent.dispatchEvent(event);
+
+    expect(preventDefaultSpy).toHaveBeenCalled();
+  });
+
+  it('handles Backspace inside a UL marker and calls preventDefault', () => {
+    const ulMarker = document.createElement('span');
+    ulMarker.className = 'cm-formatting-list-ul';
+    const textNode = document.createTextNode('•');
+    ulMarker.appendChild(textNode);
+    mockContent.appendChild(ulMarker);
+
+    const range = document.createRange();
+    range.setStart(textNode, 0);
+    range.collapse(true);
+    window.getSelection()?.removeAllRanges();
+    window.getSelection()?.addRange(range);
+
+    const event = new KeyboardEvent('keydown', {
+      key: 'Backspace',
+      bubbles: true,
+      cancelable: true,
+    });
+    const preventDefaultSpy = jest.spyOn(event, 'preventDefault');
+
+    mockContent.dispatchEvent(event);
+
+    expect(preventDefaultSpy).toHaveBeenCalled();
+  });
+
+  it('does nothing when Backspace is pressed with a non-collapsed selection', () => {
+    // Covers the !selection.isCollapsed branch (returns early when selection spans multiple chars)
+    const olMarker = document.createElement('span');
+    olMarker.className = 'cm-formatting-list-ol';
+    const textNode = document.createTextNode('1.');
+    olMarker.appendChild(textNode);
+    mockContent.appendChild(olMarker);
+
+    // Create a non-collapsed range spanning both characters
+    const range = document.createRange();
+    range.setStart(textNode, 0);
+    range.setEnd(textNode, 2);
+    window.getSelection()?.removeAllRanges();
+    window.getSelection()?.addRange(range);
+
+    const event = new KeyboardEvent('keydown', {
+      key: 'Backspace',
+      bubbles: true,
+      cancelable: true,
+    });
+    const preventDefaultSpy = jest.spyOn(event, 'preventDefault');
+
+    mockContent.dispatchEvent(event);
+
+    // Handler returns early because selection is not collapsed
+    expect(preventDefaultSpy).not.toHaveBeenCalled();
+  });
+
+  it('does nothing when Backspace anchorNode has no parentElement', () => {
+    // Covers the !parentElement branch (anchorNode is a detached or non-element node)
+    const detachedText = document.createTextNode('detached');
+
+    const range = document.createRange();
+    range.setStart(detachedText, 0);
+    range.collapse(true);
+    window.getSelection()?.removeAllRanges();
+    window.getSelection()?.addRange(range);
+
+    const event = new KeyboardEvent('keydown', {
+      key: 'Backspace',
+      bubbles: true,
+      cancelable: true,
+    });
+    const preventDefaultSpy = jest.spyOn(event, 'preventDefault');
+
+    mockContent.dispatchEvent(event);
+
+    // parentElement is null for a detached text node → handler returns early
+    expect(preventDefaultSpy).not.toHaveBeenCalled();
+  });
+});

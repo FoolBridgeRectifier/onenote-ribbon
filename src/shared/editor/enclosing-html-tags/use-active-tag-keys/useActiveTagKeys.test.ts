@@ -84,4 +84,42 @@ describe('useActiveTagKeys', () => {
 
     expect(result.current.has('warning')).toBe(true);
   });
+
+  it('clears the pending throttle timer on unmount', () => {
+    const clearTimeoutSpy = jest.spyOn(global, 'clearTimeout');
+    const { app } = createAppWithEditor('Just text');
+
+    const { unmount } = renderHook(() => useActiveTagKeys(app as unknown as App));
+
+    // Start the throttle timer by dispatching selectionchange
+    act(() => {
+      document.dispatchEvent(new Event('selectionchange'));
+    });
+
+    // Unmount before the timer fires — should call clearTimeout
+    unmount();
+
+    expect(clearTimeoutSpy).toHaveBeenCalled();
+    clearTimeoutSpy.mockRestore();
+  });
+
+  it('does not fire a second throttled recompute while one is already pending', () => {
+    const { app, editor } = createAppWithEditor('Just text');
+    const { result } = renderHook(() => useActiveTagKeys(app as unknown as App));
+
+    act(() => {
+      editor.setValue('> [!tip]\n> Body');
+      editor.setCursor({ line: 0, ch: 0 });
+      // Dispatch selectionchange twice — second should be ignored while timer is active
+      document.dispatchEvent(new Event('selectionchange'));
+      document.dispatchEvent(new Event('selectionchange'));
+    });
+
+    // Advance time so the single timer fires
+    act(() => {
+      jest.advanceTimersByTime(80);
+    });
+
+    expect(result.current.has('tip')).toBe(true);
+  });
 });

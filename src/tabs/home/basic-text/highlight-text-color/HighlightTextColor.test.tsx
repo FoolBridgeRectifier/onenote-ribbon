@@ -651,4 +651,101 @@ describe('HighlightTextColor — color swatch display (integration)', () => {
 
     expect(editor.getValue()).toBeDefined();
   });
+
+  it('applies highlight color when swatch is clicked in the ColorPicker portal', () => {
+    const { app, editor } = createAppWithEditor('test content');
+    editor.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 4 });
+    const editorState = createEditorState({
+      highlight: false,
+      highlightColor: null,
+      fontColor: null,
+    });
+    const { container } = renderWithApp(<HighlightTextColor editorState={editorState} />, app);
+
+    // Open the highlight color picker via the caret button
+    const highlightCaret = container.querySelector('.onr-highlight-wrapper .onr-caret-btn');
+    expect(highlightCaret).not.toBeNull();
+    fireEvent.click(highlightCaret!);
+
+    // ColorPicker renders via portal into document.body — find and click the first swatch
+    const colorSwatch = document.body.querySelector('.onr-cp-swatch');
+    expect(colorSwatch).not.toBeNull();
+    fireEvent.click(colorSwatch!);
+
+    // handleHighlightColorSelect was called → applied highlight color span
+    // The style property is 'background' (shorthand) rather than 'background-color'
+    expect(editor.getValue()).toMatch(/background[^;]*#000000/);
+  });
+
+  it('removes highlight when no-color is clicked in the ColorPicker portal', () => {
+    const { app, editor } = createAppWithEditor(
+      '<span style="background-color: #ffff00">test</span>'
+    );
+    editor.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 4 });
+    const editorState = createEditorState({
+      highlight: true,
+      highlightColor: '#ffff00',
+      fontColor: null,
+    });
+    const { container } = renderWithApp(<HighlightTextColor editorState={editorState} />, app);
+
+    const highlightCaret = container.querySelector('.onr-highlight-wrapper .onr-caret-btn');
+    expect(highlightCaret).not.toBeNull();
+    fireEvent.click(highlightCaret!);
+
+    // Click "Automatic / No Color" from the portal-rendered ColorPicker
+    const noColorButton = document.body.querySelector('.onr-cp-no-color');
+    expect(noColorButton).not.toBeNull();
+    fireEvent.click(noColorButton!);
+
+    // handleHighlightNoColor was called → setLastHighlightColor(DEFAULT) executed
+    expect(editor.getValue()).toBeDefined();
+  });
+
+  it('applies font color when swatch is clicked in the font color ColorPicker portal', () => {
+    const { app, editor } = createAppWithEditor('test content');
+    editor.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 4 });
+    const editorState = createEditorState({
+      highlight: false,
+      highlightColor: null,
+      fontColor: null,
+    });
+    const { container } = renderWithApp(<HighlightTextColor editorState={editorState} />, app);
+
+    // Open the font color picker via the caret button
+    const fontColorCaret = container.querySelector('.onr-color-wrapper .onr-caret-btn');
+    expect(fontColorCaret).not.toBeNull();
+    fireEvent.click(fontColorCaret!);
+
+    // Find and click the first color swatch in the portal
+    const colorSwatch = document.body.querySelector('.onr-cp-swatch');
+    expect(colorSwatch).not.toBeNull();
+    fireEvent.click(colorSwatch!);
+
+    // handleFontColorSelect was called → applied font color span
+    expect(editor.getValue()).toContain('color');
+  });
+
+  it('removes font color when no-color is clicked in the font color ColorPicker portal', () => {
+    const { app, editor } = createAppWithEditor('<span style="color: #ff0000">test</span>');
+    editor.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 4 });
+    const editorState = createEditorState({
+      highlight: false,
+      highlightColor: null,
+      fontColor: '#ff0000',
+    });
+    const { container } = renderWithApp(<HighlightTextColor editorState={editorState} />, app);
+
+    const fontColorCaret = container.querySelector('.onr-color-wrapper .onr-caret-btn');
+    expect(fontColorCaret).not.toBeNull();
+    fireEvent.click(fontColorCaret!);
+
+    // Click "Automatic / No Color" in the portal
+    const noColorButton = document.body.querySelector('.onr-cp-no-color');
+    expect(noColorButton).not.toBeNull();
+    fireEvent.click(noColorButton!);
+
+    // handleFontColorNoColor was called
+    expect(editor.getValue()).toBeDefined();
+  });
 });

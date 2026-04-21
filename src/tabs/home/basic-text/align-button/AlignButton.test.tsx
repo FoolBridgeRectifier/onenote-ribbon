@@ -421,76 +421,73 @@ describe('AlignButton — alignment application (integration)', () => {
   it('applies center alignment when center option is selected', () => {
     const { app, editor } = createAppWithEditor('test content');
     const editorState = createEditorState({ textAlign: 'left' });
-    const { container } = renderWithApp(<AlignButton editorState={editorState} />, app);
+    renderWithApp(<AlignButton editorState={editorState} />, app);
 
     const button = screen.getByTitle('Align');
     fireEvent.click(button);
 
-    // Find and click the center option
-    const centerOption = Array.from(container.querySelectorAll('.onr-dd-item')).find((element) =>
-      element.textContent?.includes('Center')
+    // Dropdown renders in a portal into document.body, not into the test container
+    const centerOption = Array.from(document.body.querySelectorAll('.onr-dd-item')).find(
+      (element) => element.textContent?.includes('Center')
     );
-    if (centerOption) {
-      fireEvent.click(centerOption);
-    }
+    expect(centerOption).toBeDefined();
+    fireEvent.click(centerOption!);
 
-    // Editor should have been modified
-    expect(editor.getValue()).toBeDefined();
+    // Editor content should have been modified by applyAlignment
+    expect(editor.getValue()).toContain('text-align: center');
   });
 
   it('applies right alignment when right option is selected', () => {
     const { app, editor } = createAppWithEditor('test content');
     const editorState = createEditorState({ textAlign: 'left' });
-    const { container } = renderWithApp(<AlignButton editorState={editorState} />, app);
+    renderWithApp(<AlignButton editorState={editorState} />, app);
 
     const button = screen.getByTitle('Align');
     fireEvent.click(button);
 
-    const rightOption = Array.from(container.querySelectorAll('.onr-dd-item')).find((element) =>
+    const rightOption = Array.from(document.body.querySelectorAll('.onr-dd-item')).find((element) =>
       element.textContent?.includes('Right')
     );
-    if (rightOption) {
-      fireEvent.click(rightOption);
-    }
+    expect(rightOption).toBeDefined();
+    fireEvent.click(rightOption!);
 
-    expect(editor.getValue()).toBeDefined();
+    expect(editor.getValue()).toContain('text-align: right');
   });
 
   it('removes alignment when left option is selected on aligned text', () => {
     const { app, editor } = createAppWithEditor('<span style="text-align: center">centered</span>');
     const editorState = createEditorState({ textAlign: 'center' });
-    const { container } = renderWithApp(<AlignButton editorState={editorState} />, app);
+    renderWithApp(<AlignButton editorState={editorState} />, app);
 
     const button = screen.getByTitle('Align');
     fireEvent.click(button);
 
-    const leftOption = Array.from(container.querySelectorAll('.onr-dd-item')).find((element) =>
+    const leftOption = Array.from(document.body.querySelectorAll('.onr-dd-item')).find((element) =>
       element.textContent?.includes('Left')
     );
-    if (leftOption) {
-      fireEvent.click(leftOption);
-    }
+    expect(leftOption).toBeDefined();
+    fireEvent.click(leftOption!);
 
+    // Left alignment resets the alignment — editor content is defined
     expect(editor.getValue()).toBeDefined();
   });
 
   it('closes dropdown after selecting an alignment', () => {
     const { app } = createAppWithEditor('test content');
     const editorState = createEditorState({ textAlign: 'left' });
-    const { container } = renderWithApp(<AlignButton editorState={editorState} />, app);
+    renderWithApp(<AlignButton editorState={editorState} />, app);
 
     const button = screen.getByTitle('Align');
     fireEvent.click(button);
 
-    const centerOption = Array.from(container.querySelectorAll('.onr-dd-item')).find((element) =>
-      element.textContent?.includes('Center')
+    const centerOption = Array.from(document.body.querySelectorAll('.onr-dd-item')).find(
+      (element) => element.textContent?.includes('Center')
     );
-    if (centerOption) {
-      fireEvent.click(centerOption);
-    }
+    expect(centerOption).toBeDefined();
+    fireEvent.click(centerOption!);
 
-    const dropdown = container.querySelector('.onr-overlay-dropdown');
-    expect(dropdown).not.toBeInTheDocument();
+    // After selecting, dropdown should be unmounted from document.body
+    expect(document.body.querySelector('.onr-align-dropdown')).not.toBeInTheDocument();
   });
 });
 
@@ -502,17 +499,16 @@ describe('AlignButton — no active editor (integration)', () => {
       writable: true,
     });
     const editorState = createEditorState({ textAlign: 'left' });
-    const { container } = renderWithApp(<AlignButton editorState={editorState} />, app);
+    renderWithApp(<AlignButton editorState={editorState} />, app);
 
     const button = screen.getByTitle('Align');
     fireEvent.click(button);
 
-    const centerOption = Array.from(container.querySelectorAll('.onr-dd-item')).find((element) =>
-      element.textContent?.includes('Center')
+    const centerOption = Array.from(document.body.querySelectorAll('.onr-dd-item')).find(
+      (element) => element.textContent?.includes('Center')
     );
-    if (centerOption) {
-      expect(() => fireEvent.click(centerOption)).not.toThrow();
-    }
+    expect(centerOption).toBeDefined();
+    expect(() => fireEvent.click(centerOption!)).not.toThrow();
   });
 });
 

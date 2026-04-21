@@ -283,36 +283,36 @@ describe('FontPicker — edge cases', () => {
     const { app, editor } = createAppWithEditor('test content');
     editor.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 4 });
     const editorState = createEditorState({ fontFamily: 'default', fontSize: '12' });
-    const { container } = renderWithApp(<FontPicker editorState={editorState} />, app);
+    renderWithApp(<FontPicker editorState={editorState} />, app);
 
     const fontButton = screen.getByTitle('Font family');
     fireEvent.click(fontButton);
 
-    // Click on a dropdown item
-    const dropdownItem = container.querySelector('.onr-dd-item');
-    if (dropdownItem) {
-      fireEvent.click(dropdownItem);
-    }
+    // Dropdown renders in a portal into document.body, not into the test container
+    const dropdownItem = document.body.querySelector('.onr-dd-item');
+    expect(dropdownItem).not.toBeNull();
+    fireEvent.click(dropdownItem!);
 
-    expect(editor.getValue()).toBeDefined();
+    // Font family should have been applied to the editor content
+    expect(editor.getValue()).toContain('font-family');
   });
 
   it('handles size selection from dropdown item', () => {
     const { app, editor } = createAppWithEditor('test content');
     editor.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 4 });
     const editorState = createEditorState({ fontFamily: 'default', fontSize: '12' });
-    const { container } = renderWithApp(<FontPicker editorState={editorState} />, app);
+    renderWithApp(<FontPicker editorState={editorState} />, app);
 
     const sizeButton = screen.getByTitle('Font size');
     fireEvent.click(sizeButton);
 
-    // Click on a dropdown item
-    const dropdownItem = container.querySelector('.onr-dd-item');
-    if (dropdownItem) {
-      fireEvent.click(dropdownItem);
-    }
+    // Dropdown renders in a portal into document.body, not into the test container
+    const dropdownItem = document.body.querySelector('.onr-dd-item');
+    expect(dropdownItem).not.toBeNull();
+    fireEvent.click(dropdownItem!);
 
-    expect(editor.getValue()).toBeDefined();
+    // Font size should have been applied to the editor content
+    expect(editor.getValue()).toContain('font-size');
   });
 
   it('handles rapid font and size toggles', () => {
