@@ -30,7 +30,9 @@ export class MockEditor {
   }
 
   setLine(n: number, text: string): void {
-    this.lines[n] = text;
+    // Split on newlines so getLine(n) and getLine(n+1) return correct individual lines
+    const newLines = text.split('\n');
+    this.lines.splice(n, 1, ...newLines);
   }
 
   getCursor(): { line: number; ch: number } {

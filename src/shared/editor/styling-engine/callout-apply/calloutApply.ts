@@ -39,6 +39,10 @@ export function applyCallout(editor: Editor, calloutType: string, calloutTitle?:
     cursor.line,
     `${nestedPrefix} [!${calloutType}]${titleSegment}\n${nestedPrefix} ${bodyContent}`
   );
+
+  // Move cursor to the body line so that a subsequent applyCallout nests inside this
+  // callout's body rather than wrapping the header line with an extra '>'.
+  editor.setCursor({ line: cursor.line + 1, ch: nestedPrefix.length + 1 });
 }
 
 /**

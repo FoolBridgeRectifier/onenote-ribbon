@@ -84,6 +84,31 @@ describe('applyCallout', () => {
 
     expect(editor.getValue()).toBe('>>> [!note]\n>>> Nested body content');
   });
+
+  it('moves cursor to the body line after applying so a second callout nests correctly', () => {
+    const editor = new MockEditor();
+    editor.setValue('my note');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    applyCallout(editor as any, 'important', 'Important');
+
+    // Cursor must be on line 1 (the body line), not line 0 (the header)
+    expect(editor.getCursor()).toEqual({ line: 1, ch: 2 });
+  });
+
+  it('applying two callouts in sequence nests the second inside the first without corrupting the header', () => {
+    const editor = new MockEditor();
+    editor.setValue('my note');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    applyCallout(editor as any, 'important', 'Important');
+    // Cursor is now on the body line — apply a second callout
+    applyCallout(editor as any, 'question', 'Question');
+
+    expect(editor.getValue()).toBe(
+      '> [!important] Important\n>> [!question] Question\n>> my note',
+    );
+  });
 });
 
 describe('applyTask', () => {
