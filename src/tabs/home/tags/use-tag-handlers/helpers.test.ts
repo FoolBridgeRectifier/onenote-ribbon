@@ -3,18 +3,12 @@ import type { TagDefinition } from '../interfaces';
 import type { TagDropdownSelectContext } from './interfaces';
 import { ACTIVE_TAG_KEY_TASK } from '../constants';
 
-const applyCalloutMock = jest.fn();
-const applyTaskMock = jest.fn();
-const removeInnermostCalloutMock = jest.fn();
-const removeCalloutByKeyMock = jest.fn();
-const removeCheckboxMock = jest.fn();
+const addTagMock = jest.fn();
+const removeTagMock = jest.fn();
 
 jest.mock('../../../../shared/editor/styling-engine/stylingEngine', () => ({
-  applyCallout: (...args: unknown[]) => applyCalloutMock(...args),
-  applyTask: (...args: unknown[]) => applyTaskMock(...args),
-  removeInnermostCallout: (...args: unknown[]) => removeInnermostCalloutMock(...args),
-  removeCalloutByKey: (...args: unknown[]) => removeCalloutByKeyMock(...args),
-  removeCheckbox: (...args: unknown[]) => removeCheckboxMock(...args),
+  addTag: (...args: unknown[]) => addTagMock(...args),
+  removeTag: (...args: unknown[]) => removeTagMock(...args),
 }));
 
 function buildTagDefinition(overrides: Partial<TagDefinition>): TagDefinition {
@@ -51,7 +45,7 @@ describe('selectTagFromDropdown — isCustomizeTags path', () => {
     );
     expect(setCustomizeModalOpen).toHaveBeenCalledWith(true);
     expect(setMoreMenuOpen).toHaveBeenCalledWith(false);
-    expect(applyCalloutMock).not.toHaveBeenCalled();
+    expect(addTagMock).not.toHaveBeenCalled();
   });
 });
 
@@ -63,7 +57,7 @@ describe('selectTagFromDropdown — isRemoveTag path', () => {
       buildContext({ canRemoveTag: false, setMoreMenuOpen })
     );
     expect(setMoreMenuOpen).not.toHaveBeenCalled();
-    expect(removeInnermostCalloutMock).not.toHaveBeenCalled();
+    expect(removeTagMock).not.toHaveBeenCalled();
   });
 
   it('calls removeInnermostCallout and closes menu when canRemoveTag is true', () => {
@@ -73,7 +67,7 @@ describe('selectTagFromDropdown — isRemoveTag path', () => {
       buildTagDefinition({ isRemoveTag: true }),
       buildContext({ canRemoveTag: true, getEditor: () => fakeEditor as never, setMoreMenuOpen })
     );
-    expect(removeInnermostCalloutMock).toHaveBeenCalledWith(fakeEditor);
+    expect(removeTagMock).toHaveBeenCalledWith(fakeEditor, { kind: 'callout' });
     expect(setMoreMenuOpen).toHaveBeenCalledWith(false);
   });
 });
@@ -86,7 +80,7 @@ describe('selectTagFromDropdown — active callout toggle-off', () => {
       buildTagDefinition({ action: { type: 'callout', calloutType: 'important', calloutTitle: 'Important' }, calloutKey: 'Important' }),
       buildContext({ activeTagKeys: new Set(['Important']), getEditor: () => fakeEditor as never, setMoreMenuOpen })
     );
-    expect(removeCalloutByKeyMock).toHaveBeenCalledWith(fakeEditor, 'Important');
+    expect(removeTagMock).toHaveBeenCalledWith(fakeEditor, { kind: 'callout', calloutTitle: 'Important' });
     expect(setMoreMenuOpen).toHaveBeenCalledWith(false);
   });
 });
@@ -99,20 +93,20 @@ describe('selectTagFromDropdown — active task replace', () => {
       buildTagDefinition({ action: { type: 'command', commandId: 'editor:toggle-checklist-status' }, calloutKey: ACTIVE_TAG_KEY_TASK }),
       buildContext({ activeTagKeys: new Set([ACTIVE_TAG_KEY_TASK]), getEditor: () => fakeEditor as never, setMoreMenuOpen })
     );
-    expect(applyTaskMock).toHaveBeenCalledWith(fakeEditor, '');
-    expect(removeCheckboxMock).not.toHaveBeenCalled();
+    expect(addTagMock).toHaveBeenCalledWith(fakeEditor, { kind: 'task', taskPrefix: '' });
+    expect(removeTagMock).not.toHaveBeenCalled();
     expect(setMoreMenuOpen).toHaveBeenCalledWith(false);
   });
 
-  it('calls applyTask with same prefix when task-with-prefix is already active (replaces instead of removing)', () => {
+  it('calls addTag with same prefix when task-with-prefix is already active (replaces instead of removing)', () => {
     const fakeEditor = {};
     const setMoreMenuOpen = jest.fn();
     selectTagFromDropdown(
       buildTagDefinition({ action: { type: 'task', taskPrefix: 'Discuss:' }, calloutKey: 'task-prefix:Discuss:' }),
       buildContext({ activeTagKeys: new Set(['task-prefix:Discuss:']), getEditor: () => fakeEditor as never, setMoreMenuOpen })
     );
-    expect(applyTaskMock).toHaveBeenCalledWith(fakeEditor, 'Discuss:');
-    expect(removeCheckboxMock).not.toHaveBeenCalled();
+    expect(addTagMock).toHaveBeenCalledWith(fakeEditor, { kind: 'task', taskPrefix: 'Discuss:' });
+    expect(removeTagMock).not.toHaveBeenCalled();
     expect(setMoreMenuOpen).toHaveBeenCalledWith(false);
   });
 });
@@ -125,18 +119,18 @@ describe('selectTagFromDropdown — apply new callout', () => {
       buildTagDefinition({ action: { type: 'callout', calloutType: 'tip', calloutTitle: 'Idea' }, calloutKey: 'Idea' }),
       buildContext({ activeTagKeys: new Set(), getEditor: () => fakeEditor as never, setMoreMenuOpen })
     );
-    expect(applyCalloutMock).toHaveBeenCalledWith(fakeEditor, 'tip', 'Idea');
+    expect(addTagMock).toHaveBeenCalledWith(fakeEditor, { kind: 'callout', calloutType: 'tip', calloutTitle: 'Idea' });
     expect(setMoreMenuOpen).toHaveBeenCalledWith(false);
   });
 
-  it('calls applyTask with taskPrefix for task actions', () => {
+  it('calls addTag with taskPrefix for task actions', () => {
     const fakeEditor = {};
     const setMoreMenuOpen = jest.fn();
     selectTagFromDropdown(
       buildTagDefinition({ action: { type: 'task', taskPrefix: 'Discuss:' }, calloutKey: 'task-prefix:Discuss:' }),
       buildContext({ activeTagKeys: new Set(), getEditor: () => fakeEditor as never, setMoreMenuOpen })
     );
-    expect(applyTaskMock).toHaveBeenCalledWith(fakeEditor, 'Discuss:');
+    expect(addTagMock).toHaveBeenCalledWith(fakeEditor, { kind: 'task', taskPrefix: 'Discuss:' });
     expect(setMoreMenuOpen).toHaveBeenCalledWith(false);
   });
 
@@ -160,6 +154,6 @@ describe('selectTagFromDropdown — isDisabled path', () => {
       buildContext({ setMoreMenuOpen })
     );
     expect(setMoreMenuOpen).not.toHaveBeenCalled();
-    expect(applyCalloutMock).not.toHaveBeenCalled();
+    expect(addTagMock).not.toHaveBeenCalled();
   });
 });

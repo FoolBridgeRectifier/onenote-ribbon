@@ -1,8 +1,6 @@
 import {
-  applyCallout,
-  applyTask,
-  removeInnermostCallout,
-  removeCalloutByKey,
+  addTag,
+  removeTag,
 } from '../../../../shared/editor/styling-engine/stylingEngine';
 import { ACTIVE_TAG_KEY_TASK } from '../constants';
 import type { TagDefinition } from '../interfaces';
@@ -34,7 +32,7 @@ export function selectTagFromDropdown(
   if (tagDefinition.isRemoveTag) {
     if (!canRemoveTag) return;
     const editor = getEditor();
-    if (editor) removeInnermostCallout(editor);
+    if (editor) removeTag(editor, { kind: 'callout' });
     setMoreMenuOpen(false);
     return;
   }
@@ -48,7 +46,7 @@ export function selectTagFromDropdown(
   if (isCurrentlyActive && tagDefinition.action.type === 'callout') {
     const editor = getEditor();
     // Remove the specific named callout, not necessarily the innermost
-    if (editor && calloutKey) removeCalloutByKey(editor, calloutKey);
+    if (editor && calloutKey) removeTag(editor, { kind: 'callout', calloutTitle: calloutKey });
     setMoreMenuOpen(false);
     return;
   }
@@ -62,7 +60,7 @@ export function selectTagFromDropdown(
     // Re-apply with the same prefix rather than removing the checkbox entirely.
     // This lets multiple task buttons replace each other when the line already has a task.
     const taskPrefix = tagDefinition.action.type === 'task' ? tagDefinition.action.taskPrefix : '';
-    if (editor) applyTask(editor, taskPrefix);
+    if (editor) addTag(editor, { kind: 'task', taskPrefix });
     setMoreMenuOpen(false);
     return;
   }
@@ -70,10 +68,10 @@ export function selectTagFromDropdown(
   // Apply the action: callout, task, or editor command
   if (tagDefinition.action.type === 'callout') {
     const editor = getEditor();
-    if (editor) applyCallout(editor, tagDefinition.action.calloutType, tagDefinition.action.calloutTitle);
+    if (editor) addTag(editor, { kind: 'callout', calloutType: tagDefinition.action.calloutType, calloutTitle: tagDefinition.action.calloutTitle });
   } else if (tagDefinition.action.type === 'task') {
     const editor = getEditor();
-    if (editor) applyTask(editor, tagDefinition.action.taskPrefix);
+    if (editor) addTag(editor, { kind: 'task', taskPrefix: tagDefinition.action.taskPrefix });
   } else if (tagDefinition.action.type === 'command') {
     executeCommand(tagDefinition.action.commandId);
   }
