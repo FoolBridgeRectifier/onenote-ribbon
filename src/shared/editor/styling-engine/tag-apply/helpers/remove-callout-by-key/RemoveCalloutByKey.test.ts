@@ -88,13 +88,13 @@ describe('removeCalloutByKey — type-based matching', () => {
     expect(editor.getValue()).toBe('body text');
   });
 
-  it('matches by lowercased type when title does not match the key', () => {
+  it('matches by callout type when no title is present (case-insensitive)', () => {
     const editor = new MockEditor();
-    editor.setValue('> [!important] Some Different Title\n> body');
+    editor.setValue('> [!important]\n> body');
     editor.setCursor({ line: 1, ch: 0 });
 
-    // Key matches callout type 'important', not the title 'Some Different Title'
-    removeCalloutByKey(editor as any, 'important');
+    // Passing 'Important' (capital I) matches [!important] via toLowerCase()
+    removeCalloutByKey(editor as any, 'Important');
 
     expect(editor.getValue()).toBe('body');
   });

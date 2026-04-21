@@ -7,15 +7,8 @@ import {
   HIGHLIGHT_PATTERN,
   CALLOUT_HEADER_WITH_TITLE_PATTERN,
   TASK_PREFIX_PATTERN,
-  LEADING_BLOCKQUOTE_SEGMENTS_PATTERN,
 } from '../../constants';
-
-// Returns the number of ">" characters at the start of a callout line (its nesting depth)
-function countBlockquoteDepth(lineText: string): number {
-  const prefixMatch = lineText.match(LEADING_BLOCKQUOTE_SEGMENTS_PATTERN);
-  if (!prefixMatch) return 0;
-  return prefixMatch[0].split('>').length - 1;
-}
+import { countBlockquoteDepth } from '../countBlockquoteDepth';
 
 /**
  * Detects which OneNote-style tag types are currently active at the editor cursor.

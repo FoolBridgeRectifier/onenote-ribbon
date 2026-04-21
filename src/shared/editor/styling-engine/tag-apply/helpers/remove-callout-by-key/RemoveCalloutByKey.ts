@@ -4,14 +4,8 @@ import {
   CALLOUT_HEADER_LINE_PATTERN,
   CALLOUT_HEADER_WITH_TITLE_PATTERN,
   BLOCKQUOTE_PREFIX_PATTERN,
-  LEADING_BLOCKQUOTE_SEGMENTS_PATTERN,
 } from '../../constants';
-
-function countBlockquoteDepth(lineText: string): number {
-  const prefixMatch = lineText.match(LEADING_BLOCKQUOTE_SEGMENTS_PATTERN);
-  if (!prefixMatch) return 0;
-  return (prefixMatch[0].match(/>/g) ?? []).length;
-}
+import { countBlockquoteDepth } from '../countBlockquoteDepth';
 
 /**
  * Removes the specific callout block whose title or type matches `calloutKey`.
@@ -40,8 +34,8 @@ export function removeCalloutByKey(editor: Editor, calloutKey: string): void {
     const calloutTitle = headerMatch[3]?.trim();
 
     // Accept match on title (preferred) or on lowercased type
-    const matchedKey = calloutTitle ?? calloutType;
-    const matchesKey = matchedKey === calloutKey || calloutType === calloutKey.toLowerCase();
+    const titleOrType = calloutTitle ?? calloutType;
+    const matchesKey = titleOrType === calloutKey || calloutType === calloutKey.toLowerCase();
 
     if (matchesKey) {
       headerLineIndex = lineIndex;
