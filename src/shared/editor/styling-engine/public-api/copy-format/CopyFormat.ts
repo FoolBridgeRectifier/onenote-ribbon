@@ -1,4 +1,4 @@
-import type { TagDefinition, CopiedFormat } from '../../interfaces';
+import type { HtmlTagDefinition, CopiedFormat } from '../../interfaces';
 import type { HtmlTagRange } from '../../../enclosing-html-tags/interfaces';
 import { HTML_TAG_NAME_DEFINITIONS, MARKDOWN_TAG_NAME_DEFINITIONS } from '../../constants';
 import { buildTagRanges } from '../../../enclosing-html-tags/enclosingHtmlTags';
@@ -12,7 +12,7 @@ import { findAllEnclosingTags } from '../../shared-helpers/tag-geometry/TagGeome
  * For span tags with inline styles, builds a dynamic span definition from the style property.
  * Returns null if the tag is unknown or cannot be represented as a TagDefinition.
  */
-function tagRangeToTagDefinition(tagRange: HtmlTagRange, sourceText: string): TagDefinition | null {
+function tagRangeToTagDefinition(tagRange: HtmlTagRange, sourceText: string): HtmlTagDefinition | null {
   const htmlDefinition = HTML_TAG_NAME_DEFINITIONS.get(tagRange.tagName);
   if (htmlDefinition) return htmlDefinition;
 
@@ -53,7 +53,7 @@ export function copyFormat(
     selectionEndOffset
   ).domain;
 
-  const tagDefinitions: TagDefinition[] = [];
+  const tagDefinitions: HtmlTagDefinition[] = [];
 
   for (const tagRange of enclosingRanges) {
     const tagDefinition = tagRangeToTagDefinition(tagRange, sourceText);

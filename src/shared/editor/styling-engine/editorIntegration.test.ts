@@ -14,7 +14,7 @@ import {
   copyFormatFromEditor,
 } from './editor-integration/helpers';
 
-import type { StylingResult, HtmlTagDefinition } from './interfaces';
+import type { StylingResult } from './interfaces';
 
 import { UNDERLINE_TAG, BOLD_MD_TAG } from './constants';
 
@@ -280,7 +280,7 @@ describe('copyFormatFromEditor', () => {
     expect(copiedFormat).not.toBeNull();
     expect(copiedFormat!.domain).toBe('html');
 
-    const tagNames = copiedFormat!.tagDefinitions.map((tagDefinition) => (tagDefinition as HtmlTagDefinition).tagName);
+    const tagNames = copiedFormat!.tagDefinitions.map((tagDefinition) => tagDefinition.tagName);
     expect(tagNames).toContain('b');
     expect(tagNames).toContain('u');
   });

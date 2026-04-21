@@ -55,11 +55,6 @@ export type TagDefinition =
   | CheckboxTagDefinition
   | InlineTodoTagDefinition;
 
-/** Type guard: narrows a TagDefinition to the HTML-specific variant. */
-export function isHtmlTagDefinition(tag: TagDefinition): tag is HtmlTagDefinition {
-  return tag.kind === undefined || tag.kind === 'html';
-}
-
 // === Text Replacement and Result Types ===
 
 export interface TextReplacement {
@@ -134,7 +129,8 @@ export interface StructureContext {
 // === Format Painter Types ===
 
 export interface CopiedFormat {
-  tagDefinitions: TagDefinition[];
+  // copyFormat only discovers HTML inline tags — callout/task kinds never appear here
+  tagDefinitions: HtmlTagDefinition[];
   domain: FormattingDomain;
 }
 

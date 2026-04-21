@@ -121,6 +121,39 @@ const strictStructurePlugin = {
       },
     },
 
+    'svg-only-in-assets': {
+      meta: {
+        type: 'problem',
+        docs: {
+          description: 'SVG files must live only inside src/assets/.',
+        },
+        schema: [],
+      },
+      create(context) {
+        const currentFilePath = context.filename.replace(/\\/g, '/');
+        const isSvgFile = currentFilePath.endsWith('.svg');
+
+        if (!isSvgFile) {
+          return {};
+        }
+
+        const isInsideAssetsFolder = currentFilePath.includes('/src/assets/');
+
+        if (isInsideAssetsFolder) {
+          return {};
+        }
+
+        return {
+          Program(programNode) {
+            context.report({
+              node: programNode,
+              message: 'SVG files must be placed inside src/assets/.',
+            });
+          },
+        };
+      },
+    },
+
     'strict-file-name': {
       meta: {
         type: 'problem',
@@ -327,6 +360,7 @@ export default [
       'strict-structure/module-consts-only-in-constants-file': 'error',
       'strict-structure/strict-file-name': 'error',
       'strict-structure/no-double-cast': 'error',
+      'strict-structure/svg-only-in-assets': 'error',
     },
   },
 

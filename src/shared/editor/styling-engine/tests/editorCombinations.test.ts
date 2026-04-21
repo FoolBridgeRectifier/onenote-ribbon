@@ -1,6 +1,6 @@
 import { MockEditor } from '../../../../test-utils/MockEditor';
 
-import type { ObsidianEditor, HtmlTagDefinition } from '../interfaces';
+import type { ObsidianEditor } from '../interfaces';
 import { buildStylingContextFromEditor } from '../editor-integration/EditorIntegration';
 import {
   toggleTagInEditor,
@@ -324,7 +324,7 @@ describe('Group 2: Copy format + apply format pipeline', () => {
     expect(copiedFormat).not.toBeNull();
     expect(copiedFormat!.domain).toBe('html');
 
-    const tagNames = copiedFormat!.tagDefinitions.map((tagDefinition) => (tagDefinition as HtmlTagDefinition).tagName);
+    const tagNames = copiedFormat!.tagDefinitions.map((tagDefinition) => tagDefinition.tagName);
     expect(tagNames).toContain('b');
     expect(tagNames).toContain('i');
   });
@@ -337,14 +337,14 @@ describe('Group 2: Copy format + apply format pipeline', () => {
 
     expect(copiedFormat).not.toBeNull();
 
-    const tagNames = copiedFormat!.tagDefinitions.map((tagDefinition) => (tagDefinition as HtmlTagDefinition).tagName);
+    const tagNames = copiedFormat!.tagDefinitions.map((tagDefinition) => tagDefinition.tagName);
     expect(tagNames).toContain('u');
     expect(tagNames).toContain('span');
 
     // Verify the span tag has the color attribute
     const spanTag = copiedFormat!.tagDefinitions.find(
-      (tagDefinition) => (tagDefinition as HtmlTagDefinition).tagName === 'span'
-    ) as HtmlTagDefinition | undefined;
+      (tagDefinition) => tagDefinition.tagName === 'span'
+    );
     expect(spanTag).toBeDefined();
     expect(spanTag!.attributes).toBeDefined();
     expect(spanTag!.attributes!['color']).toBe('red');
@@ -363,7 +363,7 @@ describe('Group 2: Copy format + apply format pipeline', () => {
     targetEditor.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 6 });
 
     for (const tagDefinition of copiedFormat!.tagDefinitions) {
-      addTagInEditor(targetEditor, tagDefinition as HtmlTagDefinition);
+      addTagInEditor(targetEditor, tagDefinition);
       targetEditor = rebuildEditor(targetEditor);
       selectSubstring(targetEditor, 'target');
     }
