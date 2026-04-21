@@ -1,4 +1,4 @@
-import { createEnclosingHtmlTagFinder } from '../../enclosing-html-tags/EnclosingHtmlTags';
+import { createEnclosingHtmlTagFinder } from '../../enclosing-html-tags/enclosingHtmlTags';
 import { buildTextIndex, offsetToPosition } from '../../text-offset/TextOffset';
 import type { DomainDetectionResult, FormattingDomain } from '../interfaces';
 import { MARKDOWN_TAG_NAMES } from './constants';

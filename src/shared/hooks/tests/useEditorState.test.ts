@@ -1,8 +1,5 @@
-import type {
-  HtmlTagRange} from '../../editor/enclosing-html-tags/EnclosingHtmlTags';
-import {
-  createEnclosingHtmlTagFinder
-} from '../../editor/enclosing-html-tags/EnclosingHtmlTags';
+import type { HtmlTagRange } from '../../editor/enclosing-html-tags/enclosingHtmlTags';
+import { createEnclosingHtmlTagFinder } from '../../editor/enclosing-html-tags/enclosingHtmlTags';
 
 import { extractSpanAndDivState } from '../useEditorState';
 
@@ -14,7 +11,12 @@ describe('extractSpanAndDivState', () => {
   const defaults = { defaultFontFamily: 'default', defaultFontSize: '16' };
 
   it('returns defaults when no span or div tags are present', () => {
-    const result = extractSpanAndDivState([], '', defaults.defaultFontFamily, defaults.defaultFontSize);
+    const result = extractSpanAndDivState(
+      [],
+      '',
+      defaults.defaultFontFamily,
+      defaults.defaultFontSize
+    );
 
     expect(result.fontColor).toBeNull();
     expect(result.highlightColor).toBeNull();
@@ -35,7 +37,12 @@ describe('extractSpanAndDivState', () => {
       },
     ];
 
-    const result = extractSpanAndDivState(tagRanges, sourceText, defaults.defaultFontFamily, defaults.defaultFontSize);
+    const result = extractSpanAndDivState(
+      tagRanges,
+      sourceText,
+      defaults.defaultFontFamily,
+      defaults.defaultFontSize
+    );
 
     expect(result.fontColor).toBe('red');
   });
@@ -52,7 +59,12 @@ describe('extractSpanAndDivState', () => {
       },
     ];
 
-    const result = extractSpanAndDivState(tagRanges, sourceText, defaults.defaultFontFamily, defaults.defaultFontSize);
+    const result = extractSpanAndDivState(
+      tagRanges,
+      sourceText,
+      defaults.defaultFontFamily,
+      defaults.defaultFontSize
+    );
 
     expect(result.highlightColor).toBe('yellow');
   });
@@ -69,7 +81,12 @@ describe('extractSpanAndDivState', () => {
       },
     ];
 
-    const result = extractSpanAndDivState(tagRanges, sourceText, defaults.defaultFontFamily, defaults.defaultFontSize);
+    const result = extractSpanAndDivState(
+      tagRanges,
+      sourceText,
+      defaults.defaultFontFamily,
+      defaults.defaultFontSize
+    );
 
     expect(result.fontFamily).toBe('Arial');
   });
@@ -86,7 +103,12 @@ describe('extractSpanAndDivState', () => {
       },
     ];
 
-    const result = extractSpanAndDivState(tagRanges, sourceText, defaults.defaultFontFamily, defaults.defaultFontSize);
+    const result = extractSpanAndDivState(
+      tagRanges,
+      sourceText,
+      defaults.defaultFontFamily,
+      defaults.defaultFontSize
+    );
 
     expect(result.fontSize).toBe('14');
   });
@@ -103,7 +125,12 @@ describe('extractSpanAndDivState', () => {
       },
     ];
 
-    const result = extractSpanAndDivState(tagRanges, sourceText, defaults.defaultFontFamily, defaults.defaultFontSize);
+    const result = extractSpanAndDivState(
+      tagRanges,
+      sourceText,
+      defaults.defaultFontFamily,
+      defaults.defaultFontSize
+    );
 
     expect(result.textAlign).toBe('center');
   });
@@ -120,7 +147,12 @@ describe('extractSpanAndDivState', () => {
       },
     ];
 
-    const result = extractSpanAndDivState(tagRanges, sourceText, defaults.defaultFontFamily, defaults.defaultFontSize);
+    const result = extractSpanAndDivState(
+      tagRanges,
+      sourceText,
+      defaults.defaultFontFamily,
+      defaults.defaultFontSize
+    );
 
     expect(result.textAlign).toBe('left');
   });
@@ -137,7 +169,12 @@ describe('extractSpanAndDivState', () => {
       },
     ];
 
-    const result = extractSpanAndDivState(tagRanges, sourceText, defaults.defaultFontFamily, defaults.defaultFontSize);
+    const result = extractSpanAndDivState(
+      tagRanges,
+      sourceText,
+      defaults.defaultFontFamily,
+      defaults.defaultFontSize
+    );
 
     expect(result.fontColor).toBeNull();
     expect(result.fontFamily).toBe('default');
@@ -149,7 +186,6 @@ describe('extractSpanAndDivState', () => {
 // ============================================================
 
 describe('editor state detection via tag finder', () => {
-
   it('detects bold from ** markers', () => {
     const sourceText = '**bold text**';
     const finder = createEnclosingHtmlTagFinder(sourceText);
@@ -266,4 +302,3 @@ describe('editor state detection via tag finder', () => {
     expect(spanState.highlightColor).toBeNull();
   });
 });
-

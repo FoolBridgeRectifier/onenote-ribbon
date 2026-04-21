@@ -3,7 +3,7 @@ import type { App } from 'obsidian';
 
 import { createAppWithEditor } from '../../../../test-utils/mockApp';
 import { ACTIVE_TAG_KEY_TASK } from '../constants';
-import { useActiveTagKeys } from './UseActiveTagKeys';
+import { useActiveTagKeys } from './useActiveTagKeys';
 
 describe('useActiveTagKeys', () => {
   beforeEach(() => {
@@ -19,9 +19,7 @@ describe('useActiveTagKeys', () => {
     const { app } = createAppWithEditor('');
     app.workspace.activeEditor = null;
 
-    const { result } = renderHook(() =>
-      useActiveTagKeys(app as unknown as App),
-    );
+    const { result } = renderHook(() => useActiveTagKeys(app as unknown as App));
 
     expect(result.current.size).toBe(0);
   });
@@ -30,9 +28,7 @@ describe('useActiveTagKeys', () => {
     const { app, editor } = createAppWithEditor('> [!important]\n> Body');
     editor.setCursor({ line: 1, ch: 0 });
 
-    const { result } = renderHook(() =>
-      useActiveTagKeys(app as unknown as App),
-    );
+    const { result } = renderHook(() => useActiveTagKeys(app as unknown as App));
 
     expect(result.current.has('important')).toBe(true);
   });
@@ -40,9 +36,7 @@ describe('useActiveTagKeys', () => {
   it('updates when the editor-change event fires', () => {
     const { app, editor } = createAppWithEditor('Just text');
 
-    const { result } = renderHook(() =>
-      useActiveTagKeys(app as unknown as App),
-    );
+    const { result } = renderHook(() => useActiveTagKeys(app as unknown as App));
 
     expect(result.current.has(ACTIVE_TAG_KEY_TASK)).toBe(false);
 
@@ -58,9 +52,7 @@ describe('useActiveTagKeys', () => {
   it('updates when the active-leaf-change event fires', () => {
     const { app, editor } = createAppWithEditor('');
 
-    const { result } = renderHook(() =>
-      useActiveTagKeys(app as unknown as App),
-    );
+    const { result } = renderHook(() => useActiveTagKeys(app as unknown as App));
 
     act(() => {
       editor.setValue('> [!tip]\n> Body');
@@ -74,9 +66,7 @@ describe('useActiveTagKeys', () => {
   it('throttles selectionchange events', () => {
     const { app, editor } = createAppWithEditor('Just text');
 
-    const { result } = renderHook(() =>
-      useActiveTagKeys(app as unknown as App),
-    );
+    const { result } = renderHook(() => useActiveTagKeys(app as unknown as App));
 
     act(() => {
       editor.setValue('> [!warning]\n> Content');

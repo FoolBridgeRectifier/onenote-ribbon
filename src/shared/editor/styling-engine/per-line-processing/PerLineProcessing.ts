@@ -5,7 +5,7 @@ import type {
   StylingContext,
   StructureContext,
 } from '../interfaces';
-import { buildTagRanges } from '../../enclosing-html-tags/EnclosingHtmlTags';
+import { buildTagRanges } from '../../enclosing-html-tags/enclosingHtmlTags';
 import { sortReplacementsLastToFirst } from '../shared-helpers/SharedHelpers';
 import { buildEffectiveLineRanges, lineHasMatchingTag } from './helpers';
 

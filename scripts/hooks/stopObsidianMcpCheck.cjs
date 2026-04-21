@@ -66,7 +66,7 @@ const hookOutput = {
       '1. ***IMPORTANT*** - DO FIRST TO VERIFY: OBSIDIAN MCP TEST - Were any visual or functionality changes made to the onenote-ribbon plugin? If yes, test them in Obsidian MCP and report the result. (this is NOT e2e test, but direct qa using obsidian mcp)\n\n' +
       '2. FOLDER LAYOUT - Did any new logical block get added (function, hook, utility, transformation)? If yes, confirm it is extracted into its own file inside a correctly named subfolder (for example: component-name/).\n\n' +
       '3. CODE QUALITY - Do all new variable names use full, unabbreviated names? Are hard-to-understand lines commented? Are CSS styles in dedicated .css files (no inline style props unless blocked)?\n\n' +
-      '4. TESTS - Does every new logical block have a tests/ subfolder with unit tests covering all parameter variations and return paths? Run npm test and report the result.\n\n' +
+      '4. TESTS - Does every new logical block have a tests/ subfolder with unit tests covering all parameter variations and return paths? Run npm test, npm run lint and npm build should pass. and report the result.\n\n' +
       '5. REDUNDANCY - Is there any duplicate logic, copy-pasted blocks, or unnecessary abstractions in the changed code that could be simplified or removed?\n\n' +
       'Completion rule: always output results for all 5 steps in order every time, including when all results are N/A. If any step fails or is untested, block and list exactly what needs to be done.',
   },

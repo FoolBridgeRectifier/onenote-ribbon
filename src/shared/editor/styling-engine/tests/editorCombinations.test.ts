@@ -23,7 +23,7 @@ import {
 
 import { buildSpanTagDefinition } from '../tag-manipulation/TagManipulation';
 
-import { createEnclosingHtmlTagFinder } from '../../enclosing-html-tags/EnclosingHtmlTags';
+import { createEnclosingHtmlTagFinder } from '../../enclosing-html-tags/enclosingHtmlTags';
 
 import { extractSpanAndDivState } from '../../../hooks/useEditorState';
 

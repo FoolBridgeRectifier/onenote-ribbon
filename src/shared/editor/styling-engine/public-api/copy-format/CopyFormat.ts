@@ -1,7 +1,7 @@
 import type { TagDefinition, CopiedFormat } from '../../interfaces';
 import type { HtmlTagRange } from '../../../enclosing-html-tags/interfaces';
 import { HTML_TAG_NAME_DEFINITIONS, MARKDOWN_TAG_NAME_DEFINITIONS } from '../../constants';
-import { buildTagRanges } from '../../../enclosing-html-tags/EnclosingHtmlTags';
+import { buildTagRanges } from '../../../enclosing-html-tags/enclosingHtmlTags';
 import { buildSpanTagDefinition } from '../../tag-manipulation/TagManipulation';
 import { extractStylePropertyFromOpeningTag } from '../../tag-manipulation/style-parsing/StyleParsing';
 import { detectFormattingDomain } from '../../domain-detection/DomainDetection';

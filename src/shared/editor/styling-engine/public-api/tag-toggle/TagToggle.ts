@@ -1,6 +1,6 @@
 import type { TagDefinition, StylingResult, StylingContext } from '../../interfaces';
 import { MARKDOWN_TO_HTML_TAG_MAP } from '../../constants';
-import { buildTagRanges } from '../../../enclosing-html-tags/EnclosingHtmlTags';
+import { buildTagRanges } from '../../../enclosing-html-tags/enclosingHtmlTags';
 import { unwrapTag } from '../../tag-manipulation/TagManipulation';
 import { detectStructureContext } from '../../structure-detection/StructureDetection';
 import { detectFormattingDomain } from '../../domain-detection/DomainDetection';

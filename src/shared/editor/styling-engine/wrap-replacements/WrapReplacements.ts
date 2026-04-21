@@ -1,6 +1,6 @@
 import type { TagDefinition, StylingResult, FormattingDomain, ProtectedRange } from '../interfaces';
 import type { HtmlTagRange } from '../../enclosing-html-tags/interfaces';
-import { buildTagRanges } from '../../enclosing-html-tags/EnclosingHtmlTags';
+import { buildTagRanges } from '../../enclosing-html-tags/enclosingHtmlTags';
 import { wrapTextWithTag } from '../tag-manipulation/TagManipulation';
 import { splitFormattingAroundProtectedRanges } from '../tag-manipulation/range-splitting/RangeSplitting';
 import { sortReplacementsLastToFirst } from '../shared-helpers/SharedHelpers';

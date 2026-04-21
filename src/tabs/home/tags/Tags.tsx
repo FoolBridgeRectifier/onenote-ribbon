@@ -9,7 +9,7 @@ import { FindTagsIcon, TodoTagButtonIcon } from '../../../assets/icons';
 import type { TagOrSeparator } from './interfaces';
 import { ALL_TAGS, renderTagItems } from './helpers';
 import { ACTIVE_TAG_KEY_HIGHLIGHT, ACTIVE_TAG_KEY_TASK } from './constants';
-import { useActiveTagKeys } from './use-active-tag-keys/UseActiveTagKeys';
+import { useActiveTagKeys } from './use-active-tag-keys/useActiveTagKeys';
 import type { CustomTag } from './customize-modal/interfaces';
 import { CustomizeTagsModal } from './customize-modal/CustomizeModal';
 import { loadCustomTags, buildCustomTagDefinition } from './tag-storage/TagStorage';

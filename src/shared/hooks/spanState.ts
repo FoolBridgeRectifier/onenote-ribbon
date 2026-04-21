@@ -1,4 +1,4 @@
-import type { HtmlTagRange } from '../editor/enclosing-html-tags/EnclosingHtmlTags';
+import type { HtmlTagRange } from '../editor/enclosing-html-tags/enclosingHtmlTags';
 import {
   extractStylePropertyFromOpeningTag,
   extractAllStyleProperties,

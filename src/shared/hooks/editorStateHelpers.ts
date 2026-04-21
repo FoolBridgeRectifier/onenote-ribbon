@@ -1,6 +1,6 @@
 import type { App } from 'obsidian';
-import type { EnclosingHtmlTagFinder } from '../editor/enclosing-html-tags/EnclosingHtmlTags';
-import { createEnclosingHtmlTagFinder } from '../editor/enclosing-html-tags/EnclosingHtmlTags';
+import type { EnclosingHtmlTagFinder } from '../editor/enclosing-html-tags/enclosingHtmlTags';
+import { createEnclosingHtmlTagFinder } from '../editor/enclosing-html-tags/enclosingHtmlTags';
 import type { EditorState } from './interfaces';
 import { TAG_NAME_TO_STATE_FIELD } from './constants';
 import { extractSpanAndDivState } from './spanState';

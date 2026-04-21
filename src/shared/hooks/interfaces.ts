@@ -1,4 +1,4 @@
-import type { EnclosingHtmlTagFinder } from '../editor/enclosing-html-tags/EnclosingHtmlTags';
+import type { EnclosingHtmlTagFinder } from '../editor/enclosing-html-tags/enclosingHtmlTags';
 import type { CopiedFormat } from '../editor/styling-engine/interfaces';
 
 /** The complete state of the editor's text formatting at the current cursor position. */

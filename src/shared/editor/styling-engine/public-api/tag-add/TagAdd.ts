@@ -1,5 +1,5 @@
 import type { TagDefinition, StylingResult, StylingContext } from '../../interfaces';
-import { buildTagRanges } from '../../../enclosing-html-tags/EnclosingHtmlTags';
+import { buildTagRanges } from '../../../enclosing-html-tags/enclosingHtmlTags';
 import { replaceOpeningTagAttribute } from '../../tag-manipulation/TagManipulation';
 import { detectStructureContext } from '../../structure-detection/StructureDetection';
 import { detectFormattingDomain } from '../../domain-detection/DomainDetection';

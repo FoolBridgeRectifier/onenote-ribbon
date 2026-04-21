@@ -1,9 +1,5 @@
-import type {
-  TextPosition} from './EnclosingHtmlTags';
-import {
-  createEnclosingHtmlTagFinder,
-  getEnclosingHtmlTagNames
-} from './EnclosingHtmlTags';
+import type { TextPosition } from './enclosingHtmlTags';
+import { createEnclosingHtmlTagFinder, getEnclosingHtmlTagNames } from './enclosingHtmlTags';
 
 function createPosition(line: number, ch: number): TextPosition {
   return { line, ch };
@@ -124,10 +120,7 @@ describe('enclosingHtmlTags', () => {
       cursorPosition: createPosition(0, 11),
     });
 
-    expect(tagRanges.map((tagRange) => tagRange.tagName)).toEqual([
-      'sub',
-      'div',
-    ]);
+    expect(tagRanges.map((tagRange) => tagRange.tagName)).toEqual(['sub', 'div']);
     expect(tagRanges[0].openingTagStartOffset).toBe(5);
     expect(tagRanges[0].openingTagEndOffset).toBe(10);
     expect(tagRanges[0].closingTagStartOffset).toBe(15);
@@ -273,4 +266,3 @@ describe('enclosingHtmlTags', () => {
     expect(tagNames).toEqual(['sup', 'div']);
   });
 });
-

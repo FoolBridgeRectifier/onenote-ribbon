@@ -1,4 +1,4 @@
-import { toggleTag, addTag, removeTag, removeAllTags } from '../StylingEngine';
+import { toggleTag, addTag, removeTag, removeAllTags } from '../stylingEngine';
 
 import {
   UNDERLINE_TAG,
