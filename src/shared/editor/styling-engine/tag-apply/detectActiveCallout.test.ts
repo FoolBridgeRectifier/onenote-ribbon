@@ -259,3 +259,110 @@ describe('detectActiveTagKeys — task prefix detection', () => {
     expect(prefixKeys).toHaveLength(0);
   });
 });
+
+describe('detectActiveTagKeys — nested callout detection (all parents)', () => {
+  it('detects both inner and outer callout when cursor is in nested block', () => {
+    const editor = new MockEditor();
+    // Outer: > [!important] Important, inner: >> [!question] Question
+    editor.setValue('> [!important] Important\n>> [!question] Question\n>> body');
+    editor.setCursor({ line: 2, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has('Question')).toBe(true);
+    expect(result.has('Important')).toBe(true);
+  });
+
+  it('detects only one callout when cursor is in single-level callout', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!important] Important\n> body');
+    editor.setCursor({ line: 1, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has('Important')).toBe(true);
+    expect(result.has('Question')).toBe(false);  // no sibling or inner callout leaked
+  });
+
+  it('detects three levels of nesting', () => {
+    const editor = new MockEditor();
+    editor.setValue(
+      '> [!important] Important\n' +
+      '>> [!question] Question\n' +
+      '>>> [!note] Note\n' +
+      '>>> deepest body'
+    );
+    editor.setCursor({ line: 3, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has('Note')).toBe(true);
+    expect(result.has('Question')).toBe(true);
+    expect(result.has('Important')).toBe(true);
+  });
+
+  it('does NOT add sibling callout at the same depth', () => {
+    const editor = new MockEditor();
+    // Two sibling callouts — cursor in second one
+    editor.setValue('> [!important] Important\n> body\n> [!question] Question\n> q-body');
+    editor.setCursor({ line: 3, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has('Question')).toBe(true);
+    expect(result.has('Important')).toBe(false);
+  });
+
+  it('detects a depth-2 nested callout header (>> prefix, no title)', () => {
+    const editor = new MockEditor();
+    editor.setValue('>> [!important]\n>> Body of inner callout');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has('important')).toBe(true);
+  });
+
+  it('detects a depth-2 nested callout from a continuation body line', () => {
+    const editor = new MockEditor();
+    editor.setValue('>> [!note] Remember for later\n>> First body line\n>> Second body line');
+    editor.setCursor({ line: 2, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has('Remember for later')).toBe(true);
+  });
+
+  it('detects depth-2 callout title (not the type) when title is present', () => {
+    const editor = new MockEditor();
+    editor.setValue('>> [!important] Important\n>> Content');
+    editor.setCursor({ line: 1, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has('Important')).toBe(true);
+    // Type key must not appear when title takes precedence
+    expect(result.has('important')).toBe(false);
+  });
+
+  it('detects depth-3 nested callout (>>> prefix)', () => {
+    const editor = new MockEditor();
+    editor.setValue('>>> [!tip] Deep note\n>>> Deep body');
+    editor.setCursor({ line: 1, ch: 5 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has('Deep note')).toBe(true);
+  });
+
+  it('detects the outer callout when cursor is in the outer body above the nested block', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!note] Outer\n> Outer body\n>> [!important] Inner\n>> Inner body');
+    editor.setCursor({ line: 1, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has('Outer')).toBe(true);
+    expect(result.has('Inner')).toBe(false);
+  });
+});

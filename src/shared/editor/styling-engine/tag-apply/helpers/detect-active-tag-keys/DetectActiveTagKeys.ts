@@ -5,13 +5,21 @@ import {
   ACTIVE_TAG_KEY_TASK,
   TASK_LINE_PATTERN,
   HIGHLIGHT_PATTERN,
-  CALLOUT_HEADER_PATTERN,
+  CALLOUT_HEADER_WITH_TITLE_PATTERN,
   TASK_PREFIX_PATTERN,
+  LEADING_BLOCKQUOTE_SEGMENTS_PATTERN,
 } from '../../constants';
+
+// Returns the number of ">" characters at the start of a callout line (its nesting depth)
+function countBlockquoteDepth(lineText: string): number {
+  const prefixMatch = lineText.match(LEADING_BLOCKQUOTE_SEGMENTS_PATTERN);
+  if (!prefixMatch) return 0;
+  return prefixMatch[0].split('>').length - 1;
+}
 
 /**
  * Detects which OneNote-style tag types are currently active at the editor cursor.
- * Returns a Set of active tag keys (task, highlight, callout type/title strings).
+ * Returns a Set of active tag keys (task, highlight, and ALL enclosing callout titles/types).
  */
 export function detectActiveTagKeys(editor: Editor | null): Set<string> {
   const activeKeys = new Set<string>();
@@ -21,13 +29,12 @@ export function detectActiveTagKeys(editor: Editor | null): Set<string> {
   const cursor = editor.getCursor();
   const currentLine = editor.getLine(cursor.line);
 
-  // Strip a leading "> " prefix so task and highlight patterns work inside callout blocks
+  // Strip one leading "> " so task and highlight patterns work inside callout blocks
   const lineContent = currentLine.replace(/^>\s?/, '');
 
   if (TASK_LINE_PATTERN.test(lineContent)) {
     activeKeys.add(ACTIVE_TAG_KEY_TASK);
 
-    // Add a prefix-specific key so individual task tags can be identified
     const prefixMatch = lineContent.match(TASK_PREFIX_PATTERN);
     if (prefixMatch) {
       activeKeys.add(`task-prefix:${prefixMatch[1].trim()}`);
@@ -38,25 +45,31 @@ export function detectActiveTagKeys(editor: Editor | null): Set<string> {
     activeKeys.add(ACTIVE_TAG_KEY_HIGHLIGHT);
   }
 
-  // Only callout blocks start lines with ">"; no need to scan otherwise
   if (!currentLine.startsWith('>')) return activeKeys;
 
-  // Scan upward from the cursor line to find the callout header
+  // Scan upward from cursor, collecting every enclosing callout header at decreasing depths.
+  // Each time a shallower header is found, it is an outer parent callout — add it too.
+  let previouslyFoundDepth = Infinity;
+
   for (let lineIndex = cursor.line; lineIndex >= 0; lineIndex -= 1) {
     const lineText = editor.getLine(lineIndex);
 
-    const calloutHeaderMatch = lineText.match(CALLOUT_HEADER_PATTERN);
-    if (calloutHeaderMatch) {
-      const calloutType = calloutHeaderMatch[1].toLowerCase();
-      const calloutTitle = calloutHeaderMatch[2]?.trim();
-
-      // Prefer title-based detection for specificity; fall back to type
-      activeKeys.add(calloutTitle ?? calloutType);
-      break;
-    }
-
-    // If we hit a line that doesn't start with ">", we've left the block
+    // Stop scanning once we leave the blockquote region entirely
     if (!lineText.startsWith('>')) break;
+
+    const calloutHeaderMatch = lineText.match(CALLOUT_HEADER_WITH_TITLE_PATTERN);
+    if (!calloutHeaderMatch) continue;
+
+    const headerDepth = countBlockquoteDepth(lineText);
+
+    // Skip headers at the same depth or deeper — they are siblings or inner children
+    if (headerDepth >= previouslyFoundDepth) continue;
+
+    const calloutType = calloutHeaderMatch[2].toLowerCase();
+    const calloutTitle = calloutHeaderMatch[3]?.trim();
+
+    activeKeys.add(calloutTitle ?? calloutType);
+    previouslyFoundDepth = headerDepth;
   }
 
   return activeKeys;
