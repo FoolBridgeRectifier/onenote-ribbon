@@ -1,9 +1,14 @@
+import type { Editor } from 'obsidian';
 import type {
   HtmlTagDefinition,
   TextReplacement,
   StylingResult,
   StylingContext,
   RemoveAllTagsOptions,
+  ObsidianEditor,
+  TagDefinition,
+  CalloutTagDefinition,
+  CheckboxTagDefinition,
 } from '../../interfaces';
 import { buildTagRanges } from '../../../enclosing-html-tags/enclosingHtmlTags';
 import { unwrapTag } from '../../tag-manipulation/TagManipulation';
@@ -19,11 +24,19 @@ import {
   sortReplacementsLastToFirst,
   deduplicateReplacements,
 } from '../../shared-helpers/SharedHelpers';
+import { removeActiveCallout as removeInnermostCallout } from '../../callout-apply/helpers/remove-active-callout/RemoveActiveCallout';
+import { removeCalloutByKey } from '../../callout-apply/helpers/remove-callout-by-key/RemoveCalloutByKey';
+import { removeActiveCheckbox as removeCheckbox } from '../../callout-apply/helpers/remove-active-checkbox/RemoveActiveCheckbox';
+
+/** Returns true when the first argument is an Obsidian editor instance (has getCursor). */
+function isObsidianEditor(input: unknown): input is ObsidianEditor {
+  return typeof (input as ObsidianEditor).getCursor === 'function';
+}
 
 /**
  * Removes the first matching tag (enclosing or delimiter-inclusive) from the selection.
  */
-export function removeTag(context: StylingContext, tagDefinition: HtmlTagDefinition): StylingResult {
+function removeHtmlTag(context: StylingContext, tagDefinition: HtmlTagDefinition): StylingResult {
   const { sourceText, selectionStartOffset, selectionEndOffset } = context;
   const allTagRanges = buildTagRanges(sourceText);
 
@@ -46,6 +59,36 @@ export function removeTag(context: StylingContext, tagDefinition: HtmlTagDefinit
   if (delimiterMatch !== null) return { replacements: unwrapTag(delimiterMatch), isNoOp: false };
 
   return { replacements: [], isNoOp: true };
+}
+
+export function removeTag(context: StylingContext, tagDefinition: HtmlTagDefinition): StylingResult;
+export function removeTag(editor: ObsidianEditor, tagDefinition: CalloutTagDefinition | CheckboxTagDefinition): void;
+export function removeTag(
+  input: StylingContext | ObsidianEditor,
+  tagDefinition: TagDefinition
+): StylingResult | void {
+  if (isObsidianEditor(input)) {
+    if (tagDefinition.kind === 'callout') {
+      if (tagDefinition.calloutTitle != null) {
+        // ObsidianEditor is structurally compatible with Obsidian's Editor; cast required due to nominal type difference
+        removeCalloutByKey(input as unknown as Editor, tagDefinition.calloutTitle);
+      } else {
+        // ObsidianEditor is structurally compatible with Obsidian's Editor; cast required due to nominal type difference
+        removeInnermostCallout(input as unknown as Editor);
+      }
+      return;
+    }
+
+    if (tagDefinition.kind === 'checkbox') {
+      // ObsidianEditor is structurally compatible with Obsidian's Editor; cast required due to nominal type difference
+      removeCheckbox(input as unknown as Editor);
+      return;
+    }
+
+    return;
+  }
+
+  return removeHtmlTag(input, tagDefinition as HtmlTagDefinition);
 }
 
 /**
