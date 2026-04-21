@@ -1,4 +1,6 @@
-import type { HtmlTagDefinition, StylingResult, StylingContext } from '../../interfaces';
+import type { Editor } from 'obsidian';
+import type { HtmlTagDefinition, StylingResult, StylingContext, ObsidianEditor, TagDefinition, InlineTodoTagDefinition } from '../../interfaces';
+import { toggleInlineTodoTag } from '../../callout-apply/helpers/toggle-inline-todo-tag/ToggleInlineTodoTag';
 import { MARKDOWN_TO_HTML_TAG_MAP } from '../../constants';
 import { buildTagRanges } from '../../../enclosing-html-tags/enclosingHtmlTags';
 import { unwrapTag } from '../../tag-manipulation/TagManipulation';
@@ -20,8 +22,13 @@ import {
 } from '../../per-line-processing/PerLineProcessing';
 import { addTag } from '../tag-add/TagAdd';
 
+/** Returns true when the first argument is an Obsidian editor instance (has getCursor). */
+function isObsidianEditor(input: unknown): input is ObsidianEditor {
+  return typeof (input as ObsidianEditor).getCursor === 'function';
+}
+
 /** Toggles a formatting tag on/off for the given selection; removes it if present, adds it if absent (handles domain conversion and protected ranges). */
-export function toggleTag(context: StylingContext, tagDefinition: HtmlTagDefinition): StylingResult {
+function toggleHtmlTag(context: StylingContext, tagDefinition: HtmlTagDefinition): StylingResult {
   const { sourceText, selectionStartOffset, selectionEndOffset } = context;
 
   const structureContext = detectStructureContext(
@@ -39,7 +46,7 @@ export function toggleTag(context: StylingContext, tagDefinition: HtmlTagDefinit
       selectionEndOffset,
       tagDefinition,
       structureContext,
-      toggleTag,
+      toggleHtmlTag,
       addTag
     );
   }
@@ -145,4 +152,21 @@ export function toggleTag(context: StylingContext, tagDefinition: HtmlTagDefinit
     structureContext,
     allTagRanges
   );
+}
+
+export function toggleTag(context: StylingContext, tagDefinition: HtmlTagDefinition): StylingResult;
+export function toggleTag(editor: ObsidianEditor, tagDefinition: InlineTodoTagDefinition): void;
+export function toggleTag(
+  input: StylingContext | ObsidianEditor,
+  tagDefinition: TagDefinition
+): StylingResult | void {
+  if (isObsidianEditor(input)) {
+    if (tagDefinition.kind === 'inline-todo') {
+      // ObsidianEditor is structurally compatible with Obsidian's Editor; cast required due to nominal type difference
+      toggleInlineTodoTag(input as unknown as Editor);
+      return;
+    }
+    return;
+  }
+  return toggleHtmlTag(input, tagDefinition as HtmlTagDefinition);
 }
