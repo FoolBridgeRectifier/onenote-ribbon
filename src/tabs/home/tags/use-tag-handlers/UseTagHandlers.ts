@@ -13,7 +13,7 @@ import type { TagDefinition } from '../interfaces';
 import type { AppWithCommands } from '../../../../shared/context/interfaces';
 import type { TagHandlersOptions } from './interfaces';
 import { selectTagFromDropdown } from './helpers';
-import { EDITOR_COMMAND_TOGGLE_CHECKLIST } from './constants';
+import { EDITOR_COMMAND_TOGGLE_CHECKLIST, CALLOUT_TITLE_WITH_CONTENT_PATTERN } from './constants';
 
 export function useTagHandlers({
   app,
@@ -35,11 +35,18 @@ export function useTagHandlers({
 
   const handleTodo = useCallback(() => {
     const editor = getEditor();
-    if (editor && activeTagKeys.has(ACTIVE_TAG_KEY_TASK)) {
-      // Replace current task with a plain checkbox, stripping any existing task prefix.
-      // This lets multiple task buttons cycle/replace each other rather than toggle off.
-      applyTask(editor, '');
-      return;
+    if (editor) {
+      const lineContent = editor.getLine(editor.getCursor().line);
+
+      // Use applyTask directly for callout-title lines because Obsidian's native
+      // toggle-checklist command doesn't understand callout headers and would
+      // insert the task marker before the "[!type]" bracket.
+      const isOnCalloutTitleLine = CALLOUT_TITLE_WITH_CONTENT_PATTERN.test(lineContent);
+
+      if (activeTagKeys.has(ACTIVE_TAG_KEY_TASK) || isOnCalloutTitleLine) {
+        applyTask(editor, '');
+        return;
+      }
     }
     executeCommand(EDITOR_COMMAND_TOGGLE_CHECKLIST);
   }, [getEditor, activeTagKeys, executeCommand]);

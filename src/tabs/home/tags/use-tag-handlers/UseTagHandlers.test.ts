@@ -58,11 +58,15 @@ describe('useTagHandlers — initialization', () => {
 });
 
 describe('useTagHandlers — handleTodo', () => {
-  it('executes toggle checklist command when task is not active', () => {
+  it('executes toggle checklist command when task is not active and cursor is on a plain line', () => {
     const executeCommandById = jest.fn();
+    const mockEditor = {
+      getCursor: () => ({ line: 0, ch: 0 }),
+      getLine: () => 'A plain line of text',
+    };
     const options = buildOptions({
       app: {
-        workspace: { activeEditor: { editor: {} } },
+        workspace: { activeEditor: { editor: mockEditor } },
         commands: { executeCommandById },
       } as unknown as TagHandlersOptions['app'],
       activeTagKeys: new Set(),
@@ -72,8 +76,30 @@ describe('useTagHandlers — handleTodo', () => {
     expect(executeCommandById).toHaveBeenCalledWith('editor:toggle-checklist-status');
   });
 
+  it('calls applyTask when cursor is on a callout header with a title and task is not active', () => {
+    const executeCommandById = jest.fn();
+    const mockEditor = {
+      getCursor: () => ({ line: 0, ch: 14 }),
+      getLine: () => '> [!note] My Meeting Notes',
+    };
+    const options = buildOptions({
+      app: {
+        workspace: { activeEditor: { editor: mockEditor } },
+        commands: { executeCommandById },
+      } as unknown as TagHandlersOptions['app'],
+      activeTagKeys: new Set(),
+    });
+    const { result } = renderHook(() => useTagHandlers(options));
+    result.current.handleTodo();
+    expect(applyTaskMock).toHaveBeenCalledWith(mockEditor, '');
+    expect(executeCommandById).not.toHaveBeenCalled();
+  });
+
   it('calls applyTask with empty prefix to replace existing task when task is already active', () => {
-    const mockEditor = {};
+    const mockEditor = {
+      getCursor: () => ({ line: 0, ch: 5 }),
+      getLine: () => '- [ ] Some existing task',
+    };
     const options = buildOptions({
       app: {
         workspace: { activeEditor: { editor: mockEditor } },

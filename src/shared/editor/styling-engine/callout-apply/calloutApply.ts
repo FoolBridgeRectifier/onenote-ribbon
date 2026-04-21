@@ -67,7 +67,17 @@ export function applyTask(editor: Editor, taskPrefix: string): void {
       cursor.ch <= lineContent.length;
 
     if (cursorIsInCalloutTitle) {
-      editor.setLine(cursor.line, `- [ ] ${prefixSegment}${calloutTitle}\n${headerWithoutTitle}`);
+      // Extract the blockquote prefix from the header (e.g. "> " from "> [!note]")
+      // so the new task body line sits correctly inside the same callout nesting level.
+      const headerBlockquoteMatch = headerWithoutTitle.match(/^((?:>\s*)+)/);
+      const headerBlockquotePrefix = headerBlockquoteMatch ? headerBlockquoteMatch[1] : '> ';
+
+      // Insert a blank task body line below the header, leaving the title intact.
+      editor.setLine(cursor.line, `${lineContent}\n${headerBlockquotePrefix}- [ ] ${prefixSegment}`);
+
+      // Park cursor at the end of the new task body line, ready for typing.
+      const taskBodyColumn = headerBlockquotePrefix.length + '- [ ] '.length + prefixSegment.length;
+      editor.setCursor({ line: cursor.line + 1, ch: taskBodyColumn });
       return;
     }
   }

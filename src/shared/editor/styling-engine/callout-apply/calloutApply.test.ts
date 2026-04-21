@@ -143,24 +143,24 @@ describe('applyTask', () => {
     expect(editor.getValue()).toBe('- [ ] P1: Jane');
   });
 
-  it('creates a checkbox from callout title and moves callout header to next line', () => {
+  it('inserts a blank task body line inside the callout when cursor is on the title', () => {
     const editor = new MockEditor();
     editor.setValue('> [!note] Follow up with team');
     editor.setCursor({ line: 0, ch: 16 });
 
     applyTask(editor as any, '');
 
-    expect(editor.getValue()).toBe('- [ ] Follow up with team\n> [!note]');
+    expect(editor.getValue()).toBe('> [!note] Follow up with team\n> - [ ] ');
   });
 
-  it('applies task prefix when converting callout title into checkbox', () => {
+  it('inserts a prefixed task body line inside the callout when cursor is on the title', () => {
     const editor = new MockEditor();
     editor.setValue('> [!tip] Send in email');
     editor.setCursor({ line: 0, ch: 12 });
 
     applyTask(editor as any, 'P2:');
 
-    expect(editor.getValue()).toBe('- [ ] P2: Send in email\n> [!tip]');
+    expect(editor.getValue()).toBe('> [!tip] Send in email\n> - [ ] P2: ');
   });
 
   it('replaces an existing task prefix when applying a different checkbox tag', () => {
