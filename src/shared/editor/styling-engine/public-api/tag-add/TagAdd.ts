@@ -1,4 +1,4 @@
-import type { HtmlTagDefinition, StylingResult, StylingContext } from '../../interfaces';
+import type { HtmlTagDefinition, StylingResult, StylingContext, ObsidianEditor, TagDefinition, CalloutTagDefinition, TaskTagDefinition } from '../../interfaces';
 import { buildTagRanges } from '../../../enclosing-html-tags/enclosingHtmlTags';
 import { replaceOpeningTagAttribute } from '../../tag-manipulation/TagManipulation';
 import { detectStructureContext } from '../../structure-detection/StructureDetection';
@@ -7,13 +7,14 @@ import { findEnclosingMatchingTag } from '../../shared-helpers/tag-geometry/TagG
 import { resolveTagForDomain } from '../../shared-helpers/SharedHelpers';
 import { buildWrapReplacements } from '../../wrap-replacements/WrapReplacements';
 import { shouldProcessPerLine, addTagPerLine } from '../../per-line-processing/PerLineProcessing';
+import { applyCallout, applyTask } from '../../callout-apply/calloutApply';
 
 /**
  * Adds a formatting tag to the selection (never removes).
  * For spans with the same CSS property already present, replaces the attribute value
  * instead of double-wrapping.
  */
-export function addTag(context: StylingContext, tagDefinition: HtmlTagDefinition): StylingResult {
+function addHtmlTag(context: StylingContext, tagDefinition: HtmlTagDefinition): StylingResult {
   const { sourceText, selectionStartOffset, selectionEndOffset } = context;
 
   const structureContext = detectStructureContext(
@@ -31,7 +32,7 @@ export function addTag(context: StylingContext, tagDefinition: HtmlTagDefinition
       selectionEndOffset,
       tagDefinition,
       structureContext,
-      addTag
+      addHtmlTag
     );
   }
 
@@ -77,4 +78,31 @@ export function addTag(context: StylingContext, tagDefinition: HtmlTagDefinition
     structureContext,
     null
   );
+}
+
+/** Returns true when the first argument is an Obsidian editor instance (has getCursor). */
+function isObsidianEditor(input: unknown): input is ObsidianEditor {
+  return typeof (input as ObsidianEditor).getCursor === 'function';
+}
+
+export function addTag(context: StylingContext, tagDefinition: HtmlTagDefinition): StylingResult;
+export function addTag(editor: ObsidianEditor, tagDefinition: CalloutTagDefinition | TaskTagDefinition): void;
+export function addTag(
+  input: StylingContext | ObsidianEditor,
+  tagDefinition: TagDefinition
+): StylingResult | void {
+  if (isObsidianEditor(input)) {
+    if (tagDefinition.kind === 'callout') {
+      applyCallout(input as any, tagDefinition.calloutType!, tagDefinition.calloutTitle);
+      return;
+    }
+    if (tagDefinition.kind === 'task') {
+      applyTask(input as any, tagDefinition.taskPrefix ?? '');
+      return;
+    }
+    return;
+  }
+
+  // StylingContext path — HTML tag operation
+  return addHtmlTag(input, tagDefinition as HtmlTagDefinition);
 }
