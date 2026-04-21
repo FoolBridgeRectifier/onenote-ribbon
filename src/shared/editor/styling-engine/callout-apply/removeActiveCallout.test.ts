@@ -195,3 +195,50 @@ describe('removeActiveCallout — stacked sibling callouts', () => {
     expect(editor.getValue()).toBe('> [!a] A\n> Body A\nBody B\n> [!c] C\n> Body C');
   });
 });
+
+describe('removeActiveCallout — parent removal reduces child callout depth', () => {
+  // When removing an outer (parent) callout, all child callout headers and body
+  // lines that are nested inside it must have one ">" stripped — not dropped.
+
+  it('preserves child callout header and reduces its depth when outer callout is removed', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!note] Outer\n> Outer body\n>> [!important] Inner\n>> Inner body');
+    editor.setCursor({ line: 1, ch: 0 });
+
+    removeActiveCallout(editor as any);
+
+    // Outer header gone, outer body de-nested, child callout header/body each lose one ">"
+    expect(editor.getValue()).toBe('Outer body\n> [!important] Inner\n> Inner body');
+  });
+
+  it('preserves child callout header when cursor is on the parent header line', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!outer]\n>> [!inner] Inner\n>> Inner content');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    removeActiveCallout(editor as any);
+
+    expect(editor.getValue()).toBe('> [!inner] Inner\n> Inner content');
+  });
+
+  it('reduces multiple nested children by one level when outer is removed', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!a]\n> Outer body\n>> [!b] B\n>> B body\n>> [!c] C\n>> C body');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    removeActiveCallout(editor as any);
+
+    expect(editor.getValue()).toBe('Outer body\n> [!b] B\n> B body\n> [!c] C\n> C body');
+  });
+
+  it('reduces deeply nested children by one level when parent is removed', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!a]\n>> [!b]\n>>> Deep content');
+    editor.setCursor({ line: 0, ch: 0 });
+
+    removeActiveCallout(editor as any);
+
+    // Outer header removed, depth-2 header becomes depth-1 header, depth-3 body becomes depth-2
+    expect(editor.getValue()).toBe('> [!b]\n>> Deep content');
+  });
+});

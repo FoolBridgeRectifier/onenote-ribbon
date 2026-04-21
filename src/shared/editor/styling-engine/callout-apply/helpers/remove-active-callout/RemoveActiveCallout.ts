@@ -47,13 +47,22 @@ export function removeActiveCallout(editor: Editor): void {
     endLine += 1;
   }
 
-  // Build replacement content — drop the header, strip "> " from body lines
+  // Build replacement content — drop only the target header, strip "> " from all other lines.
+  // Child callout headers (depth > headerDepth) must NOT be skipped; they are preserved
+  // but de-nested by one level, just like regular body lines.
   const strippedLines: string[] = [];
 
   for (let lineIndex = startLine; lineIndex <= endLine; lineIndex += 1) {
     const lineText = editor.getLine(lineIndex);
 
-    if (CALLOUT_HEADER_LINE_PATTERN.test(lineText)) {
+    // Skip only the target callout header (the one being removed), identified by being
+    // a callout header at exactly the same depth as the block. Child callout headers at
+    // deeper depths are regular content that should be kept and de-nested by one level.
+    const isTargetHeader =
+      CALLOUT_HEADER_LINE_PATTERN.test(lineText) &&
+      countPrefixBlockquotes(lineText) === headerDepth;
+
+    if (isTargetHeader) {
       continue;
     }
 
