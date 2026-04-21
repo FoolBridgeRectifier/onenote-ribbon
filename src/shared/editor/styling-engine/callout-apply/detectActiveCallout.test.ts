@@ -366,3 +366,38 @@ describe('detectActiveTagKeys — nested callout detection (all parents)', () =>
     expect(result.has('Inner')).toBe(false);
   });
 });
+
+describe('detectActiveTagKeys — HTML-formatted callout titles', () => {
+  it('strips HTML tags from a bolded and underlined title to match the plain text key', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!important] <u><b>Important</b></u>\n>> [!question] Question\n>> - [ ] ');
+    editor.setCursor({ line: 2, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    // Should match against the plain text "Important", not the raw HTML string
+    expect(result.has('Important')).toBe(true);
+    expect(result.has('<u><b>Important</b></u>')).toBe(false);
+  });
+
+  it('strips bold markdown-style HTML from a single-level callout title', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!note] <b>My Note</b>\n> body line');
+    editor.setCursor({ line: 1, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has('My Note')).toBe(true);
+    expect(result.has('<b>My Note</b>')).toBe(false);
+  });
+
+  it('preserves plain titles that have no HTML tags', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!important] Important\n> body');
+    editor.setCursor({ line: 1, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has('Important')).toBe(true);
+  });
+});

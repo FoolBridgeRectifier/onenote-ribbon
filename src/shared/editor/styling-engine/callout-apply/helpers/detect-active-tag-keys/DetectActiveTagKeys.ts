@@ -59,7 +59,12 @@ export function detectActiveTagKeys(editor: Editor | null): Set<string> {
     if (headerDepth >= previouslyFoundDepth) continue;
 
     const calloutType = calloutHeaderMatch[2].toLowerCase();
-    const calloutTitle = calloutHeaderMatch[3]?.trim();
+    const rawTitle = calloutHeaderMatch[3]?.trim();
+
+    // Strip HTML tags (e.g. <u><b>Important</b></u> → "Important") so that the
+    // active key matches the plain-text title used by handler comparisons like
+    // activeTagKeys.has('Important').
+    const calloutTitle = rawTitle ? rawTitle.replace(/<[^>]+>/g, '').trim() : undefined;
 
     activeKeys.add(calloutTitle ?? calloutType);
     previouslyFoundDepth = headerDepth;
