@@ -63,7 +63,6 @@ export function createListMarkerObserver(
   }
 
   document.addEventListener('selectionchange', selectionHandler, true);
-
   const contentContainers = document.querySelectorAll('.cm-content');
 
   // Clicking on a transparent-text marker span repositions the caret after the span
@@ -121,8 +120,8 @@ export function createListMarkerObserver(
     keyEvent.stopPropagation();
 
     const commandId = isOlMarker ? 'editor:toggle-numbered-list' : 'editor:toggle-bullet-list';
+    // eslint-disable-next-line strict-structure/no-double-cast -- Obsidian attaches `app` and `commands` to `window` at runtime; not in the standard Window type
     const obsidianWindow = window as unknown as {
-      // eslint-disable-line strict-structure/no-double-cast -- Obsidian attaches `app` and `commands` to `window` at runtime; not in the standard Window type
       app?: { commands?: { executeCommandById(commandId: string): void } };
     };
     obsidianWindow.app?.commands?.executeCommandById(commandId);

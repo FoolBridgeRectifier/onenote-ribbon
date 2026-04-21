@@ -20,10 +20,7 @@ export function tagEnclosesSelection(
   );
 }
 
-/**
- * Checks if a tag range's full span (opening start to closing end)
- * is contained within or exactly matches the selection.
- */
+/** Checks if a tag range's full span (from opening start to closing end) is contained within or exactly matches the selection. */
 export function tagSpanIsWithinSelection(
   tagRange: HtmlTagRange,
   selectionStartOffset: number,
@@ -35,10 +32,7 @@ export function tagSpanIsWithinSelection(
   );
 }
 
-/**
- * Filters tag ranges by a geometry predicate and tag definition match.
- * For span tags with attributes, also checks the CSS property name.
- */
+/** Filters tag ranges by a geometry predicate and tag definition match; for span tags with attributes, also checks the CSS property name. */
 export function filterMatchingTagRanges(
   allTagRanges: HtmlTagRange[],
   sourceText: string,
@@ -83,10 +77,7 @@ export function filterTagRangesByGeometry(
   return matchingRanges;
 }
 
-/**
- * Finds the outermost tag range whose full span falls within the selection.
- * Used for delimiter-inclusive selections like selecting `<u>text</u>`.
- */
+/** Finds the outermost tag range whose full span falls within the selection (delimiter-inclusive, e.g. selecting `<u>text</u>`). */
 export function findDelimiterInclusiveMatch(
   allTagRanges: HtmlTagRange[],
   sourceText: string,
@@ -135,6 +126,7 @@ export function findEnclosingMatchingTag(
     return candidateWidth < innermostWidth ? candidate : innermost;
   });
 }
+
 export function findAllEnclosingTags(
   allTagRanges: HtmlTagRange[],
   selectionStartOffset: number,

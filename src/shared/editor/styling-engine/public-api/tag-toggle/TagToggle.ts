@@ -20,11 +20,7 @@ import {
 } from '../../per-line-processing/PerLineProcessing';
 import { addTag } from '../tag-add/TagAdd';
 
-/**
- * Toggles a formatting tag on or off for the given selection.
- * If the tag is already present enclosing the selection, removes it.
- * If the tag is absent, adds it (handling domain conversion and protected ranges).
- */
+/** Toggles a formatting tag on/off for the given selection; removes it if present, adds it if absent (handles domain conversion and protected ranges). */
 export function toggleTag(context: StylingContext, tagDefinition: TagDefinition): StylingResult {
   const { sourceText, selectionStartOffset, selectionEndOffset } = context;
 

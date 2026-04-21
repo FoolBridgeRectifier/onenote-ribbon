@@ -12,9 +12,8 @@ import type { CustomTag } from '../../../../tabs/home/tags/customize-modal/inter
 import type { TagDefinition } from '../../../../tabs/home/tags/interfaces';
 import type { AppWithCommands } from '../../../context/interfaces';
 import type { TagHandlersOptions } from './interfaces';
-
-/** Obsidian command ID for toggling a checklist item on the current line. */
-const EDITOR_COMMAND_TOGGLE_CHECKLIST = 'editor:toggle-checklist-status' as const;
+import { EDITOR_COMMAND_TOGGLE_CHECKLIST } from './constants';
+import { selectTagFromDropdown } from './helpers';
 
 export function useTagHandlers({
   app,
@@ -97,50 +96,14 @@ export function useTagHandlers({
 
   const handleTagDropdownSelect = useCallback(
     (tagDefinition: TagDefinition) => {
-      if (tagDefinition.isCustomizeTags) {
-        setCustomizeModalOpen(true);
-        setMoreMenuOpen(false);
-        return;
-      }
-
-      if (tagDefinition.isRemoveTag) {
-        if (!canRemoveTag) return;
-        const editor = getEditor();
-        if (editor) removeActiveCallout(editor);
-        setMoreMenuOpen(false);
-        return;
-      }
-
-      if (tagDefinition.isDisabled) return;
-
-      const calloutKey = tagDefinition.calloutKey;
-      const isCurrentlyActive =
-        calloutKey !== null && calloutKey !== undefined && activeTagKeys.has(calloutKey);
-
-      if (isCurrentlyActive && tagDefinition.action.type === 'callout') {
-        const editor = getEditor();
-        if (editor) removeActiveCallout(editor);
-        setMoreMenuOpen(false);
-        return;
-      }
-
-      if (
-        isCurrentlyActive &&
-        (tagDefinition.action.type === 'task' ||
-          (tagDefinition.action.type === 'command' &&
-            tagDefinition.calloutKey === ACTIVE_TAG_KEY_TASK))
-      ) {
-        const editor = getEditor();
-        if (editor) removeActiveCheckbox(editor);
-        setMoreMenuOpen(false);
-        return;
-      }
-
-      const editor = getEditor();
-      if (editor) {
-        applyTag(editor, tagDefinition.action, executeCommand);
-      }
-      setMoreMenuOpen(false);
+      selectTagFromDropdown(tagDefinition, {
+        getEditor,
+        activeTagKeys,
+        canRemoveTag,
+        executeCommand,
+        setMoreMenuOpen,
+        setCustomizeModalOpen,
+      });
     },
     [getEditor, activeTagKeys, canRemoveTag, executeCommand, setMoreMenuOpen, setCustomizeModalOpen]
   );

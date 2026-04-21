@@ -1,4 +1,4 @@
-import type { App } from 'obsidian';
+import type { App, Editor } from 'obsidian';
 import type { CustomTag } from '../../../../tabs/home/tags/customize-modal/interfaces';
 import type { TagDefinition } from '../../../../tabs/home/tags/interfaces';
 
@@ -21,4 +21,14 @@ export interface TagHandlers {
   handleToDoTag: () => void;
   handleCustomTagsChange: (updatedTags: CustomTag[]) => void;
   handleTagDropdownSelect: (tagDefinition: TagDefinition) => void;
+}
+
+/** Context passed to selectTagFromDropdown containing all required state and callbacks. */
+export interface TagDropdownSelectContext {
+  getEditor: () => Editor | undefined;
+  activeTagKeys: Set<string>;
+  canRemoveTag: boolean;
+  executeCommand: (commandId: string) => void;
+  setMoreMenuOpen: (open: boolean) => void;
+  setCustomizeModalOpen: (open: boolean) => void;
 }
