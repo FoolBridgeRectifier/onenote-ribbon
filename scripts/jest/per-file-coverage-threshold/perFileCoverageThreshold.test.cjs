@@ -3,7 +3,6 @@
  * Uses CJS require because the source files use CJS module format.
  */
 
-/* eslint-disable @typescript-eslint/no-require-imports */
 const { statementPercent, branchPercent, linePercent, displayPath } = require('./helpers.cjs');
 const { collectFileFailures } = require('./perFileCoverageThreshold.cjs');
 const { PER_FILE_THRESHOLD } = require('./constants.cjs');

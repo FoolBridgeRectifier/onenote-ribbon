@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from 'react';
 
 import './tags-group.css';
 import { useApp } from '../../../shared/context/AppContext';
+import { useEditorState } from '../../../shared/hooks/useEditorState';
 import { GroupShell } from '../../../shared/components/group-shell/GroupShell';
 import { RibbonButton } from '../../../shared/components/ribbon-button/RibbonButton';
 import { Dropdown } from '../../../shared/components/dropdown/Dropdown';
@@ -9,11 +10,10 @@ import { FindTagsIcon, TodoTagButtonIcon } from '../../../assets/icons';
 import type { TagOrSeparator } from './interfaces';
 import { ALL_TAGS, renderTagItems } from './helpers';
 import { ACTIVE_TAG_KEY_HIGHLIGHT, ACTIVE_TAG_KEY_TASK } from './constants';
-import { useActiveTagKeys } from './use-active-tag-keys/useActiveTagKeys';
 import type { CustomTag } from './customize-modal/interfaces';
 import { CustomizeTagsModal } from './customize-modal/CustomizeModal';
 import { loadCustomTags, buildCustomTagDefinition } from './tag-storage/TagStorage';
-import { useTagHandlers } from './use-tag-handlers/UseTagHandlers';
+import { useTagHandlers } from '../../../shared/editor/enclosing-html-tags/use-tag-handlers/UseTagHandlers';
 import { TagStack } from './tag-stack/TagStack';
 
 export function TagsGroup() {
@@ -23,7 +23,8 @@ export function TagsGroup() {
   const [customizeModalOpen, setCustomizeModalOpen] = useState(false);
   const [customTags, setCustomTags] = useState<CustomTag[]>(loadCustomTags);
 
-  const activeTagKeys = useActiveTagKeys(app);
+  const editorState = useEditorState(app);
+  const activeTagKeys = editorState.activeTagKeys;
 
   // "Remove Tag" is only enabled when cursor is inside a real callout block
   const canRemoveTag = [...activeTagKeys].some(

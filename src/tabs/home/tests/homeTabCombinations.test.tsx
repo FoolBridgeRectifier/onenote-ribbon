@@ -25,6 +25,7 @@ const defaultEditorState: EditorState = {
   textAlign: 'left',
   fontColor: null,
   highlightColor: null,
+  activeTagKeys: new Set<string>(),
 };
 
 let mockEditorState: EditorState = { ...defaultEditorState };
@@ -69,7 +70,7 @@ function renderWithMockApp(component: React.ReactElement) {
   return render(
     <PluginContext.Provider value={mockPlugin}>
       <AppContext.Provider value={mockApp}>{component}</AppContext.Provider>
-    </PluginContext.Provider>,
+    </PluginContext.Provider>
   );
 }
 
@@ -81,10 +82,7 @@ import { TagsGroup } from '../tags/Tags';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
-function queryByCmd(
-  container: HTMLElement,
-  command: string,
-): HTMLElement | null {
+function queryByCmd(container: HTMLElement, command: string): HTMLElement | null {
   return container.querySelector(`[data-cmd="${command}"]`);
 }
 
@@ -159,24 +157,21 @@ describe('Inline formatting — active states', () => {
     { command: 'number-list-toggle', stateField: 'numberedList' },
   ];
 
-  describe.each(INLINE_BUTTONS)(
-    '$command button',
-    ({ command, stateField }) => {
-      it('has onr-active class when editorState field is true', () => {
-        resetEditorState({ [stateField]: true });
-        const { container } = renderWithMockApp(<BasicTextGroup />);
-        const button = getByCmd(container, command);
-        expect(button.classList.contains('onr-active')).toBe(true);
-      });
+  describe.each(INLINE_BUTTONS)('$command button', ({ command, stateField }) => {
+    it('has onr-active class when editorState field is true', () => {
+      resetEditorState({ [stateField]: true });
+      const { container } = renderWithMockApp(<BasicTextGroup />);
+      const button = getByCmd(container, command);
+      expect(button.classList.contains('onr-active')).toBe(true);
+    });
 
-      it('does NOT have onr-active class when editorState field is false', () => {
-        resetEditorState({ [stateField]: false });
-        const { container } = renderWithMockApp(<BasicTextGroup />);
-        const button = getByCmd(container, command);
-        expect(button.classList.contains('onr-active')).toBe(false);
-      });
-    },
-  );
+    it('does NOT have onr-active class when editorState field is false', () => {
+      resetEditorState({ [stateField]: false });
+      const { container } = renderWithMockApp(<BasicTextGroup />);
+      const button = getByCmd(container, command);
+      expect(button.classList.contains('onr-active')).toBe(false);
+    });
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -262,15 +257,9 @@ describe('Combination states', () => {
     resetEditorState({ bold: true, italic: true, underline: true });
     const { container } = renderWithMockApp(<BasicTextGroup />);
 
-    expect(getByCmd(container, 'bold').classList.contains('onr-active')).toBe(
-      true,
-    );
-    expect(getByCmd(container, 'italic').classList.contains('onr-active')).toBe(
-      true,
-    );
-    expect(
-      getByCmd(container, 'underline').classList.contains('onr-active'),
-    ).toBe(true);
+    expect(getByCmd(container, 'bold').classList.contains('onr-active')).toBe(true);
+    expect(getByCmd(container, 'italic').classList.contains('onr-active')).toBe(true);
+    expect(getByCmd(container, 'underline').classList.contains('onr-active')).toBe(true);
   });
 
   it('All fields false → no buttons have onr-active', () => {
@@ -288,66 +277,34 @@ describe('Combination states', () => {
     resetEditorState({ bold: true, highlight: true });
     const { container } = renderWithMockApp(<BasicTextGroup />);
 
-    expect(getByCmd(container, 'bold').classList.contains('onr-active')).toBe(
-      true,
-    );
-    expect(
-      getByCmd(container, 'highlight').classList.contains('onr-active'),
-    ).toBe(true);
+    expect(getByCmd(container, 'bold').classList.contains('onr-active')).toBe(true);
+    expect(getByCmd(container, 'highlight').classList.contains('onr-active')).toBe(true);
 
-    expect(getByCmd(container, 'italic').classList.contains('onr-active')).toBe(
-      false,
-    );
-    expect(
-      getByCmd(container, 'underline').classList.contains('onr-active'),
-    ).toBe(false);
-    expect(
-      getByCmd(container, 'strikethrough').classList.contains('onr-active'),
-    ).toBe(false);
-    expect(
-      getByCmd(container, 'subscript').classList.contains('onr-active'),
-    ).toBe(false);
-    expect(
-      getByCmd(container, 'superscript').classList.contains('onr-active'),
-    ).toBe(false);
+    expect(getByCmd(container, 'italic').classList.contains('onr-active')).toBe(false);
+    expect(getByCmd(container, 'underline').classList.contains('onr-active')).toBe(false);
+    expect(getByCmd(container, 'strikethrough').classList.contains('onr-active')).toBe(false);
+    expect(getByCmd(container, 'subscript').classList.contains('onr-active')).toBe(false);
+    expect(getByCmd(container, 'superscript').classList.contains('onr-active')).toBe(false);
   });
 
   it('Subscript + Superscript both active at once', () => {
     resetEditorState({ subscript: true, superscript: true });
     const { container } = renderWithMockApp(<BasicTextGroup />);
 
-    expect(
-      getByCmd(container, 'subscript').classList.contains('onr-active'),
-    ).toBe(true);
-    expect(
-      getByCmd(container, 'superscript').classList.contains('onr-active'),
-    ).toBe(true);
+    expect(getByCmd(container, 'subscript').classList.contains('onr-active')).toBe(true);
+    expect(getByCmd(container, 'superscript').classList.contains('onr-active')).toBe(true);
   });
 
   it('Bullet list + Bold + fontColor → three buttons active', () => {
     resetEditorState({ bulletList: true, bold: true, fontColor: '#000' });
     const { container } = renderWithMockApp(<BasicTextGroup />);
 
-    expect(
-      getByCmd(container, 'bullet-list-toggle').classList.contains(
-        'onr-active',
-      ),
-    ).toBe(true);
-    expect(getByCmd(container, 'bold').classList.contains('onr-active')).toBe(
-      true,
-    );
-    expect(
-      getByCmd(container, 'font-color').classList.contains('onr-active'),
-    ).toBe(true);
+    expect(getByCmd(container, 'bullet-list-toggle').classList.contains('onr-active')).toBe(true);
+    expect(getByCmd(container, 'bold').classList.contains('onr-active')).toBe(true);
+    expect(getByCmd(container, 'font-color').classList.contains('onr-active')).toBe(true);
 
-    expect(getByCmd(container, 'italic').classList.contains('onr-active')).toBe(
-      false,
-    );
-    expect(
-      getByCmd(container, 'number-list-toggle').classList.contains(
-        'onr-active',
-      ),
-    ).toBe(false);
+    expect(getByCmd(container, 'italic').classList.contains('onr-active')).toBe(false);
+    expect(getByCmd(container, 'number-list-toggle').classList.contains('onr-active')).toBe(false);
   });
 
   it('Center align + Italic + highlightColor → three buttons active', () => {
@@ -358,15 +315,9 @@ describe('Combination states', () => {
     });
     const { container } = renderWithMockApp(<BasicTextGroup />);
 
-    expect(getByCmd(container, 'align').classList.contains('onr-active')).toBe(
-      true,
-    );
-    expect(getByCmd(container, 'italic').classList.contains('onr-active')).toBe(
-      true,
-    );
-    expect(
-      getByCmd(container, 'highlight').classList.contains('onr-active'),
-    ).toBe(true);
+    expect(getByCmd(container, 'align').classList.contains('onr-active')).toBe(true);
+    expect(getByCmd(container, 'italic').classList.contains('onr-active')).toBe(true);
+    expect(getByCmd(container, 'highlight').classList.contains('onr-active')).toBe(true);
   });
 });
 
@@ -484,9 +435,7 @@ describe('Align dropdown', () => {
     await user.click(alignButton);
 
     const dropdownItems = document.body.querySelectorAll('.onr-dd-item');
-    const itemTexts = Array.from(dropdownItems).map((item) =>
-      item.textContent?.trim(),
-    );
+    const itemTexts = Array.from(dropdownItems).map((item) => item.textContent?.trim());
 
     expect(itemTexts).toContain('Align Left');
     expect(itemTexts).toContain('Align Center');
@@ -566,9 +515,7 @@ describe('StylesGroup active states', () => {
     await user.click(expandButton);
 
     const dropdownItems = document.body.querySelectorAll('.onr-dd-item');
-    const itemTexts = Array.from(dropdownItems).map((item) =>
-      item.textContent?.trim(),
-    );
+    const itemTexts = Array.from(dropdownItems).map((item) => item.textContent?.trim());
 
     expect(itemTexts).toContain('Normal');
     expect(itemTexts).toContain('Heading 1');
@@ -600,14 +547,7 @@ describe('StylesGroup active states', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('TagsGroup button rendering', () => {
-  const TAG_COMMANDS = [
-    'todo',
-    'important',
-    'question',
-    'more-tags',
-    'todo-tag',
-    'find-tags',
-  ];
+  const TAG_COMMANDS = ['todo', 'important', 'question', 'more-tags', 'todo-tag', 'find-tags'];
 
   it.each(TAG_COMMANDS)('renders a button with data-cmd="%s"', (command) => {
     const { container } = renderWithMockApp(<TagsGroup />);
@@ -623,7 +563,7 @@ describe('TagsGroup button rendering', () => {
 
     const dropdownItems = document.body.querySelectorAll('.onr-tags-dd-item');
     const itemTexts = Array.from(dropdownItems).map((item) =>
-      item.querySelector('.onr-tags-dd-label')?.textContent?.trim(),
+      item.querySelector('.onr-tags-dd-label')?.textContent?.trim()
     );
 
     expect(itemTexts).toContain('To Do');
@@ -639,12 +579,7 @@ describe('TagsGroup button rendering', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('Non-active buttons', () => {
-  const ALWAYS_INACTIVE_COMMANDS = [
-    'outdent',
-    'indent',
-    'clear-all',
-    'delete-element',
-  ];
+  const ALWAYS_INACTIVE_COMMANDS = ['outdent', 'indent', 'clear-all', 'delete-element'];
 
   it.each(ALWAYS_INACTIVE_COMMANDS)(
     '%s button never has onr-active class regardless of state',
@@ -660,6 +595,6 @@ describe('Non-active buttons', () => {
       const { container } = renderWithMockApp(<BasicTextGroup />);
       const button = getByCmd(container, command);
       expect(button.classList.contains('onr-active')).toBe(false);
-    },
+    }
   );
 });

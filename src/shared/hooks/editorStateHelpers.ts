@@ -1,6 +1,7 @@
 import type { App } from 'obsidian';
 import type { EnclosingHtmlTagFinder } from '../editor/enclosing-html-tags/enclosingHtmlTags';
 import { createEnclosingHtmlTagFinder } from '../editor/enclosing-html-tags/enclosingHtmlTags';
+import { detectActiveTagKeys } from '../editor/styling-engine/tag-apply/helpers/detect-active-tag-keys/DetectActiveTagKeys';
 import type { EditorState } from './interfaces';
 import { TAG_NAME_TO_STATE_FIELD } from './constants';
 import { extractSpanAndDivState } from './spanState';
@@ -26,6 +27,7 @@ export function buildDefaultState(app: App): EditorState {
     textAlign: 'left',
     fontColor: null,
     highlightColor: null,
+    activeTagKeys: new Set<string>(),
   };
 }
 
@@ -99,6 +101,9 @@ export function deriveEditorState(
     const headMatch = activeLine.match(/^(#{1,6})\s/);
     if (headMatch) state.headLevel = headMatch[1].length;
   }
+
+  // Detect active tag keys for the current cursor position
+  state.activeTagKeys = detectActiveTagKeys(editor);
 
   return state;
 }

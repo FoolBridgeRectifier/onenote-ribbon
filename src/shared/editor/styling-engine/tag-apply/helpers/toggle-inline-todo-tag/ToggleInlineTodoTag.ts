@@ -1,4 +1,5 @@
 import type { Editor } from 'obsidian';
+
 import { INLINE_TODO_TAG_PATTERN } from '../../constants';
 import type { TodoTagMatch } from '../../interfaces';
 

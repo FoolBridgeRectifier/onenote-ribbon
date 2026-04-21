@@ -18,6 +18,8 @@ export interface EditorState {
   textAlign: 'left' | 'center' | 'right' | 'justify';
   fontColor: string | null;
   highlightColor: string | null;
+  /** Set of active tag keys at the current cursor (e.g. "__task__", "important"). */
+  activeTagKeys: Set<string>;
 }
 
 /** Cached result of an EnclosingHtmlTagFinder for a specific source text. */

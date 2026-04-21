@@ -1,16 +1,20 @@
 import { useCallback } from 'react';
-import { applyTag } from '../tag-apply/TagApply';
+
+import { applyTag } from '../../styling-engine/tag-apply/TagApply';
 import {
   removeActiveCallout,
   removeActiveCheckbox,
   toggleInlineTodoTag,
-} from '../tag-apply/helpers';
-import type { TagDefinition } from '../interfaces';
-import { ACTIVE_TAG_KEY_TASK, EDITOR_COMMAND_TOGGLE_CHECKLIST } from '../constants';
-import { saveCustomTags } from '../tag-storage/TagStorage';
-import type { CustomTag } from '../customize-modal/interfaces';
-import type { AppWithCommands } from '../../../../shared/context/interfaces';
+} from '../../styling-engine/tag-apply/helpers';
+import { ACTIVE_TAG_KEY_TASK } from '../../styling-engine/tag-apply/constants';
+import { saveCustomTags } from '../../../../tabs/home/tags/tag-storage/TagStorage';
+import type { CustomTag } from '../../../../tabs/home/tags/customize-modal/interfaces';
+import type { TagDefinition } from '../../../../tabs/home/tags/interfaces';
+import type { AppWithCommands } from '../../../context/interfaces';
 import type { TagHandlersOptions } from './interfaces';
+
+/** Obsidian command ID for toggling a checklist item on the current line. */
+const EDITOR_COMMAND_TOGGLE_CHECKLIST = 'editor:toggle-checklist-status' as const;
 
 export function useTagHandlers({
   app,
@@ -112,6 +116,7 @@ export function useTagHandlers({
       const calloutKey = tagDefinition.calloutKey;
       const isCurrentlyActive =
         calloutKey !== null && calloutKey !== undefined && activeTagKeys.has(calloutKey);
+
       if (isCurrentlyActive && tagDefinition.action.type === 'callout') {
         const editor = getEditor();
         if (editor) removeActiveCallout(editor);

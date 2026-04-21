@@ -1,6 +1,6 @@
 import { detectActiveTagKeys } from './helpers';
 import { MockEditor } from '../../../../test-utils/MockEditor';
-import { ACTIVE_TAG_KEY_HIGHLIGHT, ACTIVE_TAG_KEY_TASK } from '../constants';
+import { ACTIVE_TAG_KEY_HIGHLIGHT, ACTIVE_TAG_KEY_TASK } from './constants';
 
 describe('detectActiveTagKeys — null editor', () => {
   it('returns an empty Set when editor is null', () => {
@@ -255,9 +255,7 @@ describe('detectActiveTagKeys — task prefix detection', () => {
 
     expect(result.has(ACTIVE_TAG_KEY_TASK)).toBe(true);
     // No task-prefix key should be added since there is no "Word:" prefix
-    const prefixKeys = [...result].filter((key) =>
-      key.startsWith('task-prefix:'),
-    );
+    const prefixKeys = [...result].filter((key) => key.startsWith('task-prefix:'));
     expect(prefixKeys).toHaveLength(0);
   });
 });

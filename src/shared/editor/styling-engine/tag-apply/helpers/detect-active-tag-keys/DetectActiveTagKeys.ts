@@ -1,6 +1,8 @@
 import type { Editor } from 'obsidian';
-import { ACTIVE_TAG_KEY_HIGHLIGHT, ACTIVE_TAG_KEY_TASK } from '../../../constants';
+
 import {
+  ACTIVE_TAG_KEY_HIGHLIGHT,
+  ACTIVE_TAG_KEY_TASK,
   TASK_LINE_PATTERN,
   HIGHLIGHT_PATTERN,
   CALLOUT_HEADER_PATTERN,

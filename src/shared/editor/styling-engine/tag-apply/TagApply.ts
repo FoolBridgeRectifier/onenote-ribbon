@@ -1,6 +1,6 @@
 import type { Editor } from 'obsidian';
 
-import type { TagAction } from '../interfaces';
+import type { TagAction } from './interfaces';
 
 import {
   CALLOUT_HEADER_WITH_TITLE_PATTERN,
@@ -45,7 +45,7 @@ function stripTaskPrefix(taskContent: string): string {
 export function applyTag(
   editor: Editor | null,
   action: TagAction,
-  executeCommand: (commandId: string) => void,
+  executeCommand: (commandId: string) => void
 ): void {
   if (action.type === 'command') {
     executeCommand(action.commandId);
@@ -63,15 +63,13 @@ export function applyTag(
     const nestedPrefix = '>'.repeat(nestedDepth);
 
     const bodyContent =
-      currentDepth > 0
-        ? stripLeadingBlockquoteSegments(lineContent)
-        : lineContent;
+      currentDepth > 0 ? stripLeadingBlockquoteSegments(lineContent) : lineContent;
 
     // Include the callout title if provided: "> [!type] Title"
     const titleSegment = action.calloutTitle ? ` ${action.calloutTitle}` : '';
     editor.setLine(
       cursor.line,
-      `${nestedPrefix} [!${action.calloutType}]${titleSegment}\n${nestedPrefix} ${bodyContent}`,
+      `${nestedPrefix} [!${action.calloutType}]${titleSegment}\n${nestedPrefix} ${bodyContent}`
     );
     return;
   }
@@ -79,9 +77,7 @@ export function applyTag(
   if (action.type === 'task') {
     const prefixSegment = action.taskPrefix ? `${action.taskPrefix} ` : '';
 
-    const calloutHeaderMatch = lineContent.match(
-      CALLOUT_HEADER_WITH_TITLE_PATTERN,
-    );
+    const calloutHeaderMatch = lineContent.match(CALLOUT_HEADER_WITH_TITLE_PATTERN);
 
     if (calloutHeaderMatch) {
       const headerWithoutTitle = calloutHeaderMatch[1];
@@ -94,10 +90,7 @@ export function applyTag(
         cursor.ch <= lineContent.length;
 
       if (cursorIsInCalloutTitle) {
-        editor.setLine(
-          cursor.line,
-          `- [ ] ${prefixSegment}${calloutTitle}\n${headerWithoutTitle}`,
-        );
+        editor.setLine(cursor.line, `- [ ] ${prefixSegment}${calloutTitle}\n${headerWithoutTitle}`);
         return;
       }
     }
@@ -112,7 +105,7 @@ export function applyTag(
 
       editor.setLine(
         cursor.line,
-        `${blockquotePrefix}${indentation}- [ ] ${prefixSegment}${contentWithoutTaskPrefix}`,
+        `${blockquotePrefix}${indentation}- [ ] ${prefixSegment}${contentWithoutTaskPrefix}`
       );
       return;
     }

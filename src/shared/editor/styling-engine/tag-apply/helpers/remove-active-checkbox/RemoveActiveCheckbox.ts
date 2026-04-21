@@ -1,4 +1,5 @@
 import type { Editor } from 'obsidian';
+
 import { TASK_MARKER_PATTERN } from '../../constants';
 
 /**

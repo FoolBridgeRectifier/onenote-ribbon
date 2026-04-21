@@ -158,11 +158,21 @@ const strictStructurePlugin = {
           .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
           .join('');
 
+        // Convert kebab-case folder name to camelCase (e.g. "color-picker" -> "colorPicker")
+        const camelCaseFolderName = parentFolderName
+          .split('-')
+          .map((part, index) => (index === 0 ? part : part.charAt(0).toUpperCase() + part.slice(1)))
+          .join('');
+
         // Allow .test. files whose base name matches either the kebab-case or PascalCase folder name
         const testFilePattern = /^(.*)\.test$/;
         const testMatch = baseNameWithoutExtension.match(testFilePattern);
         if (testMatch) {
-          if (testMatch[1] === parentFolderName || testMatch[1] === pascalCaseFolderName) {
+          if (
+            testMatch[1] === parentFolderName
+            || testMatch[1] === pascalCaseFolderName
+            || testMatch[1] === camelCaseFolderName
+          ) {
             return {};
           }
         }
@@ -171,11 +181,12 @@ const strictStructurePlugin = {
           Program(programNode) {
             const isKebabCaseMatch = baseNameWithoutExtension === parentFolderName;
             const isPascalCaseMatch = baseNameWithoutExtension === pascalCaseFolderName;
+            const isCamelCaseMatch = baseNameWithoutExtension === camelCaseFolderName;
 
-            if (!isKebabCaseMatch && !isPascalCaseMatch) {
+            if (!isKebabCaseMatch && !isPascalCaseMatch && !isCamelCaseMatch) {
               context.report({
                 node: programNode,
-                message: `File name must match parent folder name (${parentFolderName}${extensionName} or ${pascalCaseFolderName}${extensionName}) or use helpers/constants/interfaces.`,
+                message: `File name must match parent folder name (${parentFolderName}${extensionName}, ${camelCaseFolderName}${extensionName}, or ${pascalCaseFolderName}${extensionName}) or use helpers/constants/interfaces.`,
               });
             }
           },

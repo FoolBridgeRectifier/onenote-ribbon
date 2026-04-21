@@ -1,4 +1,5 @@
 import type { Editor } from 'obsidian';
+
 import { CALLOUT_HEADER_LINE_PATTERN, BLOCKQUOTE_PREFIX_PATTERN } from '../../constants';
 
 /**
