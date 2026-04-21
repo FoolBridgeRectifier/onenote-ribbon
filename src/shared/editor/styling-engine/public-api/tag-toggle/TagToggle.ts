@@ -1,4 +1,4 @@
-import type { TagDefinition, StylingResult, StylingContext } from '../../interfaces';
+import type { HtmlTagDefinition, StylingResult, StylingContext } from '../../interfaces';
 import { MARKDOWN_TO_HTML_TAG_MAP } from '../../constants';
 import { buildTagRanges } from '../../../enclosing-html-tags/enclosingHtmlTags';
 import { unwrapTag } from '../../tag-manipulation/TagManipulation';
@@ -21,7 +21,7 @@ import {
 import { addTag } from '../tag-add/TagAdd';
 
 /** Toggles a formatting tag on/off for the given selection; removes it if present, adds it if absent (handles domain conversion and protected ranges). */
-export function toggleTag(context: StylingContext, tagDefinition: TagDefinition): StylingResult {
+export function toggleTag(context: StylingContext, tagDefinition: HtmlTagDefinition): StylingResult {
   const { sourceText, selectionStartOffset, selectionEndOffset } = context;
 
   const structureContext = detectStructureContext(

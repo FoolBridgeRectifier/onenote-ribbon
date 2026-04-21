@@ -1,4 +1,4 @@
-import type { TagDefinition } from '../../interfaces';
+import type { HtmlTagDefinition } from '../../interfaces';
 import type { HtmlTagRange } from '../../../enclosing-html-tags/interfaces';
 import { extractStylePropertyFromOpeningTag } from '../../tag-manipulation/style-parsing/StyleParsing';
 /** Comparator: sorts tag ranges by content width (inner-to-outer). */
@@ -36,7 +36,7 @@ export function tagSpanIsWithinSelection(
 export function filterMatchingTagRanges(
   allTagRanges: HtmlTagRange[],
   sourceText: string,
-  tagDefinition: TagDefinition,
+  tagDefinition: HtmlTagDefinition,
   geometryPredicate: (tagRange: HtmlTagRange) => boolean
 ): HtmlTagRange[] {
   const isSpanWithAttributes =
@@ -83,7 +83,7 @@ export function findDelimiterInclusiveMatch(
   sourceText: string,
   selectionStartOffset: number,
   selectionEndOffset: number,
-  tagDefinition: TagDefinition
+  tagDefinition: HtmlTagDefinition
 ): HtmlTagRange | null {
   const matchingRanges = filterMatchingTagRanges(
     allTagRanges,
@@ -108,7 +108,7 @@ export function findEnclosingMatchingTag(
   sourceText: string,
   selectionStartOffset: number,
   selectionEndOffset: number,
-  tagDefinition: TagDefinition
+  tagDefinition: HtmlTagDefinition
 ): HtmlTagRange | null {
   const matchingRanges = filterMatchingTagRanges(
     allTagRanges,

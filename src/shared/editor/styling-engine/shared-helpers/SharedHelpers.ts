@@ -1,4 +1,4 @@
-import type { TagDefinition, TextReplacement, FormattingDomain } from '../interfaces';
+import type { HtmlTagDefinition, TextReplacement, FormattingDomain } from '../interfaces';
 import type { HtmlTagRange } from '../../enclosing-html-tags/interfaces';
 import { MARKDOWN_TO_HTML_TAG_MAP, SUBSCRIPT_TAG, SUPERSCRIPT_TAG } from '../constants';
 
@@ -34,9 +34,9 @@ export function deduplicateReplacements(replacements: TextReplacement[]): TextRe
  * If adding a markdown tag in an HTML domain, substitutes the HTML equivalent.
  */
 export function resolveTagForDomain(
-  tagDefinition: TagDefinition,
+  tagDefinition: HtmlTagDefinition,
   detectedDomain: FormattingDomain
-): TagDefinition {
+): HtmlTagDefinition {
   if (detectedDomain === 'html' && tagDefinition.domain === 'markdown') {
     const htmlEquivalent = MARKDOWN_TO_HTML_TAG_MAP.get(tagDefinition.tagName);
 
@@ -53,8 +53,8 @@ export function resolveTagForDomain(
  * If sub is present, returns super (and vice versa) so the two are swapped rather than stacked.
  */
 export function resolveMutuallyExclusiveScriptTag(
-  tagDefinition: TagDefinition
-): TagDefinition | null {
+  tagDefinition: HtmlTagDefinition
+): HtmlTagDefinition | null {
   if (tagDefinition.tagName === SUBSCRIPT_TAG.tagName) return SUPERSCRIPT_TAG;
   if (tagDefinition.tagName === SUPERSCRIPT_TAG.tagName) return SUBSCRIPT_TAG;
   return null;
@@ -63,7 +63,7 @@ export function resolveMutuallyExclusiveScriptTag(
 /** Builds replacements that swap the markup of a tag range to a different tag definition. */
 export function buildTagMarkupSwapReplacements(
   tagRange: HtmlTagRange,
-  replacementTagDefinition: TagDefinition
+  replacementTagDefinition: HtmlTagDefinition
 ): TextReplacement[] {
   const closingTagReplacement: TextReplacement = {
     fromOffset: tagRange.closingTagStartOffset,

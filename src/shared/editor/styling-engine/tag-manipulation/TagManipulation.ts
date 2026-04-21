@@ -1,4 +1,4 @@
-import type { TagDefinition, TextReplacement } from '../interfaces';
+import type { HtmlTagDefinition, TextReplacement } from '../interfaces';
 import type { HtmlTagRange } from '../../enclosing-html-tags/interfaces';
 
 // ============================================================
@@ -12,7 +12,7 @@ import type { HtmlTagRange } from '../../enclosing-html-tags/interfaces';
 export function wrapTextWithTag(
   selectionStartOffset: number,
   selectionEndOffset: number,
-  tagDefinition: TagDefinition
+  tagDefinition: HtmlTagDefinition
 ): TextReplacement[] {
   if (selectionStartOffset === selectionEndOffset) {
     return [
@@ -63,7 +63,7 @@ export function unwrapTag(tagRange: HtmlTagRange): TextReplacement[] {
 // Span Tag Construction
 // ============================================================
 
-export function buildSpanTagDefinition(cssProperty: string, cssValue: string): TagDefinition {
+export function buildSpanTagDefinition(cssProperty: string, cssValue: string): HtmlTagDefinition {
   return {
     tagName: 'span',
     domain: 'html',

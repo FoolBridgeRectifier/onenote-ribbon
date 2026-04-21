@@ -1,5 +1,5 @@
 import type {
-  TagDefinition,
+  HtmlTagDefinition,
   TextReplacement,
   StylingResult,
   StylingContext,
@@ -19,10 +19,10 @@ export function toggleTagPerLine(
   sourceText: string,
   selectionStartOffset: number,
   selectionEndOffset: number,
-  tagDefinition: TagDefinition,
+  tagDefinition: HtmlTagDefinition,
   structureContext: StructureContext,
-  toggleTagFn: (context: StylingContext, tagDefinition: TagDefinition) => StylingResult,
-  addTagFn: (context: StylingContext, tagDefinition: TagDefinition) => StylingResult
+  toggleTagFn: (context: StylingContext, tagDefinition: HtmlTagDefinition) => StylingResult,
+  addTagFn: (context: StylingContext, tagDefinition: HtmlTagDefinition) => StylingResult
 ): StylingResult {
   const lineRanges = buildEffectiveLineRanges(
     structureContext,
@@ -79,9 +79,9 @@ export function addTagPerLine(
   sourceText: string,
   selectionStartOffset: number,
   selectionEndOffset: number,
-  tagDefinition: TagDefinition,
+  tagDefinition: HtmlTagDefinition,
   structureContext: StructureContext,
-  addTagFn: (context: StylingContext, tagDefinition: TagDefinition) => StylingResult
+  addTagFn: (context: StylingContext, tagDefinition: HtmlTagDefinition) => StylingResult
 ): StylingResult {
   const lineRanges = buildEffectiveLineRanges(
     structureContext,

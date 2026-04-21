@@ -4,12 +4,60 @@ export type FormattingDomain = 'markdown' | 'html';
 
 // === Tag and Markup Definitions ===
 
-export interface TagDefinition {
+/**
+ * Describes an HTML inline tag operation (bold, italic, span, etc.).
+ * The `kind` field is optional and defaults to 'html' for backwards compatibility
+ * with all existing callers that pre-date the discriminated union.
+ */
+export interface HtmlTagDefinition {
+  kind?: 'html';
   tagName: string;
   domain: FormattingDomain;
   openingMarkup: string;
   closingMarkup: string;
   attributes?: Record<string, string>;
+}
+
+/** Describes a callout block operation (apply or remove). */
+export interface CalloutTagDefinition {
+  kind: 'callout';
+  /** Required when adding a callout. Omit when removing the innermost callout. */
+  calloutType?: string;
+  /** Callout title text. When supplied to removeTag, removes that specific callout by key. */
+  calloutTitle?: string;
+}
+
+/** Describes a task list item operation. */
+export interface TaskTagDefinition {
+  kind: 'task';
+  /** Optional prefix placed before the task body (e.g. "Todo:", "Discuss:"). */
+  taskPrefix?: string;
+}
+
+/** Describes a checkbox removal operation. */
+export interface CheckboxTagDefinition {
+  kind: 'checkbox';
+}
+
+/** Describes an inline #todo tag toggle operation. */
+export interface InlineTodoTagDefinition {
+  kind: 'inline-todo';
+}
+
+/**
+ * Union of all tag operation kinds accepted by the unified styling engine API.
+ * All existing HTML tag callers continue to work without changes — `kind` is optional on HtmlTagDefinition.
+ */
+export type TagDefinition =
+  | HtmlTagDefinition
+  | CalloutTagDefinition
+  | TaskTagDefinition
+  | CheckboxTagDefinition
+  | InlineTodoTagDefinition;
+
+/** Type guard: narrows a TagDefinition to the HTML-specific variant. */
+export function isHtmlTagDefinition(tag: TagDefinition): tag is HtmlTagDefinition {
+  return tag.kind === undefined || tag.kind === 'html';
 }
 
 // === Text Replacement and Result Types ===
@@ -113,7 +161,7 @@ export interface RemoveAllTagsOptions {
 export interface MarkdownToHtmlConversionEntry {
   markdownOpening: string;
   markdownClosing: string;
-  htmlTags: TagDefinition[]; // multiple entries for combined formats like bold+italic
+  htmlTags: HtmlTagDefinition[]; // multiple entries for combined formats like bold+italic
 }
 
 // === Editor Integration ===

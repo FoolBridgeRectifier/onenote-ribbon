@@ -1,4 +1,4 @@
-import type { TagDefinition, TextReplacement, ProtectedRange } from '../../interfaces';
+import type { HtmlTagDefinition, TextReplacement, ProtectedRange } from '../../interfaces';
 import type { HtmlTagRange } from '../../../enclosing-html-tags/interfaces';
 import { wrapTextWithTag } from '../TagManipulation';
 
@@ -53,7 +53,7 @@ export function splitFormattingAroundProtectedRanges(
   selectionStartOffset: number,
   selectionEndOffset: number,
   protectedRanges: ProtectedRange[],
-  tagDefinition: TagDefinition
+  tagDefinition: HtmlTagDefinition
 ): TextReplacement[] {
   if (protectedRanges.length === 0) {
     return wrapTextWithTag(selectionStartOffset, selectionEndOffset, tagDefinition);

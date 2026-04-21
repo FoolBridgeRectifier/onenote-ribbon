@@ -4,7 +4,7 @@ import {
   copyFormatFromEditor,
   addTagInEditor,
 } from '../editor/styling-engine/editor-integration/helpers';
-import type { CopiedFormat } from '../editor/styling-engine/interfaces';
+import type { CopiedFormat, HtmlTagDefinition } from '../editor/styling-engine/interfaces';
 import type { FormatPainterState, UseFormatPainterResult } from './interfaces';
 import { APPLY_AFTER_EDITOR_CLICK_DELAY_MILLISECONDS } from './constants';
 import {
@@ -49,7 +49,7 @@ export function useFormatPainter(app: App): UseFormatPainterResult {
 
       // Apply each tag definition from the copied format
       for (let tagIndex = 0; tagIndex < copiedFormat.tagDefinitions.length; tagIndex += 1) {
-        addTagInEditor(editor, copiedFormat.tagDefinitions[tagIndex]);
+        addTagInEditor(editor, copiedFormat.tagDefinitions[tagIndex] as HtmlTagDefinition);
       }
     },
     [getEditor]

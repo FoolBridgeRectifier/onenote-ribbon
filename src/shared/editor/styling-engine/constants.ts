@@ -1,24 +1,24 @@
-import type { TagDefinition, MarkdownToHtmlConversionEntry } from './interfaces';
+import type { HtmlTagDefinition, MarkdownToHtmlConversionEntry } from './interfaces';
 
 // ============================================================
 // HTML-only Tag Definitions
 // ============================================================
 
-export const UNDERLINE_TAG: TagDefinition = {
+export const UNDERLINE_TAG: HtmlTagDefinition = {
   tagName: 'u',
   domain: 'html',
   openingMarkup: '<u>',
   closingMarkup: '</u>',
 };
 
-export const SUBSCRIPT_TAG: TagDefinition = {
+export const SUBSCRIPT_TAG: HtmlTagDefinition = {
   tagName: 'sub',
   domain: 'html',
   openingMarkup: '<sub>',
   closingMarkup: '</sub>',
 };
 
-export const SUPERSCRIPT_TAG: TagDefinition = {
+export const SUPERSCRIPT_TAG: HtmlTagDefinition = {
   tagName: 'sup',
   domain: 'html',
   openingMarkup: '<sup>',
@@ -29,28 +29,28 @@ export const SUPERSCRIPT_TAG: TagDefinition = {
 // Markdown-native Tag Definitions
 // ============================================================
 
-export const BOLD_MD_TAG: TagDefinition = {
+export const BOLD_MD_TAG: HtmlTagDefinition = {
   tagName: 'bold',
   domain: 'markdown',
   openingMarkup: '**',
   closingMarkup: '**',
 };
 
-export const ITALIC_MD_TAG: TagDefinition = {
+export const ITALIC_MD_TAG: HtmlTagDefinition = {
   tagName: 'italic',
   domain: 'markdown',
   openingMarkup: '*',
   closingMarkup: '*',
 };
 
-export const STRIKETHROUGH_MD_TAG: TagDefinition = {
+export const STRIKETHROUGH_MD_TAG: HtmlTagDefinition = {
   tagName: 'strikethrough',
   domain: 'markdown',
   openingMarkup: '~~',
   closingMarkup: '~~',
 };
 
-export const HIGHLIGHT_MD_TAG: TagDefinition = {
+export const HIGHLIGHT_MD_TAG: HtmlTagDefinition = {
   tagName: 'highlight',
   domain: 'markdown',
   openingMarkup: '==',
@@ -61,28 +61,28 @@ export const HIGHLIGHT_MD_TAG: TagDefinition = {
 // HTML Equivalent Tag Definitions (used for domain conversion)
 // ============================================================
 
-export const BOLD_HTML_TAG: TagDefinition = {
+export const BOLD_HTML_TAG: HtmlTagDefinition = {
   tagName: 'b',
   domain: 'html',
   openingMarkup: '<b>',
   closingMarkup: '</b>',
 };
 
-export const ITALIC_HTML_TAG: TagDefinition = {
+export const ITALIC_HTML_TAG: HtmlTagDefinition = {
   tagName: 'i',
   domain: 'html',
   openingMarkup: '<i>',
   closingMarkup: '</i>',
 };
 
-export const STRIKETHROUGH_HTML_TAG: TagDefinition = {
+export const STRIKETHROUGH_HTML_TAG: HtmlTagDefinition = {
   tagName: 's',
   domain: 'html',
   openingMarkup: '<s>',
   closingMarkup: '</s>',
 };
 
-export const HIGHLIGHT_HTML_TAG: TagDefinition = {
+export const HIGHLIGHT_HTML_TAG: HtmlTagDefinition = {
   tagName: 'mark',
   domain: 'html',
   openingMarkup: '<mark>',
@@ -115,7 +115,7 @@ export const MARKDOWN_TO_HTML_CONVERSION_TABLE: MarkdownToHtmlConversionEntry[] 
 // MD Tag Name to HTML Tag Mapping (for domain conversion lookups)
 // ============================================================
 
-export const MARKDOWN_TO_HTML_TAG_MAP: Map<string, TagDefinition> = new Map([
+export const MARKDOWN_TO_HTML_TAG_MAP: Map<string, HtmlTagDefinition> = new Map([
   ['bold', BOLD_HTML_TAG],
   ['italic', ITALIC_HTML_TAG],
   ['strikethrough', STRIKETHROUGH_HTML_TAG],
@@ -125,7 +125,7 @@ export const MARKDOWN_TO_HTML_TAG_MAP: Map<string, TagDefinition> = new Map([
  * Known HTML tag name to TagDefinition mappings for standard tags.
  * Used by copyFormat to reconstruct TagDefinition from discovered tag ranges.
  */
-export const HTML_TAG_NAME_DEFINITIONS: Map<string, TagDefinition> = new Map([
+export const HTML_TAG_NAME_DEFINITIONS: Map<string, HtmlTagDefinition> = new Map([
   ['u', UNDERLINE_TAG],
   ['sub', SUBSCRIPT_TAG],
   ['sup', SUPERSCRIPT_TAG],
@@ -136,7 +136,7 @@ export const HTML_TAG_NAME_DEFINITIONS: Map<string, TagDefinition> = new Map([
 ]);
 
 /** Known Markdown tag name to TagDefinition mappings. */
-export const MARKDOWN_TAG_NAME_DEFINITIONS: Map<string, TagDefinition> = new Map([
+export const MARKDOWN_TAG_NAME_DEFINITIONS: Map<string, HtmlTagDefinition> = new Map([
   ['bold', BOLD_MD_TAG],
   ['italic', ITALIC_MD_TAG],
   ['strikethrough', STRIKETHROUGH_MD_TAG],

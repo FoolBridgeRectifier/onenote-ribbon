@@ -1,5 +1,5 @@
 import type {
-  TagDefinition,
+  HtmlTagDefinition,
   TextReplacement,
   StylingResult,
   StylingContext,
@@ -23,7 +23,7 @@ import {
 /**
  * Removes the first matching tag (enclosing or delimiter-inclusive) from the selection.
  */
-export function removeTag(context: StylingContext, tagDefinition: TagDefinition): StylingResult {
+export function removeTag(context: StylingContext, tagDefinition: HtmlTagDefinition): StylingResult {
   const { sourceText, selectionStartOffset, selectionEndOffset } = context;
   const allTagRanges = buildTagRanges(sourceText);
 

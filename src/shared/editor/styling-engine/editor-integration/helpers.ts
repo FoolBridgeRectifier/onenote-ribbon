@@ -1,5 +1,5 @@
 import type {
-  TagDefinition,
+  HtmlTagDefinition,
   CopiedFormat,
   RemoveAllTagsOptions,
   ObsidianEditor,
@@ -13,7 +13,7 @@ import { buildStylingContextFromEditor, applyStylingResult } from './EditorInteg
  * Toggles a formatting tag on or off for the current editor selection.
  * If the tag is present, removes it. If absent, adds it.
  */
-export function toggleTagInEditor(editor: ObsidianEditor, tagDefinition: TagDefinition): void {
+export function toggleTagInEditor(editor: ObsidianEditor, tagDefinition: HtmlTagDefinition): void {
   const context = buildStylingContextFromEditor(editor);
 
   if (context === null) {
@@ -28,7 +28,7 @@ export function toggleTagInEditor(editor: ObsidianEditor, tagDefinition: TagDefi
  * Adds a formatting tag to the current editor selection (never removes).
  * For span tags with the same CSS property, replaces the value instead of double-wrapping.
  */
-export function addTagInEditor(editor: ObsidianEditor, tagDefinition: TagDefinition): void {
+export function addTagInEditor(editor: ObsidianEditor, tagDefinition: HtmlTagDefinition): void {
   const context = buildStylingContextFromEditor(editor);
 
   if (context === null) {
@@ -42,7 +42,7 @@ export function addTagInEditor(editor: ObsidianEditor, tagDefinition: TagDefinit
 /**
  * Removes a specific formatting tag from around the current editor selection.
  */
-export function removeTagInEditor(editor: ObsidianEditor, tagDefinition: TagDefinition): void {
+export function removeTagInEditor(editor: ObsidianEditor, tagDefinition: HtmlTagDefinition): void {
   const context = buildStylingContextFromEditor(editor);
 
   if (context === null) {

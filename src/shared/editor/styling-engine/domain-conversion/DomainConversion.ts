@@ -1,4 +1,4 @@
-import type { TagDefinition, TextReplacement } from '../interfaces';
+import type { HtmlTagDefinition, TextReplacement } from '../interfaces';
 import type { HtmlTagRange } from '../../enclosing-html-tags/interfaces';
 import { MARKDOWN_TO_HTML_TAG_MAP } from '../constants';
 import { tagEnclosesSelection } from '../shared-helpers/tag-geometry/TagGeometry';
@@ -14,7 +14,7 @@ export function buildDomainConversionReplacements(
   sourceText: string,
   selectionStartOffset: number,
   selectionEndOffset: number,
-  tagDefinition: TagDefinition,
+  tagDefinition: HtmlTagDefinition,
   allTagRanges: HtmlTagRange[]
 ): TextReplacement[] {
   // Find enclosing MD tags that we need to convert

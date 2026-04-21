@@ -1,4 +1,4 @@
-import type { TagDefinition, StylingResult, FormattingDomain, ProtectedRange } from '../interfaces';
+import type { HtmlTagDefinition, StylingResult, FormattingDomain, ProtectedRange } from '../interfaces';
 import type { HtmlTagRange } from '../../enclosing-html-tags/interfaces';
 import { buildTagRanges } from '../../enclosing-html-tags/enclosingHtmlTags';
 import { wrapTextWithTag } from '../tag-manipulation/TagManipulation';
@@ -14,8 +14,8 @@ export function buildWrapReplacements(
   sourceText: string,
   selectionStartOffset: number,
   selectionEndOffset: number,
-  tagDefinition: TagDefinition,
-  effectiveTag: TagDefinition,
+  tagDefinition: HtmlTagDefinition,
+  effectiveTag: HtmlTagDefinition,
   domainResult: { domain: FormattingDomain; hasMarkdownTokens: boolean },
   structureContext: {
     protectedRanges: { startOffset: number; endOffset: number; tokenType: string }[];

@@ -1,4 +1,5 @@
 import { copyFormat } from './CopyFormat';
+import type { HtmlTagDefinition } from '../../interfaces';
 
 describe('copyFormat — known HTML tags', () => {
   it('returns underline tag definition for <u> wrapped content', () => {
@@ -6,14 +7,14 @@ describe('copyFormat — known HTML tags', () => {
     // Content "underlined text" is at offsets [3, 18] inside <u>...</u>
     const result = copyFormat(sourceText, 3, 18);
 
-    expect(result.tagDefinitions.some((td) => td.tagName === 'u')).toBe(true);
+    expect(result.tagDefinitions.some((td) => (td as HtmlTagDefinition).tagName === 'u')).toBe(true);
   });
 
   it('returns bold HTML tag definition for <b> wrapped content', () => {
     const sourceText = '<b>bold text</b>';
     const result = copyFormat(sourceText, 3, 12);
 
-    expect(result.tagDefinitions.some((td) => td.tagName === 'b')).toBe(true);
+    expect(result.tagDefinitions.some((td) => (td as HtmlTagDefinition).tagName === 'b')).toBe(true);
   });
 });
 
@@ -48,7 +49,7 @@ describe('copyFormat — span with inline style', () => {
 
     const result = copyFormat(sourceText, openingEnd, closingStart);
 
-    expect(result.tagDefinitions.some((td) => td.tagName === 'span')).toBe(true);
+    expect(result.tagDefinitions.some((td) => (td as HtmlTagDefinition).tagName === 'span')).toBe(true);
   });
 });
 

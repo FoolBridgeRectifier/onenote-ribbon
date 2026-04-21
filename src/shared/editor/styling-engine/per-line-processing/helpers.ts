@@ -1,4 +1,4 @@
-import type { TagDefinition, StructureContext } from '../interfaces';
+import type { HtmlTagDefinition, StructureContext } from '../interfaces';
 import type { HtmlTagRange } from '../../enclosing-html-tags/interfaces';
 import { MARKDOWN_TO_HTML_TAG_MAP } from '../constants';
 import {
@@ -49,7 +49,7 @@ export function lineHasMatchingTag(
   sourceText: string,
   rangeStart: number,
   rangeEnd: number,
-  tagDefinition: TagDefinition
+  tagDefinition: HtmlTagDefinition
 ): boolean {
   if (
     findEnclosingMatchingTag(allTagRanges, sourceText, rangeStart, rangeEnd, tagDefinition) !== null

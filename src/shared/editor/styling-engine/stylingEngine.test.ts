@@ -12,7 +12,7 @@ import {
 } from './constants';
 
 import { buildSpanTagDefinition } from './tag-manipulation/TagManipulation';
-import type { StylingContext, TextReplacement } from './interfaces';
+import type { StylingContext, TextReplacement, HtmlTagDefinition } from './interfaces';
 
 // ============================================================
 // Test Helpers
@@ -646,7 +646,7 @@ describe('copyFormat', () => {
     expect(result.domain).toBe('html');
     expect(result.tagDefinitions.length).toBeGreaterThanOrEqual(2);
 
-    const tagNames = result.tagDefinitions.map((tagDefinition) => tagDefinition.tagName);
+    const tagNames = result.tagDefinitions.map((tagDefinition) => (tagDefinition as HtmlTagDefinition).tagName);
     expect(tagNames).toContain('b');
     expect(tagNames).toContain('u');
   });
@@ -668,7 +668,7 @@ describe('copyFormat', () => {
     expect(result.domain).toBe('markdown');
     expect(result.tagDefinitions.length).toBeGreaterThanOrEqual(1);
 
-    const tagNames = result.tagDefinitions.map((tagDefinition) => tagDefinition.tagName);
+    const tagNames = result.tagDefinitions.map((tagDefinition) => (tagDefinition as HtmlTagDefinition).tagName);
     expect(tagNames).toContain('bold');
   });
 
@@ -681,8 +681,8 @@ describe('copyFormat', () => {
     expect(result.tagDefinitions.length).toBeGreaterThanOrEqual(1);
 
     const spanDefinition = result.tagDefinitions.find(
-      (tagDefinition) => tagDefinition.tagName === 'span'
-    );
+      (tagDefinition) => (tagDefinition as HtmlTagDefinition).tagName === 'span'
+    ) as HtmlTagDefinition | undefined;
     expect(spanDefinition).toBeDefined();
     expect(spanDefinition!.attributes).toEqual({ color: 'red' });
   });
@@ -695,7 +695,7 @@ describe('copyFormat', () => {
     expect(result.domain).toBe('html');
     expect(result.tagDefinitions.length).toBeGreaterThanOrEqual(3);
 
-    const tagNames = result.tagDefinitions.map((tagDefinition) => tagDefinition.tagName);
+    const tagNames = result.tagDefinitions.map((tagDefinition) => (tagDefinition as HtmlTagDefinition).tagName);
     expect(tagNames).toContain('b');
     expect(tagNames).toContain('span');
     expect(tagNames).toContain('u');

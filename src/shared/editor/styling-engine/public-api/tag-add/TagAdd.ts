@@ -1,4 +1,4 @@
-import type { TagDefinition, StylingResult, StylingContext } from '../../interfaces';
+import type { HtmlTagDefinition, StylingResult, StylingContext } from '../../interfaces';
 import { buildTagRanges } from '../../../enclosing-html-tags/enclosingHtmlTags';
 import { replaceOpeningTagAttribute } from '../../tag-manipulation/TagManipulation';
 import { detectStructureContext } from '../../structure-detection/StructureDetection';
@@ -13,7 +13,7 @@ import { shouldProcessPerLine, addTagPerLine } from '../../per-line-processing/P
  * For spans with the same CSS property already present, replaces the attribute value
  * instead of double-wrapping.
  */
-export function addTag(context: StylingContext, tagDefinition: TagDefinition): StylingResult {
+export function addTag(context: StylingContext, tagDefinition: HtmlTagDefinition): StylingResult {
   const { sourceText, selectionStartOffset, selectionEndOffset } = context;
 
   const structureContext = detectStructureContext(

@@ -3,7 +3,7 @@ import { toggleTag, addTag, removeTag, removeAllTags } from '../stylingEngine';
 import { UNDERLINE_TAG, BOLD_MD_TAG, HIGHLIGHT_MD_TAG } from '../constants';
 
 import { buildSpanTagDefinition } from '../tag-manipulation/TagManipulation';
-import type { StylingContext, TextReplacement, TagDefinition } from '../interfaces';
+import type { StylingContext, TextReplacement, HtmlTagDefinition } from '../interfaces';
 
 // ============================================================
 // Test Helpers
@@ -39,7 +39,7 @@ function applyAddTag(
   sourceText: string,
   startOffset: number,
   endOffset: number,
-  tagDefinition: TagDefinition
+  tagDefinition: HtmlTagDefinition
 ): string {
   const context = createContext(sourceText, startOffset, endOffset);
   const result = addTag(context, tagDefinition);
