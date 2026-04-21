@@ -1,3 +1,5 @@
+import type { Editor } from 'obsidian';
+
 import {
   addTag,
   removeTag,
@@ -5,6 +7,27 @@ import {
 import { ACTIVE_TAG_KEY_TASK } from '../constants';
 import type { TagDefinition } from '../interfaces';
 import type { TagDropdownSelectContext } from './interfaces';
+
+/**
+ * Toggles a named callout on the active editor line:
+ * removes it when already active, applies it when inactive.
+ */
+export function applyCalloutToggle(
+  getEditor: () => Editor | undefined,
+  activeTagKeys: Set<string>,
+  calloutKey: string,
+  calloutType: string
+): void {
+  const editor = getEditor();
+  if (!editor) return;
+
+  if (activeTagKeys.has(calloutKey)) {
+    removeTag(editor, { kind: 'callout', calloutTitle: calloutKey });
+    return;
+  }
+
+  addTag(editor, { kind: 'callout', calloutType, calloutTitle: calloutKey });
+}
 
 /**
  * Applies the appropriate callout action when a dropdown item is selected,

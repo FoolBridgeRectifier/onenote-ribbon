@@ -1,4 +1,4 @@
-import { selectTagFromDropdown } from './helpers';
+import { selectTagFromDropdown, applyCalloutToggle } from './helpers';
 import type { TagDefinition } from '../interfaces';
 import type { TagDropdownSelectContext } from './interfaces';
 import { ACTIVE_TAG_KEY_TASK } from '../constants';
@@ -155,5 +155,53 @@ describe('selectTagFromDropdown — isDisabled path', () => {
     );
     expect(setMoreMenuOpen).not.toHaveBeenCalled();
     expect(addTagMock).not.toHaveBeenCalled();
+  });
+});
+
+describe('applyCalloutToggle', () => {
+  it('calls addTag when the callout key is not active', () => {
+    const fakeEditor = {};
+    applyCalloutToggle(
+      () => fakeEditor as never,
+      new Set(),
+      'Important',
+      'important'
+    );
+    expect(addTagMock).toHaveBeenCalledWith(fakeEditor, { kind: 'callout', calloutType: 'important', calloutTitle: 'Important' });
+    expect(removeTagMock).not.toHaveBeenCalled();
+  });
+
+  it('calls removeTag when the callout key is already active', () => {
+    const fakeEditor = {};
+    applyCalloutToggle(
+      () => fakeEditor as never,
+      new Set(['Important']),
+      'Important',
+      'important'
+    );
+    expect(removeTagMock).toHaveBeenCalledWith(fakeEditor, { kind: 'callout', calloutTitle: 'Important' });
+    expect(addTagMock).not.toHaveBeenCalled();
+  });
+
+  it('calls neither addTag nor removeTag when getEditor returns undefined', () => {
+    applyCalloutToggle(
+      () => undefined,
+      new Set(),
+      'Question',
+      'question'
+    );
+    expect(addTagMock).not.toHaveBeenCalled();
+    expect(removeTagMock).not.toHaveBeenCalled();
+  });
+
+  it('uses the calloutKey as calloutTitle and calloutType as the type argument', () => {
+    const fakeEditor = {};
+    applyCalloutToggle(
+      () => fakeEditor as never,
+      new Set(),
+      'Question',
+      'question'
+    );
+    expect(addTagMock).toHaveBeenCalledWith(fakeEditor, { kind: 'callout', calloutType: 'question', calloutTitle: 'Question' });
   });
 });

@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 
 import {
   addTag,
-  removeTag,
   toggleTag,
 } from '../../../../shared/editor/styling-engine/stylingEngine';
 import { ACTIVE_TAG_KEY_TASK, EDITOR_COMMAND_OPEN_GLOBAL_SEARCH } from '../constants';
@@ -11,7 +10,7 @@ import type { CustomTag } from '../customize-modal/interfaces';
 import type { TagDefinition } from '../interfaces';
 import type { AppWithCommands } from '../../../../shared/context/interfaces';
 import type { TagHandlersOptions } from './interfaces';
-import { selectTagFromDropdown } from './helpers';
+import { selectTagFromDropdown, applyCalloutToggle } from './helpers';
 import { EDITOR_COMMAND_TOGGLE_CHECKLIST, CALLOUT_TITLE_WITH_CONTENT_PATTERN } from './constants';
 
 export function useTagHandlers({
@@ -50,27 +49,17 @@ export function useTagHandlers({
     executeCommand(EDITOR_COMMAND_TOGGLE_CHECKLIST);
   }, [getEditor, activeTagKeys, executeCommand]);
 
-  // Uses removeCalloutByKey so clicking Important only removes the Important callout,
+  // Uses applyCalloutToggle so clicking Important only removes the Important callout,
   // not a nested callout that happens to be innermost.
-  const handleImportant = useCallback(() => {
-    const editor = getEditor();
-    if (!editor) return;
-    if (activeTagKeys.has('Important')) {
-      removeTag(editor, { kind: 'callout', calloutTitle: 'Important' });
-      return;
-    }
-    addTag(editor, { kind: 'callout', calloutType: 'important', calloutTitle: 'Important' });
-  }, [getEditor, activeTagKeys]);
+  const handleImportant = useCallback(
+    () => applyCalloutToggle(getEditor, activeTagKeys, 'Important', 'important'),
+    [getEditor, activeTagKeys]
+  );
 
-  const handleQuestion = useCallback(() => {
-    const editor = getEditor();
-    if (!editor) return;
-    if (activeTagKeys.has('Question')) {
-      removeTag(editor, { kind: 'callout', calloutTitle: 'Question' });
-      return;
-    }
-    addTag(editor, { kind: 'callout', calloutType: 'question', calloutTitle: 'Question' });
-  }, [getEditor, activeTagKeys]);
+  const handleQuestion = useCallback(
+    () => applyCalloutToggle(getEditor, activeTagKeys, 'Question', 'question'),
+    [getEditor, activeTagKeys]
+  );
 
   const handleFindTags = useCallback(() => {
     executeCommand(EDITOR_COMMAND_OPEN_GLOBAL_SEARCH);

@@ -20,6 +20,8 @@ jest.mock('../tag-storage/TagStorage', () => ({
 
 jest.mock('./helpers', () => ({
   selectTagFromDropdown: (...args: unknown[]) => selectTagFromDropdownMock(...args),
+  // Use the real applyCalloutToggle so handleImportant/handleQuestion tests remain meaningful
+  applyCalloutToggle: jest.requireActual('./helpers').applyCalloutToggle,
 }));
 
 function buildOptions(overrides: Partial<TagHandlersOptions> = {}): TagHandlersOptions {
