@@ -63,6 +63,8 @@ onenote-ribbon/
 └── tsconfig.json
 ```
 
+**Immutable Rule:** All formatting must be handled by the shared/editor/ styling engine. All detection must be performed on enclosed HTML tags. This separation is strict and non-negotiable.
+
 ---
 
 ## 4. Module Layout And File Limits (Strict)

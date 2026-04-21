@@ -1,0 +1,4 @@
+need to fix bullets for text size
+full rich text view
+shortcuts
+toggle tag tracking

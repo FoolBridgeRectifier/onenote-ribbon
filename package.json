@@ -13,7 +13,7 @@
     "run:e2e": "tsx scripts/e2e/run-e2e.ts --launch --code-coverage --coverage-html --coverage-report",
     "test:e2e:launch": "tsx scripts/e2e/run-e2e.ts --launch --code-coverage --coverage-html --coverage-report",
     "test:e2e:home": "tsx scripts/e2e/run-e2e.ts --suite home,home-combinations,basic-text,clipboard,styles,tags,email,navigate --code-coverage --coverage-html --coverage-report",
-    "test:e2e:coverage": "tsx scripts/e2e/run-e2e.ts --launch --suite home,home-combinations,basic-text,clipboard,styles,tags,email,navigate,edge-cases,ribbon-components --code-coverage --coverage-html --coverage-report",
+    "test:e2e:coverage": "tsx scripts/e2e/run-e2e.ts --launch --suite home,home-combinations,basic-text,clipboard,styles,tags,email,navigate,edge-cases,ribbon-components,tag-manipulation-deep,styles-deep,formatting-deep,tags-removal,editor-integration-deep,shared-hooks,shared-context,list-deep,color-picker-deep,multiline-formatting-deep,tag-apply-deep,tag-dropdown-deep,format-painter-apply,highlight-color-deep,per-line-deep,domain-conversion-deep,clear-formatting-deep,inline-todo-deep,tag-apply-more,tag-toggle-deep,per-line-html-deep,highlight-helpers-branch,span-state-branch --code-coverage --coverage-html --coverage-report",
     "test:e2e:coverage:check": "tsx scripts/e2e/run-e2e.ts --launch --code-coverage --coverage-html --coverage-report --coverage-threshold 80",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

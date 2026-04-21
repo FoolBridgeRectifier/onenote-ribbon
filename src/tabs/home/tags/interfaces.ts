@@ -12,8 +12,7 @@ export type TagAction =
       /** Optional title text written after [!type] and used for cursor detection. */
       calloutTitle?: string;
     }
-  | { type: 'task'; taskPrefix: string }
-  | { type: 'highlight' };
+  | { type: 'task'; taskPrefix: string };
 
 /** A single selectable tag entry shown in the dropdown. */
 export interface TagDefinition {

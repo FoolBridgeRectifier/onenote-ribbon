@@ -13,7 +13,7 @@ import { ACTIVE_TAG_KEY_HIGHLIGHT, ACTIVE_TAG_KEY_TASK } from './constants';
 import type { CustomTag } from './customize-modal/interfaces';
 import { CustomizeTagsModal } from './customize-modal/CustomizeModal';
 import { loadCustomTags, buildCustomTagDefinition } from './tag-storage/TagStorage';
-import { useTagHandlers } from '../../../shared/editor/enclosing-html-tags/use-tag-handlers/UseTagHandlers';
+import { useTagHandlers } from './use-tag-handlers/UseTagHandlers';
 import { TagStack } from './tag-stack/TagStack';
 
 export function TagsGroup() {

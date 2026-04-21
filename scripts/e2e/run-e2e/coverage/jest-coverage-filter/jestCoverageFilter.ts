@@ -1,7 +1,4 @@
-import * as fs from 'fs';
-import * as path from 'path';
-
-import { JEST_CONFIG_FILENAME } from './constants';
+import { readJestConfigArray } from './helpers';
 
 /**
  * Converts a glob pattern to a RegExp.
@@ -62,12 +59,15 @@ export function normalizeRawSourcePath(rawPath: string): string {
 /**
  * Returns true when the given normalized source path should be included in
  * coverage, applying the same include/exclude rules as jest's collectCoverageFrom.
+ * When ignorePatterns is provided it also applies jest's coveragePathIgnorePatterns
+ * (raw regex strings), giving exact parity with jest's full coverage configuration.
  *
- * If patterns is empty every file is accepted (no config available).
+ * If collectCoverageFromPatterns is empty every file is accepted (no config available).
  */
 export function shouldIncludeSourceFile(
   normalizedPath: string,
-  collectCoverageFromPatterns: string[]
+  collectCoverageFromPatterns: string[],
+  ignorePatterns: string[] = []
 ): boolean {
   if (collectCoverageFromPatterns.length === 0) {
     return true;
@@ -86,39 +86,41 @@ export function shouldIncludeSourceFile(
 
   const isExcluded = excludePatterns.some((pattern) => globToRegex(pattern).test(normalizedPath));
 
-  return !isExcluded;
+  if (isExcluded) {
+    return false;
+  }
+
+  // Apply coveragePathIgnorePatterns as raw regex patterns (same as jest)
+  return !matchesIgnorePattern(normalizedPath, ignorePatterns);
 }
 
 /**
- * Reads the collectCoverageFrom array from jest.config.js by parsing the file
- * as text so it is compatible with both CJS and ESM contexts.
+ * Returns true when normalizedPath matches any of the raw regex strings from
+ * jest's coveragePathIgnorePatterns.  Each entry is treated as a regex pattern,
+ * mirroring the way jest applies coveragePathIgnorePatterns.
+ */
+export function matchesIgnorePattern(normalizedPath: string, ignorePatterns: string[]): boolean {
+  return ignorePatterns.some((rawPattern) => {
+    try {
+      return new RegExp(rawPattern).test(normalizedPath);
+    } catch {
+      return false;
+    }
+  });
+}
+
+/**
+ * Reads the coveragePathIgnorePatterns array from jest.config.js.
+ * Returns an empty array when the config cannot be read.
+ */
+export function readCoveragePathIgnorePatterns(rootPath: string): string[] {
+  return readJestConfigArray(rootPath, 'coveragePathIgnorePatterns');
+}
+
+/**
+ * Reads the collectCoverageFrom array from jest.config.js.
  * Returns an empty array when the config cannot be read or parsed.
  */
 export function readCollectCoverageFrom(rootPath: string): string[] {
-  const jestConfigPath = path.join(rootPath, JEST_CONFIG_FILENAME);
-
-  if (!fs.existsSync(jestConfigPath)) {
-    return [];
-  }
-
-  try {
-    const configText = fs.readFileSync(jestConfigPath, 'utf8');
-
-    // Extract the array body between collectCoverageFrom: [ ... ]
-    const arrayBodyMatch = configText.match(/collectCoverageFrom\s*:\s*\[([\s\S]*?)\]/);
-    if (!arrayBodyMatch) {
-      return [];
-    }
-
-    // Extract every quoted string from the array body
-    const quotedEntries = arrayBodyMatch[1].match(/["']([^"']+)["']/g);
-    if (!quotedEntries) {
-      return [];
-    }
-
-    // Strip surrounding quotes from each matched entry
-    return quotedEntries.map((entry) => entry.slice(1, -1));
-  } catch {
-    return [];
-  }
+  return readJestConfigArray(rootPath, 'collectCoverageFrom');
 }

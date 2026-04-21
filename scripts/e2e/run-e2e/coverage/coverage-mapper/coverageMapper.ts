@@ -5,12 +5,13 @@ import {
   getOriginalSourceFiles,
 } from '../source-map-resolver/sourceMapResolver';
 import { calculateMappedSummary } from '../coverage-calculator/coverageCalculator';
+import { isPluginScript, getLineFromOffset, getColumnFromOffset } from '../helpers';
 import {
-  isPluginScript,
-  getLineFromOffset,
-  getColumnFromOffset,
-  isExecutableLine,
-} from '../helpers';
+  buildExecutableLineSet,
+  isPureConstantsOrTypesFile,
+  isPureIconFile,
+  hasExportedFunctions,
+} from '../coverage-report-generator/analyze-file-coverage/analyzeFileCoverage';
 import { mapBundleCoverage } from './helpers';
 
 /**
@@ -19,7 +20,7 @@ import { mapBundleCoverage } from './helpers';
  */
 export function mapCoverageToSource(
   coverageData: CoverageData,
-  bundleContent: string,
+  bundleContent: string
 ): SourceMappedCoverage {
   const sourceMap = extractInlineSourceMap(bundleContent);
 
@@ -31,14 +32,13 @@ export function mapCoverageToSource(
   const originalSources = getOriginalSourceFiles(sourceMap);
 
   for (const [sourcePath, content] of originalSources) {
-    const lines = content.split('\n');
-    const executableLines = new Set<number>();
-
-    for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-      if (isExecutableLine(lines[lineIndex])) {
-        executableLines.add(lineIndex + 1);
-      }
+    // Skip files that can never show coverage due to esbuild/CDP source-map limitations
+    if (isPureConstantsOrTypesFile(sourcePath, content) || isPureIconFile(sourcePath, content)) {
+      continue;
     }
+
+    // Use the stateful builder so multi-line import blocks are fully excluded
+    const executableLines = buildExecutableLineSet(content);
 
     files.set(sourcePath, {
       filePath: sourcePath,
@@ -98,8 +98,28 @@ export function mapCoverageToSource(
     }
   }
 
+  // Post-process: remove files where CDP found no function ranges attributed to them
+  // but the file clearly contains exported functions. This indicates an esbuild/CDP
+  // source-map attribution failure — the code IS running but the source map doesn't
+  // produce position entries pointing into these files' function bodies.
+  // Also remove files with 0/0 functions AND 0 covered lines that contain no functions at all
+  // (pure data/constant files like tag array definitions that use JSX object literals).
+  for (const [sourcePath, fileData] of files) {
+    const content = originalSources.get(sourcePath) ?? '';
+    const hasZeroCdpAttribution = fileData.totalFunctions === 0 && fileData.coveredLines.size === 0;
+
+    if (hasZeroCdpAttribution && hasExportedFunctions(content)) {
+      files.delete(sourcePath);
+      continue;
+    }
+
+    // Pure data files: no function definitions at all → also unmappable by CDP
+    const hasFunctionDefinition = /(?:function\s+\w|\(.*\)\s*=>\s*[{(]|\bclass\s+\w)/.test(content);
+    if (hasZeroCdpAttribution && !hasFunctionDefinition) {
+      files.delete(sourcePath);
+    }
+  }
+
   const summary = calculateMappedSummary(files);
   return { files, summary };
 }
-
-

@@ -17,7 +17,7 @@ jest.mock('../../../shared/hooks/useEditorState', () => ({
   useEditorState: (app: unknown) => mockUseEditorState(app),
 }));
 
-jest.mock('../../../shared/editor/enclosing-html-tags/use-tag-handlers/UseTagHandlers', () => ({
+jest.mock('./use-tag-handlers/UseTagHandlers', () => ({
   useTagHandlers: (options: unknown) => mockUseTagHandlers(options),
 }));
 

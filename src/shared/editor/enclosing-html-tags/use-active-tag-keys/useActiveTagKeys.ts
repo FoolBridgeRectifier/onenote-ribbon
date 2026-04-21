@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { App, Editor } from 'obsidian';
 
-import { detectActiveTagKeys } from '../../styling-engine/tag-apply/helpers/detect-active-tag-keys/DetectActiveTagKeys';
+import { detectActiveTagKeys } from '../../styling-engine/callout-apply/helpers/detect-active-tag-keys/DetectActiveTagKeys';
 import { SELECTION_CHANGE_THROTTLE_MS } from './constants';
 
 /**

@@ -126,4 +126,18 @@ describe('shouldIncludeSourceFile', () => {
   it('excludes a file in src/ribbon via negation pattern', () => {
     expect(shouldIncludeSourceFile('src/ribbon/Ribbon.ts', SAMPLE_PATTERNS)).toBe(false);
   });
+
+  it('excludes a file that matches a coveragePathIgnorePattern regex', () => {
+    const ignorePatterns = ['\\.test\\.(ts|tsx|cjs)$'];
+    expect(
+      shouldIncludeSourceFile('src/shared/hooks/useApp.ts', SAMPLE_PATTERNS, ignorePatterns)
+    ).toBe(true);
+    expect(
+      shouldIncludeSourceFile('src/shared/hooks/useApp.test.ts', SAMPLE_PATTERNS, ignorePatterns)
+    ).toBe(false);
+  });
+
+  it('accepts an included file when ignorePatterns is empty', () => {
+    expect(shouldIncludeSourceFile('src/shared/hooks/useApp.ts', SAMPLE_PATTERNS, [])).toBe(true);
+  });
 });

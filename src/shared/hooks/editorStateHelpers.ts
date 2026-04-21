@@ -1,7 +1,7 @@
 import type { App } from 'obsidian';
 import type { EnclosingHtmlTagFinder } from '../editor/enclosing-html-tags/enclosingHtmlTags';
 import { createEnclosingHtmlTagFinder } from '../editor/enclosing-html-tags/enclosingHtmlTags';
-import { detectActiveTagKeys } from '../editor/styling-engine/tag-apply/helpers/detect-active-tag-keys/DetectActiveTagKeys';
+import { detectActiveTagKeys } from '../editor/styling-engine/callout-apply/helpers/detect-active-tag-keys/DetectActiveTagKeys';
 import type { EditorState } from './interfaces';
 import { TAG_NAME_TO_STATE_FIELD } from './constants';
 import { extractSpanAndDivState } from './spanState';

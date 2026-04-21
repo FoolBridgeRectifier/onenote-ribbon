@@ -5,6 +5,7 @@ import { mapCoverageToSource } from '../cdpCoverage';
 import type { MappedCoverageData } from '../interfaces';
 import {
   readCollectCoverageFrom,
+  readCoveragePathIgnorePatterns,
   normalizeRawSourcePath,
   shouldIncludeSourceFile,
 } from '../jest-coverage-filter/jestCoverageFilter';
@@ -36,9 +37,14 @@ export function generateDetailedReport(
   if (bundleContent) {
     const mappedCoverage = mapCoverageToSource(coverageData, bundleContent);
 
-    // Filter to only the files jest would include via collectCoverageFrom
+    // Filter to only the files jest would include via collectCoverageFrom and coveragePathIgnorePatterns
     const coverageFromPatterns = rootPath ? readCollectCoverageFrom(rootPath) : [];
-    const filteredFiles = filterAndNormalizeMappedFiles(mappedCoverage.files, coverageFromPatterns);
+    const ignorePatterns = rootPath ? readCoveragePathIgnorePatterns(rootPath) : [];
+    const filteredFiles = filterAndNormalizeMappedFiles(
+      mappedCoverage.files,
+      coverageFromPatterns,
+      ignorePatterns
+    );
 
     const files = convertMappedToFileCoverage(filteredFiles);
     // Recalculate summary so it reflects the filtered file set
@@ -87,19 +93,20 @@ export function generateDetailedReport(
 
 /**
  * Filters mapped coverage files using jest's collectCoverageFrom patterns and
- * normalizes raw source map paths (e.g. ../../src/foo.ts → src/foo.ts).
+ * coveragePathIgnorePatterns, normalizing raw source map paths (e.g. ../../src/foo.ts → src/foo.ts).
  * When no patterns are provided every file is retained as-is.
  */
 function filterAndNormalizeMappedFiles(
   mappedFiles: Map<string, MappedCoverageData>,
-  collectCoverageFromPatterns: string[]
+  collectCoverageFromPatterns: string[],
+  ignorePatterns: string[] = []
 ): Map<string, MappedCoverageData> {
   const filtered = new Map<string, MappedCoverageData>();
 
   for (const [rawPath, data] of mappedFiles) {
     const normalizedPath = normalizeRawSourcePath(rawPath);
 
-    if (!shouldIncludeSourceFile(normalizedPath, collectCoverageFromPatterns)) {
+    if (!shouldIncludeSourceFile(normalizedPath, collectCoverageFromPatterns, ignorePatterns)) {
       continue;
     }
 

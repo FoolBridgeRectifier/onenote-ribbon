@@ -27,7 +27,7 @@ export function useTagHandlers({
 
   const executeCommand = useCallback(
     (commandId: string) => {
-      // Obsidian's public App doesn't expose `commands`; internal API required
+      // eslint-disable-next-line strict-structure/no-double-cast -- Obsidian's public App doesn't expose `commands`; internal API required
       (app as unknown as AppWithCommands).commands.executeCommandById(commandId);
     },
     [app]

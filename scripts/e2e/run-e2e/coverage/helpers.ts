@@ -52,18 +52,52 @@ export function getColumnFromOffset(source: string, offset: number): number {
 /** Returns true if the line contains executable code (not whitespace or comments). */
 export function isExecutableLine(line: string): boolean {
   const trimmed = line.trim();
+
   if (trimmed.length === 0) {
     return false;
   }
+
+  // Single-line comments
   if (trimmed.startsWith('//')) {
     return false;
   }
+
+  // Inline block comments (e.g. /* ... */ on one line)
   if (trimmed.startsWith('/*') && trimmed.endsWith('*/')) {
     return false;
   }
+
+  // JSDoc / block comment body lines
   if (trimmed.startsWith('*')) {
     return false;
   }
+
+  // TypeScript/ESM import statements — these compile away in the bundle and
+  // cannot be tracked individually by CDP, so they always appear as uncovered.
+  if (/^import[\s{'"*]/.test(trimmed)) {
+    return false;
+  }
+
+  // Pure type-only exports (no runtime value)
+  if (/^export\s+type\s/.test(trimmed)) {
+    return false;
+  }
+
+  // Re-export statements without a value body: export { X } or export { X } from 'Y'
+  if (
+    /^export\s*\{/.test(trimmed) &&
+    !trimmed.includes('=>') &&
+    !trimmed.includes('function') &&
+    !trimmed.includes('class')
+  ) {
+    return false;
+  }
+
+  // Lines that are purely closing punctuation for import blocks (e.g. `} from './foo';`)
+  if (/^\}\s+from\s+['"]/.test(trimmed)) {
+    return false;
+  }
+
   return true;
 }
 
