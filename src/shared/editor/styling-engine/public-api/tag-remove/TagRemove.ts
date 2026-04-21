@@ -27,11 +27,7 @@ import {
 import { removeActiveCallout as removeInnermostCallout } from '../../callout-apply/helpers/remove-active-callout/RemoveActiveCallout';
 import { removeCalloutByKey } from '../../callout-apply/helpers/remove-callout-by-key/RemoveCalloutByKey';
 import { removeActiveCheckbox as removeCheckbox } from '../../callout-apply/helpers/remove-active-checkbox/RemoveActiveCheckbox';
-
-/** Returns true when the first argument is an Obsidian editor instance (has getCursor). */
-function isObsidianEditor(input: unknown): input is ObsidianEditor {
-  return typeof (input as ObsidianEditor).getCursor === 'function';
-}
+import { isObsidianEditor } from '../isObsidianEditor';
 
 /**
  * Removes the first matching tag (enclosing or delimiter-inclusive) from the selection.

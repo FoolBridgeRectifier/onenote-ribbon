@@ -9,6 +9,7 @@ import { resolveTagForDomain } from '../../shared-helpers/SharedHelpers';
 import { buildWrapReplacements } from '../../wrap-replacements/WrapReplacements';
 import { shouldProcessPerLine, addTagPerLine } from '../../per-line-processing/PerLineProcessing';
 import { applyCallout, applyTask } from '../../callout-apply/calloutApply';
+import { isObsidianEditor } from '../isObsidianEditor';
 
 /**
  * Adds a formatting tag to the selection (never removes).
@@ -79,11 +80,6 @@ function addHtmlTag(context: StylingContext, tagDefinition: HtmlTagDefinition): 
     structureContext,
     null
   );
-}
-
-/** Returns true when the first argument is an Obsidian editor instance (has getCursor). */
-function isObsidianEditor(input: unknown): input is ObsidianEditor {
-  return typeof (input as ObsidianEditor).getCursor === 'function';
 }
 
 export function addTag(context: StylingContext, tagDefinition: HtmlTagDefinition): StylingResult;

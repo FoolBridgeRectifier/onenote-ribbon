@@ -52,6 +52,7 @@ module.exports = {
     "!src/**/*.test.tsx",
     "!src/**/*.integration.ts",
     "!src/**/*.combinations.ts",
+    "!src/shared/editor/styling-engine/interfaces.ts",
   ],
   coveragePathIgnorePatterns: [
     "/node_modules/",

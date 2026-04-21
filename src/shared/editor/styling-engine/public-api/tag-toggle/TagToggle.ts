@@ -21,11 +21,7 @@ import {
   toggleTagPerLine,
 } from '../../per-line-processing/PerLineProcessing';
 import { addTag } from '../tag-add/TagAdd';
-
-/** Returns true when the first argument is an Obsidian editor instance (has getCursor). */
-function isObsidianEditor(input: unknown): input is ObsidianEditor {
-  return typeof (input as ObsidianEditor).getCursor === 'function';
-}
+import { isObsidianEditor } from '../isObsidianEditor';
 
 /** Toggles a formatting tag on/off for the given selection; removes it if present, adds it if absent (handles domain conversion and protected ranges). */
 function toggleHtmlTag(context: StylingContext, tagDefinition: HtmlTagDefinition): StylingResult {
