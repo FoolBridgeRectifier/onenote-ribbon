@@ -16,9 +16,7 @@ jest.mock('../editor/styling-engine/editor-integration/helpers', () => ({
 const mockedCopyFormatFromEditor = copyFormatFromEditor as jest.MockedFunction<
   typeof copyFormatFromEditor
 >;
-const mockedAddTagInEditor = addTagInEditor as jest.MockedFunction<
-  typeof addTagInEditor
->;
+const mockedAddTagInEditor = addTagInEditor as jest.MockedFunction<typeof addTagInEditor>;
 
 const copiedFormatFixture: CopiedFormat = {
   tagDefinitions: [
@@ -60,9 +58,7 @@ describe('useFormatPainter', () => {
 
     mockedCopyFormatFromEditor.mockReturnValue(copiedFormatFixture);
 
-    const { result } = renderHook(() =>
-      useFormatPainter(app as unknown as App),
-    );
+    const { result } = renderHook(() => useFormatPainter(app as unknown as App));
 
     act(() => {
       result.current.handleSingleClick(1);
@@ -71,9 +67,7 @@ describe('useFormatPainter', () => {
     expect(result.current.state.mode).toBe('armed');
 
     act(() => {
-      editorContainerElement.dispatchEvent(
-        new MouseEvent('click', { bubbles: true }),
-      );
+      editorContainerElement.dispatchEvent(new MouseEvent('click', { bubbles: true }));
       jest.advanceTimersByTime(100);
     });
 
@@ -86,9 +80,7 @@ describe('useFormatPainter', () => {
 
     mockedCopyFormatFromEditor.mockReturnValue(copiedFormatFixture);
 
-    const { result } = renderHook(() =>
-      useFormatPainter(app as unknown as App),
-    );
+    const { result } = renderHook(() => useFormatPainter(app as unknown as App));
 
     act(() => {
       result.current.handleSingleClick(1);
@@ -112,9 +104,7 @@ describe('useFormatPainter', () => {
 
     mockedCopyFormatFromEditor.mockReturnValue(copiedFormatFixture);
 
-    const { result } = renderHook(() =>
-      useFormatPainter(app as unknown as App),
-    );
+    const { result } = renderHook(() => useFormatPainter(app as unknown as App));
 
     act(() => {
       result.current.handleDoubleClick();
@@ -125,18 +115,14 @@ describe('useFormatPainter', () => {
     editor.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 5 });
 
     act(() => {
-      editorContainerElement.dispatchEvent(
-        new MouseEvent('click', { bubbles: true }),
-      );
+      editorContainerElement.dispatchEvent(new MouseEvent('click', { bubbles: true }));
       jest.advanceTimersByTime(100);
     });
 
     editor.setSelection({ line: 0, ch: 6 }, { line: 0, ch: 12 });
 
     act(() => {
-      editorContainerElement.dispatchEvent(
-        new MouseEvent('click', { bubbles: true }),
-      );
+      editorContainerElement.dispatchEvent(new MouseEvent('click', { bubbles: true }));
       jest.advanceTimersByTime(100);
     });
 
@@ -149,9 +135,7 @@ describe('useFormatPainter', () => {
 
     mockedCopyFormatFromEditor.mockReturnValue(copiedFormatFixture);
 
-    const { result } = renderHook(() =>
-      useFormatPainter(app as unknown as App),
-    );
+    const { result } = renderHook(() => useFormatPainter(app as unknown as App));
 
     act(() => {
       result.current.handleDoubleClick();
@@ -171,9 +155,7 @@ describe('useFormatPainter', () => {
 
     mockedCopyFormatFromEditor.mockReturnValue(null);
 
-    const { result } = renderHook(() =>
-      useFormatPainter(app as unknown as App),
-    );
+    const { result } = renderHook(() => useFormatPainter(app as unknown as App));
 
     act(() => {
       result.current.handleSingleClick(1);
@@ -185,6 +167,123 @@ describe('useFormatPainter', () => {
       result.current.handleDoubleClick();
     });
 
+    expect(result.current.state.mode).toBe('idle');
+  });
+
+  it('handles noop outcome on single click with clickCount > 1', () => {
+    const { app } = createAppWithEditor('hello world');
+
+    mockedCopyFormatFromEditor.mockReturnValue(copiedFormatFixture);
+
+    const { result } = renderHook(() => useFormatPainter(app as unknown as App));
+
+    // Click count > 1 should result in noop
+    act(() => {
+      result.current.handleSingleClick(2);
+    });
+
+    // Should stay idle since clickCount > 1 results in noop
+    expect(result.current.state.mode).toBe('idle');
+  });
+
+  it('handles cancel outcome on single click when already armed', () => {
+    const { app } = createAppWithEditor('hello world');
+
+    mockedCopyFormatFromEditor.mockReturnValue(copiedFormatFixture);
+
+    const { result } = renderHook(() => useFormatPainter(app as unknown as App));
+
+    // First arm the painter
+    act(() => {
+      result.current.handleSingleClick(1);
+    });
+    expect(result.current.state.mode).toBe('armed');
+
+    // Second single click should cancel
+    act(() => {
+      result.current.handleSingleClick(1);
+    });
+    expect(result.current.state.mode).toBe('idle');
+  });
+
+  it('handles promote-to-locked outcome when double clicking while armed', () => {
+    const { app } = createAppWithEditor('hello world');
+
+    mockedCopyFormatFromEditor.mockReturnValue(copiedFormatFixture);
+
+    const { result } = renderHook(() => useFormatPainter(app as unknown as App));
+
+    // First arm the painter
+    act(() => {
+      result.current.handleSingleClick(1);
+    });
+    expect(result.current.state.mode).toBe('armed');
+
+    // Double click should promote to locked without copying format again
+    act(() => {
+      result.current.handleDoubleClick();
+    });
+
+    expect(result.current.state.mode).toBe('locked');
+    // Should only copy format once (during single click)
+    expect(mockedCopyFormatFromEditor).toHaveBeenCalledTimes(1);
+  });
+
+  it('handles cancel outcome on double click when already locked', () => {
+    const { app } = createAppWithEditor('hello world');
+
+    mockedCopyFormatFromEditor.mockReturnValue(copiedFormatFixture);
+
+    const { result } = renderHook(() => useFormatPainter(app as unknown as App));
+
+    // First lock the painter
+    act(() => {
+      result.current.handleDoubleClick();
+    });
+    expect(result.current.state.mode).toBe('locked');
+
+    // Second double click should cancel
+    act(() => {
+      result.current.handleDoubleClick();
+    });
+    expect(result.current.state.mode).toBe('idle');
+  });
+
+  it('handles empty tagDefinitions when copying format', () => {
+    const { app } = createAppWithEditor('hello world');
+
+    // Return format with empty tag definitions
+    mockedCopyFormatFromEditor.mockReturnValue({
+      tagDefinitions: [],
+      domain: 'html',
+    });
+
+    const { result } = renderHook(() => useFormatPainter(app as unknown as App));
+
+    act(() => {
+      result.current.handleSingleClick(1);
+    });
+
+    // Should stay idle since there are no tags to apply
+    expect(result.current.state.mode).toBe('idle');
+  });
+
+  it('handles empty tagDefinitions on double click', () => {
+    const { app } = createAppWithEditor('hello world');
+
+    // Return format with empty tag definitions
+    mockedCopyFormatFromEditor.mockReturnValue({
+      tagDefinitions: [],
+      domain: 'html',
+    });
+
+    const { result } = renderHook(() => useFormatPainter(app as unknown as App));
+
+    act(() => {
+      result.current.handleDoubleClick();
+    });
+
+    // Should stay idle since there are no tags to apply
     expect(result.current.state.mode).toBe('idle');
   });
 });

@@ -33,9 +33,7 @@ export function FontPicker({ editorState }: FontPickerProps) {
   };
 
   // Display font/size from cursor position via editorState
-  const displayedFont = editorState.fontFamily === 'default'
-    ? 'Font'
-    : editorState.fontFamily;
+  const displayedFont = editorState.fontFamily === 'default' ? 'Font' : editorState.fontFamily;
   const displayedSize = editorState.fontSize;
 
   return (
@@ -47,9 +45,7 @@ export function FontPicker({ editorState }: FontPickerProps) {
         onClick={() => setFontMenuOpen(!fontMenuOpen)}
         data-cmd="font-family"
       >
-        <span className="onr-picker-label">
-          {displayedFont}
-        </span>
+        <span className="onr-picker-label">{displayedFont}</span>
         <span className="onr-picker-caret">▾</span>
       </RibbonButton>
       {fontMenuOpen && fontAnchorRef.current && (
@@ -70,9 +66,7 @@ export function FontPicker({ editorState }: FontPickerProps) {
         onClick={() => setSizeMenuOpen(!sizeMenuOpen)}
         data-cmd="font-size"
       >
-        <span className="onr-picker-label">
-          {displayedSize}
-        </span>
+        <span className="onr-picker-label">{displayedSize}</span>
         <span className="onr-picker-caret">▾</span>
       </RibbonButton>
       {sizeMenuOpen && sizeAnchorRef.current && (

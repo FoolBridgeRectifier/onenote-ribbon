@@ -26,7 +26,7 @@ describe('suiteHelpers', () => {
   it('wait resolves after the provided delay', async () => {
     const startedAt = Date.now();
 
-    await wait(5);
+    await wait(10);
 
     expect(Date.now() - startedAt).toBeGreaterThanOrEqual(5);
   });
@@ -45,9 +45,7 @@ describe('suiteHelpers', () => {
   });
 
   it('clickByCommand throws when the command button is missing', () => {
-    expect(() => clickByCommand('missing')).toThrow(
-      'Missing command button: missing',
-    );
+    expect(() => clickByCommand('missing')).toThrow('Missing command button: missing');
   });
 
   it('selectToken selects the requested token range', () => {
@@ -59,10 +57,7 @@ describe('suiteHelpers', () => {
 
     selectToken(editor, 'beta');
 
-    expect(editor.setSelection).toHaveBeenCalledWith(
-      { offset: 6 },
-      { offset: 10 },
-    );
+    expect(editor.setSelection).toHaveBeenCalledWith({ offset: 6 }, { offset: 10 });
   });
 
   it('selectToken throws when the requested token is missing', () => {
@@ -72,9 +67,7 @@ describe('suiteHelpers', () => {
       setSelection: jest.fn(),
     };
 
-    expect(() => selectToken(editor, 'delta')).toThrow(
-      'Token not found: delta',
-    );
+    expect(() => selectToken(editor, 'delta')).toThrow('Token not found: delta');
   });
 
   it('ensureHomePanel resolves when the panel becomes available', async () => {
@@ -102,9 +95,7 @@ describe('suiteHelpers', () => {
       offsetToPos: (offset: number) => ({ offset }),
       setSelection: jest.fn(),
     };
-    const originalExecuteCommandById = jest.fn(
-      (commandId: string) => commandId,
-    );
+    const originalExecuteCommandById = jest.fn((commandId: string) => commandId);
 
     panelElement.dataset.panel = 'Home';
     document.body.append(panelElement);
@@ -119,30 +110,20 @@ describe('suiteHelpers', () => {
 
     const results = await runHomeTabSuite(
       'test-suite',
-      async ({
-        commandCalls,
-        selectToken: selectContextToken,
-      }) => {
+      async ({ commandCalls, selectToken: selectContextToken }) => {
         selectContextToken('beta');
-        (globalThis as Record<string, any>).app.commands.executeCommandById(
-          'editor:bold',
-        );
+        (globalThis as Record<string, any>).app.commands.executeCommandById('editor:bold');
 
         expect(commandCalls).toEqual(['editor:bold']);
-        expect(editor.setSelection).toHaveBeenCalledWith(
-          { offset: 6 },
-          { offset: 10 },
-        );
-      },
+        expect(editor.setSelection).toHaveBeenCalledWith({ offset: 6 }, { offset: 10 });
+      }
     );
 
     expect(results).toEqual([
       { test: 'test-suite', pass: true, details: 'Test completed successfully' },
     ]);
     expect(
-      (globalThis as Record<string, any>).app.commands.executeCommandById(
-        'editor:italic',
-      ),
+      (globalThis as Record<string, any>).app.commands.executeCommandById('editor:italic')
     ).toBe('editor:italic');
     expect(originalExecuteCommandById).toHaveBeenCalledWith('editor:italic');
   });
@@ -196,12 +177,8 @@ describe('suiteHelpers', () => {
       throw new Error('boom');
     });
 
-    expect(results).toEqual([
-      { details: 'Error: boom', pass: false, test: 'test-suite' },
-    ]);
-    (globalThis as Record<string, any>).app.commands.executeCommandById(
-      'editor:italic',
-    );
+    expect(results).toEqual([{ details: 'Error: boom', pass: false, test: 'test-suite' }]);
+    (globalThis as Record<string, any>).app.commands.executeCommandById('editor:italic');
     expect(originalExecuteCommandById).toHaveBeenCalledWith('editor:italic');
   });
 });

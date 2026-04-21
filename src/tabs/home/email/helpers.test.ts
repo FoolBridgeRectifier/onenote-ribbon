@@ -2,7 +2,10 @@ import {
   buildEmlContent,
   buildEmlWithPdfAttachment,
   buildNoteHtml,
+  buildObsidianHtml,
   convertMarkdownToHtmlBody,
+  createDefaultSendDependencies,
+  generatePdfFromHtml,
   sendNoteByEmail,
   stripMarkdownToPlainText,
 } from './helpers';
@@ -502,5 +505,35 @@ describe('sendNoteByEmail', () => {
     await expect(sendNoteByEmail('content', 'My Note', mockDependencies)).rejects.toThrow(
       'PDF failed'
     );
+  });
+});
+
+// ── buildObsidianHtml ─────────────────────────────────────────────────────────
+
+describe('buildObsidianHtml', () => {
+  it('is a function', () => {
+    expect(buildObsidianHtml).toBeInstanceOf(Function);
+  });
+});
+
+// ── generatePdfFromHtml ───────────────────────────────────────────────────────
+
+describe('generatePdfFromHtml', () => {
+  it('is a function', () => {
+    expect(generatePdfFromHtml).toBeInstanceOf(Function);
+  });
+});
+
+// ── createDefaultSendDependencies ───────────────────────────────────────────
+
+describe('createDefaultSendDependencies', () => {
+  it('returns an object with required functions', () => {
+    const deps = createDefaultSendDependencies();
+    expect(deps.buildHtml).toBeInstanceOf(Function);
+    expect(deps.generatePdf).toBeInstanceOf(Function);
+    expect(deps.writeEmlToTemp).toBeInstanceOf(Function);
+    expect(deps.openEmlFile).toBeInstanceOf(Function);
+    expect(deps.displayNotice).toBeInstanceOf(Function);
+    expect(deps.deleteFile).toBeInstanceOf(Function);
   });
 });

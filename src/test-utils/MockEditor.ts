@@ -59,10 +59,7 @@ export class MockEditor {
     return result;
   }
 
-  setSelection(
-    from: { line: number; ch: number },
-    to: { line: number; ch: number },
-  ): void {
+  setSelection(from: { line: number; ch: number }, to: { line: number; ch: number }): void {
     this.selFrom = { ...from };
     this.selTo = { ...to };
     this.cursor = { ...to };
@@ -72,8 +69,7 @@ export class MockEditor {
     if (!this.selFrom || !this.selTo) {
       // No selection — insert at cursor
       const { line, ch } = this.cursor;
-      this.lines[line] =
-        this.lines[line].slice(0, ch) + text + this.lines[line].slice(ch);
+      this.lines[line] = this.lines[line].slice(0, ch) + text + this.lines[line].slice(ch);
       this.cursor = { line, ch: ch + text.length };
       return;
     }
@@ -102,7 +98,7 @@ export class MockEditor {
   replaceRange(
     text: string,
     from: { line: number; ch: number },
-    to?: { line: number; ch: number },
+    to?: { line: number; ch: number }
   ): void {
     if (to && (to.line !== from.line || to.ch !== from.ch)) {
       // Delete range then insert
@@ -118,8 +114,29 @@ export class MockEditor {
     } else {
       // Pure insert at position
       const { line, ch } = from;
-      this.lines[line] =
-        this.lines[line].slice(0, ch) + text + this.lines[line].slice(ch);
+      this.lines[line] = this.lines[line].slice(0, ch) + text + this.lines[line].slice(ch);
+    }
+  }
+
+  /**
+   * Applies multiple changes atomically (simulates Obsidian's transaction API).
+   * For the mock, we simply apply changes in sequence.
+   */
+  transaction({
+    changes,
+  }: {
+    changes: Array<{
+      from: { line: number; ch: number };
+      to?: { line: number; ch: number };
+      text: string;
+    }>;
+  }): void {
+    // Apply changes in reverse order to maintain correct positions
+    for (let index = changes.length - 1; index >= 0; index--) {
+      const change = changes[index];
+      if (change) {
+        this.replaceRange(change.text, change.from, change.to);
+      }
     }
   }
 }

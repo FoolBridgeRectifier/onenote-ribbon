@@ -20,7 +20,7 @@ import {
  * legacy div pattern. Returns the match (with identical capture groups)
  * or null if neither matches.
  */
-function matchAlignWrapper(lineText: string): RegExpMatchArray | null {
+export function matchAlignWrapper(lineText: string): RegExpMatchArray | null {
   return (
     lineText.match(ALIGN_SPAN_PATTERN) ??
     lineText.match(LEGACY_ALIGN_INLINE_BLOCK_SPAN_PATTERN) ??
@@ -29,7 +29,7 @@ function matchAlignWrapper(lineText: string): RegExpMatchArray | null {
   );
 }
 
-function getAlignIcon(alignment: TextAlign) {
+export function getAlignIcon(alignment: TextAlign) {
   if (alignment === 'center') return <AlignCenterIcon className="onr-icon-sm" />;
   if (alignment === 'right') return <AlignRightIcon className="onr-icon-sm" />;
   return <AlignLeftIcon className="onr-icon-sm" />;
@@ -40,7 +40,7 @@ function getAlignIcon(alignment: TextAlign) {
  * Preserves the heading prefix outside any alignment wrapper to avoid breaking
  * markdown heading syntax.
  */
-function splitHeadingPrefix(lineText: string): { prefix: string; content: string } {
+export function splitHeadingPrefix(lineText: string): { prefix: string; content: string } {
   const headingMatch = lineText.match(HEADING_PREFIX_PATTERN);
 
   if (headingMatch) {
@@ -50,9 +50,15 @@ function splitHeadingPrefix(lineText: string): { prefix: string; content: string
   return { prefix: '', content: lineText };
 }
 
-function applyAlignment(
-  editor: { getCursor: () => { line: number }; getLine: (line: number) => string; setLine: (line: number, text: string) => void } | undefined,
-  alignment: TextAlign,
+export function applyAlignment(
+  editor:
+    | {
+        getCursor: () => { line: number };
+        getLine: (line: number) => string;
+        setLine: (line: number, text: string) => void;
+      }
+    | undefined,
+  alignment: TextAlign
 ) {
   if (!editor) return;
 
@@ -76,7 +82,7 @@ function applyAlignment(
     const convertedContent = convertMarkdownTokensToHtml(alignMatch[3]);
     editor.setLine(
       cursor.line,
-      `${headingPrefix}<span style="display:inline-block;width:100%;vertical-align:top;text-align: ${alignment}">${convertedContent}</span>`,
+      `${headingPrefix}<span style="display:inline-block;width:100%;vertical-align:top;text-align: ${alignment}">${convertedContent}</span>`
     );
   } else {
     // Not yet wrapped — extract heading prefix so it stays outside the span.
@@ -85,7 +91,7 @@ function applyAlignment(
     const convertedContent = convertMarkdownTokensToHtml(content);
     editor.setLine(
       cursor.line,
-      `${prefix}<span style="display:inline-block;width:100%;vertical-align:top;text-align: ${alignment}">${convertedContent}</span>`,
+      `${prefix}<span style="display:inline-block;width:100%;vertical-align:top;text-align: ${alignment}">${convertedContent}</span>`
     );
   }
 }
@@ -133,9 +139,7 @@ export function AlignButton({ editorState }: AlignButtonProps) {
               className={`onr-dd-item${currentAlignment === option.value ? ' onr-dd-item-active' : ''}`}
               onClick={() => handleAlignSelect(option.value)}
             >
-              <span className="onr-dd-icon">
-                {getAlignIcon(option.value)}
-              </span>
+              <span className="onr-dd-icon">{getAlignIcon(option.value)}</span>
               <span className="onr-dd-label">{option.label}</span>
             </div>
           ))}
