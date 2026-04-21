@@ -25,6 +25,12 @@ export function printSuiteResults(
 
     console.log(`  ${icon} ${padText(result.test, 50)}${label}`);
 
+    // Print error details when present so failures are diagnosable without extra tooling.
+    const resultDetails = (result as unknown as { details?: string }).details;
+    if (!result.pass && resultDetails) {
+      console.log(`    ↳ ${resultDetails}`);
+    }
+
     if (result.pass) {
       passed += 1;
     } else {

@@ -3,6 +3,7 @@ import { useTagHandlers } from './UseTagHandlers';
 import type { TagHandlersOptions } from './interfaces';
 
 const applyCalloutMock = jest.fn();
+const applyTaskMock = jest.fn();
 const removeCalloutByKeyMock = jest.fn();
 const removeCheckboxMock = jest.fn();
 const toggleInlineTodoMock = jest.fn();
@@ -11,6 +12,7 @@ const selectTagFromDropdownMock = jest.fn();
 
 jest.mock('../../../../shared/editor/styling-engine/stylingEngine', () => ({
   applyCallout: (...args: unknown[]) => applyCalloutMock(...args),
+  applyTask: (...args: unknown[]) => applyTaskMock(...args),
   removeCalloutByKey: (...args: unknown[]) => removeCalloutByKeyMock(...args),
   removeCheckbox: (...args: unknown[]) => removeCheckboxMock(...args),
   toggleInlineTodo: (...args: unknown[]) => toggleInlineTodoMock(...args),
@@ -70,7 +72,7 @@ describe('useTagHandlers — handleTodo', () => {
     expect(executeCommandById).toHaveBeenCalledWith('editor:toggle-checklist-status');
   });
 
-  it('calls removeCheckbox when task is already active', () => {
+  it('calls applyTask with empty prefix to replace existing task when task is already active', () => {
     const mockEditor = {};
     const options = buildOptions({
       app: {
@@ -81,7 +83,8 @@ describe('useTagHandlers — handleTodo', () => {
     });
     const { result } = renderHook(() => useTagHandlers(options));
     result.current.handleTodo();
-    expect(removeCheckboxMock).toHaveBeenCalledWith(mockEditor);
+    expect(applyTaskMock).toHaveBeenCalledWith(mockEditor, '');
+    expect(removeCheckboxMock).not.toHaveBeenCalled();
   });
 });
 

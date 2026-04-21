@@ -3,7 +3,6 @@ import {
   applyTask,
   removeInnermostCallout,
   removeCalloutByKey,
-  removeCheckbox,
 } from '../../../../shared/editor/styling-engine/stylingEngine';
 import { ACTIVE_TAG_KEY_TASK } from '../constants';
 import type { TagDefinition } from '../interfaces';
@@ -60,7 +59,10 @@ export function selectTagFromDropdown(
       (tagDefinition.action.type === 'command' && calloutKey === ACTIVE_TAG_KEY_TASK))
   ) {
     const editor = getEditor();
-    if (editor) removeCheckbox(editor);
+    // Re-apply with the same prefix rather than removing the checkbox entirely.
+    // This lets multiple task buttons replace each other when the line already has a task.
+    const taskPrefix = tagDefinition.action.type === 'task' ? tagDefinition.action.taskPrefix : '';
+    if (editor) applyTask(editor, taskPrefix);
     setMoreMenuOpen(false);
     return;
   }

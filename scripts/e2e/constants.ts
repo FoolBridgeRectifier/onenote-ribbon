@@ -147,6 +147,10 @@ export const SUITES: SuiteDefinition[] = [
     name: 'span-state-branch',
     file: 'src/e2e/home-tab/span-state-branch/spanStateBranchTest.ts',
   },
+  {
+    name: 'callout-sequence-deep',
+    file: 'src/e2e/home-tab/callout-sequence-deep/calloutSequenceDeepTest.ts',
+  },
 ];
 
 // Total E2E rule count: 166 (home) + 10 (edge-cases) + 10 (ribbon) + 20 (shared) = 206

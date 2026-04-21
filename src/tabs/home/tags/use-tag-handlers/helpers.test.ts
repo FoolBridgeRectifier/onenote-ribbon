@@ -91,15 +91,28 @@ describe('selectTagFromDropdown — active callout toggle-off', () => {
   });
 });
 
-describe('selectTagFromDropdown — active task toggle-off', () => {
-  it('calls removeCheckbox when task is active', () => {
+describe('selectTagFromDropdown — active task replace', () => {
+  it('calls applyTask with empty prefix when plain todo command is active (replaces instead of removing)', () => {
     const fakeEditor = {};
     const setMoreMenuOpen = jest.fn();
     selectTagFromDropdown(
       buildTagDefinition({ action: { type: 'command', commandId: 'editor:toggle-checklist-status' }, calloutKey: ACTIVE_TAG_KEY_TASK }),
       buildContext({ activeTagKeys: new Set([ACTIVE_TAG_KEY_TASK]), getEditor: () => fakeEditor as never, setMoreMenuOpen })
     );
-    expect(removeCheckboxMock).toHaveBeenCalledWith(fakeEditor);
+    expect(applyTaskMock).toHaveBeenCalledWith(fakeEditor, '');
+    expect(removeCheckboxMock).not.toHaveBeenCalled();
+    expect(setMoreMenuOpen).toHaveBeenCalledWith(false);
+  });
+
+  it('calls applyTask with same prefix when task-with-prefix is already active (replaces instead of removing)', () => {
+    const fakeEditor = {};
+    const setMoreMenuOpen = jest.fn();
+    selectTagFromDropdown(
+      buildTagDefinition({ action: { type: 'task', taskPrefix: 'Discuss:' }, calloutKey: 'task-prefix:Discuss:' }),
+      buildContext({ activeTagKeys: new Set(['task-prefix:Discuss:']), getEditor: () => fakeEditor as never, setMoreMenuOpen })
+    );
+    expect(applyTaskMock).toHaveBeenCalledWith(fakeEditor, 'Discuss:');
+    expect(removeCheckboxMock).not.toHaveBeenCalled();
     expect(setMoreMenuOpen).toHaveBeenCalledWith(false);
   });
 });

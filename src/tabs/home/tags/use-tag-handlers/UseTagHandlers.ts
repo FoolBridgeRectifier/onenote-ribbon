@@ -2,8 +2,8 @@ import { useCallback } from 'react';
 
 import {
   applyCallout,
+  applyTask,
   removeCalloutByKey,
-  removeCheckbox,
   toggleInlineTodo,
 } from '../../../../shared/editor/styling-engine/stylingEngine';
 import { ACTIVE_TAG_KEY_TASK, EDITOR_COMMAND_OPEN_GLOBAL_SEARCH } from '../constants';
@@ -36,7 +36,9 @@ export function useTagHandlers({
   const handleTodo = useCallback(() => {
     const editor = getEditor();
     if (editor && activeTagKeys.has(ACTIVE_TAG_KEY_TASK)) {
-      removeCheckbox(editor);
+      // Replace current task with a plain checkbox, stripping any existing task prefix.
+      // This lets multiple task buttons cycle/replace each other rather than toggle off.
+      applyTask(editor, '');
       return;
     }
     executeCommand(EDITOR_COMMAND_TOGGLE_CHECKLIST);
