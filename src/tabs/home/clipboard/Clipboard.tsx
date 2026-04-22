@@ -6,6 +6,7 @@ import { GroupShell } from '../../../shared/components/group-shell/GroupShell';
 import { RibbonButton } from '../../../shared/components/ribbon-button/RibbonButton';
 import { PasteOptionsDropdown } from './paste-options/PasteOptions';
 import { useFormatPainter } from '../../../shared/hooks/useFormatPainter';
+import { useFormatPainterActivation } from './helpers';
 import {
   CopyIcon,
   CutIcon,
@@ -57,6 +58,9 @@ export function ClipboardGroup() {
   const handleFormatPainterDoubleClick = () => {
     formatPainter.handleDoubleClick();
   };
+
+  // Arm the format painter when the keyboard shortcut command fires from outside React.
+  useFormatPainterActivation(formatPainter.handleSingleClick);
 
   return (
     <GroupShell name="Clipboard">
