@@ -8,6 +8,166 @@ import prettierConfig from 'eslint-config-prettier';
 
 const strictStructurePlugin = {
   rules: {
+    'e2e-test-requires-assertion': {
+      meta: {
+        type: 'problem',
+        docs: {
+          description: 'E2E test functions must contain at least one assertion (throw new Error or expect call).',
+        },
+        schema: [],
+      },
+      create(context) {
+        const currentFilePath = context.filename.replace(/\\/g, '/');
+        const isE2eFile = currentFilePath.includes('/e2e/');
+
+        if (!isE2eFile) {
+          return {};
+        }
+
+        // Check if a function contains an assertion
+        function containsAssertion(node) {
+          let hasAssertion = false;
+
+          function traverse(currentNode) {
+            if (hasAssertion) return;
+
+            if (!currentNode) return;
+
+            // Check for throw new Error (common pattern in this codebase)
+            if (
+              currentNode.type === 'ThrowStatement'
+              && currentNode.argument
+              && currentNode.argument.type === 'NewExpression'
+              && currentNode.argument.callee
+              && currentNode.argument.callee.name === 'Error'
+            ) {
+              hasAssertion = true;
+              return;
+            }
+
+            // Check for expect() calls (Jest assertions)
+            if (
+              currentNode.type === 'CallExpression'
+              && currentNode.callee
+              && currentNode.callee.name === 'expect'
+            ) {
+              hasAssertion = true;
+              return;
+            }
+
+            // Check for assert.* calls (Node.js assertions)
+            if (
+              currentNode.type === 'CallExpression'
+              && currentNode.callee
+              && currentNode.callee.type === 'MemberExpression'
+              && currentNode.callee.object
+              && currentNode.callee.object.name === 'assert'
+            ) {
+              hasAssertion = true;
+              return;
+            }
+
+            // Traverse child nodes
+            for (const key of Object.keys(currentNode)) {
+              if (key === 'parent') continue;
+              const child = currentNode[key];
+              if (Array.isArray(child)) {
+                for (const item of child) {
+                  if (item && typeof item === 'object') {
+                    traverse(item);
+                  }
+                }
+              } else if (child && typeof child === 'object' && child.type) {
+                traverse(child);
+              }
+            }
+          }
+
+          traverse(node);
+          return hasAssertion;
+        }
+
+        // Check if function is a test function (exported, async, returns SuiteTestResult[])
+        function isTestFunction(node) {
+          // Check if function is async
+          if (!node.async) {
+            return false;
+          }
+
+          // Check if function name ends with Test or starts with test
+          const functionName = node.id?.name || '';
+          if (
+            !functionName.endsWith('Test')
+            && !functionName.endsWith('Tests')
+            && !functionName.startsWith('test')
+          ) {
+            return false;
+          }
+
+          return true;
+        }
+
+        return {
+          FunctionDeclaration(node) {
+            if (!isTestFunction(node)) {
+              return;
+            }
+
+            if (!containsAssertion(node.body)) {
+              context.report({
+                node,
+                message: `E2E test function "${node.id.name}" must contain at least one assertion (throw new Error or expect call).`,
+              });
+            }
+          },
+
+          FunctionExpression(node) {
+            if (!isTestFunction(node)) {
+              return;
+            }
+
+            if (!containsAssertion(node.body)) {
+              context.report({
+                node,
+                message: 'E2E test function must contain at least one assertion (throw new Error or expect call).',
+              });
+            }
+          },
+
+          ArrowFunctionExpression(node) {
+            if (!node.async) {
+              return;
+            }
+
+            // For arrow functions, check if parent is a variable declaration with test-like name
+            const parent = node.parent;
+            if (
+              parent
+              && parent.type === 'VariableDeclarator'
+              && parent.id
+              && parent.id.name
+            ) {
+              const functionName = parent.id.name;
+              if (
+                !functionName.endsWith('Test')
+                && !functionName.endsWith('Tests')
+                && !functionName.startsWith('test')
+              ) {
+                return;
+              }
+
+              if (node.body.type === 'BlockStatement' && !containsAssertion(node.body)) {
+                context.report({
+                  node,
+                  message: `E2E test function "${functionName}" must contain at least one assertion (throw new Error or expect call).`,
+                });
+              }
+            }
+          },
+        };
+      },
+    },
+
     'types-only-in-interfaces-file': {
       meta: {
         type: 'problem',
@@ -517,6 +677,8 @@ export default [
       'strict-structure/strict-file-name': 'off',
       // E2E runtime adapters may use double casts to bridge Obsidian/test types
       'strict-structure/no-double-cast': 'off',
+      // E2E tests must contain at least one assertion
+      'strict-structure/e2e-test-requires-assertion': 'error',
     },
   },
 
