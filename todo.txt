@@ -2,3 +2,16 @@ need to fix bullets for text size
 full rich text view
 shortcuts
 toggle tag tracking
+
+format painter on |<span>text</span>|, does not select style of text.
+
+format painter on windows click and drag doesnt work
+
+
+detection
+  outer 
+    - start from 
+
+styling engine
+  - if its not in a list or callout, indent should be span
+
