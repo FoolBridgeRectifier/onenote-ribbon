@@ -44,6 +44,7 @@ export function getDefaultSpanValue(tagDefinition: TagDefinition): string {
 /** Builds the opening `<span style="...">` markup for a span tag of the given type. */
 export function buildSpanOpener(tagDefinition: TagDefinition): string {
   const property = getSpanCssProperty(tagDefinition);
-  const value = getDefaultSpanValue(tagDefinition);
+  // Caller-supplied value (from adapter / custom span) overrides the type's default value.
+  const value = tagDefinition.spanValue ?? getDefaultSpanValue(tagDefinition);
   return `<span style="${property}:${value}">`;
 }

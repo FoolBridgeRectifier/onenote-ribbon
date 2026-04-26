@@ -32,6 +32,8 @@ export interface DetectedTag {
   close?: TagPosition;
   isHTML?: boolean;
   isSpan?: boolean;
+  /** Optional CSS value override for span tags (used when caller provides custom value via adapter). */
+  spanValue?: string;
 }
 
 // === Tag Context (output of buildTagContext) ===
