@@ -1,17 +1,17 @@
-import type { ObsidianEditor } from '../../../../shared/editor/styling-engine/interfaces';
+import type { ObsidianEditor } from '../../../../shared/editor-v2/styling-engine/editor-integration/interfaces';
 import { applyFontFamily, applyFontSize } from './helpers';
 
 // Mock dependencies
-jest.mock('../../../../shared/editor/styling-engine/editor-integration/helpers', () => ({
+jest.mock('../../../../shared/editor-v2/styling-engine/editor-integration/helpers', () => ({
   addTagInEditor: jest.fn(),
 }));
 
-jest.mock('../../../../shared/editor/styling-engine/tag-manipulation/TagManipulation', () => ({
+jest.mock('../../../../shared/editor-v2/styling-engine/editor-integration/build-span-tag-definition/buildSpanTagDefinition', () => ({
   buildSpanTagDefinition: jest.fn((type, value) => ({ type, value })),
 }));
 
-import { addTagInEditor } from '../../../../shared/editor/styling-engine/editor-integration/helpers';
-import { buildSpanTagDefinition } from '../../../../shared/editor/styling-engine/tag-manipulation/TagManipulation';
+import { addTagInEditor } from '../../../../shared/editor-v2/styling-engine/editor-integration/helpers';
+import { buildSpanTagDefinition } from '../../../../shared/editor-v2/styling-engine/editor-integration/build-span-tag-definition/buildSpanTagDefinition';
 
 describe('font-picker helpers', () => {
   const mockAddTagInEditor = addTagInEditor as jest.Mock;
