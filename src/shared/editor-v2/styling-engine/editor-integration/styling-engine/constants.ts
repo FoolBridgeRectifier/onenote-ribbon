@@ -32,3 +32,10 @@ export const TASK_CONTENT_PREFIX_PATTERN = /^([^:\s][^:]*:)\s+(.*)/;
 
 /** Matches inline `#todo` tags (case-insensitive, word boundary). */
 export const INLINE_TODO_TAG_PATTERN = /#todo\b/gi;
+
+/**
+ * Matches a task marker for removal — captures the leading blockquote prefix and
+ * indentation so they can be preserved when the marker itself is stripped.
+ * Group 1: blockquote prefix. Group 2: indentation.
+ */
+export const TASK_MARKER_PATTERN = /^((?:>\s*)*)(\s*)-\s+\[[ xX]\]\s*/;
