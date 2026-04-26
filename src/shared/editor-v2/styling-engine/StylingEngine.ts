@@ -1,30 +1,33 @@
 import type { StylingContext, StylingResult, TagDefinition, CopiedFormat } from './interfaces';
 import { processAddPath } from './add-path/addPath';
+import { processRemovePath } from './remove-path/removePath';
+import { decideRemove } from './remove-path/decide-remove/decideRemove';
+import { processRemoveAllTags } from './remove-path/remove-all-tags/removeAllTags';
+import { LINE_LEVEL_TYPES } from './constants';
 
 /**
- * Toggles a tag on the selection in context.sourceText.
- *
- * Decision tree (see SPEC.md for the full matrix):
- *   — Line tags (single/special): line-level add/remove logic
- *   — Inline tags (md-closing/html-closing/html-span): detect domain, find enclosing tag,
- *     then Remove if already active (or partially inside), Add otherwise.
- *
- * Protected ranges inside the selection are punched out (wrapped around, not inside).
- * Invariants I1–I6 must hold after every operation.
- *
- * @returns StylingResult with replacements ordered last-to-first.
+ * Toggles a tag on the selection. Routing:
+ *   - Line tags + multi-line selections → add path (which handles its own remove leg).
+ *   - Inline single-line: ask decideRemove if a same-type enclosing tag exists.
+ *     Yes → remove path. No → add path.
  */
 export function toggleTag(context: StylingContext, tagDefinition: TagDefinition): StylingResult {
+  if (LINE_LEVEL_TYPES.has(tagDefinition.type)) return processAddPath(context, tagDefinition);
+
+  const selectionSpansMultipleLines = context.sourceText
+    .slice(context.selectionStartOffset, context.selectionEndOffset)
+    .includes('\n');
+  if (selectionSpansMultipleLines) return processAddPath(context, tagDefinition);
+
+  const decision = decideRemove(context, tagDefinition);
+  if (decision.shouldRemove) return processRemovePath(context, tagDefinition);
+
   return processAddPath(context, tagDefinition);
 }
 
-/**
- * Removes all enclosing and interior tags from the selection in one pass.
- * Processes replacements last-to-first to prevent offset drift.
- * For multi-line selections: also removes single-line tags if the line start is inside the range.
- */
-export function removeAllTags(_context: StylingContext): StylingResult {
-  throw new Error('not implemented');
+/** Removes every detectable tag (inline + span + line-prefix) inside the selection. */
+export function removeAllTags(context: StylingContext): StylingResult {
+  return processRemoveAllTags(context);
 }
 
 /**

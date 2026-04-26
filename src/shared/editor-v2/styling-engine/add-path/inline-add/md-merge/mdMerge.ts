@@ -1,6 +1,7 @@
 import type { TagDefinition, StylingResult, TextReplacement } from '../../../interfaces';
 import { sortReplacementsLastToFirst } from '../../../helpers';
 import { getMdDelimiter } from '../helpers';
+import { scanProtectedTokensInLine } from '../../../../detection-engine/protected-tokens/protectedTokens';
 
 /**
  * For A7/A9: detects same-type MD delimiters that touch / are inside [start, end].
@@ -77,11 +78,14 @@ function findAllDelimiterPositions(sourceText: string, lineStart: number, lineEn
   return positions;
 }
 
-/** Returns true when every non-whitespace, non-delimiter char in selection sits inside a candidate pair. */
+/** Returns true when every non-whitespace, non-delimiter char in selection sits inside a candidate pair OR a protected range. */
 function isSelectionFullyCoveredByPairs(
   sourceText: string, start: number, end: number,
   pairs: Array<{ openStart: number; openEnd: number; closeStart: number; closeEnd: number }>,
 ): boolean {
+  // Pre-compute protected ranges across the selection's lines (wikilinks, embeds, code spans, etc.).
+  const protectedRanges = collectProtectedRangesAcrossSelection(sourceText, start, end);
+
   for (let pos = start; pos < end; pos++) {
     const ch = sourceText[pos];
     if (/\s/.test(ch)) continue;
@@ -90,7 +94,30 @@ function isSelectionFullyCoveredByPairs(
       (pos >= pair.closeStart && pos < pair.closeEnd));
     if (isInDelim) continue;
     const insideContent = pairs.some((pair) => pos >= pair.openEnd && pos < pair.closeStart);
-    if (!insideContent) return false;
+    if (insideContent) continue;
+    const insideProtected = protectedRanges.some((range) => pos >= range.start && pos < range.end);
+    if (insideProtected) continue;
+    return false;
   }
   return true;
+}
+
+/** Walks each line touched by [start, end] and accumulates protected token ranges as absolute offsets. */
+function collectProtectedRangesAcrossSelection(sourceText: string, start: number, end: number): Array<{ start: number; end: number }> {
+  const ranges: Array<{ start: number; end: number }> = [];
+  let lineStartOffset = sourceText.lastIndexOf('\n', start - 1) + 1;
+  let lineIndex = sourceText.slice(0, lineStartOffset).split('\n').length - 1;
+
+  while (lineStartOffset < end) {
+    const newlineOffset = sourceText.indexOf('\n', lineStartOffset);
+    const lineEndOffset = newlineOffset === -1 ? sourceText.length : newlineOffset;
+    const lineText = sourceText.slice(lineStartOffset, lineEndOffset);
+    const found = scanProtectedTokensInLine(lineText, lineStartOffset, lineIndex);
+    for (const protectedRange of found) {
+      ranges.push({ start: protectedRange.startOffset, end: protectedRange.endOffset });
+    }
+    lineStartOffset = lineEndOffset + 1;
+    lineIndex += 1;
+  }
+  return ranges;
 }

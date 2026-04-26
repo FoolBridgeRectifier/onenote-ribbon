@@ -92,9 +92,9 @@ describe('A11 — Multi-line, none tagged: add to every line', () => {
   });
 });
 
-describe('A12 — Multi-line, mixed inline: add to untagged lines only', () => {
-  it('skips already-bold line1 and only wraps line2', () => {
-    expect(applyReplacements('**line1**\nline2', toggleTag(selectAll('**line1**\nline2'), BOLD_MD).replacements)).toBe('**line1**\n**line2**');
+describe('A12 — Multi-line, mixed inline: superseded by R15 (mixed → remove from tagged)', () => {
+  it('mixed multi-line: removes ** from tagged line and leaves untagged untouched (matches R15)', () => {
+    expect(applyReplacements('**line1**\nline2', toggleTag(selectAll('**line1**\nline2'), BOLD_MD).replacements)).toBe('line1\nline2');
   });
 
   it('A12/list: adds "- " only to untagged line2 in mixed multi-line list', () => {
@@ -119,9 +119,9 @@ describe('A16 — Single: indent', () => {
       .toBe('<span style="margin-left:24px"/>');
   });
 
-  it('second indent on 24px line → updates to 48px', () => {
+  it('second indent on 24px line → toggles off (matches R19 decrement spec)', () => {
     expect(applyReplacements('<span style="margin-left:24px"/>item', toggleTag(selectAll('<span style="margin-left:24px"/>item'), { type: 'indent' }).replacements))
-      .toContain('margin-left:48px');
+      .toBe('item');
   });
 });
 

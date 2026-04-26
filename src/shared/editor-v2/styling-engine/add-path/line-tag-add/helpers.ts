@@ -66,7 +66,12 @@ function classifyIndent(lineText: string, lineStart: number): LineClassification
   const insertOffset = lineStart + prefixLength;
 
   if (indentSpanMatch) {
-    const newPx = parseInt(indentSpanMatch[1], 10) + INDENT_STEP_PX;
+    // Toggle: decrement step. When dropping to 0, remove the span entirely.
+    const currentPx = parseInt(indentSpanMatch[1], 10);
+    const newPx = currentPx - INDENT_STEP_PX;
+    if (newPx <= 0) {
+      return makeRemoval(insertOffset, insertOffset + indentSpanMatch[0].length);
+    }
     return makeReplace(insertOffset, insertOffset + indentSpanMatch[0].length, `<span style="margin-left:${newPx}px"/>`);
   }
   return makeInsert(insertOffset, `<span style="margin-left:${INDENT_STEP_PX}px"/>`);

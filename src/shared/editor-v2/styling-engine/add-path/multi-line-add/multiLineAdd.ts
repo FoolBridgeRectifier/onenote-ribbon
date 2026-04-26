@@ -19,27 +19,52 @@ export function processMultiLineAdd(context: StylingContext, tagDefinition: TagD
   }));
 
   const allTagged = lineStates.every((state) => state.isTagged);
+  const anyTagged = lineStates.some((state) => state.isTagged);
   const replacements: TextReplacement[] = [];
 
   for (const state of lineStates) {
-    if (allTagged || !state.isTagged) {
-      // For all-tagged or untagged-in-mixed: wrap (or remove) per-line.
-      // For now we only support the add-path (untagged → wrap). All-tagged is delegated to remove (out of Phase 2 scope).
-      if (state.isTagged) continue;
-      // Compute trimmed segment (skip leading whitespace inside line).
-      const trimmedSegment = trimSegmentToContent(context.sourceText, state.segment);
-      if (trimmedSegment.start >= trimmedSegment.end) continue;
-      const subContext: StylingContext = {
-        sourceText: context.sourceText,
-        selectionStartOffset: trimmedSegment.start,
-        selectionEndOffset: trimmedSegment.end,
-      };
-      const subResult = processInlineAdd(subContext, tagDefinition);
-      replacements.push(...subResult.replacements);
+    if (state.isTagged) {
+      // R14/R15: emit removal of the surrounding MD delimiters from this tagged line.
+      replacements.push(...buildLineRemoval(context.sourceText, state.segment, tagDefinition));
+      continue;
     }
+
+    // Skip untagged lines in toggle-off mode (R15 mixed: remove from tagged, leave untagged untouched).
+    if (anyTagged) continue;
+    if (allTagged) continue;
+
+    // Compute trimmed segment (skip leading whitespace inside line).
+    const trimmedSegment = trimSegmentToContent(context.sourceText, state.segment);
+    if (trimmedSegment.start >= trimmedSegment.end) continue;
+    const subContext: StylingContext = {
+      sourceText: context.sourceText,
+      selectionStartOffset: trimmedSegment.start,
+      selectionEndOffset: trimmedSegment.end,
+    };
+    const subResult = processInlineAdd(subContext, tagDefinition);
+    replacements.push(...subResult.replacements);
   }
 
   return { replacements: sortReplacementsLastToFirst(replacements), isNoOp: replacements.length === 0 };
+}
+
+/** R14/R15 helper: deletes the surrounding MD delimiters of a tagged line segment. */
+function buildLineRemoval(sourceText: string, segment: { start: number; end: number }, tagDefinition: TagDefinition): TextReplacement[] {
+  const delim = getMdDelimiter(tagDefinition);
+  if (!delim) return [];
+  const bounds = lineBoundsAt(sourceText, segment.start);
+  const lineText = sourceText.slice(bounds.lineStart, bounds.lineEnd);
+  const prefixLength = computePrefixLength(lineText);
+  const contentStart = bounds.lineStart + prefixLength;
+  const contentEnd = bounds.lineEnd;
+
+  if (!lineText.slice(prefixLength).startsWith(delim)) return [];
+  if (!lineText.slice(prefixLength).endsWith(delim)) return [];
+
+  return [
+    { fromOffset: contentEnd - delim.length, toOffset: contentEnd, replacementText: '' },
+    { fromOffset: contentStart, toOffset: contentStart + delim.length, replacementText: '' },
+  ];
 }
 
 /** Returns true when the line at [segmentStart, segmentEnd] is already wrapped with the tag. */

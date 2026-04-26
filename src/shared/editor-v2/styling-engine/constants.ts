@@ -74,3 +74,8 @@ export const DEFAULT_CALLOUT_TYPE = 'note';
 
 /** Callout type used for nested callouts (X15). */
 export const NESTED_CALLOUT_TYPE = 'tip';
+
+/** Tag types that always operate on a full line (not inline). */
+export const LINE_LEVEL_TYPES: ReadonlySet<string> = new Set([
+  'list', 'heading', 'quote', 'indent', 'checkbox', 'callout', 'inlineTodo', 'meetingDetails',
+]);
