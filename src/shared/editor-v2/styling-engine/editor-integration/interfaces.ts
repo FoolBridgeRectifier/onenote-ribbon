@@ -42,6 +42,11 @@ export interface CheckboxTagDefinition {
   kind: 'checkbox';
 }
 
+/** Describes an inline `#todo` tag toggle operation. */
+export interface InlineTodoTagDefinition {
+  kind: 'inline-todo';
+}
+
 /** Minimal Obsidian Editor interface for styling operations. */
 export interface ObsidianEditor {
   getValue(): string;
