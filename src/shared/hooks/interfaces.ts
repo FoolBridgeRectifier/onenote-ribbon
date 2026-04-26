@@ -1,4 +1,4 @@
-import type { EnclosingHtmlTagFinder } from '../editor/enclosing-html-tags/enclosingHtmlTags';
+import type { TagContext } from '../editor-v2/detection-engine/interfaces';
 import type { CopiedFormat } from '../editor-v2/styling-engine/editor-integration/interfaces';
 
 /** The complete state of the editor's text formatting at the current cursor position. */
@@ -22,10 +22,19 @@ export interface EditorState {
   activeTagKeys: Set<string>;
 }
 
-/** Cached result of an EnclosingHtmlTagFinder for a specific source text. */
-export interface CachedFinderData {
+/** Cached detection-engine TagContext for a specific source-text snapshot. */
+export interface CachedTagContext {
   sourceText: string;
-  finder: EnclosingHtmlTagFinder;
+  context: TagContext;
+}
+
+/** Style state derived from enclosing span tags + legacy <div> wrappers. */
+export interface SpanAndDivState {
+  fontColor: string | null;
+  highlightColor: string | null;
+  fontFamily: string;
+  fontSize: string;
+  textAlign: 'left' | 'center' | 'right' | 'justify';
 }
 
 /** Format-painter activity mode. */

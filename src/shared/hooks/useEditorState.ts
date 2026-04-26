@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import type { App } from 'obsidian';
-import type { EditorState, CachedFinderData } from './interfaces';
+import type { EditorState, CachedTagContext } from './interfaces';
 import { CONTENT_CHANGE_DEBOUNCE_MS, SELECTION_CHANGE_THROTTLE_MS } from './constants';
 import { deriveEditorState, buildDefaultState } from './editorStateHelpers';
-import { createEnclosingHtmlTagFinder } from '../editor/enclosing-html-tags/enclosingHtmlTags';
+import { buildTagContext } from '../editor-v2/detection-engine/DetectionEngine';
 
 export type { EditorState };
 export { extractSpanAndDivState, deriveEditorState } from './editorStateHelpers';
 
 export function useEditorState(app: App): EditorState {
   const [editorState, setEditorState] = useState<EditorState>(() => buildDefaultState(app));
-  const cachedFinderRef = useRef<CachedFinderData | null>(null);
+  const cachedContextRef = useRef<CachedTagContext | null>(null);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const selectionThrottleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -24,13 +24,13 @@ export function useEditorState(app: App): EditorState {
       }
 
       const currentSourceText = editor.getValue();
-      const cached = cachedFinderRef.current;
+      const cached = cachedContextRef.current;
       const contentChanged = !cached || cached.sourceText !== currentSourceText;
 
       if (contentChanged) {
-        // Content changed � rebuild finder and debounce the state update
-        const newFinder = createEnclosingHtmlTagFinder(currentSourceText);
-        cachedFinderRef.current = { sourceText: currentSourceText, finder: newFinder };
+        // Content changed — rebuild detection-engine context and debounce the state update.
+        const newContext = buildTagContext(currentSourceText);
+        cachedContextRef.current = { sourceText: currentSourceText, context: newContext };
 
         if (debounceTimerRef.current !== null) clearTimeout(debounceTimerRef.current);
 
@@ -39,14 +39,14 @@ export function useEditorState(app: App): EditorState {
           setEditorState(
             deriveEditorState(
               app,
-              cachedFinderRef.current?.finder ?? null,
-              cachedFinderRef.current?.sourceText ?? null
+              cachedContextRef.current?.context ?? null,
+              cachedContextRef.current?.sourceText ?? null
             )
           );
         }, CONTENT_CHANGE_DEBOUNCE_MS);
       } else {
-        // Cursor-only move � reuse cached finder, compute immediately
-        setEditorState(deriveEditorState(app, cached.finder, cached.sourceText));
+        // Cursor-only move — reuse cached context, compute immediately.
+        setEditorState(deriveEditorState(app, cached.context, cached.sourceText));
       }
     };
 

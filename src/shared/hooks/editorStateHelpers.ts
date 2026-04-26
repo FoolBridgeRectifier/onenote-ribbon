@@ -1,9 +1,10 @@
 import type { App } from 'obsidian';
-import type { EnclosingHtmlTagFinder } from '../editor/enclosing-html-tags/enclosingHtmlTags';
-import { createEnclosingHtmlTagFinder } from '../editor/enclosing-html-tags/enclosingHtmlTags';
+import type { TagContext } from '../editor-v2/detection-engine/interfaces';
+import { buildTagContext, getActiveTagsAtCursor } from '../editor-v2/detection-engine/DetectionEngine';
 import { detectActiveTagKeys } from '../editor-v2/styling-engine/editor-integration/detect-active-tag-keys/detectActiveTagKeys';
+import { buildTextIndex } from '../editor/text-offset/TextOffset';
 import type { EditorState } from './interfaces';
-import { TAG_NAME_TO_STATE_FIELD } from './constants';
+import { TAG_TYPE_TO_STATE_FIELD } from './constants';
 import { extractSpanAndDivState } from './spanState';
 
 export { extractSpanAndDivState } from './spanState';
@@ -33,11 +34,12 @@ export function buildDefaultState(app: App): EditorState {
 
 /**
  * Derives a full EditorState from the current cursor/selection context.
- * Boolean flags come from enclosing tags; line-level state uses line-prefix regex.
+ * Boolean flags come from the detection engine's enclosing tags;
+ * line-level state uses line-prefix regex on the active line.
  */
 export function deriveEditorState(
   app: App,
-  cachedFinder: EnclosingHtmlTagFinder | null,
+  cachedContext: TagContext | null,
   cachedSourceText: string | null
 ): EditorState {
   const editor = app.workspace.activeEditor?.editor;
@@ -46,42 +48,37 @@ export function deriveEditorState(
   const sourceText = editor.getValue();
   const cursor = editor.getCursor();
 
-  const finder =
-    cachedFinder && cachedSourceText === sourceText
-      ? cachedFinder
-      : createEnclosingHtmlTagFinder(sourceText);
+  // Reuse the cached detection-engine context when the source text hasn't changed.
+  const tagContext =
+    cachedContext && cachedSourceText === sourceText
+      ? cachedContext
+      : buildTagContext(sourceText);
 
-  const location = { cursorPosition: { line: cursor.line, ch: cursor.ch } };
-  const enclosingTagRanges = finder.getEnclosingTagRanges(location);
+  const activeTagsResult = getActiveTagsAtCursor(tagContext, { line: cursor.line, ch: cursor.ch });
+  const enclosingTags = activeTagsResult.enclosingTags;
 
   const state = buildDefaultState(app);
 
-  for (let rangeIndex = 0; rangeIndex < enclosingTagRanges.length; rangeIndex += 1) {
-    const tagRange = enclosingTagRanges[rangeIndex];
-    const stateField = TAG_NAME_TO_STATE_FIELD[tagRange.tagName];
+  // Set boolean state fields from the detection engine's TagType taxonomy.
+  for (let tagIndex = 0; tagIndex < enclosingTags.length; tagIndex += 1) {
+    const detectedTag = enclosingTags[tagIndex];
+    const stateField = TAG_TYPE_TO_STATE_FIELD[detectedTag.type];
 
     if (stateField) {
-      const booleanFields: (keyof EditorState)[] = [
-        'bold',
-        'italic',
-        'underline',
-        'strikethrough',
-        'highlight',
-        'subscript',
-        'superscript',
-        'bulletList',
-        'numberedList',
-      ];
-      if (booleanFields.includes(stateField)) {
-        // eslint-disable-next-line strict-structure/no-double-cast -- index EditorState by computed key; no mapped-type alternative without changing EditorState definition
-        (state as unknown as Record<string, boolean>)[stateField] = true;
-      }
+      // eslint-disable-next-line strict-structure/no-double-cast -- index EditorState by computed key; no mapped-type alternative without changing EditorState definition
+      (state as unknown as Record<string, boolean>)[stateField] = true;
     }
   }
 
+  // Extract span/div style state via raw-text inspection of opening tags.
+  const textIndex = buildTextIndex(sourceText);
+  const cursorLineContent = editor.getLine(cursor.line) ?? '';
+
   const spanState = extractSpanAndDivState(
-    enclosingTagRanges,
+    enclosingTags,
     sourceText,
+    textIndex,
+    cursorLineContent,
     state.fontFamily,
     state.fontSize
   );
@@ -91,18 +88,17 @@ export function deriveEditorState(
   state.fontSize = spanState.fontSize;
   state.textAlign = spanState.textAlign;
 
-  // If we found a background span, also set highlight = true
+  // If we found a background span, also set highlight = true.
   if (spanState.highlightColor !== null) state.highlight = true;
 
-  const activeLine = editor.getLine(cursor.line);
-  if (activeLine) {
-    state.bulletList = /^\s*[-*+]\s/.test(activeLine);
-    state.numberedList = /^\s*\d+\.\s/.test(activeLine);
-    const headMatch = activeLine.match(/^(#{1,6})\s/);
+  if (cursorLineContent) {
+    state.bulletList = /^\s*[-*+]\s/.test(cursorLineContent);
+    state.numberedList = /^\s*\d+\.\s/.test(cursorLineContent);
+    const headMatch = cursorLineContent.match(/^(#{1,6})\s/);
     if (headMatch) state.headLevel = headMatch[1].length;
   }
 
-  // Detect active tag keys for the current cursor position
+  // Detect active tag keys for the current cursor position.
   state.activeTagKeys = detectActiveTagKeys(editor);
 
   return state;

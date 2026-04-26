@@ -31,20 +31,23 @@ export const OL_NUMBER_REGEX = /^(\d+)\.\s$/;
 /** Regex to detect a CM6 UL formatting span's raw marker text: "- " / "* " / "+ ". */
 export const UL_MARKER_REGEX = /^[-*+]\s$/;
 
-/** Maps tag names (both MD and HTML) to the EditorState boolean field they represent. */
-export const TAG_NAME_TO_STATE_FIELD: Record<string, keyof EditorState> = {
+/**
+ * Maps detection-engine TagType values (e.g. 'bold', 'highlight') to the
+ * EditorState boolean field they represent. The detection engine normalises
+ * MD and HTML tag forms into the same TagType, so this map covers both.
+ */
+export const TAG_TYPE_TO_STATE_FIELD: Record<string, keyof EditorState> = {
   bold: 'bold',
-  b: 'bold',
   italic: 'italic',
-  i: 'italic',
-  u: 'underline',
+  underline: 'underline',
   strikethrough: 'strikethrough',
-  s: 'strikethrough',
   highlight: 'highlight',
-  mark: 'highlight',
-  sub: 'subscript',
-  sup: 'superscript',
+  subscript: 'subscript',
+  superscript: 'superscript',
 };
+
+/** Legacy `<div style="text-align:VALUE">…</div>` reader used for backward compatibility. */
+export const LEGACY_DIV_ALIGN_PATTERN = /<div\s+style="text-align:\s*([a-zA-Z]+)\s*;?\s*"\s*>/i;
 
 /** Valid text alignment values accepted by Obsidian/CSS. */
 export const VALID_TEXT_ALIGN_VALUES = new Set(['left', 'center', 'right', 'justify']);
