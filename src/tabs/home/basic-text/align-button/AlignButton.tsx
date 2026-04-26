@@ -4,7 +4,7 @@ import { AlignLeftIcon, AlignCenterIcon, AlignRightIcon } from '../../../../asse
 import { useApp } from '../../../../shared/context/AppContext';
 import { RibbonButton } from '../../../../shared/components/ribbon-button/RibbonButton';
 import { Dropdown } from '../../../../shared/components/dropdown/Dropdown';
-import { convertMarkdownTokensToHtml } from '../../../../shared/editor/styling-engine/markdown-to-html-conversion/MarkdownToHtmlConversion';
+import { convertMarkdownTokensToHtml } from '../../../../shared/editor-v2/styling-engine/editor-integration/convert-markdown-tokens-to-html/convertMarkdownTokensToHtml';
 import type { AlignButtonProps, TextAlign } from './interfaces';
 import {
   ALIGNMENT_OPTIONS,
