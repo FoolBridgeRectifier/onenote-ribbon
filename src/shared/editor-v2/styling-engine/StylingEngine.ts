@@ -4,6 +4,7 @@ import { processRemovePath } from './remove-path/removePath';
 import { decideRemove } from './remove-path/decide-remove/decideRemove';
 import { processRemoveAllTags } from './remove-path/remove-all-tags/removeAllTags';
 import { LINE_LEVEL_TYPES } from './constants';
+import { copyFormatImpl } from './copy-format/copyFormat';
 
 /**
  * Toggles a tag on the selection. Routing:
@@ -37,6 +38,6 @@ export function removeAllTags(context: StylingContext): StylingResult {
  * On paste: caller toggles any tags missing from the destination selection and
  * applies the lineTagDefinition at the start of each destination line.
  */
-export function copyFormat(_context: StylingContext): CopiedFormat {
-  throw new Error('not implemented');
+export function copyFormat(context: StylingContext): CopiedFormat {
+  return copyFormatImpl(context);
 }

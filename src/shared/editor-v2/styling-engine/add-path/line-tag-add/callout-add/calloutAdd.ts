@@ -9,9 +9,10 @@ export function processCalloutAdd(context: StylingContext, segments: Array<{ sta
 
   const calloutHeaderMatch = /^>\s*\[!(\w+)\]\s?/.exec(firstLine);
   if (calloutHeaderMatch) {
-    // When the selection starts on the callout header line itself → REMOVE the marker (toggle off).
-    // When it only covers body lines → NEST the callout (X15).
-    if (segments[0].start <= firstBounds.lineStart + calloutHeaderMatch[0].length) {
+    // Single-line selection confined to the header → REMOVE the marker (toggle off).
+    // Multi-line selection (header + body) → NEST the callout (X15).
+    const onlyHeaderLine = segments.length === 1 && segments[0].end <= firstBounds.lineEnd;
+    if (onlyHeaderLine) {
       return removeCalloutMarker(firstBounds.lineStart, calloutHeaderMatch);
     }
     return processNestedCallout(context, firstBounds);
@@ -58,9 +59,10 @@ function processNestedCallout(context: StylingContext, headerBounds: { lineStart
   }
 
   if (firstContentLineStart !== null) {
+    // X15 — nested callout header lives inside the parent callout, so it carries the parent's `> ` quote prefix.
     replacements.push({
       fromOffset: firstContentLineStart, toOffset: firstContentLineStart,
-      replacementText: `> [!${NESTED_CALLOUT_TYPE}]\n`,
+      replacementText: `> > [!${NESTED_CALLOUT_TYPE}]\n`,
     });
   }
   return { replacements: sortReplacementsLastToFirst(replacements), isNoOp: replacements.length === 0 };

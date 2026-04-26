@@ -139,10 +139,10 @@ describe('I4 — Single-line-tag always applies to line start, not cursor positi
   });
 });
 
-describe('I5–I6 — Indent uses tab inside list; removes with list', () => {
-  it('I5: uses \\t instead of margin-left span when indenting inside list item', () => {
-    const result = toggleTag(selectAll('- item'), { type: 'indent' });
-    expect(result.replacements.some((rep) => rep.replacementText.includes('\t'))).toBe(true);
+describe('I5–I6 — Indent uses span inside list (X9 supersedes); removes with list', () => {
+  it('I5: indent on list item uses margin-left span placed AFTER `- ` prefix (X9)', () => {
+    const output = applyReplacements('- item', toggleTag(selectAll('- item'), { type: 'indent' }).replacements);
+    expect(output).toBe('- <span style="margin-left:24px"/>item');
   });
   it('I6: removes all leading \\t when list marker is removed', () => {
     expect(applyReplacements('- \t\titem', toggleTag(selectAll('- \t\titem'), { type: 'list' }).replacements))

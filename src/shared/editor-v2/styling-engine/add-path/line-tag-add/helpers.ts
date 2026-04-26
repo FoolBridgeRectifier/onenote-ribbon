@@ -21,6 +21,9 @@ export function classifyLine(sourceText: string, offset: number, tagDefinition: 
 }
 
 function classifyList(lineText: string, lineStart: number): LineClassification {
+  // X8: callout header lines (`> [!type] ...`) are not list-eligible — leave untouched.
+  if (/^>\s\[!/.test(lineText)) return { alreadyTagged: true, additionReplacements: [], removalReplacements: [] };
+
   const afterQuote = lineText.startsWith('> ') ? 2 : 0;
   const inListItem = /^- (?!\[ ?\])/.test(lineText.slice(afterQuote));
 
@@ -55,10 +58,7 @@ function classifyQuote(lineText: string, lineStart: number): LineClassification 
 }
 
 function classifyIndent(lineText: string, lineStart: number): LineClassification {
-  // I5: inside list use \t; outside use margin-left span.
-  const listMatch = /^(>\s)?-\s(?!\[ ?\])/.exec(lineText);
-  if (listMatch) return makeInsert(lineStart + listMatch[0].length, '\t');
-
+  // X9: indent always uses margin-left span placed AFTER any line prefix (heading/quote/list/checkbox).
   const prefixMatch = /^(?:>\s)?(?:#{1,6}\s|-\s\[ \]\s|-\s)?/.exec(lineText);
   const prefixLength = prefixMatch ? prefixMatch[0].length : 0;
   const afterPrefix = lineText.slice(prefixLength);

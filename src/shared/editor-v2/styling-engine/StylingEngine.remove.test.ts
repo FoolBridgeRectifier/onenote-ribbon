@@ -147,7 +147,8 @@ describe('Special — Checkbox/callout remove; quote-in-callout no-op', () => {
   });
 
   it('removes callout header leaving body without [!note] marker', () => {
-    expect(applyReplacements('> [!note] Title\n> content', toggleTag(selectAll('> [!note] Title\n> content'), { type: 'callout' }).replacements)).not.toContain('[!note]');
+    // Phase 4 X15: selectAll on a multi-line callout NESTS; to trigger marker removal, select only the header line.
+    expect(applyReplacements('> [!note] Title\n> content', toggleTag(selectRange('> [!note] Title\n> content', 0, 15), { type: 'callout' }).replacements)).not.toContain('[!note]');
   });
 
   it('returns isNoOp=true when removing quote from a callout line', () => {

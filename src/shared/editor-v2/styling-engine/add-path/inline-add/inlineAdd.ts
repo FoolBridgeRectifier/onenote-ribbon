@@ -8,6 +8,7 @@ import { computeLinePrefixLength } from './line-prefix/linePrefix';
 import { tryMergeOrExtendMd } from './md-merge/mdMerge';
 import { processSpanAdd } from './span-add/spanAdd';
 import { upgradeInlineMdInsideSelection } from './md-to-html-pre-step/mdToHtmlPreStep';
+import { tryHighlightInsideHtmlPromote } from './highlight-inside-html-promote/highlightInsideHtmlPromote';
 
 /**
  * Adds (or merges/removes) an inline tag on a single-line selection.
@@ -23,6 +24,13 @@ export function processInlineAdd(context: StylingContext, tagDefinition: TagDefi
   const contentStart = lineStart + linePrefixLength;
   if (start < contentStart) start = contentStart;
   if (end < start) end = start;
+
+  // X13 — highlight MD with selection enclosing existing `==…==` inside HTML element → promote to span.
+  const highlightPromoted = tryHighlightInsideHtmlPromote(
+    { sourceText, selectionStartOffset: start, selectionEndOffset: end },
+    tagDefinition,
+  );
+  if (highlightPromoted) return highlightPromoted;
 
   // A2 / A18 — upgrade MD tag to HTML when surrounded by HTML.
   const effectiveTag = upgradeMdToHtmlIfNeeded(sourceText, start, end, tagDefinition);

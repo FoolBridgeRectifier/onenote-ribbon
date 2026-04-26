@@ -3,6 +3,7 @@ import { lineBoundsAt, splitSelectionByLine, sortReplacementsLastToFirst } from 
 import { classifyLine } from './helpers';
 import { processCalloutAdd } from './callout-add/calloutAdd';
 import { processMeetingDetails } from './meeting-details-add/meetingDetailsAdd';
+import { tryCheckboxReplacesCallout } from './checkbox-replaces-callout/checkboxReplacesCallout';
 
 /**
  * Add (or remove) a single-line / special tag on every line covered by the selection.
@@ -17,6 +18,10 @@ export function processLineTagAdd(context: StylingContext, tagDefinition: TagDef
 
   if (tagDefinition.type === 'meetingDetails') return processMeetingDetails(context);
   if (tagDefinition.type === 'callout')        return processCalloutAdd(context, segments);
+  if (tagDefinition.type === 'checkbox') {
+    const calloutReplacement = tryCheckboxReplacesCallout(context, segments);
+    if (calloutReplacement) return calloutReplacement;
+  }
 
   // For multi-line: classify each line as already-tagged or not, then decide add vs remove.
   const lineOps = segments.map((segment) => classifyLine(context.sourceText, segment.start, tagDefinition));
