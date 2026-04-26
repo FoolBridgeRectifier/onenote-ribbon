@@ -48,15 +48,19 @@ export function decideRemove(context: StylingContext, tagDefinition: TagDefiniti
     r9InsideMatch = findFirstSameTypeTagInsideSelection(tagContext.tags, tagDefinition, context);
   }
 
-  // Pick innermost enclosing as primary; fall back to span-inside / R9 inside-match / swap partner.
+  // Pick innermost enclosing as primary; fall back to span-inside / R9 inside-match / HTML equivalent (R4) / swap partner.
   const primary = sameTypeEnclosing.length > 0
     ? sameTypeEnclosing.reduce((best, candidate) => (candidate.open!.start.ch > best.open!.start.ch ? candidate : best))
-    : spanFullyInsideSelection ?? r9InsideMatch ?? swapPartner ?? null;
+    : spanFullyInsideSelection ?? r9InsideMatch ?? htmlEquivalent ?? swapPartner ?? null;
+
+  // Return htmlEquivalent when: R9 (MD + HTML both present), mixed enclosing, or R4 (HTML equivalent is the primary to remove).
+  const shouldReturnHtmlEquivalent = htmlEquivalent !== null &&
+    (r9InsideMatch !== null || sameTypeEnclosing.length > 0 || primary === htmlEquivalent);
 
   return {
     shouldRemove: Boolean(primary),
     enclosingTag: primary,
-    htmlEquivalent: r9InsideMatch ? htmlEquivalent : (sameTypeEnclosing.length > 0 ? htmlEquivalent : null),
+    htmlEquivalent: shouldReturnHtmlEquivalent ? htmlEquivalent : null,
     stackedEnclosing: sameTypeEnclosing,
   };
 }
