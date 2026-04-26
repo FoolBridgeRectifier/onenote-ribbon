@@ -12,4 +12,5 @@ export type {
   FormattingDomain,
 } from '../../../editor/styling-engine/interfaces/tag-definitions/interfaces';
 export type { CopiedFormat as LegacyCopiedFormat } from '../../../editor/styling-engine/interfaces';
+export type { CopiedFormat } from '../../../editor/styling-engine/interfaces';
 export type { RemoveAllTagsOptions } from '../../../editor/styling-engine/interfaces';

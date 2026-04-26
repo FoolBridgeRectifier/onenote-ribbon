@@ -1,5 +1,5 @@
 import type { MutableRefObject } from 'react';
-import type { CopiedFormat } from '../../editor/styling-engine/interfaces';
+import type { CopiedFormat } from '../../editor-v2/styling-engine/editor-integration/interfaces';
 import type { FormatPainterMode, FormatPainterState } from '../interfaces';
 import type { SingleClickOutcome, DoubleClickOutcome } from './interfaces';
 

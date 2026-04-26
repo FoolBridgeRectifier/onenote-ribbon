@@ -3,8 +3,8 @@ import type { App } from 'obsidian';
 import {
   copyFormatFromEditor,
   addTagInEditor,
-} from '../editor/styling-engine/editor-integration/helpers';
-import type { CopiedFormat } from '../editor/styling-engine/interfaces';
+} from '../editor-v2/styling-engine/editor-integration/helpers';
+import type { CopiedFormat } from '../editor-v2/styling-engine/editor-integration/interfaces';
 import type { FormatPainterState, UseFormatPainterResult } from './interfaces';
 import { APPLY_AFTER_EDITOR_CLICK_DELAY_MILLISECONDS } from './constants';
 import {

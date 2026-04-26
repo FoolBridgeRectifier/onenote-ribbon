@@ -6,8 +6,8 @@ import {
   applyClearAllFormatting,
 } from '../../tabs/home/basic-text/helpers';
 import { applyFontSize } from '../../tabs/home/basic-text/font-picker/helpers';
-import { toggleTagInEditor } from '../editor/styling-engine/editor-integration/helpers';
-import { SUBSCRIPT_TAG, SUPERSCRIPT_TAG } from '../editor/styling-engine/constants';
+import { toggleTagInEditor } from '../editor-v2/styling-engine/editor-integration/helpers';
+import { SUBSCRIPT_TAG, SUPERSCRIPT_TAG } from '../editor-v2/styling-engine/editor-integration/constants';
 import { deriveEditorState } from '../hooks/editorStateHelpers';
 import { getNextFontSize, getPreviousFontSize } from './helpers';
 import {
