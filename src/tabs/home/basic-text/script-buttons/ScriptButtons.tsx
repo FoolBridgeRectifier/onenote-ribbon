@@ -1,7 +1,7 @@
 import { useApp } from '../../../../shared/context/AppContext';
 import { RibbonButton } from '../../../../shared/components/ribbon-button/RibbonButton';
-import { toggleTagInEditor } from '../../../../shared/editor/styling-engine/editor-integration/helpers';
-import { SUBSCRIPT_TAG, SUPERSCRIPT_TAG } from '../../../../shared/editor/styling-engine/constants';
+import { toggleTagInEditor } from '../../../../shared/editor-v2/styling-engine/editor-integration/helpers';
+import { SUBSCRIPT_TAG, SUPERSCRIPT_TAG } from '../../../../shared/editor-v2/styling-engine/editor-integration/constants';
 import type { ScriptButtonsProps } from './interfaces';
 
 export function ScriptButtons({ subscript, superscript }: ScriptButtonsProps) {
