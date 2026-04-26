@@ -3,13 +3,13 @@ import type { ClearFormattingOptions } from './interfaces';
 import {
   toggleTagInEditor,
   removeAllTagsInEditor,
-} from '../../../shared/editor/styling-engine/editor-integration/helpers';
+} from '../../../shared/editor-v2/styling-engine/editor-integration/helpers';
 import {
   UNDERLINE_TAG,
   BOLD_MD_TAG,
   ITALIC_MD_TAG,
   STRIKETHROUGH_MD_TAG,
-} from '../../../shared/editor/styling-engine/constants';
+} from '../../../shared/editor-v2/styling-engine/editor-integration/constants';
 
 export type { ClearFormattingOptions };
 
@@ -34,7 +34,9 @@ export function applyDeleteElement(editor: Editor): void {
 }
 
 export function applyClearAllFormatting(editor: Editor): void {
-  removeAllTagsInEditor(editor, { preserveLinePrefix: false });
+  // v2 removeAllTags always strips line prefixes — matches the legacy
+  // { preserveLinePrefix: false } semantics this caller relies on.
+  removeAllTagsInEditor(editor);
 }
 
 /**
