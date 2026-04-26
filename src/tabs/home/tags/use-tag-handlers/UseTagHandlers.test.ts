@@ -8,7 +8,7 @@ const toggleTagMock = jest.fn();
 const saveCustomTagsMock = jest.fn();
 const selectTagFromDropdownMock = jest.fn();
 
-jest.mock('../../../../shared/editor-v2/styling-engine/editor-integration/stylingEngine', () => ({
+jest.mock('../../../../shared/editor-v2/styling-engine/editor-integration/styling-engine/stylingEngine', () => ({
   addTag: (...args: unknown[]) => addTagMock(...args),
   removeTag: (...args: unknown[]) => removeTagMock(...args),
   toggleTag: (...args: unknown[]) => toggleTagMock(...args),

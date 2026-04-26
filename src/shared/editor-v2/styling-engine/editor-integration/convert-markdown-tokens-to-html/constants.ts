@@ -1,14 +1,7 @@
-import type { HtmlTagDefinition } from '../interfaces';
 import {
   BOLD_HTML_TAG, ITALIC_HTML_TAG, STRIKETHROUGH_HTML_TAG, HIGHLIGHT_HTML_TAG,
 } from '../constants';
-
-/** A single markdown delimiter pair → HTML tags conversion entry. */
-export interface MarkdownToHtmlConversionEntry {
-  markdownOpening: string;
-  markdownClosing: string;
-  htmlTags: HtmlTagDefinition[];
-}
+import type { MarkdownToHtmlConversionEntry } from './interfaces';
 
 /**
  * Conversion table — longer delimiters first (`***` before `**` before `*`)

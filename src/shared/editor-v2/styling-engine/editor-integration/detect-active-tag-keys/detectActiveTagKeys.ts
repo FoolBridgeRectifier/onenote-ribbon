@@ -4,4 +4,4 @@
  * legacy active-tag-key shape. Re-export here so callers depend on the v2
  * boundary, allowing future replacement without touching call sites.
  */
-export { detectActiveTagKeys } from '../../../editor/styling-engine/callout-apply/helpers/detect-active-tag-keys/DetectActiveTagKeys';
+export { detectActiveTagKeys } from '../../../../editor/styling-engine/callout-apply/helpers/detect-active-tag-keys/DetectActiveTagKeys';

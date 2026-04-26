@@ -780,7 +780,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
           data-cmd="more-tags"
           title="More tags"
         >
-          ?
+          ▾
         </div>
       </div>
       <div
@@ -5233,7 +5233,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
                     "data-cmd": "more-tags",
                   },
                   "tagName": "div",
-                  "textContent": "?",
+                  "textContent": "▾",
                 },
               ],
               "className": "onr-tags-more",
@@ -5259,7 +5259,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
               },
               "dataAttributes": {},
               "tagName": "div",
-              "textContent": "?",
+              "textContent": "▾",
             },
             {
               "children": [
@@ -5657,7 +5657,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
           },
           "dataAttributes": {},
           "tagName": "div",
-          "textContent": "To DoImportant?Question?To Do TagFind Tags",
+          "textContent": "To DoImportant?Question▾To Do TagFind Tags",
         },
         {
           "children": [],
@@ -5716,7 +5716,7 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
       },
       "dataAttributes": {},
       "tagName": "div",
-      "textContent": "To DoImportant?Question?To Do TagFind TagsTags",
+      "textContent": "To DoImportant?Question▾To Do TagFind TagsTags",
     },
     {
       "children": [
@@ -6865,6 +6865,6 @@ exports[`HomeTabPanel snapshots matches DOM snapshot and recursive computed CSS 
     "data-panel": "Home",
   },
   "tagName": "div",
-  "textContent": "Paste▾CutCopyFormat PainterClipboardFont▾16▾▾▾BIUabx₂x²▾A▾▾Basic TextNormalHeading 1▲▼▾StylesTo DoImportant?Question?To Do TagFind TagsTagsEmail PageMeeting DetailsEmail & MeetingsOutlineFold AllUnfold AllNavigate",
+  "textContent": "Paste▾CutCopyFormat PainterClipboardFont▾16▾▾▾BIUabx₂x²▾A▾▾Basic TextNormalHeading 1▲▼▾StylesTo DoImportant?Question▾To Do TagFind TagsTagsEmail PageMeeting DetailsEmail & MeetingsOutlineFold AllUnfold AllNavigate",
 }
 `;

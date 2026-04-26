@@ -2,7 +2,7 @@ import type { HtmlTagRange } from '../editor/enclosing-html-tags/enclosingHtmlTa
 import {
   extractStylePropertyFromOpeningTag,
   extractAllStyleProperties,
-} from '../editor-v2/styling-engine/editor-integration/styleParsing';
+} from '../editor-v2/styling-engine/editor-integration/style-parsing/styleParsing';
 import { VALID_TEXT_ALIGN_VALUES } from './constants';
 
 /**

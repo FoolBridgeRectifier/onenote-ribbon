@@ -1,4 +1,5 @@
-import { MARKDOWN_TO_HTML_CONVERSION_TABLE, type MarkdownToHtmlConversionEntry } from './constants';
+import { MARKDOWN_TO_HTML_CONVERSION_TABLE } from './constants';
+import type { MarkdownToHtmlConversionEntry } from './interfaces';
 
 /** Escapes characters that have special meaning in regular expressions. */
 function escapeRegexSpecialCharacters(text: string): string {

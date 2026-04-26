@@ -8,6 +8,8 @@ export function applyFontFamily(editor: ObsidianEditor, fontFamily: string): voi
 }
 
 // Applies a font-size span (in points) to the current selection via the styling engine.
+// CodeMirror's inline HTML rendering naturally expands the cm-line to 1.5 × font-size-px,
+// so no explicit line-height wrapper is needed.
 export function applyFontSize(editor: ObsidianEditor, sizeInPt: number): void {
   addTagInEditor(editor, buildSpanTagDefinition('font-size', `${sizeInPt}pt`));
 }

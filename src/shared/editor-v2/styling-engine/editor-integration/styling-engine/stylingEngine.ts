@@ -13,4 +13,4 @@ export {
   removeTag,
   removeAllTags,
   copyFormat,
-} from '../../../editor/styling-engine/stylingEngine';
+} from '../../../../editor/styling-engine/stylingEngine';

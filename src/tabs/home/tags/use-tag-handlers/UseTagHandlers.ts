@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import {
   addTag,
   toggleTag,
-} from '../../../../shared/editor-v2/styling-engine/editor-integration/stylingEngine';
+} from '../../../../shared/editor-v2/styling-engine/editor-integration/styling-engine/stylingEngine';
 import { ACTIVE_TAG_KEY_TASK, EDITOR_COMMAND_OPEN_GLOBAL_SEARCH } from '../constants';
 import { saveCustomTags } from '../tag-storage/TagStorage';
 import type { CustomTag } from '../customize-modal/interfaces';

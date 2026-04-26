@@ -6,7 +6,7 @@ import { ACTIVE_TAG_KEY_TASK } from '../constants';
 const addTagMock = jest.fn();
 const removeTagMock = jest.fn();
 
-jest.mock('../../../../shared/editor-v2/styling-engine/editor-integration/stylingEngine', () => ({
+jest.mock('../../../../shared/editor-v2/styling-engine/editor-integration/styling-engine/stylingEngine', () => ({
   addTag: (...args: unknown[]) => addTagMock(...args),
   removeTag: (...args: unknown[]) => removeTagMock(...args),
 }));

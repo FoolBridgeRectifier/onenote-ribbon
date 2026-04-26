@@ -7,7 +7,7 @@ jest.mock('../editor/enclosing-html-tags/enclosingHtmlTags', () => ({
 }));
 
 jest.mock(
-  '../editor-v2/styling-engine/editor-integration/detectActiveTagKeys',
+  '../editor-v2/styling-engine/editor-integration/detect-active-tag-keys/detectActiveTagKeys',
   () => ({
     detectActiveTagKeys: jest.fn(),
   })
@@ -18,7 +18,7 @@ jest.mock('./spanState', () => ({
 }));
 
 import { createEnclosingHtmlTagFinder } from '../editor/enclosing-html-tags/enclosingHtmlTags';
-import { detectActiveTagKeys } from '../editor-v2/styling-engine/editor-integration/detectActiveTagKeys';
+import { detectActiveTagKeys } from '../editor-v2/styling-engine/editor-integration/detect-active-tag-keys/detectActiveTagKeys';
 import { extractSpanAndDivState } from './spanState';
 
 describe('editorStateHelpers', () => {
