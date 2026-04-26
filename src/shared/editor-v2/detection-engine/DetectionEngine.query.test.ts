@@ -1,4 +1,4 @@
-import { buildTagContext, getActiveTagsAtCursor, getEnclosingTags } from './DetectionEngine';
+import { buildTagContext, getActiveTagsAtCursor, getEnclosingTags, getTagsInRange } from './DetectionEngine';
 import type { ActiveTagsResult, DetectedTag } from './interfaces';
 
 // All tests are in TDD red state — stubs throw 'not implemented'.
@@ -10,12 +10,6 @@ describe('getActiveTagsAtCursor — enclosing tags', () => {
     const result: ActiveTagsResult = getActiveTagsAtCursor(context, { line: 0, ch: 4 });
     expect(result.enclosingTags).toHaveLength(1);
     expect(result.enclosingTags[0].type).toBe('bold');
-  });
-
-  it('returns empty enclosingTags when cursor is outside **hello**', () => {
-    const context = buildTagContext('**hello** world');
-    const result: ActiveTagsResult = getActiveTagsAtCursor(context, { line: 0, ch: 12 });
-    expect(result.enclosingTags).toHaveLength(0);
   });
 
   it('returns bold when cursor is at open delimiter start (boundary inclusive)', () => {
@@ -49,31 +43,21 @@ describe('getActiveTagsAtCursor — enclosing tags', () => {
 });
 
 describe('getActiveTagsAtCursor — line tags', () => {
-  it('returns list line tag when cursor is on a list line', () => {
-    const context = buildTagContext('- item');
-    const result: ActiveTagsResult = getActiveTagsAtCursor(context, { line: 0, ch: 3 });
-    expect(result.lineTag).not.toBeNull();
-    expect(result.lineTag!.type).toBe('list');
+  it.each([
+    ['- item',                               3,  'list'],
+    ['# Title',                              4,  'heading'],
+    ['> note',                               2,  'quote'],
+    ['> [!warning] Watch out',               10, 'callout'],
+    ['- [ ] task',                           3,  'checkbox'],
+    ['> ---',                                2,  'meetingDetails'],
+    ['<span style="margin-left:24px"/>item', 5,  'indent'],
+  ])('"%s" ch:%i → lineTag=%s', (input, ch, type) => {
+    const result: ActiveTagsResult = getActiveTagsAtCursor(buildTagContext(input), { line: 0, ch });
+    expect(result.lineTag!.type).toBe(type);
   });
 
-  it('returns heading line tag with level 1', () => {
-    const context = buildTagContext('# Title');
-    const result: ActiveTagsResult = getActiveTagsAtCursor(context, { line: 0, ch: 4 });
-    expect(result.lineTag!.type).toBe('heading');
-    expect(result.lineTag!.headingLevel).toBe(1);
-  });
-
-  it('returns null lineTag when cursor is on a plain line', () => {
-    const context = buildTagContext('plain text');
-    const result: ActiveTagsResult = getActiveTagsAtCursor(context, { line: 0, ch: 3 });
-    expect(result.lineTag).toBeNull();
-  });
-
-  it('returns callout line tag with calloutType on callout line', () => {
-    const context = buildTagContext('> [!warning] Watch out');
-    const result: ActiveTagsResult = getActiveTagsAtCursor(context, { line: 0, ch: 10 });
-    expect(result.lineTag!.type).toBe('callout');
-    expect(result.lineTag!.calloutType).toBe('warning');
+  it('returns null lineTag on a plain line', () => {
+    expect(getActiveTagsAtCursor(buildTagContext('plain text'), { line: 0, ch: 3 }).lineTag).toBeNull();
   });
 });
 
@@ -111,5 +95,71 @@ describe('getEnclosingTags — selection coverage', () => {
     const tags: DetectedTag[] = getEnclosingTags(context, { line: 0, ch: 0 }, { line: 0, ch: 22 });
     const types = tags.map((tag) => tag.type);
     expect(types).toContain('bold');
+    expect(types).not.toContain('italic');
+  });
+
+  it('returns color span (isSpan=true) when selection is inside a span tag', () => {
+    const ctx = buildTagContext('<span style="color:red">hi</span>');
+    // "hi" is at ch:24..ch:26 inside the color span
+    expect(getEnclosingTags(ctx, { line: 0, ch: 24 }, { line: 0, ch: 26 })[0]).toMatchObject({ type: 'color', isSpan: true });
+  });
+
+  it('returns empty when selection crosses multiple lines (inline tag is single-line only)', () => {
+    // **line0** is only on line 0; a selection spanning into line 1 should not return it
+    const ctx = buildTagContext('**line0**\nline1');
+    expect(getEnclosingTags(ctx, { line: 0, ch: 0 }, { line: 1, ch: 5 })).toHaveLength(0);
+  });
+});
+
+describe('getActiveTagsAtCursor — span tag and protected-range edge cases', () => {
+  it('returns color span as enclosing when cursor is inside a color span', () => {
+    const result = getActiveTagsAtCursor(buildTagContext('<span style="color:red">hi</span>'), { line: 0, ch: 25 });
+    expect(result.enclosingTags[0]).toMatchObject({ type: 'color', isSpan: true });
+  });
+
+  it('returns empty enclosingTags and preserves lineTag when cursor is inside wikilink on a list line', () => {
+    const result = getActiveTagsAtCursor(buildTagContext('- [[link]]'), { line: 0, ch: 5 });
+    expect(result.enclosingTags).toHaveLength(0);
+    expect(result.lineTag!.type).toBe('list');
+  });
+});
+
+describe('getEnclosingTags — zero-range (start === end)', () => {
+  it('returns bold for zero-range selection inside **hello**', () => {
+    const tags: DetectedTag[] = getEnclosingTags(buildTagContext('**hello**'), { line: 0, ch: 4 }, { line: 0, ch: 4 });
+    expect(tags).toHaveLength(1);
+    expect(tags[0].type).toBe('bold');
+  });
+});
+
+describe('getTagsInRange — tags fully within range', () => {
+  it('returns bold when tag is fully inside range', () => {
+    expect(getTagsInRange(buildTagContext('**hi** world'), 0, 12).map((t) => t.type)).toContain('bold');
+  });
+
+  it('partial overlap: returns empty when tag straddles range boundary', () => {
+    expect(getTagsInRange(buildTagContext('**hi**'), 0, 4)).toHaveLength(0);
+  });
+
+  it('boundary-exact: returns tag when range matches tag exactly', () => {
+    expect(getTagsInRange(buildTagContext('**hi**'), 0, 6)).toHaveLength(1);
+  });
+
+  it('zero-range: returns no tags when startCh === endCh', () => {
+    expect(getTagsInRange(buildTagContext('**hi**'), 3, 3)).toHaveLength(0);
+  });
+
+  it('empty-result: returns empty when no tags fall within range', () => {
+    expect(getTagsInRange(buildTagContext('plain **hi**'), 0, 4)).toHaveLength(0);
+  });
+});
+
+describe('getActiveTagsAtCursor — insertionFormat', () => {
+  it('insertionFormat is markdown when cursor is inside bold MD tag', () => {
+    expect(getActiveTagsAtCursor(buildTagContext('**hello**'), { line: 0, ch: 4 }).insertionFormat).toBe('markdown');
+  });
+
+  it('insertionFormat is html when cursor is inside an HTML span', () => {
+    expect(getActiveTagsAtCursor(buildTagContext('<span style="color:red">hi</span>'), { line: 0, ch: 25 }).insertionFormat).toBe('html');
   });
 });

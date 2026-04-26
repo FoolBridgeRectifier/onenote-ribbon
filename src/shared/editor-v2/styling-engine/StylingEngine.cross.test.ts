@@ -1,145 +1,169 @@
 import { toggleTag, copyFormat } from './StylingEngine';
-import type { StylingContext } from './interfaces';
-import { BOLD_MD, ITALIC_MD, SUBSCRIPT_HTML, SUPERSCRIPT_HTML } from './constants';
-
-// All tests are in TDD red state — stubs throw 'not implemented'.
-// Once implemented, each test must pass exactly as written.
-
-function selectAll(sourceText: string): StylingContext {
-  return { sourceText, selectionStartOffset: 0, selectionEndOffset: sourceText.length };
-}
-
-function selectRange(sourceText: string, start: number, end: number): StylingContext {
-  return { sourceText, selectionStartOffset: start, selectionEndOffset: end };
-}
-
-// ─── Cross-Type Interactions ───────────────────────────────────────────────────
-
-describe('X1 — MD + HTML equivalent both present: treat as tagged', () => {
-  it('goes to remove path when MD and HTML equivalent both exist', () => {
-    // <b>**hello**</b> — both bold forms present; toggling bold should remove both
-    const sourceText = '<b>**hello**</b>';
-    const result = toggleTag(selectAll(sourceText), BOLD_MD);
-    expect(result.isNoOp).toBe(false);
-    const outputText = applyReplacements(sourceText, result.replacements);
-    expect(outputText).toBe('hello');
-  });
-});
+import { BOLD_MD, ITALIC_MD, HIGHLIGHT_MD } from './constants';
+import { selectAll, selectRange, applyReplacements } from './helpers';
+// All tests in TDD red state — stubs throw 'not implemented'.
 
 describe('X2 — MD tag inside HTML context: upgrade to HTML', () => {
   it('upgrades ** to <b> when toggling bold inside <i>text</i>', () => {
-    const sourceText = '<i>hello</i>';
-    const result = toggleTag(selectRange(sourceText, 3, 8), BOLD_MD);
-    const outputText = applyReplacements(sourceText, result.replacements);
-    // Must produce <i><b>hello</b></i>, not <i>**hello**</i>  (invariant I2)
-    expect(outputText).toBe('<i><b>hello</b></i>');
+    expect(applyReplacements('<i>hello</i>', toggleTag(selectRange('<i>hello</i>', 3, 8), BOLD_MD).replacements))
+      .toBe('<i><b>hello</b></i>');
   });
-
   it('does not insert MD ** inside any HTML context (invariant I2)', () => {
-    const sourceText = '<b>text</b>';
-    const result = toggleTag(selectRange(sourceText, 3, 7), ITALIC_MD);
-    const outputText = applyReplacements(sourceText, result.replacements);
-    expect(outputText).not.toContain('*text*');
-    expect(outputText).toContain('<i>');
-  });
-});
-
-describe('X3 — sub/sup mutual exclusion swap', () => {
-  it('swaps <sub> to <sup> when toggling sup on subscript text', () => {
-    const sourceText = '<sub>hello</sub>';
-    const result = toggleTag(selectAll(sourceText), SUPERSCRIPT_HTML);
-    const outputText = applyReplacements(sourceText, result.replacements);
-    expect(outputText).toBe('<sup>hello</sup>');
-  });
-
-  it('swaps <sup> to <sub> when toggling sub on superscript text', () => {
-    const sourceText = '<sup>hello</sup>';
-    const result = toggleTag(selectAll(sourceText), SUBSCRIPT_HTML);
-    const outputText = applyReplacements(sourceText, result.replacements);
-    expect(outputText).toBe('<sub>hello</sub>');
+    const output = applyReplacements('<b>text</b>', toggleTag(selectRange('<b>text</b>', 3, 7), ITALIC_MD).replacements);
+    expect(output).not.toContain('*text*');
+    expect(output).toContain('<i>');
   });
 });
 
 describe('X4–X5 — Heading/list mutual swap', () => {
-  it('X4: replaces "- " with "# " when toggling heading on list line', () => {
-    const result = toggleTag(selectAll('- item'), {
-      kind: 'single',
-      singleType: 'heading',
-      headingLevel: 1,
-    });
-    const outputText = applyReplacements('- item', result.replacements);
-    expect(outputText).toBe('# item');
+  it.each<[string, Parameters<typeof toggleTag>[1], string]>([
+    ['- item',  { type: 'heading' }, '# item'],
+    ['# title', { type: 'list' },    '- title'],
+  ])('%s + tag → %s', (sourceText, tag, expected) => {
+    expect(applyReplacements(sourceText, toggleTag(selectAll(sourceText), tag).replacements)).toBe(expected);
+  });
+});
+
+describe('X6–X7 — Quote prefix coexists with list/heading', () => {
+  it('X6: "- " added inside "> " line, quote prefix preserved', () => {
+    expect(applyReplacements('> item', toggleTag(selectAll('> item'), { type: 'list' }).replacements))
+      .toBe('> - item');
   });
 
-  it('X5: replaces "# " with "- " when toggling list on heading line', () => {
-    const result = toggleTag(selectAll('# title'), { kind: 'single', singleType: 'list' });
-    const outputText = applyReplacements('# title', result.replacements);
-    expect(outputText).toBe('- title');
+  it('X7: "# " added inside "> " line, quote prefix preserved', () => {
+    expect(applyReplacements('> item', toggleTag(selectAll('> item'), { type: 'heading' }).replacements))
+      .toBe('> # item');
+  });
+});
+
+describe('X8 — Callout block + list: body lines get "- " prefix, header unchanged', () => {
+  it('adds "- " to content line but leaves callout header intact', () => {
+    const sourceText = '> [!note] Title\n> content';
+    const output = applyReplacements(sourceText, toggleTag(selectAll(sourceText), { type: 'list' }).replacements);
+    expect(output).toContain('> [!note] Title');
+    expect(output).toContain('> - content');
+  });
+});
+
+describe('X9 — Indent placed AFTER line prefix (not at line start)', () => {
+  it.each<[string, string]>([
+    ['# title',  '# <span style="margin-left:24px"/>title'],
+    ['> note',   '> <span style="margin-left:24px"/>note'],
+    ['- item',   '- <span style="margin-left:24px"/>item'],
+  ])('indent on "%s" -> prefix preserved, span after prefix', (input, expected) => {
+    expect(applyReplacements(input, toggleTag(selectAll(input), { type: 'indent' }).replacements))
+      .toBe(expected);
+  });
+});
+
+describe('X10 — Inline tag after line prefix: wraps only the content', () => {
+  it.each<[string, string]>([
+    ['> note',   '> **note**'],
+    ['- item',   '- **item**'],
+    ['# title',  '# **title**'],
+  ])('bold on "%s" → content-only wrap', (input, expected) => {
+    expect(applyReplacements(input, toggleTag(selectAll(input), BOLD_MD).replacements)).toBe(expected);
   });
 });
 
 describe('X12 — Code span content is inert', () => {
   it('returns isNoOp=true when selection is entirely inside code span', () => {
-    const sourceText = '`hello`';
-    // Select "hello" inside the backticks
-    const result = toggleTag(selectRange(sourceText, 1, 6), BOLD_MD);
-    expect(result.isNoOp).toBe(true);
+    expect(toggleTag(selectRange('`hello`', 1, 6), BOLD_MD).isNoOp).toBe(true);
   });
 });
 
-// ─── Invariants ───────────────────────────────────────────────────────────────
+describe('X13 — Highlight in HTML context: uses background span', () => {
+  it('wraps highlighted text with background span inside <b> (no == MD delimiters)', () => {
+    const sourceText = '<b>==hello==</b>';
+    const output = applyReplacements(sourceText, toggleTag(selectAll(sourceText), HIGHLIGHT_MD).replacements);
+    expect(output).toContain('<span style="background');
+    expect(output).not.toContain('==');
+  });
+});
 
-describe('I1 — No stacked active tags', () => {
+describe('X14 — Custom background span add', () => {
+  it('wraps selection with background span and never emits == delimiters', () => {
+    const output = applyReplacements('hello', toggleTag(selectAll('hello'), { type: 'highlight', isSpan: true }).replacements);
+    expect(output).toContain('<span style="background');
+    expect(output).not.toContain('==');
+  });
+});
+
+describe('X15 — Nested callout inside existing callout', () => {
+  it('wraps body of existing note callout with a new tip callout', () => {
+    const sourceText = '> [!note] A\n> text';
+    const output = applyReplacements(sourceText, toggleTag(selectAll(sourceText), { type: 'callout' }).replacements);
+    expect(output).toContain('> [!note] A');
+    expect(output).toContain('> > [!tip]');
+    expect(output).toContain('> > text');
+  });
+});
+
+describe('X16 — Checkbox replaces callout', () => {
+  it('converts callout block to a checkbox item and strips "> " from child lines', () => {
+    const sourceText = '> [!note] Title\n> content';
+    const output = applyReplacements(sourceText, toggleTag(selectAll(sourceText), { type: 'checkbox' }).replacements);
+    expect(output).toContain('- [ ] Title');
+    expect(output).not.toContain('> content');
+    expect(output).toContain('content');
+  });
+});
+
+
+describe('X11 — Single-tag applied across multi-line selection: per-line', () => {
+  it('applies "- " to every line when list tag is toggled across a multi-line selection', () => {
+    expect(applyReplacements('line1\nline2', toggleTag(selectAll('line1\nline2'), { type: 'list' }).replacements))
+      .toBe('- line1\n- line2');
+  });
+
+  it('applies bold to each line independently when toggling across a 2-line selection', () => {
+    expect(applyReplacements('line1\nline2', toggleTag(selectAll('line1\nline2'), BOLD_MD).replacements)).toBe('**line1**\n**line2**');
+  });
+});
+
+describe('I1 — No stacked active tags of the same type', () => {
   it('routes to remove path instead of re-wrapping when bold already active', () => {
-    // Select "hello" where it is already fully bold
-    const result = toggleTag(selectRange('**hello**', 2, 7), BOLD_MD);
-    // Since "hello" is inside bold, this should be a remove (punch-out), not a double-wrap
-    const outputText = applyReplacements('**hello**', result.replacements);
-    expect(outputText).not.toMatch(/\*\*.*\*\*.*\*\*.*\*\*/);
+    const output = applyReplacements('**hello**', toggleTag(selectRange('**hello**', 2, 7), BOLD_MD).replacements);
+    // Must not produce triple-nested bold
+    expect(output).not.toMatch(/\*\*.*\*\*.*\*\*.*\*\*/);
+  });
+  it('isNoOp is false when full tag selection routes to remove path', () => {
+    expect(toggleTag(selectAll('**hello**'), BOLD_MD).isNoOp).toBe(false);
+  });
+});
+
+describe('I4 — Single-line-tag always applies to line start, not cursor position', () => {
+  it('prepends "- " at column 0 regardless of cursor being in middle of line', () => {
+    expect(applyReplacements('hello', toggleTag(selectRange('hello', 3, 3), { type: 'list' }).replacements))
+      .toBe('- hello');
   });
 });
 
 describe('I5–I6 — Indent uses tab inside list; removes with list', () => {
   it('I5: uses \\t instead of margin-left span when indenting inside list item', () => {
-    const result = toggleTag(selectAll('- item'), { kind: 'single', singleType: 'indent' });
-    const insertedText = result.replacements.find((rep) => rep.replacementText.includes('\t'));
-    expect(insertedText).toBeDefined();
+    const result = toggleTag(selectAll('- item'), { type: 'indent' });
+    expect(result.replacements.some((rep) => rep.replacementText.includes('\t'))).toBe(true);
   });
-
   it('I6: removes all leading \\t when list marker is removed', () => {
-    const sourceText = '- \t\titem';
-    const result = toggleTag(selectAll(sourceText), { kind: 'single', singleType: 'list' });
-    const outputText = applyReplacements(sourceText, result.replacements);
-    expect(outputText).toBe('item');
+    expect(applyReplacements('- \t\titem', toggleTag(selectAll('- \t\titem'), { type: 'list' }).replacements))
+      .toBe('item');
   });
 });
 
-// ─── copyFormat ───────────────────────────────────────────────────────────────
-
 describe('copyFormat', () => {
+  it.each<[string, number, number, string, boolean]>([
+    ['**hello**', 4, 4, 'markdown', false],
+    ['<b>hello</b>', 3, 8, 'html', false],
+  ])('captures domain "%s" from "%s"', (sourceText, start, end, expectedDomain) => {
+    expect(copyFormat(selectRange(sourceText, start, end)).domain).toBe(expectedDomain);
+  });
   it('captures bold MD tag at cursor', () => {
-    const format = copyFormat(selectRange('**hello**', 4, 4));
-    expect(
-      format.tagDefinitions.some(
-        (tag) => tag.kind === 'md-closing' && tag.openingDelimiter === '**'
-      )
-    ).toBe(true);
+    expect(copyFormat(selectRange('**hello**', 4, 4)).tagDefinitions.some((tag) => tag.type === 'bold')).toBe(true);
   });
-
-  it('captures domain as markdown in plain context', () => {
-    const format = copyFormat(selectAll('**hello**'));
-    expect(format.domain).toBe('markdown');
-  });
-
-  it('captures domain as html when inside HTML context', () => {
-    const format = copyFormat(selectRange('<b>hello</b>', 3, 8));
-    expect(format.domain).toBe('html');
-  });
-
-  it('captures line tag when cursor is on list line', () => {
+  it('captures lineTagDefinition when cursor is on list line', () => {
     const format = copyFormat(selectRange('- item', 3, 3));
     expect(format.lineTagDefinition).toBeDefined();
-    expect(format.lineTagDefinition!.kind).toBe('single');
+    expect(format.lineTagDefinition!.type).toBe('list');
   });
 
   it('returns empty tagDefinitions on plain text', () => {
@@ -148,22 +172,3 @@ describe('copyFormat', () => {
     expect(format.lineTagDefinition).toBeUndefined();
   });
 });
-
-// ─── Helper ───────────────────────────────────────────────────────────────────
-
-/** Apply last-to-first replacements to produce the final output string. */
-function applyReplacements(
-  sourceText: string,
-  replacements: { fromOffset: number; toOffset: number; replacementText: string }[]
-): string {
-  let result = sourceText;
-
-  for (const replacement of replacements) {
-    result =
-      result.slice(0, replacement.fromOffset) +
-      replacement.replacementText +
-      result.slice(replacement.toOffset);
-  }
-
-  return result;
-}

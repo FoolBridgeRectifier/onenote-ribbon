@@ -1,4 +1,5 @@
 import type { StylingContext, StylingResult, TagDefinition, CopiedFormat } from './interfaces';
+import { processAddPath } from './add-path/addPath';
 
 /**
  * Toggles a tag on the selection in context.sourceText.
@@ -13,8 +14,8 @@ import type { StylingContext, StylingResult, TagDefinition, CopiedFormat } from 
  *
  * @returns StylingResult with replacements ordered last-to-first.
  */
-export function toggleTag(_context: StylingContext, _tagDefinition: TagDefinition): StylingResult {
-  throw new Error('not implemented');
+export function toggleTag(context: StylingContext, tagDefinition: TagDefinition): StylingResult {
+  return processAddPath(context, tagDefinition);
 }
 
 /**

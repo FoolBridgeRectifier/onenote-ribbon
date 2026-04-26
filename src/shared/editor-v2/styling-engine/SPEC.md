@@ -66,6 +66,8 @@ Apply, remove, and query formatting on a text selection. The single public entry
 | A14 | Single: heading (h1–h6)                              | Prepend `# ` at specified level to each line                                               | `title` → `# title`                                                                                                           |
 | A15 | Single: quote                                        | Prepend `> ` to each line                                                                  | `note` → `> note`                                                                                                             |
 | A16 | Single: indent                                       | Insert `<span style="margin-left:Npx"/>` after all other line prefixes; N += 24 per toggle | `- item` → `- <span style="margin-left:24px"/>item`                                                                           |
+| A17 | Multi-line inline selection                          | Split into per-line segments; process each line independently; line prefix (`- ` / `# ` / `> `) on each line is a **protected space** — never wrapped by the inline tag | `- hello\n- world` + bold → `- **hello**\n- **world**`                                                                        |
+| A18 | HTML or span tag add when MD tags present in selection | Pre-step: upgrade all MD tags within the selection to their HTML equivalents before wrapping (enforces invariant I2 proactively) | `**hello** world` + italic → upgrade `**`→`<b>`, then wrap → `<i><b>hello</b> world</i>`                                      |
 
 ---
 
@@ -92,6 +94,7 @@ Apply, remove, and query formatting on a text selection. The single public entry
 | R17 | Single: heading                                             | Remove `# ` prefix                                                 | `# [title]` → `[title]`                                                             |
 | R18 | Single: quote                                               | Remove `> ` prefix                                                 | `> [note]` → `[note]`                                                               |
 | R19 | Single: indent                                              | Decrease margin-left by 24px; remove span entirely when reaching 0 | `<span style="margin-left:48px"/>item` → `<span style="margin-left:24px"/>item`     |
+| R20 | Last HTML tag removed from context; inner tags have MD equivalents | Post-step: downgrade all inner HTML tags with MD equivalents to MD form. Tags with no MD equivalent (spans, `<u>`) remain as HTML | `<b><i>hello</i></b>` remove bold → `*hello*`; `<b><span style="color:red">hi</span></b>` remove bold → `<span style="color:red">hi</span>` |
 
 ---
 
@@ -108,7 +111,7 @@ Apply, remove, and query formatting on a text selection. The single public entry
 | X7  | Quote + heading on same line                               | Coexist: `> # heading`                                                             |
 | X8  | Callout line + list toggle                                 | Add/remove list on content lines; callout header untouched                         |
 | X9  | Indent applied to line with list/heading/quote             | Indent placed after line prefix; prefixes unaffected                               |
-| X10 | Inline tag on selection including `>` / `-` / `#` prefixes | Prefixes are protected; wrap only content after prefix                             |
+| X10 | Inline tag on selection spanning line prefix (`>` / `-` / `#`) | Line prefix is a **protected space** — inline tag wraps only the content after the prefix, never the prefix characters themselves | `> note` + bold → `> **note**`; `- item` + bold → `- **item**` |
 | X11 | Inline toggle on multi-paragraph selection                 | Apply inline logic per-line; single-tag logic also per-line                        |
 | X12 | `code` tick inner content                                  | Content inside code ticks is inert                                                 |
 | X13 | highlight `==` default pen (yellow)                        | MD `==` maps to `<span style="background:#ffff00">` in HTML context                |
@@ -178,49 +181,80 @@ On **remove of an outer tag that was punched out**: remove that tag from all non
 ```mermaid
 flowchart TD
     A([toggleTag context tagDefinition]) --> B{Is inert zone?\ncodeBlock / mathBlock / tab}
-    B -->|Yes| C([Return isNoOp=true])
-    B -->|No| D{Tag kind?}
+    B -- yes --> C([Return isNoOp=true])
+    B -- no --> D{Tag kind?}
 
-    D -->|single or special| E[Line-level path]
-    D -->|md-closing / html-closing / html-span| F[Inline path]
+    D -- "single or special" --> E[Line-level path]
+    D -- "md-closing / html-closing / html-span" --> F[Inline path]
 
     E --> E1{Cursor zero-width?}
-    E1 -->|Yes| E2["Remove line tag from current line\nex: cursor on '- item' → 'item'"]
-    E1 -->|No| E3{Multi-line selection?}
-    E3 -->|Yes| E4{All lines have tag?}
-    E4 -->|Yes| E5["Remove from all\nex: '- l1\\n- l2' → 'l1\\nl2'"]
-    E4 -->|No| E6["Add to untagged only\nex: '- l1\\nl2' → '- l1\\n- l2'"]
-    E3 -->|No, single line| E7{Line already has tag?}
-    E7 -->|Yes| E8["Remove\nex: '# Title' + heading → 'Title'"]
-    E7 -->|No| E9["Add\nex: 'Title' + heading → '# Title'"]
+    E1 -- yes --> E2["Remove line tag from current line\nex: cursor on '- item' → 'item'"]
+    E1 -- no --> E3{Multi-line selection?}
+    E3 -- yes --> E4{All lines have tag?}
+    E4 -- yes --> E5["Remove from all lines"]
+    E4 -- no --> E6["Add to untagged lines only"]
+    E3 -- "no: single line" --> E7{Line already has tag?}
+    E7 -- yes --> E8["Remove tag from line"]
+    E7 -- no --> E9["Add tag to line"]
 
-    F --> F1{Detect domain}
-    F1 -->|No enclosing HTML| F2[Domain = markdown]
-    F1 -->|Enclosing HTML present| F3["Domain = html\nUpgrade: ** → b, * → i, ~~ → s\nex: inside bold, apply italic → <i>text</i>"]
-    F2 & F3 --> G{Find enclosing tag\nor delimiter-inclusive match?}
+    F --> F_ML{Multi-line selection?}
+    F_ML -- yes --> F_ML2["Split into per-line segments\nMark each line prefix as protected space\nProcess each segment independently then merge"]
+    F_ML2 --> F1
+    F_ML -- "no: single line" --> F1
 
-    G -->|Found: tag covers selection| H[Remove path]
-    G -->|Not found| I[Add path]
+    F1{Detect domain}
+    F1 -- "no enclosing HTML" --> F2[Domain = markdown]
+    F1 -- "enclosing HTML present" --> F3["Domain = html\nUpgrade path applies: ** → b, * → i, ~~ → s"]
+    F2 --> G
+    F3 --> G
 
-    H --> H1{Is partial selection inside tag?}
-    H1 -->|Yes: punch-out| H2["Split: un-tag selection, keep rest\nex: **hel[lo]** → **hel**[lo]"]
-    H1 -->|No: full selection| H3{Both MD + HTML equivalent present?}
-    H3 -->|Yes| H4["Remove both\nex: <b>**[hi]**</b> → [hi]"]
-    H3 -->|No| H5["Remove one\nex: **[hello]** → [hello]"]
-    H --> H6{sub/sup mutual exclusion?}
-    H6 -->|Yes| H7["Swap tag\nex: <sub>[x]</sub> + sup → <sup>[x]</sup>"]
+    G{Find enclosing tag or delimiter-inclusive match?}
+    G -- "found: tag covers selection" --> H[Remove path]
+    G -- "not found" --> I[Add path]
 
-    I --> I1{Has protected ranges?}
-    I1 -->|Yes| I2["Punch out: wrap segments separately\nex: [[link]] [hello] → [[link]] **hello**"]
-    I1 -->|No| I3{Is span tag?}
-    I3 -->|Same CSS property enclosing| I4["Replace value in-place\nex: color:red → color:blue"]
-    I3 -->|Different property| I5["Nest new span inside existing\nex: color:red + font-size → <span color><span size>text</span></span>"]
-    I3 -->|No span enclosing| I6["Wrap with tag\nex: [hello] + bold → **[hello]**"]
+    H --> H1{Partial selection inside tag?}
+    H1 -- "yes: punch-out" --> H2["Split: un-tag selection, keep rest tagged\nex: bold-hel-sel-lo → bold-hel + sel-lo"]
+    H1 -- "no: full" --> H3{Both MD and HTML equivalent present?}
+    H3 -- yes --> H4["Remove both — R9"]
+    H3 -- no --> H5["Remove one"]
+    H --> H6{sub or sup mutual exclusion?}
+    H6 -- yes --> H7["Swap tag: sub to sup or sup to sub"]
 
-    I6 --> I7{Already tagged? — invariant I1 check}
-    I7 -->|Yes — stacked tag detected| I8["Route to Remove path instead\nex: **text** + bold → Remove bold"]
-    I7 -->|No| I9([Return StylingResult with replacements])
-    H2 & H4 & H5 & H7 & I2 & I4 & I5 & I8 & E2 & E5 & E6 & E8 & E9 --> I9
+    H2 --> R_POST
+    H4 --> R_POST
+    H5 --> R_POST
+    H7 --> R_POST
+    R_POST{No HTML context remains after remove?}
+    R_POST -- "yes: R20" --> R20["Post-step: downgrade inner tags\nwith MD equivalents to MD form\nex: i to *, s to ~~, b to **"]
+    R_POST -- no --> OUT
+    R20 --> OUT
+
+    I --> I_PRE{HTML or span tag AND MD tags in selection?}
+    I_PRE -- "yes: A18" --> I_PRE2["Pre-step: upgrade all MD tags\nin selection to HTML equivalents\nex: ** to b, * to i, ~~ to s"]
+    I_PRE2 --> I1
+    I_PRE -- no --> I1
+
+    I1{Has protected ranges in selection?}
+    I1 -- yes --> I2["Punch out: wrap non-protected segments only — A10"]
+    I1 -- no --> I3{Is span tag?}
+    I3 -- "same CSS property enclosing" --> I4["Replace value in-place — A5"]
+    I3 -- "different property" --> I5["Nest new span inside existing — A6"]
+    I3 -- "no span enclosing" --> I6["Wrap with tag — A1 / A3"]
+
+    I6 --> I7{Already tagged? invariant I1 check}
+    I7 -- "yes: stacked tag" --> I8["Route to Remove path instead"]
+    I7 -- no --> OUT
+    I2 --> OUT
+    I4 --> OUT
+    I5 --> OUT
+    I8 --> OUT
+    E2 --> OUT
+    E5 --> OUT
+    E6 --> OUT
+    E8 --> OUT
+    E9 --> OUT
+
+    OUT([Return StylingResult with replacements])
 ```
 
 ---

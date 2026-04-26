@@ -57,56 +57,70 @@ These are recorded as `ProtectedRange` entries in `TagContext`. The styling engi
 
 ```mermaid
 flowchart TD
-    A([Document load / content change]) --> B[buildTagContext content]
-    B --> C[Split into lines]
-    C --> D{Line in inert zone?}
-    D -->|Yes: fenced code / math / tab| E[Skip line, extend inert zone if needed]
-    E --> D
-    D -->|No| F[Detect line-level tag]
+    A([Document load or content change]) --> B[buildTagContext]
+    B --> C[Split document into lines]
+    C --> LOOP_START
 
-    F --> F1{"Starts with '> [!type]'?"}
-    F1 -->|Yes| F2["Record callout tag\ne.g. '> [!note] Title'"]
-    F1 -->|No| F3{"Starts with '> ---'?"}
-    F3 -->|Yes| F4[Record meeting-details tag]
-    F3 -->|No| F5{"Starts with '- [ ]'?"}
-    F5 -->|Yes| F6[Record checkbox tag]
-    F5 -->|No| F7{"Starts with '- '?"}
-    F7 -->|Yes| F8[Record list tag]
-    F7 -->|No| F9{"Starts with '# '?"}
-    F9 -->|Yes| F10[Record heading tag with level]
-    F9 -->|No| F11{"Starts with '> '?"}
-    F11 -->|Yes| F12[Record quote tag]
-    F11 -->|No| F13{Has margin-left span?}
-    F13 -->|Yes| F14[Record indent tag with depth]
-    F13 -->|No| G
+    LOOP_START{More lines?} -- yes --> D
+    LOOP_START -- no --> P
 
-    F2 & F4 & F6 & F8 & F10 & F12 & F14 --> G[Scan inline content for closing tags]
+    D{Line in inert zone?} -- "fenced-code / math / tab-indent" --> E[Skip line; advance inert-zone boundary]
+    E --> LOOP_START
+    D -- "not inert" --> F[Detect line-level prefix tag]
 
-    G --> H{Encounter protected token?}
-    H -->|Yes: wikilink embed mdLink| I["Record as ProtectedRange\nex: [[My Note]] at ch 5–16"]
-    I --> H
-    H -->|No| J[Match opening delimiter / tag to closing counterpart]
-    J --> K{"Match found?"}
-    K -->|Yes| L["Create DetectedTag with open+close\nex: open={line:0,ch:0} close={line:0,ch:7} for **hello**"]
-    K -->|No unmatched open| M[Discard unmatched delimiter]
-    L --> N[Append to tags array]
-    M --> N
-    N --> O{More lines?}
-    O -->|Yes| D
-    O -->|No| P[Sort tags by open.start ascending]
+    F --> F1{Callout header?}
+    F1 -- "yes: '> !type ...'" --> F2[Record callout tag with calloutType]
+    F1 -- no --> F3{Meeting-details header?}
+    F3 -- "yes: '> ---'" --> F4[Record meeting-details tag]
+    F3 -- no --> F5{Checkbox prefix?}
+    F5 -- "yes: '- space checkbox'" --> F6[Record checkbox tag]
+    F5 -- no --> F7{List prefix?}
+    F7 -- "yes: '- content'" --> F8[Record list tag]
+    F7 -- no --> F9{Heading prefix?}
+    F9 -- "yes: one or more # chars" --> F10[Record heading tag with headingLevel]
+    F9 -- no --> F11{Quote prefix?}
+    F11 -- "yes: '> content'" --> F12[Record quote tag]
+    F11 -- no --> F13{Indent span present?}
+    F13 -- yes --> F14[Record indent tag with indentDepth]
+    F13 -- "no prefix" --> G
+
+    F2 --> G
+    F4 --> G
+    F6 --> G
+    F8 --> G
+    F10 --> G
+    F12 --> G
+    F14 --> G
+
+    G[Scan inline content after prefix]
+
+    G --> SCAN{Protected token next?}
+    SCAN -- "yes: wikilink / embed / mdLink" --> PROT[Record ProtectedRange for token; advance past it]
+    PROT --> SCAN
+    SCAN -- "no protected token" --> MATCH[Match opening delimiter or tag to closing counterpart]
+    MATCH --> FOUND{Match found?}
+    FOUND -- yes --> DTAG[Create DetectedTag with open and close positions]
+    FOUND -- "no: unmatched open" --> DISCARD[Discard unmatched delimiter]
+    DTAG --> APPEND[Append to tags array]
+    DISCARD --> APPEND
+    APPEND --> SCAN_MORE{More inline content?}
+    SCAN_MORE -- yes --> SCAN
+    SCAN_MORE -- no --> LOOP_START
+
+    P[Sort all tags by open.start ascending]
     P --> Q([Return TagContext])
 
-    Q --> R{User event}
-    R -->|Cursor move| S[getActiveTagsAtCursor context cursor]
-    R -->|Selection| T[getEnclosingTags context start end]
+    Q --> EVT{User event}
+    EVT -- cursor-move --> CUR[getActiveTagsAtCursor]
+    EVT -- selection --> SEL[getEnclosingTags]
 
-    S --> S1["For each tag: open.start ≤ cursor ≤ close.end?\nex: cursor at ch 3 inside **hello** → bold enclosing"]
-    S1 --> S2[Collect enclosingTags]
-    S2 --> S3[Find line tag on cursor line]
-    S3 --> S4([Return ActiveTagsResult])
+    CUR --> CUR1["For each tag: open.start <= cursor <= close.end?"]
+    CUR1 --> CUR2[Collect enclosingTags]
+    CUR2 --> CUR3[Find line tag on cursor line]
+    CUR3 --> CUR4([Return ActiveTagsResult])
 
-    T --> T1["For each tag: open.start ≤ selStart AND close.end ≥ selEnd?\nex: select 'ell' inside **hello** → bold encloses it"]
-    T1 --> T2([Return DetectedTag[]])
+    SEL --> SEL1["For each tag: open.start <= selStart AND close.end >= selEnd?"]
+    SEL1 --> SEL2([Return matching DetectedTag array])
 ```
 
 ---

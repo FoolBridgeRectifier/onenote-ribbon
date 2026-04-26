@@ -1,4 +1,9 @@
-export type FormattingDomain = 'markdown' | 'html';
+import type { FormattingDomain } from '../interfaces';
+import type { DetectedTag } from '../detection-engine/interfaces';
+
+// Re-export so callers can import from a single location.
+export type { FormattingDomain, TagType } from '../interfaces';
+export type { DetectedTag } from '../detection-engine/interfaces';
 
 // === Styling Context ===
 
@@ -30,58 +35,20 @@ export interface StylingResult {
   newSelectionEndOffset?: number;
 }
 
-// === Tag Definitions ===
+// === Tag Definition ===
 
-/** A paired MD delimiter tag e.g. ** ** or * *. */
-export interface MdTagDefinition {
-  kind: 'md-closing';
-  openingDelimiter: string;
-  closingDelimiter: string;
-}
-
-/** A paired HTML tag with a tag name e.g. <b></b>. */
-export interface HtmlTagDefinition {
-  kind: 'html-closing';
-  tagName: string;
-  openingMarkup: string;
-  closingMarkup: string;
-}
-
-/** An HTML span with a specific CSS property–value pair. */
-export interface SpanTagDefinition {
-  kind: 'html-span';
-  cssProperty: string;
-  cssValue: string;
-}
-
-/** A line-level single tag: list, heading, quote, or indent. */
-export interface SingleTagDefinition {
-  kind: 'single';
-  singleType: 'list' | 'heading' | 'quote' | 'indent';
-  /** Heading level 1–6; only relevant when singleType === 'heading'. */
-  headingLevel?: number;
-}
-
-/** A block-level or page-level special tag: checkbox, callout, inlineTodo, meetingDetails. */
-export interface SpecialTagDefinition {
-  kind: 'special';
-  specialType: 'checkbox' | 'callout' | 'inlineTodo' | 'meetingDetails';
-  calloutType?: string;
-  calloutTitle?: string;
-}
-
-export type TagDefinition =
-  | MdTagDefinition
-  | HtmlTagDefinition
-  | SpanTagDefinition
-  | SingleTagDefinition
-  | SpecialTagDefinition;
+/**
+ * Unified tag descriptor used as input to all styling functions.
+ * Identical shape to DetectedTag: type identifies the tag; isHTML and isSpan
+ * distinguish markdown vs HTML vs span variants.
+ */
+export type TagDefinition = DetectedTag;
 
 // === Copied Format ===
 
 /** Result of copyFormat. Passed to the paste handler for reconciliation. */
 export interface CopiedFormat {
-  tagDefinitions: (HtmlTagDefinition | SpanTagDefinition | MdTagDefinition)[];
+  tagDefinitions: DetectedTag[];
   domain: FormattingDomain;
-  lineTagDefinition?: SingleTagDefinition | SpecialTagDefinition;
+  lineTagDefinition?: DetectedTag;
 }

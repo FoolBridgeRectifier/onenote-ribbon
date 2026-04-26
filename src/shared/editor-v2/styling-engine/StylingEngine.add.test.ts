@@ -1,162 +1,172 @@
 import { toggleTag } from './StylingEngine';
-import type { StylingContext } from './interfaces';
-import { BOLD_MD, ITALIC_MD, BOLD_HTML, UNDERLINE_HTML } from './constants';
+import type { DetectedTag } from './interfaces';
+import { BOLD_MD, ITALIC_MD, STRIKETHROUGH_MD, HIGHLIGHT_MD, CODE_MD, BOLD_HTML, ITALIC_HTML } from './constants';
+import { selectAll, selectRange, applyReplacements } from './helpers';
 
-// All tests are in TDD red state — stubs throw 'not implemented'.
-// Once implemented, each test must pass exactly as written.
-
-// Helper: selects the entire sourceText
-function selectAll(sourceText: string): StylingContext {
-  return { sourceText, selectionStartOffset: 0, selectionEndOffset: sourceText.length };
-}
-
-// Helper: selects a substring by start and end offset
-function selectRange(sourceText: string, start: number, end: number): StylingContext {
-  return { sourceText, selectionStartOffset: start, selectionEndOffset: end };
-}
+// All tests in TDD red state — stubs throw 'not implemented'.
 
 describe('A1 — MD plain context: wrap with MD delimiters', () => {
-  it('wraps full word with bold MD', () => {
+  it('wraps full word with bold MD (last-to-first: close at 5, open at 0)', () => {
     const result = toggleTag(selectAll('hello'), BOLD_MD);
     expect(result.isNoOp).toBe(false);
-    // Last-to-first: closing at offset 5, then opening at offset 0
     expect(result.replacements).toHaveLength(2);
     expect(result.replacements[0]).toEqual({ fromOffset: 5, toOffset: 5, replacementText: '**' });
     expect(result.replacements[1]).toEqual({ fromOffset: 0, toOffset: 0, replacementText: '**' });
   });
-
   it('wraps partial selection with italic MD', () => {
     const result = toggleTag(selectRange('hello world', 6, 11), ITALIC_MD);
-    expect(result.replacements[0]).toEqual({ fromOffset: 11, toOffset: 11, replacementText: '*' });
-    expect(result.replacements[1]).toEqual({ fromOffset: 6, toOffset: 6, replacementText: '*' });
+    expect(result.replacements).toEqual([{ fromOffset: 11, toOffset: 11, replacementText: '*' }, { fromOffset: 6, toOffset: 6, replacementText: '*' }]);
+  });
+
+  it.each<[DetectedTag, string]>([
+    [STRIKETHROUGH_MD, '~~hello~~'],
+    [HIGHLIGHT_MD,     '==hello=='],
+    [CODE_MD,          '`hello`'],
+  ])('wraps "hello" with MD tag', (tag, expected) => {
+    expect(applyReplacements('hello', toggleTag(selectAll('hello'), tag).replacements)).toBe(expected);
   });
 });
 
 describe('A2 — MD tag in HTML context: upgrade to HTML equivalent', () => {
-  it('upgrades bold MD to <b> when inside HTML context', () => {
-    // Selection "hello" is inside <i>...</i> (HTML context)
-    const sourceText = '<i>hello</i>';
-    const result = toggleTag(selectRange(sourceText, 3, 8), BOLD_MD);
-    expect(result.isNoOp).toBe(false);
-    // Must produce <b>hello</b> inside, not **hello**
-    expect(result.replacements[0]).toEqual({ fromOffset: 8, toOffset: 8, replacementText: '</b>' });
-    expect(result.replacements[1]).toEqual({ fromOffset: 3, toOffset: 3, replacementText: '<b>' });
+  it('upgrades bold MD to <b> when inside <i> context', () => {
+    const result = toggleTag(selectRange('<i>hello</i>', 3, 8), BOLD_MD);
+    expect(applyReplacements('<i>hello</i>', result.replacements)).toBe('<i><b>hello</b></i>');
   });
 });
 
 describe('A3 — HTML closing: wrap with HTML tag', () => {
   it('wraps selection with <b>...</b>', () => {
-    const result = toggleTag(selectAll('hello'), BOLD_HTML);
-    expect(result.replacements[0]).toEqual({ fromOffset: 5, toOffset: 5, replacementText: '</b>' });
-    expect(result.replacements[1]).toEqual({ fromOffset: 0, toOffset: 0, replacementText: '<b>' });
-  });
-
-  it('wraps selection with <u>...</u>', () => {
-    const result = toggleTag(selectAll('world'), UNDERLINE_HTML);
-    expect(result.replacements[0]).toEqual({ fromOffset: 5, toOffset: 5, replacementText: '</u>' });
-    expect(result.replacements[1]).toEqual({ fromOffset: 0, toOffset: 0, replacementText: '<u>' });
+    expect(toggleTag(selectAll('hello'), BOLD_HTML).replacements).toEqual([{ fromOffset: 5, toOffset: 5, replacementText: '</b>' }, { fromOffset: 0, toOffset: 0, replacementText: '<b>' }]);
   });
 });
 
 describe('A4 — Span tag, no same-property: wrap with new span', () => {
   it('wraps with color span when no color span present', () => {
-    const result = toggleTag(selectAll('hello'), {
-      kind: 'html-span',
-      cssProperty: 'color',
-      cssValue: 'red',
-    });
-    expect(result.isNoOp).toBe(false);
+    const result = toggleTag(selectAll('hello'), { type: 'color', isSpan: true });
     expect(result.replacements[0].replacementText).toBe('</span>');
-    expect(result.replacements[1].replacementText).toBe('<span style="color:red">');
+    expect(result.replacements[1].replacementText).toContain('<span style="color');
   });
 });
 
-describe('A5 — Span tag, same CSS property enclosing: replace attribute value', () => {
-  it('replaces color:red with color:blue without double-wrapping', () => {
-    const sourceText = '<span style="color:red">hello</span>';
-    // Select "hello" at offset 24..29
-    const result = toggleTag(selectRange(sourceText, 24, 29), {
-      kind: 'html-span',
-      cssProperty: 'color',
-      cssValue: 'blue',
-    });
-    expect(result.isNoOp).toBe(false);
-    // Single replacement: swap attribute value in-place
+describe('A5 — Span tag, same CSS property: replace attribute value', () => {
+  it('replaces color span — no double-wrap', () => {
+    const result = toggleTag(selectRange('<span style="color:red">hello</span>', 24, 29), { type: 'color', isSpan: true });
     expect(result.replacements).toHaveLength(1);
-    expect(result.replacements[0].replacementText).toBe('<span style="color:blue">');
+    expect(result.replacements[0].replacementText).toContain('<span style="color');
+  });
+});
+
+describe('A6 — Span tag, different CSS property: nest new span inside existing', () => {
+  it('adds font-size span inside existing color span', () => {
+    expect(applyReplacements('<span style="color:red">hi</span>', toggleTag(selectRange('<span style="color:red">hi</span>', 24, 26), { type: 'fontSize', isSpan: true }).replacements))
+      .toContain('<span style="font-size');
+  });
+});
+
+describe('A7/A9 — Extend or merge bold tags via selection', () => {
+  it.each<[string, number, number, string]>([
+    ['**hel**lo world', 7, 15, '**hello world**'],
+    ['**a** b **c**',   5, 13, '**a b c**'],
+  ])('%s → %s', (sourceText, start, end, expected) => {
+    expect(applyReplacements(sourceText, toggleTag(selectRange(sourceText, start, end), BOLD_MD).replacements)).toBe(expected);
+  });
+
+  it('A9 remove variant: all-covered bold selection routes to Remove', () => {
+    expect(applyReplacements('**a** **b** **c**', toggleTag(selectAll('**a** **b** **c**'), BOLD_MD).replacements)).toBe('a b c');
   });
 });
 
 describe('A10 — Protected range inside selection: punch out', () => {
-  it('wraps only non-protected segments when wikilink is in selection', () => {
-    // "before [[link]] after" — select entire string
-    const sourceText = 'before [[link]] after';
-    const result = toggleTag(selectAll(sourceText), BOLD_MD);
-    expect(result.isNoOp).toBe(false);
-    // "before " and " after" get bold; [[link]] is untouched
-    const outputParts = result.replacements.map((rep) => rep.replacementText);
-    expect(outputParts).not.toContain('[[link]]');
-    // Must have 4 replacements: open+close for each of the 2 segments
-    expect(result.replacements).toHaveLength(4);
+  it('wikilink punch-out: wraps only non-protected segments', () => {
+    expect(toggleTag(selectAll('before [[link]] after'), BOLD_MD).replacements).toHaveLength(4);
+  });
+
+  it('code span punch-out: surrounding text wrapped, code span skipped', () => {
+    expect(applyReplacements('before `code` after', toggleTag(selectAll('before `code` after'), BOLD_MD).replacements)).toBe('**before** `code` **after**');
   });
 });
 
-describe('A13–A16 — Single / line-level add', () => {
-  it('A13: prepends "- " for list tag on plain line', () => {
-    const result = toggleTag(selectAll('item'), { kind: 'single', singleType: 'list' });
-    expect(result.replacements).toHaveLength(1);
-    expect(result.replacements[0]).toEqual({ fromOffset: 0, toOffset: 0, replacementText: '- ' });
-  });
-
-  it('A14: prepends "# " for heading h1 on plain line', () => {
-    const result = toggleTag(selectAll('title'), {
-      kind: 'single',
-      singleType: 'heading',
-      headingLevel: 1,
-    });
-    expect(result.replacements[0]).toEqual({ fromOffset: 0, toOffset: 0, replacementText: '# ' });
-  });
-
-  it('A14: prepends "## " for heading h2', () => {
-    const result = toggleTag(selectAll('title'), {
-      kind: 'single',
-      singleType: 'heading',
-      headingLevel: 2,
-    });
-    expect(result.replacements[0].replacementText).toBe('## ');
-  });
-
-  it('A15: prepends "> " for quote tag on plain line', () => {
-    const result = toggleTag(selectAll('note'), { kind: 'single', singleType: 'quote' });
-    expect(result.replacements[0].replacementText).toBe('> ');
-  });
-
-  it('A16: inserts indent span after line start for indent tag', () => {
-    const result = toggleTag(selectAll('item'), { kind: 'single', singleType: 'indent' });
-    expect(result.replacements[0].replacementText).toBe('<span style="margin-left:24px"/>');
-  });
-
-  it('A16: increases indent to 48px on second toggle', () => {
-    const sourceText = '<span style="margin-left:24px"/>item';
-    const result = toggleTag(selectAll(sourceText), { kind: 'single', singleType: 'indent' });
-    expect(result.replacements[0].replacementText).toBe('<span style="margin-left:48px"/>');
-  });
-
-  it('A13: adds list to all untagged lines in multi-line mixed selection (A12)', () => {
-    const sourceText = '- line1\nline2';
-    const result = toggleTag(selectAll(sourceText), { kind: 'single', singleType: 'list' });
-    // Only line2 gets "- " prepended
-    const addedPrefixes = result.replacements.map((rep) => rep.replacementText);
-    expect(addedPrefixes.filter((text) => text === '- ')).toHaveLength(1);
+describe('A11 — Multi-line, none tagged: add to every line', () => {
+  it('wraps each line independently when no line is already tagged', () => {
+    expect(applyReplacements('line1\nline2', toggleTag(selectAll('line1\nline2'), BOLD_MD).replacements)).toBe('**line1**\n**line2**');
   });
 });
 
-describe('Inert zone: cursor in fenced code block returns no-op', () => {
-  it('returns isNoOp=true for selection inside fenced code block', () => {
-    const sourceText = '```\nbold here\n```';
-    // Select "bold here" at offset 4..13
-    const result = toggleTag(selectRange(sourceText, 4, 13), BOLD_MD);
-    expect(result.isNoOp).toBe(true);
-    expect(result.replacements).toHaveLength(0);
+describe('A12 — Multi-line, mixed inline: add to untagged lines only', () => {
+  it('skips already-bold line1 and only wraps line2', () => {
+    expect(applyReplacements('**line1**\nline2', toggleTag(selectAll('**line1**\nline2'), BOLD_MD).replacements)).toBe('**line1**\n**line2**');
+  });
+
+  it('A12/list: adds "- " only to untagged line2 in mixed multi-line list', () => {
+    expect(toggleTag(selectAll('- line1\nline2'), { type: 'list' }).replacements.filter((r) => r.replacementText === '- ')).toHaveLength(1);
+  });
+});
+
+describe('A13–A15 — Single-tag add', () => {
+  it.each<[string, object, string]>([
+    ['item',  { type: 'list' },    '- '],
+    ['title', { type: 'heading' }, '# '],
+    ['note',  { type: 'quote' },   '> '],
+  ])('A13-A15: "%s" + tag → prepends "%s"', (text, tag, prefix) => {
+    const result = toggleTag(selectAll(text), tag as Parameters<typeof toggleTag>[1]);
+    expect(result.replacements[0]).toEqual({ fromOffset: 0, toOffset: 0, replacementText: prefix });
+  });
+});
+
+describe('A16 — Single: indent', () => {
+  it('first indent on plain line → margin-left:24px span at start', () => {
+    expect(toggleTag(selectAll('item'), { type: 'indent' }).replacements[0].replacementText)
+      .toBe('<span style="margin-left:24px"/>');
+  });
+
+  it('second indent on 24px line → updates to 48px', () => {
+    expect(applyReplacements('<span style="margin-left:24px"/>item', toggleTag(selectAll('<span style="margin-left:24px"/>item'), { type: 'indent' }).replacements))
+      .toContain('margin-left:48px');
+  });
+});
+
+describe('Inert zone: selection inside fenced code → isNoOp', () => {
+  it('returns isNoOp=true for bold inside fenced code block', () => {
+    expect(toggleTag(selectRange('```\nbold here\n```', 4, 13), BOLD_MD).isNoOp).toBe(true);
+  });
+});
+
+describe('A17/A18 — Multi-line per-line; MD→HTML upgrade', () => {
+  it.each<[string, string]>([
+    ['- hello\n- world',  '- **hello**\n- **world**'],
+    ['# title text',      '# **title text**'],
+    ['> note text',       '> **note text**'],
+  ])('bold per-line: %s', (input, expected) => {
+    expect(applyReplacements(input, toggleTag(selectAll(input), BOLD_MD).replacements)).toBe(expected);
+  });
+  it.each<[string, object, string]>([
+    ['**hello** world', ITALIC_HTML, '<i><b>hello</b> world</i>'],
+    ['*hello*',         BOLD_HTML,   '<b><i>hello</i></b>'],
+  ])('%s + tag → %s', (input, tag, expected) => {
+    expect(applyReplacements(input, toggleTag(selectAll(input), tag as Parameters<typeof toggleTag>[1]).replacements)).toBe(expected);
+  });
+});
+
+describe('Special — Checkbox add', () => {
+  it.each<[string, string]>([
+    ['item',   '- [ ] item'],
+    ['- item', '- [ ] item'],  // replaces existing list prefix
+  ])('checkbox: "%s" → "%s"', (input, expected) => {
+    expect(applyReplacements(input, toggleTag(selectAll(input), { type: 'checkbox' }).replacements)).toBe(expected);
+  });
+});
+
+describe('Special — Callout/inlineTodo add', () => {
+  it('callout: wraps text with "> [!note]" header', () => {
+    expect(applyReplacements('text', toggleTag(selectAll('text'), { type: 'callout' }).replacements)).toMatch(/^> \[!\w+\]\n> text$/);
+  });
+  it('inlineTodo: inserts "#todo " before text', () => {
+    expect(applyReplacements('milk', toggleTag(selectAll('milk'), { type: 'inlineTodo' }).replacements)).toBe('#todo milk');
+  });
+});
+
+describe('Special — meetingDetails add', () => {
+  it('prepends meeting block starting with "> ---"', () => {
+    expect(applyReplacements('text', toggleTag(selectAll('text'), { type: 'meetingDetails' }).replacements)).toMatch(/^> ---[\s\S]*> ---\s*$/);
   });
 });

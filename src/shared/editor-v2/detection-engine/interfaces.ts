@@ -1,32 +1,13 @@
 import type { EditorPosition } from 'obsidian';
+import type { TagType, ProtectedRange } from '../interfaces';
 
-// === Tag Taxonomy ===
+// Re-export shared types so callers can import from a single location.
+export type { TagType, ProtectedTokenType, ProtectedRange } from '../interfaces';
 
-export type TagType =
-  | 'bold'
-  | 'italic'
-  | 'strikethrough'
-  | 'highlight'
-  | 'underline'
-  | 'subscript'
-  | 'superscript'
-  | 'code'
-  | 'color'
-  | 'fontSize'
-  | 'fontFamily'
-  | 'align'
-  | 'list'
-  | 'heading'
-  | 'quote'
-  | 'indent'
-  | 'checkbox'
-  | 'callout'
-  | 'inlineTodo'
-  | 'meetingDetails';
+// === Inert Zone (detection-specific) ===
 
+/** Zones where the detection engine performs no tag scanning. */
 export type InertZoneType = 'codeBlock' | 'mathBlock' | 'tabIndented';
-
-export type ProtectedTokenType = 'wikilink' | 'embed' | 'mdLink' | 'footnoteRef';
 
 // === Position Types ===
 
@@ -49,23 +30,8 @@ export interface DetectedTag {
   open?: TagPosition;
   /** Present on paired closing tags only (MD closing, HTML closing, HTML span). */
   close?: TagPosition;
-  isHTML: boolean;
-  isSpan: boolean;
-  /** Heading level 1–6; only set when type === 'heading'. */
-  headingLevel?: number;
-  /** Callout type string e.g. 'note', 'warning'; only set when type === 'callout'. */
-  calloutType?: string;
-  /** Indent depth in multiples of 24px; only set when type === 'indent'. */
-  indentDepth?: number;
-}
-
-// === Protected Token ===
-
-/** A token that the styling engine must punch out around rather than wrap inside. */
-export interface ProtectedRange {
-  startOffset: number;
-  endOffset: number;
-  tokenType: ProtectedTokenType;
+  isHTML?: boolean;
+  isSpan?: boolean;
 }
 
 // === Tag Context (output of buildTagContext) ===
@@ -79,10 +45,32 @@ export interface TagContext {
 
 // === Query Results ===
 
-/** Result of getActiveTagsAtCursor. */
+/** Result returned by getActiveTagsAtCursor. */
 export interface ActiveTagsResult {
-  /** All closing tags whose range encloses the cursor position. */
+  /** All inline and block tags whose range encloses the cursor position. */
   enclosingTags: DetectedTag[];
-  /** The line-level single tag on the cursor line, or null if none. */
+  /** The line-level tag on the cursor's line, or null if the line has no prefix tag. */
   lineTag: DetectedTag | null;
+  /** Whether the cursor is in a Markdown or HTML context; drives format upgrades in the engine. */
+  insertionFormat: 'markdown' | 'html';
+}
+
+/** Result of inspecting one line for a line-level prefix tag. */
+export interface LinePrefixResult {
+  /** Detected line tag (open only) — null when the line has no recognised prefix. */
+  tag: DetectedTag | null;
+  /** Character offset where inline content starts on this line (after the prefix). */
+  contentStartCh: number;
+}
+
+/** Internal: HTML opener match payload. */
+export interface HtmlOpenerMatch {
+  openEndCh: number;
+  styleAttribute?: string;
+}
+
+/** Internal: HTML closer match payload. */
+export interface HtmlCloserMatch {
+  closeStart: number;
+  closeEnd: number;
 }
