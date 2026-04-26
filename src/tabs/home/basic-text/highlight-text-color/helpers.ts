@@ -3,9 +3,9 @@ import {
   addTagInEditor,
   removeTagInEditor,
   toggleTagInEditor,
-} from '../../../../shared/editor/styling-engine/editor-integration/helpers';
-import { HIGHLIGHT_MD_TAG } from '../../../../shared/editor/styling-engine/constants';
-import { buildSpanTagDefinition } from '../../../../shared/editor/styling-engine/tag-manipulation/TagManipulation';
+} from '../../../../shared/editor-v2/styling-engine/editor-integration/helpers';
+import { HIGHLIGHT_MD_TAG } from '../../../../shared/editor-v2/styling-engine/editor-integration/constants';
+import { buildSpanTagDefinition } from '../../../../shared/editor-v2/styling-engine/editor-integration/build-span-tag-definition/buildSpanTagDefinition';
 import type { HighlightEditorState } from './interfaces';
 import { DEFAULT_HIGHLIGHT_COLOR } from './constants';
 

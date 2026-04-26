@@ -12,13 +12,13 @@ import type { HighlightEditorState } from './interfaces';
 import { DEFAULT_HIGHLIGHT_COLOR } from './constants';
 
 // Mock dependencies
-jest.mock('../../../../shared/editor/styling-engine/editor-integration/helpers', () => ({
+jest.mock('../../../../shared/editor-v2/styling-engine/editor-integration/helpers', () => ({
   addTagInEditor: jest.fn(),
   removeTagInEditor: jest.fn(),
   toggleTagInEditor: jest.fn(),
 }));
 
-jest.mock('../../../../shared/editor/styling-engine/tag-manipulation/TagManipulation', () => ({
+jest.mock('../../../../shared/editor-v2/styling-engine/editor-integration/build-span-tag-definition/buildSpanTagDefinition', () => ({
   buildSpanTagDefinition: jest.fn((type, value) => ({ type, value })),
 }));
 
@@ -26,9 +26,9 @@ import {
   addTagInEditor,
   removeTagInEditor,
   toggleTagInEditor,
-} from '../../../../shared/editor/styling-engine/editor-integration/helpers';
-import { buildSpanTagDefinition } from '../../../../shared/editor/styling-engine/tag-manipulation/TagManipulation';
-import { HIGHLIGHT_MD_TAG } from '../../../../shared/editor/styling-engine/constants';
+} from '../../../../shared/editor-v2/styling-engine/editor-integration/helpers';
+import { buildSpanTagDefinition } from '../../../../shared/editor-v2/styling-engine/editor-integration/build-span-tag-definition/buildSpanTagDefinition';
+import { HIGHLIGHT_MD_TAG } from '../../../../shared/editor-v2/styling-engine/editor-integration/constants';
 
 describe('highlight-text-color helpers', () => {
   const mockAddTagInEditor = addTagInEditor as jest.Mock;
