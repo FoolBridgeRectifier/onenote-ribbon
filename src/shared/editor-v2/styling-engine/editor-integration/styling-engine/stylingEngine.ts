@@ -7,11 +7,11 @@ import type {
 } from '../interfaces';
 
 import { applyCallout } from './apply-callout/applyCallout';
+import { applyTask } from './apply-task/applyTask';
 import { removeActiveCallout } from './remove-active-callout/removeActiveCallout';
 import { removeCalloutByKey } from './remove-callout-by-key/removeCalloutByKey';
 
-// Phase 8e/8f will replace these legacy delegations with v2-native ports.
-import { applyTask } from '../../../../editor/styling-engine/callout-apply/calloutApply';
+// Phase 8f will replace these legacy delegations with v2-native ports.
 import { toggleInlineTodoTag } from '../../../../editor/styling-engine/callout-apply/helpers/toggle-inline-todo-tag/ToggleInlineTodoTag';
 import { removeActiveCheckbox } from '../../../../editor/styling-engine/callout-apply/helpers/remove-active-checkbox/RemoveActiveCheckbox';
 
