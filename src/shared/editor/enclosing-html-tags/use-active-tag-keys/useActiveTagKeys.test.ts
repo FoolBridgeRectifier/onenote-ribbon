@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react';
 import type { App } from 'obsidian';
 
 import { createAppWithEditor } from '../../../../test-utils/mockApp';
-import { ACTIVE_TAG_KEY_TASK } from '../../styling-engine/callout-apply/constants';
+import { ACTIVE_TAG_KEY_TASK } from '../../../editor-v2/styling-engine/editor-integration/detect-active-tag-keys/constants';
 import { useActiveTagKeys } from './useActiveTagKeys';
 
 describe('useActiveTagKeys', () => {

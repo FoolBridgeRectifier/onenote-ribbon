@@ -1,4 +1,4 @@
-import type { ObsidianEditor } from '../../../../../shared/editor/styling-engine/interfaces';
+import type { ObsidianEditor } from '../../../../../shared/editor-v2/styling-engine/editor-integration/interfaces';
 
 // Extracts all font-size point values from inline HTML on a single line.
 const FONT_SIZE_IN_LINE_PATTERN = /font-size:\s*(\d+(?:\.\d+)?)pt/g;
