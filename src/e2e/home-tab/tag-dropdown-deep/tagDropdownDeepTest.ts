@@ -13,6 +13,10 @@ import { runHomeTabSuite } from '../home/suite-helpers/suiteHelpers';
  */
 export async function tagDropdownDeepTest(): Promise<SuiteTestResult[]> {
   return runHomeTabSuite('tag-dropdown-deep', async ({ clickByCommand, editor, wait }) => {
+    if (!editor) {
+      throw new Error('tag-dropdown-deep: no editor provided to suite');
+    }
+
     const openDropdown = async (): Promise<void> => {
       const moreButton = document.querySelector('[data-cmd="more-tags"]');
       if (moreButton) {

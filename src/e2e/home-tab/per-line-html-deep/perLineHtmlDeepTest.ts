@@ -12,6 +12,10 @@ import { runHomeTabSuite } from '../home/suite-helpers/suiteHelpers';
  */
 export async function perLineHtmlDeepTest(): Promise<SuiteTestResult[]> {
   return runHomeTabSuite('per-line-html-deep', async ({ clickByCommand, editor, wait }) => {
+    if (!editor) {
+      throw new Error('per-line-html-deep: no editor provided to suite');
+    }
+
     // Test 1: Multi-line selection, one line has <b> HTML bold → lineHasMatchingTag htmlEquivalent true.
     // Toggle markdown bold on a multi-line structured selection containing a line with <b>.
     // Line 1: "- <b>already bold</b>" (has linePrefixType 'bullet')

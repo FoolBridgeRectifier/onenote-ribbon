@@ -339,5 +339,9 @@ export async function edgeCasesIntegrationTest(): Promise<SuiteTestResult[]> {
   results.push(...(await testErrorRecovery()));
   results.push(...(await testMemoryLeaks()));
 
+  if (results.length === 0) {
+    throw new Error('edgeCasesIntegrationTest: no scenario produced any results');
+  }
+
   return results;
 }

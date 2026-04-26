@@ -294,5 +294,9 @@ export async function ribbonComponentsIntegrationTest(): Promise<SuiteTestResult
   results.push(...await testResponsiveLayout());
   results.push(...await testCssClasses());
 
+  if (results.length === 0) {
+    throw new Error('ribbonComponentsIntegrationTest: no scenario produced any results');
+  }
+
   return results;
 }

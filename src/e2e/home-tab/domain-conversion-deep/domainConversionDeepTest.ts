@@ -11,6 +11,10 @@ import { runHomeTabSuite } from '../home/suite-helpers/suiteHelpers';
  */
 export async function domainConversionDeepTest(): Promise<SuiteTestResult[]> {
   return runHomeTabSuite('domain-conversion-deep', async ({ clickByCommand, editor, wait }) => {
+    if (!editor) {
+      throw new Error('domain-conversion-deep: no editor provided to suite');
+    }
+
     const click = (element: Element): void => {
       element.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
     };

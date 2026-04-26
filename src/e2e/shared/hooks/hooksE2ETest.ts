@@ -55,5 +55,11 @@ export async function hooksE2ETest(): Promise<SuiteTestResult[]> {
   const formatPainterResults = await testUseFormatPainterHook();
   const editorStateResults = await testUseEditorStateHook();
 
-  return [...formatPainterResults, ...editorStateResults];
+  const aggregatedResults = [...formatPainterResults, ...editorStateResults];
+
+  if (aggregatedResults.length === 0) {
+    throw new Error('hooksE2ETest: no hook scenarios produced results');
+  }
+
+  return aggregatedResults;
 }

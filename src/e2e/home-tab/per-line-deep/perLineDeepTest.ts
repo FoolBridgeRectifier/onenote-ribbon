@@ -16,6 +16,10 @@ import { runHomeTabSuite } from '../home/suite-helpers/suiteHelpers';
  */
 export async function perLineDeepTest(): Promise<SuiteTestResult[]> {
   return runHomeTabSuite('per-line-deep', async ({ clickByCommand, editor, wait }) => {
+    if (!editor) {
+      throw new Error('per-line-deep: no editor provided to suite');
+    }
+
     const selectRange = (startText: string, endText: string): void => {
       const value = editor.getValue();
       const startIndex = value.indexOf(startText);

@@ -55,5 +55,11 @@ export async function contextE2ETest(): Promise<SuiteTestResult[]> {
   const appContextResults = await testAppContext();
   const formatPainterContextResults = await testFormatPainterContext();
 
-  return [...appContextResults, ...formatPainterContextResults];
+  const aggregatedResults = [...appContextResults, ...formatPainterContextResults];
+
+  if (aggregatedResults.length === 0) {
+    throw new Error('contextE2ETest: no context scenarios produced results');
+  }
+
+  return aggregatedResults;
 }

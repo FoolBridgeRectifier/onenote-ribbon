@@ -12,6 +12,10 @@ import { runHomeTabSuite } from '../home/suite-helpers/suiteHelpers';
  */
 export async function tagApplyMoreTest(): Promise<SuiteTestResult[]> {
   return runHomeTabSuite('tag-apply-more', async ({ clickByCommand, editor, wait }) => {
+    if (!editor) {
+      throw new Error('tag-apply-more: no editor provided to suite');
+    }
+
     // Test 1: callout with no calloutTitle → titleSegment === '' branch.
     // 'question' tag fires callout action — check if it has a title or not.
     // Apply to a blockquoted line to also exercise nestedDepth path again (belt+suspenders).

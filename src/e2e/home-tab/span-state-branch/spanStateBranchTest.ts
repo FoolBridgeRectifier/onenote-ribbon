@@ -17,6 +17,10 @@ import { runHomeTabSuite } from '../home/suite-helpers/suiteHelpers';
  */
 export async function spanStateBranchTest(): Promise<SuiteTestResult[]> {
   return runHomeTabSuite('span-state-branch', async ({ editor, wait, clickByCommand }) => {
+    if (!editor) {
+      throw new Error('span-state-branch: no editor provided to suite');
+    }
+
     // Test 1: font-family property branch — place cursor inside the text content of a span.
     // Opening tag '<span style="font-family:Arial;">' is 33 chars (ch 0–32).
     // Text content starts at ch 33; cursor at ch 38 is safely inside the text.

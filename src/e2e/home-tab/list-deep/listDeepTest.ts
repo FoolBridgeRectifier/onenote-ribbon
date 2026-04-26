@@ -13,6 +13,10 @@ import { runHomeTabSuite } from '../home/suite-helpers/suiteHelpers';
  */
 export async function listDeepTest(): Promise<SuiteTestResult[]> {
   return runHomeTabSuite('list-deep', async ({ clickByCommand, editor, wait }) => {
+    if (!editor) {
+      throw new Error('list-deep: no editor provided to suite');
+    }
+
     // Test 1: canSafelyIndent with cursor on line 1 below a list item.
     // "- item1\n- item2" → cursor on line 1 → previous line IS a list item at depth 0 →
     // current depth is also 0 → 0 <= 0 → can indent.

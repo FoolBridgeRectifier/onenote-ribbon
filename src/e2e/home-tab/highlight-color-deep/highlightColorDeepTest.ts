@@ -13,6 +13,10 @@ import { runHomeTabSuite } from '../home/suite-helpers/suiteHelpers';
  */
 export async function highlightColorDeepTest(): Promise<SuiteTestResult[]> {
   return runHomeTabSuite('highlight-color-deep', async ({ editor, wait }) => {
+    if (!editor) {
+      throw new Error('highlight-color-deep: no editor provided to suite');
+    }
+
     const click = (element: Element): void => {
       element.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
     };

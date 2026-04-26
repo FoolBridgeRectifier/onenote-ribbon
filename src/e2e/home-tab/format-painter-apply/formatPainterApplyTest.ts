@@ -13,6 +13,10 @@ export async function formatPainterApplyTest(): Promise<SuiteTestResult[]> {
   return runHomeTabSuite(
     'format-painter-apply',
     async ({ clickByCommand, editor, selectToken, wait }) => {
+      if (!editor) {
+        throw new Error('format-painter-apply: no editor provided to suite');
+      }
+
       // Test 1: Arm format painter, then click the editor area to trigger handleEditorClick.
       // This exercises the setTimeout callback body (lines 46-51 in helpers.ts).
       // Sequence: set content with bold → select the bold span → copy format (single click) →
