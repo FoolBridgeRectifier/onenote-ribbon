@@ -3,7 +3,7 @@ import type { Editor } from 'obsidian';
 import {
   addTag,
   removeTag,
-} from '../../../../shared/editor/styling-engine/stylingEngine';
+} from '../../../../shared/editor-v2/styling-engine/editor-integration/stylingEngine';
 import { ACTIVE_TAG_KEY_TASK } from '../constants';
 import type { TagDefinition } from '../interfaces';
 import type { TagDropdownSelectContext } from './interfaces';
