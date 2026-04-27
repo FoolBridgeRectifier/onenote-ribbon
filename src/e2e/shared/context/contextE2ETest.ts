@@ -10,15 +10,20 @@ import { wait } from '../suiteHelpers';
  * Tests AppContext provider functionality.
  */
 async function testAppContext(): Promise<SuiteTestResult[]> {
-  // Check if app context is available (ribbon should be mounted)
   const ribbonRoot = document.getElementById('onenote-ribbon-root');
-  const ribbonMounted = !!ribbonRoot;
 
-  // Check if app is accessible globally
-  const appAvailable = typeof app !== 'undefined' && app !== null;
+  if (!ribbonRoot) {
+    throw new Error('onenote-ribbon-root not found — AppContext did not mount the ribbon');
+  }
 
-  if (!(ribbonMounted && appAvailable)) {
-    throw new Error('App context test failed');
+  if (typeof app === 'undefined' || app === null) {
+    throw new Error('Obsidian app not accessible — AppContext provider is not wrapping the tree');
+  }
+
+  // Verify command buttons are rendered (proves AppContext wired through to child components)
+  const commandButtonCount = document.querySelectorAll('[data-cmd]').length;
+  if (commandButtonCount === 0) {
+    throw new Error('No [data-cmd] buttons found — AppContext did not reach child components');
   }
 
   return [{ test: 'app-context', pass: true }];
@@ -28,22 +33,25 @@ async function testAppContext(): Promise<SuiteTestResult[]> {
  * Tests FormatPainterContext provider functionality.
  */
 async function testFormatPainterContext(): Promise<SuiteTestResult[]> {
-  // Check if format painter button exists (indicates context is working)
   const formatPainterButton = document.querySelector('[data-cmd="format-painter"]');
-  const formatPainterAvailable = !!formatPainterButton;
 
-  // Try to activate format painter to test context state
-  let _contextWorking = false;
-  if (formatPainterButton) {
-    formatPainterButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    await wait(100);
-    _contextWorking = formatPainterButton.classList.contains('onr-active') ||
-      document.body.classList.contains('onr-format-painter-active');
+  if (!formatPainterButton) {
+    throw new Error('format-painter button not found — FormatPainterContext may not be mounted');
   }
 
-  if (!formatPainterAvailable) {
-    throw new Error('Format painter context test failed');
+  // Arm: clicking once must reflect the context state transition on the button
+  formatPainterButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+  await wait(100);
+
+  const isArmed = formatPainterButton.classList.contains('onr-active') ||
+    document.body.classList.contains('onr-format-painter-active');
+  if (!isArmed) {
+    throw new Error('FormatPainterContext: armed state not reflected after single click');
   }
+
+  // Disarm: cancel click must remove the active state
+  formatPainterButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+  await wait(100);
 
   return [{ test: 'format-painter-context', pass: true }];
 }
@@ -57,8 +65,10 @@ export async function contextE2ETest(): Promise<SuiteTestResult[]> {
 
   const aggregatedResults = [...appContextResults, ...formatPainterContextResults];
 
-  if (aggregatedResults.length === 0) {
-    throw new Error('contextE2ETest: no context scenarios produced results');
+  const failedTests = aggregatedResults.filter(result => !result.pass);
+  if (failedTests.length > 0) {
+    const failedNames = failedTests.map(result => result.test).join(', ');
+    throw new Error(`contextE2ETest: ${failedTests.length} context scenario(s) failed: ${failedNames}`);
   }
 
   return aggregatedResults;

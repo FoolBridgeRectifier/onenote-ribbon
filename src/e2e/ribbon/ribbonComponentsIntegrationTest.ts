@@ -101,16 +101,24 @@ async function testRibbonShellMount(): Promise<SuiteTestResult[]> {
  * Tests RibbonShell unmounting (simulated by checking cleanup).
  */
 async function testRibbonShellUnmount(): Promise<SuiteTestResult[]> {
-  // Check that elements exist before "unmount"
-  const ribbonRootBefore = document.getElementById('onenote-ribbon-root');
-  const portalBefore = document.getElementById('onenote-ribbon-portals');
+  const ribbonRoot = document.getElementById('onenote-ribbon-root');
+  const portalContainer = document.getElementById('onenote-ribbon-portals');
 
-  // Simulate what happens during unmount by checking cleanup capability
-  // (We don't actually unmount to keep test running)
-  const canUnmount = !!ribbonRootBefore?.remove && !!portalBefore?.remove;
+  if (!ribbonRoot) {
+    throw new Error('onenote-ribbon-root not found — RibbonShell is not mounted');
+  }
 
-  if (!canUnmount) {
-    throw new Error('Ribbon shell unmount test failed');
+  if (!portalContainer) {
+    throw new Error('onenote-ribbon-portals not found — RibbonShell portal is not mounted');
+  }
+
+  // Verify both containers are live DOM nodes, not detached orphan elements
+  if (!document.contains(ribbonRoot)) {
+    throw new Error('onenote-ribbon-root is detached from document');
+  }
+
+  if (!document.contains(portalContainer)) {
+    throw new Error('onenote-ribbon-portals is detached from document');
   }
 
   return [{ test: 'ribbon-shell-unmount', pass: true }];
@@ -294,8 +302,10 @@ export async function ribbonComponentsIntegrationTest(): Promise<SuiteTestResult
   results.push(...await testResponsiveLayout());
   results.push(...await testCssClasses());
 
-  if (results.length === 0) {
-    throw new Error('ribbonComponentsIntegrationTest: no scenario produced any results');
+  const failedTests = results.filter(result => !result.pass);
+  if (failedTests.length > 0) {
+    const failedNames = failedTests.map(result => result.test).join(', ');
+    throw new Error(`ribbonComponentsIntegrationTest: ${failedTests.length} scenario(s) failed: ${failedNames}`);
   }
 
   return results;

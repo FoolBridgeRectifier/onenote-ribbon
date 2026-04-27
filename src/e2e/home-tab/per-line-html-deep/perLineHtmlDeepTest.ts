@@ -23,12 +23,19 @@ export async function perLineHtmlDeepTest(): Promise<SuiteTestResult[]> {
     // → shouldProcessPerLine returns true (2+ lines with prefix)
     // → toggleTagPerLine runs per-line
     // → lineHasMatchingTag for line 1: domain='markdown', htmlEquivalent=<b>, findEnclosing(<b>) → true
-    editor.setValue('- <b>already bold</b>\n- plain line');
+    const htmlBoldContent = '- <b>already bold</b>\n- plain line';
+    editor.setValue(htmlBoldContent);
     await wait(80);
     const value1 = editor.getValue();
     editor.setSelection(editor.offsetToPos(0), editor.offsetToPos(value1.length));
     clickByCommand('bold');
     await wait(120);
+
+    // Not all lines have bold → add bold to missing line (line 2 gets ** markers).
+    const afterBoldMixed1 = editor.getValue();
+    if (afterBoldMixed1 !== '- <b>already bold</b>\n- **plain line**') {
+      throw new Error('per-line-html-deep test1: expected line2 bolded and line1 unchanged, got: ' + afterBoldMixed1);
+    }
 
     // Test 2: Multi-line with <i> italic HTML on one line → lineHasMatchingTag htmlEquivalent for italic.
     editor.setValue('- <i>italic line</i>\n- normal line');
@@ -37,6 +44,12 @@ export async function perLineHtmlDeepTest(): Promise<SuiteTestResult[]> {
     editor.setSelection(editor.offsetToPos(0), editor.offsetToPos(value2.length));
     clickByCommand('italic');
     await wait(120);
+
+    // Not all lines have italic → add italic to missing line (line 2 gets * markers).
+    const afterItalicMixed2 = editor.getValue();
+    if (afterItalicMixed2 !== '- <i>italic line</i>\n- *normal line*') {
+      throw new Error('per-line-html-deep test2: expected italic added to line 2 only, got: ' + afterItalicMixed2);
+    }
 
     // Test 3: Multi-line with selection covering the <b> delimiters (delimiter-inclusive).
     // Line 1: "- <b>bold content</b>" — select from start of <b> to end of </b>
@@ -48,6 +61,12 @@ export async function perLineHtmlDeepTest(): Promise<SuiteTestResult[]> {
     editor.setSelection(editor.offsetToPos(2), editor.offsetToPos(value3.indexOf('\n')));
     clickByCommand('bold');
     await wait(120);
+
+    // Selection covers the <b> and </b> delimiters → delimiter-inclusive match → bold removed.
+    const afterBoldRemove3 = editor.getValue();
+    if (afterBoldRemove3 !== '- bold content\n- second line') {
+      throw new Error('per-line-html-deep test3: expected <b></b> removed from line 1, got: ' + afterBoldRemove3);
+    }
 
     // Test 4: buildEffectiveLineRanges inertZone skip.
     // Multi-line selection including a code-fence line (inertZone !== null on that line).
@@ -63,5 +82,11 @@ export async function perLineHtmlDeepTest(): Promise<SuiteTestResult[]> {
     editor.setSelection(editor.offsetToPos(0), editor.offsetToPos(value4.length));
     clickByCommand('bold');
     await wait(120);
+
+    // Lines inside the code block are inert → only the two list lines receive bold.
+    const afterBoldInert4 = editor.getValue();
+    if (afterBoldInert4 !== '- **list item one**\n```\ncode content\n```\n- **list item two**') {
+      throw new Error('per-line-html-deep test4: expected bold on list lines only, code block skipped, got: ' + afterBoldInert4);
+    }
   });
 }

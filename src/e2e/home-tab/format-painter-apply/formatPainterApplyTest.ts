@@ -29,6 +29,12 @@ export async function formatPainterApplyTest(): Promise<SuiteTestResult[]> {
       clickByCommand('format-painter');
       await wait(80);
 
+      // Armed state must be reflected on the button
+      const formatPainterBtnAfterArm = document.querySelector('[data-cmd="format-painter"]');
+      if (!formatPainterBtnAfterArm?.classList.contains('onr-active')) {
+        throw new Error('format-painter-apply test1: button not active after single click (failed to arm)');
+      }
+
       // Now click the cm-editor container to fire handleEditorClick
       const editorContainer = document.querySelector('.cm-editor');
 
@@ -49,6 +55,12 @@ export async function formatPainterApplyTest(): Promise<SuiteTestResult[]> {
 
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
       await wait(80);
+
+      // After Escape, painter must be back to idle (button inactive)
+      const formatPainterBtnAfterEscape = document.querySelector('[data-cmd="format-painter"]');
+      if (formatPainterBtnAfterEscape?.classList.contains('onr-active')) {
+        throw new Error('format-painter-apply test2: button still active after Escape — cancel handler did not fire');
+      }
 
       // Test 3: Double-click format painter to lock it (mode → 'locked').
       // Then click editor → handleEditorClick fires → mode === 'locked' → applies without cancel.

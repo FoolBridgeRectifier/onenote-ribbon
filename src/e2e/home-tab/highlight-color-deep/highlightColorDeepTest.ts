@@ -54,7 +54,8 @@ export async function highlightColorDeepTest(): Promise<SuiteTestResult[]> {
     // Test 2: Now set editor content to include a span with that color, then click
     // the main highlight button. editorState.highlightColor should match lastHighlightColor
     // → exercises the "else if" branch (remove the span).
-    editor.setValue('<span style="background:#FF0000;">colored text</span>');
+    const coloredSpanContent = '<span style="background:#FF0000;">colored text</span>';
+    editor.setValue(coloredSpanContent);
     editor.setCursor({ line: 0, ch: 20 });
     await wait(100);
 
@@ -70,13 +71,19 @@ export async function highlightColorDeepTest(): Promise<SuiteTestResult[]> {
     // Test 3: Set editor to plain text, click highlight button when lastHighlightColor is non-default.
     // editorState.highlightColor will be null (no highlight on selection).
     // → exercises the else branch (remove MD tag, add new color), inner if(highlightColor) = false.
-    editor.setValue('plain text for else branch');
+    const plainContent = 'plain text for else branch';
+    editor.setValue(plainContent);
     editor.setCursor({ line: 0, ch: 0 });
     await wait(80);
 
     if (highlightBtn) {
       click(highlightBtn);
       await wait(100);
+
+      // Clicking highlight on plain text must add a span (content must change)
+      if (editor.getValue() === plainContent) {
+        throw new Error('highlight-color-deep test3: content unchanged after highlight on plain text — span was not added');
+      }
     }
 
     // Test 4: Open highlight picker and click "no color" when editor has NO highlight.

@@ -35,6 +35,12 @@ export async function perLineDeepTest(): Promise<SuiteTestResult[]> {
     clickByCommand('bold');
     await wait(100);
 
+    // Single line → no per-line path → entire selection wrapped in bold.
+    const afterBold1 = editor.getValue();
+    if (afterBold1 !== '- **single list item**') {
+      throw new Error('per-line-deep test1: expected "- **single list item**", got: ' + afterBold1);
+    }
+
     // Test 2: Multi-line subscript (non-markdown domain, HTML tag in lineHasMatchingTag).
     // domain !== 'markdown' path in lineHasMatchingTag.
     editor.setValue('- line one text\n- line two text');
@@ -42,6 +48,12 @@ export async function perLineDeepTest(): Promise<SuiteTestResult[]> {
     selectRange('line one text', 'line two text');
     clickByCommand('subscript');
     await wait(120);
+
+    // Both lines must have received <sub> wrappers.
+    const valueAfterSubscript = editor.getValue();
+    if (valueAfterSubscript !== '- <sub>line one text</sub>\n- <sub>line two text</sub>') {
+      throw new Error('per-line-deep test2: expected both lines subscripted, got: ' + valueAfterSubscript);
+    }
 
     // Test 3: Multi-line subscript toggle-off — already has <sub> on both lines.
     // lineHasMatchingTag with findEnclosingMatchingTag returning non-null for HTML tag.
@@ -51,6 +63,12 @@ export async function perLineDeepTest(): Promise<SuiteTestResult[]> {
     clickByCommand('subscript');
     await wait(120);
 
+    // All lines have <sub> → remove from all → plain text remains.
+    const afterSubscriptOff = editor.getValue();
+    if (afterSubscriptOff !== '- line one text\n- line two text') {
+      throw new Error('per-line-deep test3: expected <sub> removed from both lines, got: ' + afterSubscriptOff);
+    }
+
     // Test 4: Add <sub> to multi-line where only one line has it.
     // lineHasMatchingTag returns true for one line, false for another.
     editor.setValue('- <sub>already sub</sub>\n- plain line here');
@@ -58,6 +76,12 @@ export async function perLineDeepTest(): Promise<SuiteTestResult[]> {
     selectRange('already sub', 'plain line here');
     clickByCommand('subscript');
     await wait(120);
+
+    // Line 1 already has <sub>; line 2 does not → add <sub> to missing line only.
+    const afterSubscriptMixed = editor.getValue();
+    if (afterSubscriptMixed !== '- <sub>already sub</sub>\n- <sub>plain line here</sub>') {
+      throw new Error('per-line-deep test4: expected plain line wrapped in <sub>, got: ' + afterSubscriptMixed);
+    }
 
     // Test 5: Multi-line with an inert zone line mixed in.
     // buildEffectiveLineRanges: inertZone !== null → skip that line.
@@ -68,6 +92,12 @@ export async function perLineDeepTest(): Promise<SuiteTestResult[]> {
     clickByCommand('bold');
     await wait(120);
 
+    // Code block is inert → only the two list lines receive bold.
+    const afterBoldInert = editor.getValue();
+    if (afterBoldInert !== '- **before code**\n```\ncode block content\n```\n- **after code**') {
+      throw new Error('per-line-deep test5: expected bold on list lines only, code block skipped, got: ' + afterBoldInert);
+    }
+
     // Test 6: DomainConversion — add a color span to bold markdown text.
     // The selection is inside **bold** → domain = 'markdown' → DomainConversion fires.
     editor.setValue('**bold text here**');
@@ -75,6 +105,12 @@ export async function perLineDeepTest(): Promise<SuiteTestResult[]> {
     editor.setSelection(editor.offsetToPos(2), editor.offsetToPos(16));
     clickByCommand('superscript');
     await wait(100);
+
+    // Selection inside **...**→ domain = markdown → DomainConversion fires: ** → <strong>, wraps with <sup>.
+    const afterDomainConversion = editor.getValue();
+    if (afterDomainConversion !== '<strong><sup>bold text here</sup></strong>') {
+      throw new Error('per-line-deep test6: expected domain conversion result "<strong><sup>bold text here</sup></strong>", got: ' + afterDomainConversion);
+    }
 
     // Test 7: Apply highlight to a multi-line list where one line has existing HTML span.
     // This exercises lineHasMatchingTag with findEnclosingMatchingTag returning non-null (HTML tag).
@@ -91,5 +127,11 @@ export async function perLineDeepTest(): Promise<SuiteTestResult[]> {
     selectRange('already bold text', 'plain numbered item');
     clickByCommand('bold');
     await wait(120);
+
+    // Line 1 already has bold; line 2 does not → add bold to missing line only.
+    const afterBoldNumbered = editor.getValue();
+    if (afterBoldNumbered !== '1. **already bold text**\n2. **plain numbered item**') {
+      throw new Error('per-line-deep test8: expected bold added to line 2 only, got: ' + afterBoldNumbered);
+    }
   });
 }
