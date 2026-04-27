@@ -37,9 +37,9 @@ async function testTabBarRender(): Promise<SuiteTestResult[]> {
   const tabs = document.querySelectorAll('.onr-tab');
   const expectedTabs = ['Home', 'Insert', 'Draw', 'History', 'Review', 'View', 'Help'];
 
-  const tabTexts = Array.from(tabs).map(tab => tab.textContent?.trim() || '');
-  const allTabsPresent = expectedTabs.every(expectedTab =>
-    tabTexts.some(text => text === expectedTab),
+  const tabTexts = Array.from(tabs).map((tab) => tab.textContent?.trim() || '');
+  const allTabsPresent = expectedTabs.every((expectedTab) =>
+    tabTexts.some((text) => text === expectedTab)
   );
 
   if (!(tabBar && allTabsPresent)) {
@@ -271,12 +271,12 @@ async function testCssClasses(): Promise<SuiteTestResult[]> {
     '.onr-btn',
   ];
 
-  const results = requiredClasses.map(selector => ({
+  const results = requiredClasses.map((selector) => ({
     selector,
     exists: !!document.querySelector(selector),
   }));
 
-  const allExist = results.every(r => r.exists);
+  const allExist = results.every((r) => r.exists);
 
   if (!allExist) {
     throw new Error('CSS classes test failed');
@@ -291,21 +291,23 @@ async function testCssClasses(): Promise<SuiteTestResult[]> {
 export async function ribbonComponentsIntegrationTest(): Promise<SuiteTestResult[]> {
   const results: SuiteTestResult[] = [];
 
-  results.push(...await testRibbonAppRender());
-  results.push(...await testTabBarRender());
-  results.push(...await testTabBarClicks());
-  results.push(...await testRibbonShellMount());
-  results.push(...await testRibbonShellUnmount());
-  results.push(...await testActiveState());
-  results.push(...await testBodyToggle());
-  results.push(...await testKeyboardNavigation());
-  results.push(...await testResponsiveLayout());
-  results.push(...await testCssClasses());
+  results.push(...(await testRibbonAppRender()));
+  results.push(...(await testTabBarRender()));
+  results.push(...(await testTabBarClicks()));
+  results.push(...(await testRibbonShellMount()));
+  results.push(...(await testRibbonShellUnmount()));
+  results.push(...(await testActiveState()));
+  results.push(...(await testBodyToggle()));
+  results.push(...(await testKeyboardNavigation()));
+  results.push(...(await testResponsiveLayout()));
+  results.push(...(await testCssClasses()));
 
-  const failedTests = results.filter(result => !result.pass);
+  const failedTests = results.filter((result) => !result.pass);
   if (failedTests.length > 0) {
-    const failedNames = failedTests.map(result => result.test).join(', ');
-    throw new Error(`ribbonComponentsIntegrationTest: ${failedTests.length} scenario(s) failed: ${failedNames}`);
+    const failedNames = failedTests.map((result) => result.test).join(', ');
+    throw new Error(
+      `ribbonComponentsIntegrationTest: ${failedTests.length} scenario(s) failed: ${failedNames}`
+    );
   }
 
   return results;

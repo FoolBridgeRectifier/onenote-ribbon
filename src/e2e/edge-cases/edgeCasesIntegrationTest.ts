@@ -339,10 +339,12 @@ export async function edgeCasesIntegrationTest(): Promise<SuiteTestResult[]> {
   results.push(...(await testErrorRecovery()));
   results.push(...(await testMemoryLeaks()));
 
-  const failedTests = results.filter(result => !result.pass);
+  const failedTests = results.filter((result) => !result.pass);
   if (failedTests.length > 0) {
-    const failedNames = failedTests.map(result => result.test).join(', ');
-    throw new Error(`edgeCasesIntegrationTest: ${failedTests.length} scenario(s) failed: ${failedNames}`);
+    const failedNames = failedTests.map((result) => result.test).join(', ');
+    throw new Error(
+      `edgeCasesIntegrationTest: ${failedTests.length} scenario(s) failed: ${failedNames}`
+    );
   }
 
   return results;

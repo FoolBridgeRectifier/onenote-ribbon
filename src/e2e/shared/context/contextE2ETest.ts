@@ -43,7 +43,8 @@ async function testFormatPainterContext(): Promise<SuiteTestResult[]> {
   formatPainterButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
   await wait(100);
 
-  const isArmed = formatPainterButton.classList.contains('onr-active') ||
+  const isArmed =
+    formatPainterButton.classList.contains('onr-active') ||
     document.body.classList.contains('onr-format-painter-active');
   if (!isArmed) {
     throw new Error('FormatPainterContext: armed state not reflected after single click');
@@ -65,10 +66,12 @@ export async function contextE2ETest(): Promise<SuiteTestResult[]> {
 
   const aggregatedResults = [...appContextResults, ...formatPainterContextResults];
 
-  const failedTests = aggregatedResults.filter(result => !result.pass);
+  const failedTests = aggregatedResults.filter((result) => !result.pass);
   if (failedTests.length > 0) {
-    const failedNames = failedTests.map(result => result.test).join(', ');
-    throw new Error(`contextE2ETest: ${failedTests.length} context scenario(s) failed: ${failedNames}`);
+    const failedNames = failedTests.map((result) => result.test).join(', ');
+    throw new Error(
+      `contextE2ETest: ${failedTests.length} context scenario(s) failed: ${failedNames}`
+    );
   }
 
   return aggregatedResults;

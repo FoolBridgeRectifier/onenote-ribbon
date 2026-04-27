@@ -83,9 +83,9 @@ export async function hooksE2ETest(): Promise<SuiteTestResult[]> {
 
   const aggregatedResults = [...formatPainterResults, ...editorStateResults];
 
-  const failedTests = aggregatedResults.filter(result => !result.pass);
+  const failedTests = aggregatedResults.filter((result) => !result.pass);
   if (failedTests.length > 0) {
-    const failedNames = failedTests.map(result => result.test).join(', ');
+    const failedNames = failedTests.map((result) => result.test).join(', ');
     throw new Error(`hooksE2ETest: ${failedTests.length} hook scenario(s) failed: ${failedNames}`);
   }
 

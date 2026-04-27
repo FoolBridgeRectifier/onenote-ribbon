@@ -54,7 +54,10 @@ export async function domainConversionDeepTest(): Promise<SuiteTestResult[]> {
     // Domain conversion must have changed the content (** → <strong>, span added).
     const afterHighlight1 = editor.getValue();
     if (!afterHighlight1.includes('<strong>') || !afterHighlight1.includes('background:')) {
-      throw new Error('domain-conversion-deep test1: expected <strong> + background: span after domain conversion, got: ' + afterHighlight1);
+      throw new Error(
+        'domain-conversion-deep test1: expected <strong> + background: span after domain conversion, got: ' +
+          afterHighlight1
+      );
     }
 
     // Test 2: Add HTML color span inside italic markdown text.
@@ -67,7 +70,10 @@ export async function domainConversionDeepTest(): Promise<SuiteTestResult[]> {
     // Domain conversion must have changed the content (* → <em>, span added).
     const afterHighlight2 = editor.getValue();
     if (!afterHighlight2.includes('<em>') || !afterHighlight2.includes('background:')) {
-      throw new Error('domain-conversion-deep test2: expected <em> + background: span after domain conversion, got: ' + afterHighlight2);
+      throw new Error(
+        'domain-conversion-deep test2: expected <em> + background: span after domain conversion, got: ' +
+          afterHighlight2
+      );
     }
 
     // Test 3: Replace existing span attribute (isSpanWithAttributes + matchingRange !== null).
@@ -82,7 +88,9 @@ export async function domainConversionDeepTest(): Promise<SuiteTestResult[]> {
 
     // Span attribute must be replaced — content must change from original.
     if (editor.getValue() === spanContent) {
-      throw new Error('domain-conversion-deep test3: span attribute unchanged — matchingRange replacement did not fire');
+      throw new Error(
+        'domain-conversion-deep test3: span attribute unchanged — matchingRange replacement did not fire'
+      );
     }
 
     // Test 4: isFullyInert → true (TagAdd early return).
@@ -96,7 +104,9 @@ export async function domainConversionDeepTest(): Promise<SuiteTestResult[]> {
 
     // Inert guard must have blocked all modifications
     if (editor.getValue() !== codeBlockContent) {
-      throw new Error('domain-conversion-deep test4: content changed inside code block — isFullyInert guard did not prevent modification');
+      throw new Error(
+        'domain-conversion-deep test4: content changed inside code block — isFullyInert guard did not prevent modification'
+      );
     }
 
     // Test 5: Multi-line selection crossing a code block (partially inert).
@@ -114,7 +124,10 @@ export async function domainConversionDeepTest(): Promise<SuiteTestResult[]> {
     // Lines inside the code block are inert → only the two list lines receive bold.
     const afterBold5 = editor.getValue();
     if (afterBold5 !== '- **list item one**\n```\ncode here\n```\n- **list item two**') {
-      throw new Error('domain-conversion-deep test5: expected bold on list lines only, code block skipped, got: ' + afterBold5);
+      throw new Error(
+        'domain-conversion-deep test5: expected bold on list lines only, code block skipped, got: ' +
+          afterBold5
+      );
     }
   });
 }

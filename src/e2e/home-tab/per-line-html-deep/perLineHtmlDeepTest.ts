@@ -34,7 +34,10 @@ export async function perLineHtmlDeepTest(): Promise<SuiteTestResult[]> {
     // Not all lines have bold → add bold to missing line (line 2 gets ** markers).
     const afterBoldMixed1 = editor.getValue();
     if (afterBoldMixed1 !== '- <b>already bold</b>\n- **plain line**') {
-      throw new Error('per-line-html-deep test1: expected line2 bolded and line1 unchanged, got: ' + afterBoldMixed1);
+      throw new Error(
+        'per-line-html-deep test1: expected line2 bolded and line1 unchanged, got: ' +
+          afterBoldMixed1
+      );
     }
 
     // Test 2: Multi-line with <i> italic HTML on one line → lineHasMatchingTag htmlEquivalent for italic.
@@ -48,7 +51,9 @@ export async function perLineHtmlDeepTest(): Promise<SuiteTestResult[]> {
     // Not all lines have italic → add italic to missing line (line 2 gets * markers).
     const afterItalicMixed2 = editor.getValue();
     if (afterItalicMixed2 !== '- <i>italic line</i>\n- *normal line*') {
-      throw new Error('per-line-html-deep test2: expected italic added to line 2 only, got: ' + afterItalicMixed2);
+      throw new Error(
+        'per-line-html-deep test2: expected italic added to line 2 only, got: ' + afterItalicMixed2
+      );
     }
 
     // Test 3: Multi-line with selection covering the <b> delimiters (delimiter-inclusive).
@@ -65,7 +70,9 @@ export async function perLineHtmlDeepTest(): Promise<SuiteTestResult[]> {
     // Selection covers the <b> and </b> delimiters → delimiter-inclusive match → bold removed.
     const afterBoldRemove3 = editor.getValue();
     if (afterBoldRemove3 !== '- bold content\n- second line') {
-      throw new Error('per-line-html-deep test3: expected <b></b> removed from line 1, got: ' + afterBoldRemove3);
+      throw new Error(
+        'per-line-html-deep test3: expected <b></b> removed from line 1, got: ' + afterBoldRemove3
+      );
     }
 
     // Test 4: buildEffectiveLineRanges inertZone skip.
@@ -86,7 +93,10 @@ export async function perLineHtmlDeepTest(): Promise<SuiteTestResult[]> {
     // Lines inside the code block are inert → only the two list lines receive bold.
     const afterBoldInert4 = editor.getValue();
     if (afterBoldInert4 !== '- **list item one**\n```\ncode content\n```\n- **list item two**') {
-      throw new Error('per-line-html-deep test4: expected bold on list lines only, code block skipped, got: ' + afterBoldInert4);
+      throw new Error(
+        'per-line-html-deep test4: expected bold on list lines only, code block skipped, got: ' +
+          afterBoldInert4
+      );
     }
   });
 }

@@ -35,7 +35,9 @@ export async function spanStateBranchTest(): Promise<SuiteTestResult[]> {
 
     // Bold must have been applied inside the span (content must change)
     if (editor.getValue() === fontFamilyContent) {
-      throw new Error('span-state-branch test1: content unchanged after bold inside font-family span — state derivation or bold apply failed');
+      throw new Error(
+        'span-state-branch test1: content unchanged after bold inside font-family span — state derivation or bold apply failed'
+      );
     }
 
     // Test 2: font-size property branch — cursor inside the text of a span with font-size.
@@ -90,7 +92,9 @@ export async function spanStateBranchTest(): Promise<SuiteTestResult[]> {
 
     const boldButton = document.querySelector('[data-cmd="bold"]');
     if (!boldButton?.classList.contains('onr-active')) {
-      throw new Error('span-state-branch test6: bold button not active after cursor moved inside **...**  — cached-finder reuse path may not have triggered state update');
+      throw new Error(
+        'span-state-branch test6: bold button not active after cursor moved inside **...**  — cached-finder reuse path may not have triggered state update'
+      );
     }
 
     editor.setCursor({ line: 0, ch: 10 });

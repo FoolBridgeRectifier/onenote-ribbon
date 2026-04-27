@@ -85,7 +85,10 @@ export async function tagDropdownDeepTest(): Promise<SuiteTestResult[]> {
       // Critical = calloutType 'danger', calloutTitle 'Critical' → wraps line in danger callout.
       const afterCritical = editor.getValue();
       if (afterCritical !== '> [!danger] Critical\n> normal callout select') {
-        throw new Error('tag-dropdown-deep test3: expected "> [!danger] Critical\\n> normal callout select", got: ' + afterCritical);
+        throw new Error(
+          'tag-dropdown-deep test3: expected "> [!danger] Critical\\n> normal callout select", got: ' +
+            afterCritical
+        );
       }
     }
 
@@ -117,7 +120,10 @@ export async function tagDropdownDeepTest(): Promise<SuiteTestResult[]> {
     // Native Obsidian toggle-checklist on a plain line adds "- [ ] " prefix.
     const afterTodo5 = editor.getValue();
     if (afterTodo5 !== '- [ ] task toggle test') {
-      throw new Error('tag-dropdown-deep test5: expected "- [ ] task toggle test" after todo click, got: ' + afterTodo5);
+      throw new Error(
+        'tag-dropdown-deep test5: expected "- [ ] task toggle test" after todo click, got: ' +
+          afterTodo5
+      );
     }
 
     // Cursor is now inside "- [ ] task toggle test" → click todo again → removeActiveCheckbox.

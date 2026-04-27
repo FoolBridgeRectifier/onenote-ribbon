@@ -52,7 +52,9 @@ export async function perLineDeepTest(): Promise<SuiteTestResult[]> {
     // Both lines must have received <sub> wrappers.
     const valueAfterSubscript = editor.getValue();
     if (valueAfterSubscript !== '- <sub>line one text</sub>\n- <sub>line two text</sub>') {
-      throw new Error('per-line-deep test2: expected both lines subscripted, got: ' + valueAfterSubscript);
+      throw new Error(
+        'per-line-deep test2: expected both lines subscripted, got: ' + valueAfterSubscript
+      );
     }
 
     // Test 3: Multi-line subscript toggle-off — already has <sub> on both lines.
@@ -66,7 +68,9 @@ export async function perLineDeepTest(): Promise<SuiteTestResult[]> {
     // All lines have <sub> → remove from all → plain text remains.
     const afterSubscriptOff = editor.getValue();
     if (afterSubscriptOff !== '- line one text\n- line two text') {
-      throw new Error('per-line-deep test3: expected <sub> removed from both lines, got: ' + afterSubscriptOff);
+      throw new Error(
+        'per-line-deep test3: expected <sub> removed from both lines, got: ' + afterSubscriptOff
+      );
     }
 
     // Test 4: Add <sub> to multi-line where only one line has it.
@@ -80,7 +84,9 @@ export async function perLineDeepTest(): Promise<SuiteTestResult[]> {
     // Line 1 already has <sub>; line 2 does not → add <sub> to missing line only.
     const afterSubscriptMixed = editor.getValue();
     if (afterSubscriptMixed !== '- <sub>already sub</sub>\n- <sub>plain line here</sub>') {
-      throw new Error('per-line-deep test4: expected plain line wrapped in <sub>, got: ' + afterSubscriptMixed);
+      throw new Error(
+        'per-line-deep test4: expected plain line wrapped in <sub>, got: ' + afterSubscriptMixed
+      );
     }
 
     // Test 5: Multi-line with an inert zone line mixed in.
@@ -95,7 +101,10 @@ export async function perLineDeepTest(): Promise<SuiteTestResult[]> {
     // Code block is inert → only the two list lines receive bold.
     const afterBoldInert = editor.getValue();
     if (afterBoldInert !== '- **before code**\n```\ncode block content\n```\n- **after code**') {
-      throw new Error('per-line-deep test5: expected bold on list lines only, code block skipped, got: ' + afterBoldInert);
+      throw new Error(
+        'per-line-deep test5: expected bold on list lines only, code block skipped, got: ' +
+          afterBoldInert
+      );
     }
 
     // Test 6: DomainConversion — add a color span to bold markdown text.
@@ -109,7 +118,10 @@ export async function perLineDeepTest(): Promise<SuiteTestResult[]> {
     // Selection inside **...**→ domain = markdown → DomainConversion fires: ** → <strong>, wraps with <sup>.
     const afterDomainConversion = editor.getValue();
     if (afterDomainConversion !== '<strong><sup>bold text here</sup></strong>') {
-      throw new Error('per-line-deep test6: expected domain conversion result "<strong><sup>bold text here</sup></strong>", got: ' + afterDomainConversion);
+      throw new Error(
+        'per-line-deep test6: expected domain conversion result "<strong><sup>bold text here</sup></strong>", got: ' +
+          afterDomainConversion
+      );
     }
 
     // Test 7: Apply highlight to a multi-line list where one line has existing HTML span.
@@ -131,7 +143,9 @@ export async function perLineDeepTest(): Promise<SuiteTestResult[]> {
     // Line 1 already has bold; line 2 does not → add bold to missing line only.
     const afterBoldNumbered = editor.getValue();
     if (afterBoldNumbered !== '1. **already bold text**\n2. **plain numbered item**') {
-      throw new Error('per-line-deep test8: expected bold added to line 2 only, got: ' + afterBoldNumbered);
+      throw new Error(
+        'per-line-deep test8: expected bold added to line 2 only, got: ' + afterBoldNumbered
+      );
     }
   });
 }

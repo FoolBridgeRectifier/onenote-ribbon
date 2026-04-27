@@ -82,7 +82,9 @@ export async function highlightColorDeepTest(): Promise<SuiteTestResult[]> {
 
       // Clicking highlight on plain text must add a span (content must change)
       if (editor.getValue() === plainContent) {
-        throw new Error('highlight-color-deep test3: content unchanged after highlight on plain text — span was not added');
+        throw new Error(
+          'highlight-color-deep test3: content unchanged after highlight on plain text — span was not added'
+        );
       }
     }
 

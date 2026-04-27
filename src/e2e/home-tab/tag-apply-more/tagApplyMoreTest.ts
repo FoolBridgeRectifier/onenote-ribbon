@@ -27,7 +27,10 @@ export async function tagApplyMoreTest(): Promise<SuiteTestResult[]> {
     // Content at depth 1 gets wrapped at depth 2: >> prefix with [!important] header.
     const afterImportant1 = editor.getValue();
     if (afterImportant1 !== '>> [!important] Important\n>> Nested content here') {
-      throw new Error('tag-apply-more test1: expected nested callout ">> [!important] Important\\n>> Nested content here", got: ' + afterImportant1);
+      throw new Error(
+        'tag-apply-more test1: expected nested callout ">> [!important] Important\\n>> Nested content here", got: ' +
+          afterImportant1
+      );
     }
 
     // Test 2: task on callout header line WITH title but cursor before the title region.
@@ -41,7 +44,9 @@ export async function tagApplyMoreTest(): Promise<SuiteTestResult[]> {
     // isOnCalloutTitleLine = true → applyTask appends a task line to the callout.
     const afterTodo2 = editor.getValue();
     if (afterTodo2 !== '> [!important] Important\n> - [ ] ') {
-      throw new Error('tag-apply-more test2: expected task appended to callout header, got: ' + afterTodo2);
+      throw new Error(
+        'tag-apply-more test2: expected task appended to callout header, got: ' + afterTodo2
+      );
     }
 
     // Test 3: task on callout header with no title → calloutTitle empty → cursorIsInCalloutTitle false.
@@ -88,7 +93,10 @@ export async function tagApplyMoreTest(): Promise<SuiteTestResult[]> {
     // No prefix match → stripTaskPrefix returns content unchanged.
     const afterTodo6 = editor.getValue();
     if (afterTodo6 !== '- [ ] plain content') {
-      throw new Error('tag-apply-more test6: expected unchanged re-stamp "- [ ] plain content", got: ' + afterTodo6);
+      throw new Error(
+        'tag-apply-more test6: expected unchanged re-stamp "- [ ] plain content", got: ' +
+          afterTodo6
+      );
     }
 
     // Test 7: highlight action — wrap selection with ==...==.

@@ -28,7 +28,9 @@ export async function listDeepTest(): Promise<SuiteTestResult[]> {
     // Item on line 1 must now be indented exactly one tab level.
     const afterIndent1 = editor.getValue();
     if (afterIndent1 !== '- item1\n\t- item2') {
-      throw new Error('list-deep test1: expected "- item1\\n\\t- item2" after indent, got: ' + afterIndent1);
+      throw new Error(
+        'list-deep test1: expected "- item1\\n\\t- item2" after indent, got: ' + afterIndent1
+      );
     }
 
     // Test 2: canSafelyIndent blocked — current line already deeper than parent.
@@ -41,7 +43,9 @@ export async function listDeepTest(): Promise<SuiteTestResult[]> {
     // Indent must be blocked — content must remain unchanged.
     const afterIndent2 = editor.getValue();
     if (afterIndent2 !== '- parent\n\t\t- grandchild') {
-      throw new Error('list-deep test2: expected indent blocked (content unchanged), got: ' + afterIndent2);
+      throw new Error(
+        'list-deep test2: expected indent blocked (content unchanged), got: ' + afterIndent2
+      );
     }
 
     // Test 3: canSafelyIndent with non-list previous line → returns false.
@@ -54,7 +58,9 @@ export async function listDeepTest(): Promise<SuiteTestResult[]> {
     // Indent must be blocked — content must remain unchanged.
     const afterIndent3 = editor.getValue();
     if (afterIndent3 !== '## Heading\n- list item') {
-      throw new Error('list-deep test3: expected indent blocked (content unchanged), got: ' + afterIndent3);
+      throw new Error(
+        'list-deep test3: expected indent blocked (content unchanged), got: ' + afterIndent3
+      );
     }
 
     // Test 4: Walk upward over blank lines to find the nearest non-empty line.
@@ -67,7 +73,10 @@ export async function listDeepTest(): Promise<SuiteTestResult[]> {
     // Bottom item must be indented one tab level.
     const afterIndent4 = editor.getValue();
     if (afterIndent4 !== '- top item\n\n\t- bottom item') {
-      throw new Error('list-deep test4: expected blank-line indent "- top item\\n\\n\\t- bottom item", got: ' + afterIndent4);
+      throw new Error(
+        'list-deep test4: expected blank-line indent "- top item\\n\\n\\t- bottom item", got: ' +
+          afterIndent4
+      );
     }
 
     // Test 5: Outdent on an indented list item.
@@ -79,7 +88,9 @@ export async function listDeepTest(): Promise<SuiteTestResult[]> {
     // Tab must be removed — child must be at the same level as parent.
     const afterOutdent = editor.getValue();
     if (afterOutdent !== '- parent\n- child') {
-      throw new Error('list-deep test5: expected "- parent\\n- child" after outdent, got: ' + afterOutdent);
+      throw new Error(
+        'list-deep test5: expected "- parent\\n- child" after outdent, got: ' + afterOutdent
+      );
     }
 
     // Test 6: bullet-list-toggle to exercise the toggle command path.
@@ -91,7 +102,10 @@ export async function listDeepTest(): Promise<SuiteTestResult[]> {
     // Obsidian toggle-bullet on a line with "- " prefix removes the prefix.
     const afterBulletToggle = editor.getValue();
     if (afterBulletToggle !== 'existing bullet') {
-      throw new Error('list-deep test6: expected "existing bullet" after bullet-list-toggle, got: ' + afterBulletToggle);
+      throw new Error(
+        'list-deep test6: expected "existing bullet" after bullet-list-toggle, got: ' +
+          afterBulletToggle
+      );
     }
 
     // Test 7: number-list-toggle.
@@ -103,7 +117,10 @@ export async function listDeepTest(): Promise<SuiteTestResult[]> {
     // Obsidian toggle-numbered on a plain line adds "1. " prefix.
     const afterNumberToggle = editor.getValue();
     if (afterNumberToggle !== '1. plain line') {
-      throw new Error('list-deep test7: expected "1. plain line" after number-list-toggle, got: ' + afterNumberToggle);
+      throw new Error(
+        'list-deep test7: expected "1. plain line" after number-list-toggle, got: ' +
+          afterNumberToggle
+      );
     }
   });
 }
