@@ -44,6 +44,10 @@ export interface SpanTagRegexEntry {
   cssProperty: string;
   /** Matches `<span style="...">` where style contains the relevant CSS property. Capture group 1 = style value. */
   open: RegExp;
+  /**
+   * Matches `</span>` only when an open span containing `cssProperty` appears
+   * somewhere earlier in the same string (verified via lookbehind).
+   */
   close: RegExp;
 }
 
@@ -113,31 +117,31 @@ export const SPAN_TAG_REGEX: ReadonlyArray<SpanTagRegexEntry> = [
     type: ESpanStyleTagType.ALIGN,
     cssProperty: 'text-align',
     open: /<span\s+style="([^"]*text-align:[^"]*)">/,
-    close: /<\/span>/,
+    close: /(?<=<span\s+style="[^"]*text-align:[^"]*">[\s\S]*)<\/span>/,
   },
   {
     type: ESpanStyleTagType.COLOR,
     cssProperty: 'color',
     open: /<span\s+style="([^"]*color:[^"]*)">/,
-    close: /<\/span>/,
+    close: /(?<=<span\s+style="[^"]*color:[^"]*">[\s\S]*)<\/span>/,
   },
   {
     type: ESpanStyleTagType.FONT_SIZE,
     cssProperty: 'font-size',
     open: /<span\s+style="([^"]*font-size:[^"]*)">/,
-    close: /<\/span>/,
+    close: /(?<=<span\s+style="[^"]*font-size:[^"]*">[\s\S]*)<\/span>/,
   },
   {
     type: ESpanStyleTagType.FONT_FAMILY,
     cssProperty: 'font-family',
     open: /<span\s+style="([^"]*font-family:[^"]*)">/,
-    close: /<\/span>/,
+    close: /(?<=<span\s+style="[^"]*font-family:[^"]*">[\s\S]*)<\/span>/,
   },
   {
     type: ESpanStyleTagType.HIGHLIGHT,
     cssProperty: 'background',
     open: /<span\s+style="([^"]*background:[^"]*)">/,
-    close: /<\/span>/,
+    close: /(?<=<span\s+style="[^"]*background:[^"]*">[\s\S]*)<\/span>/,
   },
 ];
 
@@ -149,18 +153,24 @@ export const SPAN_TAG_REGEX: ReadonlyArray<SpanTagRegexEntry> = [
  * A checkbox `- [ ] ` must be tested before a plain list `- `.
  */
 export const LINE_TAG_REGEX: ReadonlyArray<LineTagRegexEntry> = [
-  // Callout: one or more `>` chars followed by optional space then `[!type]`.
-  { type: ELineTagType.CALLOUT, open: /^(>+)\s*\[!([^\]]+)\]/ },
+  // Callout: `>+` chars then `[!type]` and optional title, then any same-level `>` continuation lines.
+  // Backreference `\1` ties continuation lines to the exact `>` depth of the opening.
+  // A callout with `>>+` is engine-enforced as nested inside the callout at depth - 1.
+  { type: ELineTagType.CALLOUT, open: /^(>+)\s*\[!([^\]]+)\][^\n]*(?:\n\1[^\n]*)*/ },
   // Checkbox: `- [ ] ` (dash, spaces, brackets, trailing space).
   { type: ELineTagType.CHECKBOX, open: /^-\s+\[\s\]\s/ },
   // Plain list item — must not look like a checkbox.
   { type: ELineTagType.LIST, open: /^-\s+(?!\[\s\])/ },
   // Heading: 1–6 `#` chars followed by a space.
   { type: ELineTagType.HEADING, open: /^#{1,6}\s/ },
-  // Blockquote — must not be a callout.
-  { type: ELineTagType.QUOTE, open: /^>\s(?!\[!)/ },
-  // Indent: line starts with a tab or 4+ spaces (no empty-line / document-start context).
-  { type: ELineTagType.INDENT, open: /^(\t+|[ ]{4,})/ },
+  // Blockquote: any `>` depth without `[!type]`, or where the callout chain is broken.
+  // Backreference `\1` ties continuation lines to the same `>` depth; each line must not open a callout.
+  { type: ELineTagType.QUOTE, open: /^(>+)[ \t]?(?!\[!)[^\n]*(?:\n\1[ \t]?(?!\[!)[^\n]*)*/ },
+  // Indent: must be preceded by a non-empty content line (`[^\n]\n`).
+  // Never matches at document start or after a blank line — those cases are tab-code.
+  // HTML indentation uses `\t` + `<span style="margin-left:...">` because tabs alone don't render in HTML.
+  // The open delimiter ends at `>` when the span is present.
+  { type: ELineTagType.INDENT, open: /(?<=[^\n]\n)(?:\t+(?:<span\s+style="[^"]*margin-left:[^"]*">)?|(?:[ ]{4})+(?:<span\s+style="[^"]*margin-left:[^"]*">)?)[^\n]*(?:\n(?:\t+(?:<span\s+style="[^"]*margin-left:[^"]*">)?|(?:[ ]{4})+(?:<span\s+style="[^"]*margin-left:[^"]*">)?)[^\n]*)*/ },
 ];
 
 // ── Special / protected-range tags ──────────────────────────────────────────
@@ -173,24 +183,27 @@ export const LINE_TAG_REGEX: ReadonlyArray<LineTagRegexEntry> = [
  * Embed must appear before wikilink so `![[` is consumed before `[[` is tried.
  */
 export const SPECIAL_TAG_REGEX: ReadonlyArray<SpecialTagRegexEntry> = [
-  // Fenced code block: ``` at line start. close = closing fence on its own line.
+  // Fenced code block: 3+ backticks at line start (4+ backticks also treated as fence).
+  // Must NOT open inside inline code or a tab-indented code block.
   {
     type: ESpecialTagType.CODE,
-    open: /^```([^`]*)$/,
-    close: /^\s*```\s*$/,
+    open: /^`{3,}([^`]*)$/m,
+    close: /^\s*`{3,}\s*$/m,
   },
-  // Tab-indented code block: `\t` or 4+ spaces at line start.
-  // open applies only when TAB_CODE_CONTEXT_REGEX matches the preceding line (empty line) or at document start.
+  // Tab-indented code block: atomic — opens at document start (`^`) or after a blank line (`\n\n`).
+  // Must NOT open inside a fenced code block.
+  // Greedily consumes contiguous lines starting with `\t+` or 4+ spaces.
   {
     type: ESpecialTagType.CODE,
-    open: /^(\t+|[ ]{4,})/,
-    close: /^(?!\t|[ ]{4})/,
+    open: /(?:^|\n\n)(?:\t+|(?:[ ]{4})+)[^\n]*(?:\n(?:\t+|(?:[ ]{4})+)[^\n]*)*/,
+    close: null,
   },
-  // Inline code: single backtick pair.
+  // Inline code: opens with `` ` ``; closes with matching `` ` `` or at line end (`$`) if unclosed.
+  // Must NOT open inside a fenced code block or a tab-indented code block.
   {
     type: ESpecialTagType.CODE,
     open: /`/,
-    close: /`/,
+    close: /`|$/m,
   },
   // Inline #todo token — single occurrence, no close delimiter.
   {
@@ -198,11 +211,12 @@ export const SPECIAL_TAG_REGEX: ReadonlyArray<SpecialTagRegexEntry> = [
     open: /(?:^|(?<=\s))#todo\b/,
     close: null,
   },
-  // Meeting details block: `---` delimiter. Body lines must match MEETING_FIELD_LINE_REGEX.
+  // Meeting details block: atomic — open matches the full block from opening `---` through closing `---`.
+  // Body lines must be `\w+: value` pairs separated by newlines.
   {
     type: ESpecialTagType.MEETING_DETAILS,
-    open: /^---$/,
-    close: /^---$/,
+    open: /^---\n(?:\w+:[^\n]*\n)+---$/,
+    close: null,
   },
   // Embed `![[...]]` — atomic; open pattern captures full token.
   {
@@ -210,30 +224,22 @@ export const SPECIAL_TAG_REGEX: ReadonlyArray<SpecialTagRegexEntry> = [
     open: /!\[\[([^\]]+)\]\]/,
     close: null,
   },
-  // Wikilink `[[...]]` — atomic.
+  // Wikilink `[[...]]` or bare `[text]` not followed by `(` (not a footnote ref `[^`, not an external link `[s](s)`).
   {
     type: ESpecialTagType.WIKILINK,
-    open: /\[\[([^\]]+)\]\]/,
+    open: /\[\[([^\]]+)\]\]|\[(?!\^)([^\]]+)\](?!\()/,
     close: null,
   },
-  // Markdown link `[text](url)` — atomic.
+  // External URL: markdown link `[text](url)`, protocol URLs (https?://), www., or bare domains with common TLDs.
   {
-    type: ESpecialTagType.MD_LINK,
-    open: /\[([^\]]+)\]\(([^)]+)\)/,
+    type: ESpecialTagType.EXTERNAL_LINK,
+    open: /\[([^\]]+)\]\(([^)]+)\)|https?:\/\/[^\s<>"]+|www\.[^\s<>"]+|[a-zA-Z0-9][\w.-]+\.(?:com|org|net|io|dev|co|uk|gov|edu|info|biz|app|ai)(?:\/[^\s<>"]*)?/,
     close: null,
   },
-  // Footnote reference `[^id]` — atomic.
+  // Footnote reference: `[^id]` inline reference (open); `[^id]: text` definition line (close).
   {
     type: ESpecialTagType.FOOTNOTE_REF,
     open: /\[\^([^\]]+)\]/,
-    close: null,
+    close: /\[\^([^\]]+)\]:\s+[^\n]*/,
   },
 ];
-
-// ── Standalone regex constants ────────────────────────────────────────────────
-
-/** Validates a single meeting field line: `word: word`. */
-export const MEETING_FIELD_LINE_REGEX = /^\w+: \w+$/;
-
-/** Matches the empty line that must precede a tab-indented code block. */
-export const TAB_CODE_CONTEXT_REGEX = /^$/;

@@ -1,7 +1,5 @@
 import { ESpecialTagType } from '../../interfaces';
 import type { ISpecialTag } from '../../interfaces';
-import { MEETING_FIELD_LINE_REGEX } from '../tag-regex/tagRegex';
-
 export function detectMeetingTag(lines: string[]): ISpecialTag | null {
   if (lines.length < 3 || lines[0].trim() !== '---') return null;
 
@@ -20,8 +18,6 @@ export function detectMeetingTag(lines: string[]): ISpecialTag | null {
         isSpan: false,
         isProtected: true,
       };
-    } else if (!MEETING_FIELD_LINE_REGEX.test(line.trim())) {
-      return null;
     }
   }
 
