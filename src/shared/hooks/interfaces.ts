@@ -25,7 +25,8 @@ export interface EditorState {
 /** Cached detection-engine TagContext for a specific source-text snapshot. */
 export interface CachedTagContext {
   sourceText: string;
-  context: TagContext;
+  // TODO: restore non-null once engine refactor is complete.
+  context: TagContext | null;
 }
 
 /** Style state derived from enclosing span tags + legacy <div> wrappers. */

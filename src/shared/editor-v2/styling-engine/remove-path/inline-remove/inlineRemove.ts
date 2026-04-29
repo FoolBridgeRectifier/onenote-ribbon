@@ -1,4 +1,9 @@
-import type { TagDefinition, StylingContext, StylingResult, TextReplacement } from '../../interfaces';
+import type {
+  TagDefinition,
+  StylingContext,
+  StylingResult,
+  TextReplacement,
+} from '../../interfaces';
 import type { DetectedTag } from '../../../detection-engine/interfaces';
 import { sortReplacementsLastToFirst } from '../../helpers';
 import { detectedTagToOffsets } from '../helpers';
@@ -6,13 +11,20 @@ import { buildPunchOutOrFullRemoveReplacements } from '../punch-out-builder/punc
 import { buildSpanRemoveReplacements } from '../span-remove/spanRemove';
 import type { RemoveDecision } from '../interfaces';
 import { buildSubSupSwapReplacements } from '../sub-sup-swap/subSupSwap';
-import { buildDowngradeReplacements, findInteriorTagsWithinRange } from '../downgrade-html-to-md/downgradeHtmlToMd';
-import { buildTagContext, getEnclosingTags } from '../../../detection-engine/DetectionEngine';
+import {
+  buildDowngradeReplacements,
+  findInteriorTagsWithinRange,
+} from '../downgrade-html-to-md/downgradeHtmlToMd';
+// TODO: restore buildTagContext / getEnclosingTags imports after engine refactor is complete
 import { offsetToEditorPosition } from '../helpers';
 import { getMdDelimiter, getHtmlElementName } from '../../add-path/inline-add/helpers';
 
 /** Top-level inline remove dispatcher. Called when `decideRemove` chose remove. */
-export function processInlineRemove(context: StylingContext, tagDefinition: TagDefinition, decision: RemoveDecision): StylingResult {
+export function processInlineRemove(
+  context: StylingContext,
+  tagDefinition: TagDefinition,
+  decision: RemoveDecision
+): StylingResult {
   // R10/R11/R12 — sub/sup swap takes priority over plain remove.
   if (decision.enclosingTag && isSubSupSwap(decision.enclosingTag.type, tagDefinition.type)) {
     return buildSubSupSwapReplacements(context, decision.enclosingTag, tagDefinition);
@@ -27,25 +39,43 @@ export function processInlineRemove(context: StylingContext, tagDefinition: TagD
 }
 
 function isSubSupSwap(enclosingType: string, requestedType: string): boolean {
-  return (enclosingType === 'subscript' && requestedType === 'superscript') ||
-         (enclosingType === 'superscript' && requestedType === 'subscript');
+  return (
+    (enclosingType === 'subscript' && requestedType === 'superscript') ||
+    (enclosingType === 'superscript' && requestedType === 'subscript')
+  );
 }
 
 /** MD or HTML closing tag remove: handles R1/R2/R3/R5/R6/R9/R13/R20. */
-function buildClosingTagRemoveResult(context: StylingContext, tagDefinition: TagDefinition, decision: RemoveDecision): StylingResult {
+function buildClosingTagRemoveResult(
+  context: StylingContext,
+  tagDefinition: TagDefinition,
+  decision: RemoveDecision
+): StylingResult {
   const allReplacements: TextReplacement[] = [];
   const stackedTags = decision.stackedEnclosing;
-  const tagContext = buildTagContext(context.sourceText);
+  // TODO: restore real detection once engine refactor is complete.
+  const tagContext = { tags: [] };
 
   // R13 — remove every same-type enclosing tag PLUS any same-type tag nested inside the outermost.
-  const allSameTypeTags = collectAllSameTypeTagsForRemoval(stackedTags, tagContext.tags, tagDefinition, context);
+  const allSameTypeTags = collectAllSameTypeTagsForRemoval(
+    stackedTags,
+    tagContext.tags,
+    tagDefinition,
+    context
+  );
   for (const tagToRemove of allSameTypeTags) {
     const range = detectedTagToOffsets(context.sourceText, tagToRemove);
     if (!range) continue;
     const { openText, closeText } = openCloseTextFor(tagDefinition);
-    allReplacements.push(...buildPunchOutOrFullRemoveReplacements(
-      context.selectionStartOffset, context.selectionEndOffset, range, openText, closeText,
-    ));
+    allReplacements.push(
+      ...buildPunchOutOrFullRemoveReplacements(
+        context.selectionStartOffset,
+        context.selectionEndOffset,
+        range,
+        openText,
+        closeText
+      )
+    );
   }
 
   // R9 — also remove the HTML equivalent (e.g. <b> when removing **).
@@ -55,29 +85,44 @@ function buildClosingTagRemoveResult(context: StylingContext, tagDefinition: Tag
       const element = getHtmlElementName({ type: decision.htmlEquivalent.type, isHTML: true });
       const openText = element ? `<${element}>` : '';
       const closeText = element ? `</${element}>` : '';
-      allReplacements.push(...buildPunchOutOrFullRemoveReplacements(
-        context.selectionStartOffset, context.selectionEndOffset, range, openText, closeText,
-      ));
+      allReplacements.push(
+        ...buildPunchOutOrFullRemoveReplacements(
+          context.selectionStartOffset,
+          context.selectionEndOffset,
+          range,
+          openText,
+          closeText
+        )
+      );
     }
   }
 
   // R20 — when removing an HTML closing tag, downgrade inner HTML tags with MD equivalents.
   if (decision.enclosingTag?.isHTML && !decision.enclosingTag.isSpan) {
-    const allEnclosing = getEnclosingTags(
-      tagContext,
-      offsetToEditorPosition(context.sourceText, context.selectionStartOffset),
-      offsetToEditorPosition(context.sourceText, context.selectionEndOffset),
-    );
+    // TODO: stub — getEnclosingTags removed; return empty list until engine refactor is complete.
+    const allEnclosing: DetectedTag[] = [];
     const outerRange = detectedTagToOffsets(context.sourceText, decision.enclosingTag);
     if (outerRange) {
       const interior = findInteriorTagsWithinRange(context.sourceText, outerRange, tagContext.tags);
       // Filter out same-type interior tags (already removed above).
-      const interiorDifferentType = interior.filter((tag) => tag.type !== decision.enclosingTag!.type);
-      allReplacements.push(...buildDowngradeReplacements(context.sourceText, decision.enclosingTag, allEnclosing, interiorDifferentType));
+      const interiorDifferentType = interior.filter(
+        (tag) => tag.type !== decision.enclosingTag!.type
+      );
+      allReplacements.push(
+        ...buildDowngradeReplacements(
+          context.sourceText,
+          decision.enclosingTag,
+          allEnclosing,
+          interiorDifferentType
+        )
+      );
     }
   }
 
-  return { replacements: sortReplacementsLastToFirst(allReplacements), isNoOp: allReplacements.length === 0 };
+  return {
+    replacements: sortReplacementsLastToFirst(allReplacements),
+    isNoOp: allReplacements.length === 0,
+  };
 }
 
 /**
@@ -85,7 +130,12 @@ function buildClosingTagRemoveResult(context: StylingContext, tagDefinition: Tag
  * Includes enclosing same-type tags (decision.stackedEnclosing) AND inner same-type
  * tags nested inside the outermost (e.g. `<b><b>...</b></b>`, `<b>**...**</b>`).
  */
-function collectAllSameTypeTagsForRemoval(stackedEnclosing: DetectedTag[], allTags: DetectedTag[], tagDefinition: TagDefinition, context: StylingContext): DetectedTag[] {
+function collectAllSameTypeTagsForRemoval(
+  stackedEnclosing: DetectedTag[],
+  allTags: DetectedTag[],
+  tagDefinition: TagDefinition,
+  context: StylingContext
+): DetectedTag[] {
   const collected = [...stackedEnclosing];
   const collectedKeys = new Set(stackedEnclosing.map((tag) => tagPositionKey(tag)));
   const selStart = context.selectionStartOffset;

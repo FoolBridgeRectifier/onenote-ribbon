@@ -3,10 +3,16 @@ import { useRibbonState } from '../../shared/hooks/useRibbonState';
 import { TabBar } from '../tab-bar/TabBar';
 import { HomeTabPanel } from '../../tabs/home/Home';
 import { InsertTabPanel } from '../../tabs/insert/Insert';
+import { useApp } from '../../shared/context/AppContext';
+import {
+  getActiveTags,
+  getTagsInSelection,
+} from '../../shared/editor-v2/detection-engine/DetectionEngine';
 
 import '../ribbon-app.css';
 
 export function RibbonApp() {
+  const app = useApp();
   const {
     activeTab,
     collapsed,
@@ -18,16 +24,41 @@ export function RibbonApp() {
 
   const ribbonRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    console.log('GG');
+    const handleChange = () => {
+      const editor = app.workspace.activeEditor?.editor;
+      if (!editor) return;
+
+      const sourceText = editor.getValue();
+      const tagContext = { tags: [], protectedRanges: [], content: sourceText };
+      const cursor = editor.getCursor();
+
+      getActiveTags(sourceText, cursor);
+
+      const selectionFrom = editor.getCursor('from');
+      const selectionTo = editor.getCursor('to');
+      if (selectionFrom.line === selectionTo.line) {
+        getTagsInSelection(tagContext, selectionFrom.ch, selectionTo.ch);
+      }
+    };
+
+    const editorChangeRef = app.workspace.on('editor-change', handleChange);
+    document.addEventListener('selectionchange', handleChange);
+
+    return () => {
+      app.workspace.offref(editorChangeRef);
+      document.removeEventListener('selectionchange', handleChange);
+    };
+  }, [app]);
+
   const isBodyVisible = !collapsed || isTemporarilyExpanded;
 
   useEffect(() => {
     if (!isTemporarilyExpanded) return;
 
     const handleDocumentClick = (event: MouseEvent) => {
-      if (
-        ribbonRef.current &&
-        !ribbonRef.current.contains(event.target as Node)
-      ) {
+      if (ribbonRef.current && !ribbonRef.current.contains(event.target as Node)) {
         setIsTemporarilyExpanded(false);
       }
     };
@@ -54,4 +85,3 @@ export function RibbonApp() {
     </div>
   );
 }
-

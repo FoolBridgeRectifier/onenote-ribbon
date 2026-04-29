@@ -1,6 +1,6 @@
 import type { StylingContext, CopiedFormat, TagDefinition, FormattingDomain } from '../interfaces';
 import type { DetectedTag } from '../../detection-engine/interfaces';
-import { buildTagContext, getEnclosingTags } from '../../detection-engine/DetectionEngine';
+// TODO: restore buildTagContext / getEnclosingTags imports after engine refactor is complete
 import { lineBoundsAt } from '../helpers';
 import { detectLineTag } from './detect-line-tag/detectLineTag';
 
@@ -11,11 +11,8 @@ import { detectLineTag } from './detect-line-tag/detectLineTag';
 export function copyFormatImpl(context: StylingContext): CopiedFormat {
   const { sourceText, selectionStartOffset: selStart, selectionEndOffset: selEnd } = context;
 
-  const tagContext = buildTagContext(sourceText);
-
-  const startPosition = offsetToPosition(sourceText, selStart);
-  const endPosition   = offsetToPosition(sourceText, selEnd);
-  const enclosingTags = getEnclosingTags(tagContext, startPosition, endPosition);
+  // TODO: restore real detection once engine refactor is complete.
+  const enclosingTags: DetectedTag[] = [];
 
   const tagDefinitions: DetectedTag[] = enclosingTags;
 
@@ -35,7 +32,10 @@ function offsetToPosition(sourceText: string, offset: number): { line: number; c
   let line = 0;
   let lastNewline = -1;
   for (let i = 0; i < offset; i++) {
-    if (sourceText[i] === '\n') { line++; lastNewline = i; }
+    if (sourceText[i] === '\n') {
+      line++;
+      lastNewline = i;
+    }
   }
   return { line, ch: offset - lastNewline - 1 };
 }

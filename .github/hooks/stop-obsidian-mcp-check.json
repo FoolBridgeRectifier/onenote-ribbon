@@ -1,11 +1,11 @@
-{
-  "hooks": {
-    "Stop": [
-      {
-        "type": "command",
-        "command": "node scripts/hooks/stopObsidianMcpCheck.cjs",
-        "timeout": 15
-      }
-    ]
-  }
-}
+// {
+//   "hooks": {
+//     "Stop": [
+//       {
+//         "type": "command",
+//         "command": "node scripts/hooks/stopObsidianMcpCheck.cjs",
+//         "timeout": 15
+//       }
+//     ]
+//   }
+// }

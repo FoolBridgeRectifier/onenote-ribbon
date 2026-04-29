@@ -1,8 +1,6 @@
-import type { FormattingDomain } from '../interfaces';
 import type { DetectedTag } from '../detection-engine/interfaces';
 
 // Re-export so callers can import from a single location.
-export type { FormattingDomain, TagType } from '../interfaces';
 export type { DetectedTag } from '../detection-engine/interfaces';
 
 // === Styling Context ===
@@ -46,9 +44,11 @@ export type TagDefinition = DetectedTag;
 
 // === Copied Format ===
 
+export type FormattingDomain = 'markdown' | 'html';
+
 /** Result of copyFormat. Passed to the paste handler for reconciliation. */
 export interface CopiedFormat {
   tagDefinitions: DetectedTag[];
-  domain: FormattingDomain;
+  domain: unknown;
   lineTagDefinition?: DetectedTag;
 }

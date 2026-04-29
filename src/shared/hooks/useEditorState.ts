@@ -1,25 +1,61 @@
 import { useEffect, useRef, useState } from 'react';
 import type { App } from 'obsidian';
 import type { EditorState, CachedTagContext } from './interfaces';
-import { CONTENT_CHANGE_DEBOUNCE_MS, SELECTION_CHANGE_THROTTLE_MS } from './constants';
+import { CONTENT_CHANGE_DEBOUNCE_MS } from './constants';
 import { deriveEditorState, buildDefaultState } from './editorStateHelpers';
-import { buildTagContext } from '../editor-v2/detection-engine/DetectionEngine';
+// TODO: restore buildTagContext import after engine refactor is complete
 
 export type { EditorState };
 export { extractSpanAndDivState, deriveEditorState } from './editorStateHelpers';
 
+/** Returns true when both states are deeply equal (all primitive fields + activeTagKeys Set). */
+function editorStatesEqual(a: EditorState, b: EditorState): boolean {
+  if (a === b) return true;
+  return (
+    a.bold === b.bold &&
+    a.italic === b.italic &&
+    a.underline === b.underline &&
+    a.strikethrough === b.strikethrough &&
+    a.highlight === b.highlight &&
+    a.subscript === b.subscript &&
+    a.superscript === b.superscript &&
+    a.bulletList === b.bulletList &&
+    a.numberedList === b.numberedList &&
+    a.headLevel === b.headLevel &&
+    a.fontFamily === b.fontFamily &&
+    a.fontSize === b.fontSize &&
+    a.textAlign === b.textAlign &&
+    a.fontColor === b.fontColor &&
+    a.highlightColor === b.highlightColor &&
+    a.activeTagKeys.size === b.activeTagKeys.size &&
+    [...a.activeTagKeys].every(key => b.activeTagKeys.has(key))
+  );
+}
+
 export function useEditorState(app: App): EditorState {
   const [editorState, setEditorState] = useState<EditorState>(() => buildDefaultState(app));
+  const editorStateRef = useRef<EditorState>(editorState);
   const cachedContextRef = useRef<CachedTagContext | null>(null);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const selectionThrottleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingUpdateRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Keep ref in sync with state so updateState can read the latest value without stale closure.
+  editorStateRef.current = editorState;
 
   useEffect(() => {
+    /** Only commit a state update when the derived state has actually changed. */
+    const commitState = (next: EditorState) => {
+      if (!editorStatesEqual(editorStateRef.current, next)) {
+        editorStateRef.current = next;
+        setEditorState(next);
+      }
+    };
+
     const updateState = () => {
       const editor = app.workspace.activeEditor?.editor;
 
       if (!editor) {
-        setEditorState(buildDefaultState(app));
+        commitState(buildDefaultState(app));
         return;
       }
 
@@ -28,15 +64,14 @@ export function useEditorState(app: App): EditorState {
       const contentChanged = !cached || cached.sourceText !== currentSourceText;
 
       if (contentChanged) {
-        // Content changed — rebuild detection-engine context and debounce the state update.
-        const newContext = buildTagContext(currentSourceText);
-        cachedContextRef.current = { sourceText: currentSourceText, context: newContext };
+        // Content changed — stub: skip context rebuild until engine refactor is complete.
+        cachedContextRef.current = { sourceText: currentSourceText, context: null };
 
         if (debounceTimerRef.current !== null) clearTimeout(debounceTimerRef.current);
 
         debounceTimerRef.current = setTimeout(() => {
           debounceTimerRef.current = null;
-          setEditorState(
+          commitState(
             deriveEditorState(
               app,
               cachedContextRef.current?.context ?? null,
@@ -46,31 +81,32 @@ export function useEditorState(app: App): EditorState {
         }, CONTENT_CHANGE_DEBOUNCE_MS);
       } else {
         // Cursor-only move — reuse cached context, compute immediately.
-        setEditorState(deriveEditorState(app, cached.context, cached.sourceText));
+        commitState(deriveEditorState(app, cached.context, cached.sourceText));
       }
     };
 
-    // Throttled for selectionchange which fires very frequently during drag-to-select
-    const throttledUpdateState = () => {
-      if (selectionThrottleTimerRef.current !== null) return;
-      selectionThrottleTimerRef.current = setTimeout(() => {
-        selectionThrottleTimerRef.current = null;
+    // Batch all event sources (editor-change, selectionchange, active-leaf-change) into one
+    // call per event-loop turn. The first event schedules the update; subsequent events from
+    // the same user gesture are dropped until the scheduled call fires.
+    const scheduleUpdate = () => {
+      if (pendingUpdateRef.current !== null) return;
+      pendingUpdateRef.current = setTimeout(() => {
+        pendingUpdateRef.current = null;
         updateState();
-      }, SELECTION_CHANGE_THROTTLE_MS);
+      }, 0);
     };
 
-    const leafChangeRef = app.workspace.on('active-leaf-change', updateState);
-    const editorChangeRef = app.workspace.on('editor-change', updateState);
-    document.addEventListener('selectionchange', throttledUpdateState);
-    updateState();
+    const leafChangeRef = app.workspace.on('active-leaf-change', scheduleUpdate);
+    const editorChangeRef = app.workspace.on('editor-change', scheduleUpdate);
+    document.addEventListener('selectionchange', scheduleUpdate);
+    scheduleUpdate();
 
     return () => {
       app.workspace.offref(leafChangeRef);
       app.workspace.offref(editorChangeRef);
-      document.removeEventListener('selectionchange', throttledUpdateState);
+      document.removeEventListener('selectionchange', scheduleUpdate);
       if (debounceTimerRef.current !== null) clearTimeout(debounceTimerRef.current);
-      if (selectionThrottleTimerRef.current !== null)
-        clearTimeout(selectionThrottleTimerRef.current);
+      if (pendingUpdateRef.current !== null) clearTimeout(pendingUpdateRef.current);
     };
   }, [app]);
 

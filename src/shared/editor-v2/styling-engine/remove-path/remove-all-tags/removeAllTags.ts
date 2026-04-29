@@ -1,6 +1,7 @@
 import type { StylingContext, StylingResult, TextReplacement } from '../../interfaces';
+import type { DetectedTag } from '../../../detection-engine/interfaces';
 import { sortReplacementsLastToFirst, lineBoundsAt } from '../../helpers';
-import { buildTagContext, getTagsInRange, getEnclosingTags } from '../../../detection-engine/DetectionEngine';
+// TODO: restore buildTagContext / getTagsInRange / getEnclosingTags imports after engine refactor is complete
 import { offsetToEditorPosition, detectedTagToOffsets } from '../helpers';
 import { LINE_PREFIX_PATTERNS } from './constants';
 
@@ -9,12 +10,9 @@ import { LINE_PREFIX_PATTERNS } from './constants';
  * Single-pass; replacements sorted last-to-first.
  */
 export function processRemoveAllTags(context: StylingContext): StylingResult {
-  const tagContext = buildTagContext(context.sourceText);
-  const selectionStart = offsetToEditorPosition(context.sourceText, context.selectionStartOffset);
-  const selectionEnd = offsetToEditorPosition(context.sourceText, context.selectionEndOffset);
-
-  const enclosing = getEnclosingTags(tagContext, selectionStart, selectionEnd);
-  const interior = getTagsInRange(tagContext, selectionStart.ch, selectionEnd.ch);
+  // TODO: restore real detection once engine refactor is complete.
+  const enclosing: DetectedTag[] = [];
+  const interior: DetectedTag[] = [];
 
   // Dedupe by detected-tag identity (object reference).
   const allTags = Array.from(new Set([...enclosing, ...interior]));
@@ -23,8 +21,16 @@ export function processRemoveAllTags(context: StylingContext): StylingResult {
   for (const tag of allTags) {
     const range = detectedTagToOffsets(context.sourceText, tag);
     if (!range) continue;
-    replacements.push({ fromOffset: range.closeStart, toOffset: range.closeEnd, replacementText: '' });
-    replacements.push({ fromOffset: range.openStart, toOffset: range.openEnd, replacementText: '' });
+    replacements.push({
+      fromOffset: range.closeStart,
+      toOffset: range.closeEnd,
+      replacementText: '',
+    });
+    replacements.push({
+      fromOffset: range.openStart,
+      toOffset: range.openEnd,
+      replacementText: '',
+    });
   }
 
   // Line-prefix removal: any line whose start lies inside the selection.
@@ -33,7 +39,10 @@ export function processRemoveAllTags(context: StylingContext): StylingResult {
   // Underscore-italic (`_text_`) — detection-engine doesn't recognise this MD form, so handle it here.
   replacements.push(...buildUnderscoreItalicRemovals(context));
 
-  return { replacements: sortReplacementsLastToFirst(replacements), isNoOp: replacements.length === 0 };
+  return {
+    replacements: sortReplacementsLastToFirst(replacements),
+    isNoOp: replacements.length === 0,
+  };
 }
 
 /** Locates `_..._` pairs (asymmetric MD italic) inside the selection and emits delimiter deletions. */
@@ -65,7 +74,9 @@ function buildLinePrefixRemovals(context: StylingContext): TextReplacement[] {
       const match = pattern.exec(lineText);
       if (match) {
         replacements.push({
-          fromOffset: bounds.lineStart, toOffset: bounds.lineStart + match[0].length, replacementText: '',
+          fromOffset: bounds.lineStart,
+          toOffset: bounds.lineStart + match[0].length,
+          replacementText: '',
         });
         break;
       }

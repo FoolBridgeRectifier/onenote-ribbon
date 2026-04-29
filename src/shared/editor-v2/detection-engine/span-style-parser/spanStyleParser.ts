@@ -1,4 +1,3 @@
-import type { TagType } from '../interfaces';
 import { CSS_PROPERTY_TO_TAG_TYPE } from '../constants';
 
 /**
@@ -8,7 +7,7 @@ import { CSS_PROPERTY_TO_TAG_TYPE } from '../constants';
  *
  * Returns null when the style does not match any recognised tag form.
  */
-export function parseSpanStyleAttribute(styleAttribute: string): TagType | null {
+export function parseSpanStyleAttribute(styleAttribute: string): string | null {
   const normalised = styleAttribute.toLowerCase();
 
   // Align span has the multi-property signature; check before single-property mapping.

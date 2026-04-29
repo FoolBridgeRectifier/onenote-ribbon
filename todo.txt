@@ -2,6 +2,7 @@ need to fix bullets for text size
 full rich text view
 shortcuts
 toggle tag tracking
+footnote ref modal
 
 format painter on |<span>text</span>|, does not select style of text.
 
@@ -58,7 +59,9 @@ styling engine
       font-size    - (none)  / <span style="font-size:Xpt"> </span> - same
       font         - (none)  / <span style="font-family:font"> </span> - same
       align        - (none)  / <span style="display:inline-block;width:100%;vertical-align:top;text-align: center"> </span>  - same
-      code         - ` `     / (none)  - same
+      code         - ` ` , ``` ```    / (none)  - same
+                              no tags should be in same line if multi line code block
+                              on new line instead code block should make it multi line code block
 
     single
       indent           - (none)       / <span style="margin-left:24px"/> - at start of line. could be 24px - 24 * 24px
@@ -75,13 +78,14 @@ styling engine
                            Agenda:
                            --- 
   engine logic:
-    indent - mapped to tab and shift tab. if no indent detected, add span after all other single tags in line with marginLeft 24px, multiplied by tab.
+    indent - mapped to tab and shift tab only for span. if no indent detected, add span after all other single tags in line with marginLeft 24px, multiplied by tab. this is only when
       any single tag should be applied before this, on heading / callout should apply before this
 
   extra functions - single tags do not get affected by these
     delete format - get all tags. get all tags that are enclosed after text, remove these and all inner tags. (single tag affected on multi line selection. remove single tag if start of line)
     delete item - get outer most enclosing tag as range, and delete everything.  (single tag affected on multi line selection)
     meeting details - toggle per page
+      should also replace if its just --- --- with empty
     todo tag - delete format on cursor, and add #todo. on remove toggle, remove all close before and open after the todo
       should also work with #, and revert on space after
 

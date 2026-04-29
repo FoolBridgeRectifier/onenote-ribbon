@@ -1,3 +1,4 @@
+// TODO: restore real implementations after engine refactor is complete
 import type {
   CalloutTagDefinition,
   CheckboxTagDefinition,
@@ -6,55 +7,23 @@ import type {
   TaskTagDefinition,
 } from '../interfaces';
 
-import { applyCallout } from './apply-callout/applyCallout';
-import { applyTask } from './apply-task/applyTask';
-import { removeActiveCallout } from './remove-active-callout/removeActiveCallout';
-import { removeActiveCheckbox } from './remove-active-checkbox/removeActiveCheckbox';
-import { removeCalloutByKey } from './remove-callout-by-key/removeCalloutByKey';
-import { toggleInlineTodoTag } from './toggle-inline-todo-tag/toggleInlineTodoTag';
-
-/** Adds a callout or task to the editor at the cursor. */
+/** STUB — no-op until engine refactor is complete. */
 export function addTag(
-  editor: ObsidianEditor,
-  tagDefinition: CalloutTagDefinition | TaskTagDefinition
+  _editor: ObsidianEditor,
+  _tagDefinition: CalloutTagDefinition | TaskTagDefinition
 ): void {
-  if (tagDefinition.kind === 'callout') {
-    if (tagDefinition.calloutType === undefined || tagDefinition.calloutType === null) return;
-    applyCallout(editor, tagDefinition.calloutType, tagDefinition.calloutTitle);
-    return;
-  }
-
-  if (tagDefinition.kind === 'task') {
-    applyTask(editor, tagDefinition.taskPrefix ?? '');
-  }
+  // stub
 }
 
-/** Toggles an inline `#todo` tag at the cursor / selection. */
-export function toggleTag(editor: ObsidianEditor, tagDefinition: InlineTodoTagDefinition): void {
-  if (tagDefinition.kind === 'inline-todo') {
-    toggleInlineTodoTag(editor);
-  }
+/** STUB — no-op until engine refactor is complete. */
+export function toggleTag(_editor: ObsidianEditor, _tagDefinition: InlineTodoTagDefinition): void {
+  // stub
 }
 
-/**
- * Removes a callout (named or innermost) or a task checkbox at the cursor.
- * Callouts: when `calloutTitle` is given, removes that specific callout regardless of nesting.
- * Otherwise removes the innermost callout enclosing the cursor.
- */
+/** STUB — no-op until engine refactor is complete. */
 export function removeTag(
-  editor: ObsidianEditor,
-  tagDefinition: CalloutTagDefinition | CheckboxTagDefinition
+  _editor: ObsidianEditor,
+  _tagDefinition: CalloutTagDefinition | CheckboxTagDefinition
 ): void {
-  if (tagDefinition.kind === 'callout') {
-    if (tagDefinition.calloutTitle !== undefined && tagDefinition.calloutTitle !== null) {
-      removeCalloutByKey(editor, tagDefinition.calloutTitle);
-      return;
-    }
-    removeActiveCallout(editor);
-    return;
-  }
-
-  if (tagDefinition.kind === 'checkbox') {
-    removeActiveCheckbox(editor);
-  }
+  // stub
 }

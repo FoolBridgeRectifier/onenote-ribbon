@@ -1,10 +1,8 @@
 import type { App } from 'obsidian';
-import type { TagContext } from '../editor-v2/detection-engine/interfaces';
-import { buildTagContext, getActiveTagsAtCursor } from '../editor-v2/detection-engine/DetectionEngine';
+
 import { detectActiveTagKeys } from '../editor-v2/styling-engine/editor-integration/detect-active-tag-keys/detectActiveTagKeys';
 import { buildTextIndex } from '../editor/text-offset/TextOffset';
 import type { EditorState } from './interfaces';
-import { TAG_TYPE_TO_STATE_FIELD } from './constants';
 import { extractSpanAndDivState } from './spanState';
 
 export { extractSpanAndDivState } from './spanState';
@@ -39,8 +37,8 @@ export function buildDefaultState(app: App): EditorState {
  */
 export function deriveEditorState(
   app: App,
-  cachedContext: TagContext | null,
-  cachedSourceText: string | null
+  _cachedContext: unknown,
+  _cachedSourceText: string | null
 ): EditorState {
   const editor = app.workspace.activeEditor?.editor;
   if (!editor) return buildDefaultState(app);
@@ -48,27 +46,16 @@ export function deriveEditorState(
   const sourceText = editor.getValue();
   const cursor = editor.getCursor();
 
-  // Reuse the cached detection-engine context when the source text hasn't changed.
-  const tagContext =
-    cachedContext && cachedSourceText === sourceText
-      ? cachedContext
-      : buildTagContext(sourceText);
+  const enclosingTags: never[] = [];
 
-  const activeTagsResult = getActiveTagsAtCursor(tagContext, { line: cursor.line, ch: cursor.ch });
-  const enclosingTags = activeTagsResult.enclosingTags;
+  // Log getTagsInSelection on every cursor/selection change for engine-refactor debugging.
+  const selectionFrom = editor.getCursor('from');
+  const selectionTo = editor.getCursor('to');
+  if (selectionFrom.line === selectionTo.line) {
+    // getTagsInSelection(tagContext, selectionFrom.ch, selectionTo.ch);
+  }
 
   const state = buildDefaultState(app);
-
-  // Set boolean state fields from the detection engine's TagType taxonomy.
-  for (let tagIndex = 0; tagIndex < enclosingTags.length; tagIndex += 1) {
-    const detectedTag = enclosingTags[tagIndex];
-    const stateField = TAG_TYPE_TO_STATE_FIELD[detectedTag.type];
-
-    if (stateField) {
-      // eslint-disable-next-line strict-structure/no-double-cast -- index EditorState by computed key; no mapped-type alternative without changing EditorState definition
-      (state as unknown as Record<string, boolean>)[stateField] = true;
-    }
-  }
 
   // Extract span/div style state via raw-text inspection of opening tags.
   const textIndex = buildTextIndex(sourceText);
