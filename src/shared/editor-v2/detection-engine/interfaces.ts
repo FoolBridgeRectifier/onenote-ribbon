@@ -1,4 +1,5 @@
 import type { EditorPosition } from 'obsidian';
+import type { TTagType } from '../interfaces';
 
 export interface TagPosition {
   start: EditorPosition;
@@ -48,3 +49,18 @@ export interface HtmlCloserMatch {
   closeStart: number;
   closeEnd: number;
 }
+
+export type TRawTagDetectionLocation = {
+  index: number;
+  lineNumber: number;
+  columnNumber: number;
+};
+
+export type TRawTagDetection = {
+  type: TTagType;
+  role: 'open' | 'close' | 'delimiter';
+  index: number;
+  match: string;
+  line: string;
+  location: TRawTagDetectionLocation;
+};

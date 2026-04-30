@@ -25,7 +25,6 @@ export function RibbonApp() {
   const ribbonRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    console.log('GG');
     const handleChange = () => {
       const editor = app.workspace.activeEditor?.editor;
       if (!editor) return;

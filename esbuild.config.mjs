@@ -2,6 +2,7 @@ import esbuild from 'esbuild';
 import { readFileSync } from 'fs';
 
 const watch = process.argv.includes('--watch');
+const buildMode = watch ? 'development' : 'production';
 // Package.json is read but not used directly - it's available for future use
 void JSON.parse(readFileSync('./package.json', 'utf8'));
 
@@ -35,7 +36,9 @@ const ctx = await esbuild.context({
   sourcemap: 'inline',
   platform: 'browser',
   jsx: 'automatic',
-  define: { 'process.env.NODE_ENV': '"development"' },
+  // Keep console output in dev/watch builds; strip it in production build output.
+  drop: watch ? [] : ['console'],
+  define: { 'process.env.NODE_ENV': `"${buildMode}"` },
   plugins: [injectCssPlugin]
 });
 
