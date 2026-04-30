@@ -53,10 +53,10 @@ describe('SPAN_TAG_REGEX', () => {
 
   describe('ALIGN', () => {
     test.each`
-      caseLabel                  | matchingInput                            | expectedMatches                           | expectedCapturedStyle
-      ${'compact >'}             | ${'<span style="text-align: center;">'}     | ${['<span style="text-align: center;">']}     | ${'text-align: center;'}
-      ${'single space before >'} | ${'<span style="text-align: center;" >'}    | ${['<span style="text-align: center;" >']}    | ${'text-align: center;'}
-      ${'multi space before >'}  | ${'<span style="text-align: center;"   >'}  | ${['<span style="text-align: center;"   >']}  | ${'text-align: center;'}
+      caseLabel                  | matchingInput                              | expectedMatches                              | expectedCapturedStyle
+      ${'compact >'}             | ${'<span style="text-align: center;">'}    | ${['<span style="text-align: center;">']}    | ${'text-align: center;'}
+      ${'single space before >'} | ${'<span style="text-align: center;" >'}   | ${['<span style="text-align: center;" >']}   | ${'text-align: center;'}
+      ${'multi space before >'}  | ${'<span style="text-align: center;"   >'} | ${['<span style="text-align: center;"   >']} | ${'text-align: center;'}
     `(
       'open matches $caseLabel and captures style value',
       ({
@@ -69,7 +69,9 @@ describe('SPAN_TAG_REGEX', () => {
         expectedCapturedStyle: string;
       }) => {
         assertMatchesAgainstExpected(matchingInput, alignEntry.open, expectedMatches);
-        expect(extractCapturedStyleValue(matchingInput, alignEntry.open)).toBe(expectedCapturedStyle);
+        expect(extractCapturedStyleValue(matchingInput, alignEntry.open)).toBe(
+          expectedCapturedStyle
+        );
       }
     );
 
@@ -82,8 +84,8 @@ describe('SPAN_TAG_REGEX', () => {
 
     test.each`
       caseLabel                  | inputText                                                 | expectedMatches
-      ${'compact tags'}          | ${'<span style="text-align: center;">hello</span>'}          | ${['</span>']}
-      ${'spaced open and close'} | ${'<span style="text-align: center;"   >hello</span   >'}    | ${['</span   >']}
+      ${'compact tags'}          | ${'<span style="text-align: center;">hello</span>'}       | ${['</span>']}
+      ${'spaced open and close'} | ${'<span style="text-align: center;"   >hello</span   >'} | ${['</span   >']}
     `(
       'close matches $caseLabel when corresponding open style exists',
       ({ inputText, expectedMatches }: { inputText: string; expectedMatches: string[] }) => {
@@ -112,10 +114,10 @@ describe('SPAN_TAG_REGEX', () => {
 
   describe('COLOR', () => {
     test.each`
-      caseLabel                  | matchingInput                       | expectedMatches                      | expectedCapturedStyle
-      ${'compact >'}             | ${'<span style="color: red;">'}      | ${['<span style="color: red;">']}      | ${'color: red;'}
-      ${'single space before >'} | ${'<span style="color: red;" >'}     | ${['<span style="color: red;" >']}     | ${'color: red;'}
-      ${'multi space before >'}  | ${'<span style="color: red;"   >'}   | ${['<span style="color: red;"   >']}   | ${'color: red;'}
+      caseLabel                  | matchingInput                      | expectedMatches                      | expectedCapturedStyle
+      ${'compact >'}             | ${'<span style="color: red;">'}    | ${['<span style="color: red;">']}    | ${'color: red;'}
+      ${'single space before >'} | ${'<span style="color: red;" >'}   | ${['<span style="color: red;" >']}   | ${'color: red;'}
+      ${'multi space before >'}  | ${'<span style="color: red;"   >'} | ${['<span style="color: red;"   >']} | ${'color: red;'}
     `(
       'open matches $caseLabel and captures style value',
       ({
@@ -128,7 +130,9 @@ describe('SPAN_TAG_REGEX', () => {
         expectedCapturedStyle: string;
       }) => {
         assertMatchesAgainstExpected(matchingInput, colorEntry.open, expectedMatches);
-        expect(extractCapturedStyleValue(matchingInput, colorEntry.open)).toBe(expectedCapturedStyle);
+        expect(extractCapturedStyleValue(matchingInput, colorEntry.open)).toBe(
+          expectedCapturedStyle
+        );
       }
     );
 
@@ -140,9 +144,9 @@ describe('SPAN_TAG_REGEX', () => {
     });
 
     test.each`
-      caseLabel                  | inputText                                          | expectedMatches
-      ${'compact tags'}          | ${'<span style="color: red;">hello</span>'}           | ${['</span>']}
-      ${'spaced open and close'} | ${'<span style="color: red;"   >hello</span   >'}     | ${['</span   >']}
+      caseLabel                  | inputText                                         | expectedMatches
+      ${'compact tags'}          | ${'<span style="color: red;">hello</span>'}       | ${['</span>']}
+      ${'spaced open and close'} | ${'<span style="color: red;"   >hello</span   >'} | ${['</span   >']}
     `(
       'close matches $caseLabel when corresponding open style exists',
       ({ inputText, expectedMatches }: { inputText: string; expectedMatches: string[] }) => {
@@ -153,10 +157,10 @@ describe('SPAN_TAG_REGEX', () => {
 
   describe('FONT_SIZE', () => {
     test.each`
-      caseLabel                  | matchingInput                            | expectedMatches                           | expectedCapturedStyle
-      ${'compact >'}             | ${'<span style="font-size: 14px;">'}      | ${['<span style="font-size: 14px;">']}      | ${'font-size: 14px;'}
-      ${'single space before >'} | ${'<span style="font-size: 14px;" >'}     | ${['<span style="font-size: 14px;" >']}     | ${'font-size: 14px;'}
-      ${'multi space before >'}  | ${'<span style="font-size: 14px;"   >'}   | ${['<span style="font-size: 14px;"   >']}   | ${'font-size: 14px;'}
+      caseLabel                  | matchingInput                           | expectedMatches                           | expectedCapturedStyle
+      ${'compact >'}             | ${'<span style="font-size: 14px;">'}    | ${['<span style="font-size: 14px;">']}    | ${'font-size: 14px;'}
+      ${'single space before >'} | ${'<span style="font-size: 14px;" >'}   | ${['<span style="font-size: 14px;" >']}   | ${'font-size: 14px;'}
+      ${'multi space before >'}  | ${'<span style="font-size: 14px;"   >'} | ${['<span style="font-size: 14px;"   >']} | ${'font-size: 14px;'}
     `(
       'open matches $caseLabel and captures style value',
       ({
@@ -169,7 +173,9 @@ describe('SPAN_TAG_REGEX', () => {
         expectedCapturedStyle: string;
       }) => {
         assertMatchesAgainstExpected(matchingInput, fontSizeEntry.open, expectedMatches);
-        expect(extractCapturedStyleValue(matchingInput, fontSizeEntry.open)).toBe(expectedCapturedStyle);
+        expect(extractCapturedStyleValue(matchingInput, fontSizeEntry.open)).toBe(
+          expectedCapturedStyle
+        );
       }
     );
 
@@ -183,10 +189,10 @@ describe('SPAN_TAG_REGEX', () => {
 
   describe('FONT_FAMILY', () => {
     test.each`
-      caseLabel                  | matchingInput                                | expectedMatches                               | expectedCapturedStyle
-      ${'compact >'}             | ${'<span style="font-family: Arial;">'}       | ${['<span style="font-family: Arial;">']}       | ${'font-family: Arial;'}
-      ${'single space before >'} | ${'<span style="font-family: Arial;" >'}      | ${['<span style="font-family: Arial;" >']}      | ${'font-family: Arial;'}
-      ${'multi space before >'}  | ${'<span style="font-family: Arial;"   >'}    | ${['<span style="font-family: Arial;"   >']}    | ${'font-family: Arial;'}
+      caseLabel                  | matchingInput                              | expectedMatches                              | expectedCapturedStyle
+      ${'compact >'}             | ${'<span style="font-family: Arial;">'}    | ${['<span style="font-family: Arial;">']}    | ${'font-family: Arial;'}
+      ${'single space before >'} | ${'<span style="font-family: Arial;" >'}   | ${['<span style="font-family: Arial;" >']}   | ${'font-family: Arial;'}
+      ${'multi space before >'}  | ${'<span style="font-family: Arial;"   >'} | ${['<span style="font-family: Arial;"   >']} | ${'font-family: Arial;'}
     `(
       'open matches $caseLabel and captures style value',
       ({
@@ -215,10 +221,10 @@ describe('SPAN_TAG_REGEX', () => {
 
   describe('HIGHLIGHT', () => {
     test.each`
-      caseLabel                  | matchingInput                              | expectedMatches                             | expectedCapturedStyle
-      ${'compact >'}             | ${'<span style="background: yellow;">'}     | ${['<span style="background: yellow;">']}     | ${'background: yellow;'}
-      ${'single space before >'} | ${'<span style="background: yellow;" >'}    | ${['<span style="background: yellow;" >']}    | ${'background: yellow;'}
-      ${'multi space before >'}  | ${'<span style="background: yellow;"   >'}  | ${['<span style="background: yellow;"   >']}  | ${'background: yellow;'}
+      caseLabel                  | matchingInput                              | expectedMatches                              | expectedCapturedStyle
+      ${'compact >'}             | ${'<span style="background: yellow;">'}    | ${['<span style="background: yellow;">']}    | ${'background: yellow;'}
+      ${'single space before >'} | ${'<span style="background: yellow;" >'}   | ${['<span style="background: yellow;" >']}   | ${'background: yellow;'}
+      ${'multi space before >'}  | ${'<span style="background: yellow;"   >'} | ${['<span style="background: yellow;"   >']} | ${'background: yellow;'}
     `(
       'open matches $caseLabel and captures style value',
       ({

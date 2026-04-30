@@ -38,12 +38,12 @@ describe('HTML_TAG_REGEX', () => {
 
   describe('UNDERLINE', () => {
     test.each`
-      caseLabel              | regexPattern            | matchingInput  | expectedMatches  | nonMatchingInput
-      ${'open'}              | ${underlineEntry.open}  | ${'<u>'}       | ${['<u>']}       | ${'<ul>'}
-      ${'open spaced'}       | ${underlineEntry.open}  | ${'<u   >'}    | ${['<u   >']}    | ${'<ul>'}
-      ${'close'}             | ${underlineEntry.close} | ${'</u>'}      | ${['</u>']}      | ${'</ul>'}
-      ${'close spaced'}      | ${underlineEntry.close} | ${'</u   >'}   | ${['</u   >']}   | ${'</ul>'}
-      ${'close slash spaced'}| ${underlineEntry.close} | ${'</   u   >'}| ${['</   u   >']}| ${'<   /   u   >'}
+      caseLabel               | regexPattern            | matchingInput   | expectedMatches   | nonMatchingInput
+      ${'open'}               | ${underlineEntry.open}  | ${'<u>'}        | ${['<u>']}        | ${'<ul>'}
+      ${'open spaced'}        | ${underlineEntry.open}  | ${'<u   >'}     | ${['<u   >']}     | ${'<ul>'}
+      ${'close'}              | ${underlineEntry.close} | ${'</u>'}       | ${['</u>']}       | ${'</ul>'}
+      ${'close spaced'}       | ${underlineEntry.close} | ${'</u   >'}    | ${['</u   >']}    | ${'</ul>'}
+      ${'close slash spaced'} | ${underlineEntry.close} | ${'</   u   >'} | ${['</   u   >']} | ${'<   /   u   >'}
     `(
       'returns exact $caseLabel tag string and rejects invalid input',
       ({
@@ -65,12 +65,12 @@ describe('HTML_TAG_REGEX', () => {
 
   describe('SUBSCRIPT', () => {
     test.each`
-      caseLabel              | regexPattern            | matchingInput    | expectedMatches    | nonMatchingInput
-      ${'open'}              | ${subscriptEntry.open}  | ${'<sub>'}       | ${['<sub>']}       | ${'<subtext>'}
-      ${'open spaced'}       | ${subscriptEntry.open}  | ${'<sub   >'}    | ${['<sub   >']}    | ${'<subtext>'}
-      ${'close'}             | ${subscriptEntry.close} | ${'</sub>'}      | ${['</sub>']}      | ${'</subtext>'}
-      ${'close spaced'}      | ${subscriptEntry.close} | ${'</sub   >'}   | ${['</sub   >']}   | ${'</subtext>'}
-      ${'close slash spaced'}| ${subscriptEntry.close} | ${'</   sub   >'}| ${['</   sub   >']}| ${'<   /   sub   >'}
+      caseLabel               | regexPattern            | matchingInput     | expectedMatches     | nonMatchingInput
+      ${'open'}               | ${subscriptEntry.open}  | ${'<sub>'}        | ${['<sub>']}        | ${'<subtext>'}
+      ${'open spaced'}        | ${subscriptEntry.open}  | ${'<sub   >'}     | ${['<sub   >']}     | ${'<subtext>'}
+      ${'close'}              | ${subscriptEntry.close} | ${'</sub>'}       | ${['</sub>']}       | ${'</subtext>'}
+      ${'close spaced'}       | ${subscriptEntry.close} | ${'</sub   >'}    | ${['</sub   >']}    | ${'</subtext>'}
+      ${'close slash spaced'} | ${subscriptEntry.close} | ${'</   sub   >'} | ${['</   sub   >']} | ${'<   /   sub   >'}
     `(
       'returns exact $caseLabel tag string and rejects invalid input',
       ({
@@ -92,12 +92,12 @@ describe('HTML_TAG_REGEX', () => {
 
   describe('SUPERSCRIPT', () => {
     test.each`
-      caseLabel              | regexPattern              | matchingInput    | expectedMatches    | nonMatchingInput
-      ${'open'}              | ${superscriptEntry.open}  | ${'<sup>'}       | ${['<sup>']}       | ${'<super>'}
-      ${'open spaced'}       | ${superscriptEntry.open}  | ${'<sup   >'}    | ${['<sup   >']}    | ${'<super>'}
-      ${'close'}             | ${superscriptEntry.close} | ${'</sup>'}      | ${['</sup>']}      | ${'</super>'}
-      ${'close spaced'}      | ${superscriptEntry.close} | ${'</sup   >'}   | ${['</sup   >']}   | ${'</super>'}
-      ${'close slash spaced'}| ${superscriptEntry.close} | ${'</   sup   >'}| ${['</   sup   >']}| ${'<   /   sup   >'}
+      caseLabel               | regexPattern              | matchingInput     | expectedMatches     | nonMatchingInput
+      ${'open'}               | ${superscriptEntry.open}  | ${'<sup>'}        | ${['<sup>']}        | ${'<super>'}
+      ${'open spaced'}        | ${superscriptEntry.open}  | ${'<sup   >'}     | ${['<sup   >']}     | ${'<super>'}
+      ${'close'}              | ${superscriptEntry.close} | ${'</sup>'}       | ${['</sup>']}       | ${'</super>'}
+      ${'close spaced'}       | ${superscriptEntry.close} | ${'</sup   >'}    | ${['</sup   >']}    | ${'</super>'}
+      ${'close slash spaced'} | ${superscriptEntry.close} | ${'</   sup   >'} | ${['</   sup   >']} | ${'<   /   sup   >'}
     `(
       'returns exact $caseLabel tag string and rejects invalid input',
       ({

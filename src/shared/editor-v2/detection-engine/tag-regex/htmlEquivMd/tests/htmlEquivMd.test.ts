@@ -36,13 +36,13 @@ describe('HTML_EQUIV_MD_TAG_REGEX', () => {
 
   describe('BOLD', () => {
     test.each`
-      caseLabel                   | regexPattern       | matchingInput   | expectedMatches   | nonMatchingInputs
-      ${'open'}                   | ${boldEntry.open}  | ${'<b>'}        | ${['<b>']}        | ${['<strong>']}
-      ${'open trailing spaced'}   | ${boldEntry.open}  | ${'<b   >'}     | ${['<b   >']}     | ${['<strong>']}
-      ${'open fully spaced'}      | ${boldEntry.open}  | ${'<   b   >'}  | ${['<   b   >']}  | ${['<strong>']}
-      ${'close'}                  | ${boldEntry.close} | ${'</b>'}       | ${['</b>']}       | ${['</strong>', '<   /   b   >']}
-      ${'close trailing spaced'}  | ${boldEntry.close} | ${'</b   >'}    | ${['</b   >']}    | ${['</strong>', '<   /   b   >']}
-      ${'close slash spaced'}     | ${boldEntry.close} | ${'</   b   >'} | ${['</   b   >']} | ${['</strong>', '<   /   b   >']}
+      caseLabel                  | regexPattern       | matchingInput   | expectedMatches   | nonMatchingInputs
+      ${'open'}                  | ${boldEntry.open}  | ${'<b>'}        | ${['<b>']}        | ${['<strong>']}
+      ${'open trailing spaced'}  | ${boldEntry.open}  | ${'<b   >'}     | ${['<b   >']}     | ${['<strong>']}
+      ${'open fully spaced'}     | ${boldEntry.open}  | ${'<   b   >'}  | ${['<   b   >']}  | ${['<strong>']}
+      ${'close'}                 | ${boldEntry.close} | ${'</b>'}       | ${['</b>']}       | ${['</strong>', '<   /   b   >']}
+      ${'close trailing spaced'} | ${boldEntry.close} | ${'</b   >'}    | ${['</b   >']}    | ${['</strong>', '<   /   b   >']}
+      ${'close slash spaced'}    | ${boldEntry.close} | ${'</   b   >'} | ${['</   b   >']} | ${['</strong>', '<   /   b   >']}
     `(
       'returns exact $caseLabel tag string and rejects invalid input',
       ({
@@ -67,13 +67,13 @@ describe('HTML_EQUIV_MD_TAG_REGEX', () => {
 
   describe('ITALIC', () => {
     test.each`
-      caseLabel                   | regexPattern         | matchingInput   | expectedMatches   | nonMatchingInputs
-      ${'open'}                   | ${italicEntry.open}  | ${'<i>'}        | ${['<i>']}        | ${['<em>']}
-      ${'open trailing spaced'}   | ${italicEntry.open}  | ${'<i   >'}     | ${['<i   >']}     | ${['<em>']}
-      ${'open fully spaced'}      | ${italicEntry.open}  | ${'<   i   >'}  | ${['<   i   >']}  | ${['<em>']}
-      ${'close'}                  | ${italicEntry.close} | ${'</i>'}       | ${['</i>']}       | ${['</em>', '<   /   i   >']}
-      ${'close trailing spaced'}  | ${italicEntry.close} | ${'</i   >'}    | ${['</i   >']}    | ${['</em>', '<   /   i   >']}
-      ${'close slash spaced'}     | ${italicEntry.close} | ${'</   i   >'} | ${['</   i   >']} | ${['</em>', '<   /   i   >']}
+      caseLabel                  | regexPattern         | matchingInput   | expectedMatches   | nonMatchingInputs
+      ${'open'}                  | ${italicEntry.open}  | ${'<i>'}        | ${['<i>']}        | ${['<em>']}
+      ${'open trailing spaced'}  | ${italicEntry.open}  | ${'<i   >'}     | ${['<i   >']}     | ${['<em>']}
+      ${'open fully spaced'}     | ${italicEntry.open}  | ${'<   i   >'}  | ${['<   i   >']}  | ${['<em>']}
+      ${'close'}                 | ${italicEntry.close} | ${'</i>'}       | ${['</i>']}       | ${['</em>', '<   /   i   >']}
+      ${'close trailing spaced'} | ${italicEntry.close} | ${'</i   >'}    | ${['</i   >']}    | ${['</em>', '<   /   i   >']}
+      ${'close slash spaced'}    | ${italicEntry.close} | ${'</   i   >'} | ${['</   i   >']} | ${['</em>', '<   /   i   >']}
     `(
       'returns exact $caseLabel tag string and rejects invalid input',
       ({
@@ -98,13 +98,13 @@ describe('HTML_EQUIV_MD_TAG_REGEX', () => {
 
   describe('STRIKETHROUGH', () => {
     test.each`
-      caseLabel                   | regexPattern                | matchingInput   | expectedMatches   | nonMatchingInputs
-      ${'open'}                   | ${strikethroughEntry.open}  | ${'<s>'}        | ${['<s>']}        | ${['<strike>']}
-      ${'open trailing spaced'}   | ${strikethroughEntry.open}  | ${'<s   >'}     | ${['<s   >']}     | ${['<strike>']}
-      ${'open fully spaced'}      | ${strikethroughEntry.open}  | ${'<   s   >'}  | ${['<   s   >']}  | ${['<strike>']}
-      ${'close'}                  | ${strikethroughEntry.close} | ${'</s>'}       | ${['</s>']}       | ${['</strike>', '<   /   s   >']}
-      ${'close trailing spaced'}  | ${strikethroughEntry.close} | ${'</s   >'}    | ${['</s   >']}    | ${['</strike>', '<   /   s   >']}
-      ${'close slash spaced'}     | ${strikethroughEntry.close} | ${'</   s   >'} | ${['</   s   >']} | ${['</strike>', '<   /   s   >']}
+      caseLabel                  | regexPattern                | matchingInput   | expectedMatches   | nonMatchingInputs
+      ${'open'}                  | ${strikethroughEntry.open}  | ${'<s>'}        | ${['<s>']}        | ${['<strike>']}
+      ${'open trailing spaced'}  | ${strikethroughEntry.open}  | ${'<s   >'}     | ${['<s   >']}     | ${['<strike>']}
+      ${'open fully spaced'}     | ${strikethroughEntry.open}  | ${'<   s   >'}  | ${['<   s   >']}  | ${['<strike>']}
+      ${'close'}                 | ${strikethroughEntry.close} | ${'</s>'}       | ${['</s>']}       | ${['</strike>', '<   /   s   >']}
+      ${'close trailing spaced'} | ${strikethroughEntry.close} | ${'</s   >'}    | ${['</s   >']}    | ${['</strike>', '<   /   s   >']}
+      ${'close slash spaced'}    | ${strikethroughEntry.close} | ${'</   s   >'} | ${['</   s   >']} | ${['</strike>', '<   /   s   >']}
     `(
       'returns exact $caseLabel tag string and rejects invalid input',
       ({
