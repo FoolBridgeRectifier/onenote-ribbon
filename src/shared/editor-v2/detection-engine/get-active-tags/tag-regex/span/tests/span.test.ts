@@ -1,5 +1,5 @@
 import { SPAN_TAG_REGEX } from '../span';
-import { ESpanStyleTagType } from '../../../../interfaces';
+import { ESpanStyleTagType } from '../../../../../interfaces';
 
 describe('SPAN_TAG_REGEX', () => {
   const alignEntry = SPAN_TAG_REGEX.find((entry) => entry.type === ESpanStyleTagType.ALIGN)!;
@@ -15,8 +15,10 @@ describe('SPAN_TAG_REGEX', () => {
   const extractFirstMatch = (inputText: string, regexPattern: RegExp): string | null =>
     inputText.match(regexPattern)?.[0] ?? null;
 
+  // `.match()` with a global regex returns all full-match strings, not capture groups.
+  // `matchAll` preserves capture groups — take the first match's group 1.
   const extractCapturedStyleValue = (inputText: string, regexPattern: RegExp): string | null =>
-    inputText.match(regexPattern)?.[1] ?? null;
+    Array.from(inputText.matchAll(regexPattern))[0]?.[1] ?? null;
 
   const assertMatchesAgainstExpected = (
     inputText: string,

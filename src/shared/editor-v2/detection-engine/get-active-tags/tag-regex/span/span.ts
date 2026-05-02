@@ -1,4 +1,4 @@
-import { ESpanStyleTagType } from '../../../interfaces';
+import { ESpanStyleTagType } from '../../../../interfaces';
 
 /**
  * Span style tags ordered so more-specific style properties (multi-property
@@ -10,31 +10,31 @@ export const SPAN_TAG_REGEX = [
   {
     type: ESpanStyleTagType.ALIGN,
     cssProperty: 'text-align',
-    open: /<\s*span\s+style\s*=\s*"([^"]*text-align\s*:[^"]*)"\s*>/,
-    close: /<\/\s*span\s*>/,
+    open: /<\s*span\s+style\s*=\s*"([^"]*text-align\s*:[^"]*)"\s*>/g,
+    close: /<\/\s*span\s*>/g,
   },
   {
     type: ESpanStyleTagType.COLOR,
     cssProperty: 'color',
-    open: /<\s*span\s+style\s*=\s*"([^"]*color\s*:[^"]*)"\s*>/,
-    close: /<\/\s*span\s*>/,
+    open: /<\s*span\s+style\s*=\s*"([^"]*color\s*:[^"]*)"\s*>/g,
+    close: /<\/\s*span\s*>/g,
   },
   {
     type: ESpanStyleTagType.FONT_SIZE,
     cssProperty: 'font-size',
-    open: /<\s*span\s+style\s*=\s*"([^"]*font-size\s*:[^"]*)"\s*>/,
-    close: /<\/\s*span\s*>/,
+    open: /<\s*span\s+style\s*=\s*"([^"]*font-size\s*:[^"]*)"\s*>/g,
+    close: /<\/\s*span\s*>/g,
   },
   {
     type: ESpanStyleTagType.FONT_FAMILY,
     cssProperty: 'font-family',
-    open: /<\s*span\s+style\s*=\s*"([^"]*font-family\s*:[^"]*)"\s*>/,
-    close: /<\/\s*span\s*>/,
+    open: /<\s*span\s+style\s*=\s*"([^"]*font-family\s*:[^"]*)"\s*>/g,
+    close: /<\/\s*span\s*>/g,
   },
   {
     type: ESpanStyleTagType.HIGHLIGHT,
     cssProperty: 'background',
-    open: /<\s*span\s+style\s*=\s*"([^"]*background\s*:[^"]*)"\s*>/,
-    close: /<\/\s*span\s*>/,
+    open: /<\s*span\s+style\s*=\s*"([^"]*background\s*:[^"]*)"\s*>/g,
+    close: /<\/\s*span\s*>/g,
   },
 ];

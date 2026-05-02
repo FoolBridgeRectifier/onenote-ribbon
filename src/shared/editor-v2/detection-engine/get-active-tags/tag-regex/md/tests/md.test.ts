@@ -1,5 +1,5 @@
 import { MD_TAG_REGEX } from '../md';
-import { EMdStyleTagType } from '../../../../interfaces';
+import { EMdStyleTagType } from '../../../../../interfaces';
 
 describe('MD_TAG_REGEX', () => {
   const boldEntry = MD_TAG_REGEX.find((entry) => entry.type === EMdStyleTagType.BOLD)!;
@@ -41,67 +41,67 @@ describe('MD_TAG_REGEX', () => {
     });
   });
 
-  describe('BOLD delimiter', () => {
+  describe('BOLD open', () => {
     test.each`
       inputText     | expectedMatches
       ${'**text**'} | ${['**']}
     `(
-      'returns expected delimiter string for $inputText',
+      'returns expected open string for $inputText',
       ({ inputText, expectedMatches }: { inputText: string; expectedMatches: string[] }) => {
-        assertMatchesAgainstExpected(inputText, boldEntry.delimiter, expectedMatches);
+        assertMatchesAgainstExpected(inputText, boldEntry.open, expectedMatches);
       }
     );
 
-    test('returns null when delimiter is missing', () => {
+    test('returns null when open is missing', () => {
       const expectedMatches: string[] = [];
-      assertMatchesAgainstExpected('*text*', boldEntry.delimiter, expectedMatches);
+      assertMatchesAgainstExpected('*text*', boldEntry.open, expectedMatches);
     });
   });
 
-  describe('ITALIC delimiter', () => {
+  describe('ITALIC open', () => {
     test.each`
       inputText     | expectedMatches
       ${'*text*'}   | ${['*']}
       ${'**text**'} | ${['*']}
     `(
-      'returns expected delimiter string for $inputText',
+      'returns expected open string for $inputText',
       ({ inputText, expectedMatches }: { inputText: string; expectedMatches: string[] }) => {
-        assertMatchesAgainstExpected(inputText, italicEntry.delimiter, expectedMatches);
+        assertMatchesAgainstExpected(inputText, italicEntry.open, expectedMatches);
       }
     );
   });
 
-  describe('STRIKETHROUGH delimiter', () => {
+  describe('STRIKETHROUGH open', () => {
     test.each`
       inputText     | expectedMatches
       ${'~~text~~'} | ${['~~']}
     `(
-      'returns expected delimiter string for $inputText',
+      'returns expected open string for $inputText',
       ({ inputText, expectedMatches }: { inputText: string; expectedMatches: string[] }) => {
-        assertMatchesAgainstExpected(inputText, strikethroughEntry.delimiter, expectedMatches);
+        assertMatchesAgainstExpected(inputText, strikethroughEntry.open, expectedMatches);
       }
     );
 
-    test('returns null when delimiter is missing', () => {
+    test('returns null when open is missing', () => {
       const expectedMatches: string[] = [];
-      assertMatchesAgainstExpected('~text~', strikethroughEntry.delimiter, expectedMatches);
+      assertMatchesAgainstExpected('~text~', strikethroughEntry.open, expectedMatches);
     });
   });
 
-  describe('HIGHLIGHT delimiter', () => {
+  describe('HIGHLIGHT open', () => {
     test.each`
       inputText     | expectedMatches
       ${'==text=='} | ${['==']}
     `(
-      'returns expected delimiter string for $inputText',
+      'returns expected open string for $inputText',
       ({ inputText, expectedMatches }: { inputText: string; expectedMatches: string[] }) => {
-        assertMatchesAgainstExpected(inputText, highlightEntry.delimiter, expectedMatches);
+        assertMatchesAgainstExpected(inputText, highlightEntry.open, expectedMatches);
       }
     );
 
-    test('returns null when delimiter is missing', () => {
+    test('returns null when open is missing', () => {
       const expectedMatches: string[] = [];
-      assertMatchesAgainstExpected('=text=', highlightEntry.delimiter, expectedMatches);
+      assertMatchesAgainstExpected('=text=', highlightEntry.open, expectedMatches);
     });
   });
 });

@@ -1,5 +1,5 @@
 import { LINE_TAG_REGEX } from '../line';
-import { ELineTagType } from '../../../../interfaces';
+import { ELineTagType } from '../../../../../interfaces';
 
 describe('LINE_TAG_REGEX', () => {
   const calloutEntry = LINE_TAG_REGEX.find((entry) => entry.type === ELineTagType.CALLOUT)!;
@@ -68,38 +68,46 @@ describe('LINE_TAG_REGEX', () => {
 
   describe('CALLOUT', () => {
     test.each`
-      caseLabel                 | inputText            | expectedMatches
-      ${'single-depth callout'} | ${'> [!note] Title'} | ${['> [!note]']}
-      ${'double-depth callout'} | ${'>> [!warning]'}   | ${['>> [!warning]']}
+      caseLabel                                     | inputText                             | expectedMatches                             | allMatches
+      ${'single-depth callout'}                     | ${'> [!note] Title'}                  | ${['> [!note] Title']}                      | ${false}
+      ${'continuation callout'}                     | ${'>[!info] Title\n> continuation'}   | ${['>[!info] Title', '>']}                  | ${true}
+      ${'double continuation callout'}              | ${'>[!info] Title\n>> [!warning]'}    | ${['>[!info] Title', '>> [!warning]']}      | ${true}
+      ${'double continuation with separate indent'} | ${'>[!info] Title\n>> [!warning]\n>'} | ${['>[!info] Title', '>> [!warning]', '>']} | ${true}
     `(
       'open matches $caseLabel',
+      ({
+        inputText,
+        expectedMatches,
+        allMatches,
+      }: {
+        inputText: string;
+        expectedMatches: string[];
+        allMatches: boolean;
+      }) => {
+        assertMatchesAgainstExpected(inputText, calloutEntry.open, expectedMatches, allMatches);
+      }
+    );
+
+    test.each`
+      caseLabel                        | inputText                             | expectedMatches
+      ${'basic quote'}                 | ${'> just a quote'}                   | ${[]}
+      ${'broken title'}                | ${'> [!note]Title'}                   | ${[]}
+      ${'quote inside callout'}        | ${'> [!note] Title\n>> just a quote'} | ${['> [!note] Title']}
+      ${'broken double-depth callout'} | ${'>> [!warning]'}                    | ${[]}
+    `(
+      'should not match $caseLabel',
       ({ inputText, expectedMatches }: { inputText: string; expectedMatches: string[] }) => {
         assertMatchesAgainstExpected(inputText, calloutEntry.open, expectedMatches);
       }
     );
-
-    test('open matches callout marker and does not capture continuation line', () => {
-      const expectedMatches = ['>[!info]'];
-      assertMatchesAgainstExpected(
-        '>[!info] Title\n> continuation',
-        calloutEntry.open,
-        expectedMatches,
-        true
-      );
-    });
-
-    test('open does not match plain blockquote', () => {
-      const expectedMatches: string[] = [];
-      assertMatchesAgainstExpected('> just a quote', calloutEntry.open, expectedMatches);
-    });
   });
 
   describe('CHECKBOX', () => {
     test.each`
-      caseLabel             | inputText       | expectedMatches
-      ${'unchecked'}        | ${'- [ ] item'} | ${['- [ ] ']}
-      ${'checked (x)'}      | ${'- [x] item'} | ${['- [x] ']}
-      ${'checked (X)'}      | ${'- [X] item'} | ${['- [X] ']}
+      caseLabel        | inputText       | expectedMatches
+      ${'unchecked'}   | ${'- [ ] item'} | ${['- [ ] ']}
+      ${'checked (x)'} | ${'- [x] item'} | ${['- [x] ']}
+      ${'checked (X)'} | ${'- [X] item'} | ${['- [X] ']}
     `(
       'open matches $caseLabel',
       ({ inputText, expectedMatches }: { inputText: string; expectedMatches: string[] }) => {
@@ -108,10 +116,11 @@ describe('LINE_TAG_REGEX', () => {
     );
 
     test.each`
-      caseLabel                   | inputText        | expectedMatches
-      ${'plain list item'}        | ${'- item'}      | ${[]}
-      ${'empty brackets'}         | ${'- [] item'}   | ${[]}
-      ${'no space before bracket'}| ${'-[x] item'}   | ${[]}
+      caseLabel                    | inputText       | expectedMatches
+      ${'plain list item'}         | ${'- item'}     | ${[]}
+      ${'empty brackets'}          | ${'- [] item'}  | ${[]}
+      ${'no space before bracket'} | ${'-[x] item'}  | ${[]}
+      ${'no space before bracket'} | ${'- [^] item'} | ${[]}
     `(
       'open does not match $caseLabel',
       ({ inputText, expectedMatches }: { inputText: string; expectedMatches: string[] }) => {
@@ -121,21 +130,34 @@ describe('LINE_TAG_REGEX', () => {
   });
 
   describe('LIST', () => {
-    test('open matches plain list item', () => {
-      const expectedMatches = ['- '];
-      assertMatchesAgainstExpected('- item', listEntry.open, expectedMatches);
-    });
-
     test.each`
-      caseLabel             | inputText
-      ${'unchecked checkbox'} | ${'- [ ] item'}
-      ${'checked checkbox'}   | ${'- [x] item'}
+      caseLabel                 | inputText       | expectedMatches | allMatches
+      ${'basic list'}           | ${'- item'}     | ${['- ']}       | ${false}
+      ${'list with empty line'} | ${'- '}         | ${['- ']}       | ${false}
+      ${'multi line list'}      | ${'- \n- '}     | ${['- ', '- ']} | ${true}
+      ${'list with indent'}     | ${'- \n\t\t- '} | ${['- ', '- ']} | ${true}
     `(
-      'open does not match $caseLabel',
-      ({ inputText }: { inputText: string }) => {
-        assertMatchesAgainstExpected(inputText, listEntry.open, []);
+      'open does match $caseLabel',
+      ({
+        inputText,
+        expectedMatches,
+        allMatches,
+      }: {
+        inputText: string;
+        expectedMatches: string[];
+        allMatches: boolean;
+      }) => {
+        assertMatchesAgainstExpected(inputText, listEntry.open, expectedMatches, allMatches);
       }
     );
+
+    test.each`
+      caseLabel               | inputText
+      ${'unchecked checkbox'} | ${'- [ ] item'}
+      ${'checked checkbox'}   | ${'- [x] item'}
+    `('open does not match $caseLabel', ({ inputText }: { inputText: string }) => {
+      assertMatchesAgainstExpected(inputText, listEntry.open, []);
+    });
   });
 
   describe('HEADING', () => {
@@ -165,35 +187,63 @@ describe('LINE_TAG_REGEX', () => {
 
   describe('QUOTE', () => {
     test.each`
-      caseLabel              | inputText            | expectedMatches
-      ${'plain blockquote'}  | ${'> quote'}         | ${['> ']}
-      ${'nested blockquote'} | ${'>> nested quote'} | ${['>> ']}
+      caseLabel                                        | inputText                       | expectedMatches  | allMatches
+      ${'plain blockquote'}                            | ${'>quote'}                     | ${['>']}         | ${false}
+      ${'nested blockquote'}                           | ${'>> nested quote'}            | ${['>>']}        | ${false}
+      ${'depth-2+ quote inside callout still matches'} | ${'> [!note]\n>> nested quote'} | ${['>>']}        | ${false}
+      ${'two consecutive plain quotes both match'}     | ${'> q1\n> q2'}                 | ${['>', '>']}    | ${true}
+      ${'depth-2+ and depth-3 quotes both match'}      | ${'>> q1\n>>> q2'}              | ${['>>', '>>>']} | ${true}
     `(
       'open matches $caseLabel',
+      ({
+        inputText,
+        expectedMatches,
+        allMatches,
+      }: {
+        inputText: string;
+        expectedMatches: string[];
+        allMatches: boolean;
+      }) => {
+        assertMatchesAgainstExpected(inputText, quoteEntry.open, expectedMatches, allMatches);
+      }
+    );
+
+    test.each`
+      caseLabel    | inputText                      | expectedMatches
+      ${'callout'} | ${'> [!note]\n> nested quote'} | ${[]}
+    `(
+      'open does not matches $caseLabel',
       ({ inputText, expectedMatches }: { inputText: string; expectedMatches: string[] }) => {
         assertMatchesAgainstExpected(inputText, quoteEntry.open, expectedMatches);
       }
     );
 
-    test('regex alone can match a callout string — disambiguation relies on CALLOUT being ordered first', () => {
-      // The QUOTE pattern has `(?!\[!)` but with optional `[ \t]?` the lookahead sees ` [` not `[!`,
-      // so the regex still matches. Correct exclusion is achieved by the engine testing CALLOUT before QUOTE.
-      const expectedMatches = ['>'];
-      assertMatchesAgainstExpected('> [!note]', quoteEntry.open, expectedMatches);
+    test('QUOTE does not match a callout string — `(?![ \\t]?\\[!)` correctly excludes `> [!type]`', () => {
+      assertMatchesAgainstExpected('> [!note]', quoteEntry.open, []);
     });
   });
 
   describe('INDENT', () => {
     test.each`
-      caseLabel                                                         | inputText                     | expectedMatches
-      ${'tab-indented line preceded by content'}                        | ${'content\n\tindented'}      | ${['\t']}
-      ${'4-space indented line preceded by content'}                    | ${'content\n    indented'}    | ${['    ']}
-      ${'after ---- at document start (4 dashes, not a --- delimiter)'} | ${'----\n\tindented'}         | ${['\t']}
-      ${'after mid-document --- (horizontal rule, not frontmatter)'}    | ${'content\n---\n\tindented'} | ${['\t']}
+      caseLabel                                                         | inputText                      | expectedMatches | allMatches
+      ${'tab-indented line preceded by content'}                        | ${'content\n\tindented'}       | ${['\t']}       | ${false}
+      ${'tab-indented line preceded by content'}                        | ${'content\n\tindented\t'}     | ${['\t']}       | ${false}
+      ${'tab-indented line after tab line'}                             | ${'content\n\tindented\n\tgg'} | ${['\t', '\t']} | ${true}
+      ${'4-space indented line preceded by content'}                    | ${'content\n    indented'}     | ${['    ']}     | ${false}
+      ${'after ---- at document start (4 dashes, not a --- delimiter)'} | ${'----\n\tindented'}          | ${['\t']}       | ${false}
+      ${'after mid-document --- (horizontal rule, not frontmatter)'}    | ${'content\n---\n\tindented'}  | ${['\t']}       | ${false}
     `(
       'open matches $caseLabel',
-      ({ inputText, expectedMatches }: { inputText: string; expectedMatches: string[] }) => {
-        assertMatchesAgainstExpected(inputText, indentEntry.open, expectedMatches);
+      ({
+        inputText,
+        expectedMatches,
+        allMatches,
+      }: {
+        inputText: string;
+        expectedMatches: string[];
+        allMatches: boolean;
+      }) => {
+        assertMatchesAgainstExpected(inputText, indentEntry.open, expectedMatches, allMatches);
       }
     );
 

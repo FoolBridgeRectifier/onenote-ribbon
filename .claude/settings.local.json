@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__obsidian-devtools__list_pages",
+      "mcp__obsidian-devtools__evaluate_script"
+    ]
+  }
+}

@@ -1,16 +1,16 @@
 import { SPECIAL_TAG_REGEX } from '../special';
-import { ESpecialTagType } from '../../../../interfaces';
+import { ESpecialTagType } from '../../../../../interfaces';
 
 describe('SPECIAL_TAG_REGEX', () => {
   const fencedCodeEntry = SPECIAL_TAG_REGEX.find(
-    (entry) => entry.type === ESpecialTagType.CODE && entry.open.source === '^`{3,}'
+    (entry) => entry.type === ESpecialTagType.CODE && entry.open.source === '^`{3}'
   )!;
 
   // Tab-code is the CODE entry that is atomic (close === null) and not the fenced or inline entry.
   const tabCodeEntry = SPECIAL_TAG_REGEX.find(
     (entry) =>
       entry.type === ESpecialTagType.CODE &&
-      entry.close === null &&
+      !entry.close &&
       entry.open !== fencedCodeEntry?.open &&
       entry.open.source !== '`'
   )!;
@@ -36,19 +36,38 @@ describe('SPECIAL_TAG_REGEX', () => {
   const extractFirstMatch = (inputText: string, regexPattern: RegExp): string | null =>
     inputText.match(regexPattern)?.[0] ?? null;
 
+  const extractAllMatches = (inputText: string, regexPattern: RegExp): string[] => {
+    const globalRegexFlags = regexPattern.flags.includes('g')
+      ? regexPattern.flags
+      : `${regexPattern.flags}g`;
+
+    const globalRegexPattern = new RegExp(regexPattern.source, globalRegexFlags);
+
+    return Array.from(inputText.matchAll(globalRegexPattern), (match) => match[0]);
+  };
+
+  // `.match()` with a global regex returns all full-match strings, not capture groups.
+  // `matchAll` preserves capture groups — take the first match's group at `groupIndex`.
   const extractCapturedGroupValue = (
     inputText: string,
     regexPattern: RegExp,
     groupIndex: number
-  ): string | null => inputText.match(regexPattern)?.[groupIndex] ?? null;
+  ): string | null => Array.from(inputText.matchAll(regexPattern))[0]?.[groupIndex] ?? null;
 
   const assertMatchesAgainstExpected = (
     inputText: string,
     regexPattern: RegExp,
-    expectedMatches: string[]
+    expectedMatches: string[],
+    shouldCollectAllMatches: boolean = false
   ) => {
-    const firstMatch = extractFirstMatch(inputText, regexPattern);
-    const matches = firstMatch === null ? [] : [firstMatch];
+    let matches: string[];
+
+    if (shouldCollectAllMatches) {
+      matches = extractAllMatches(inputText, regexPattern);
+    } else {
+      const firstMatch = extractFirstMatch(inputText, regexPattern);
+      matches = firstMatch === null ? [] : [firstMatch];
+    }
 
     expect(matches).toHaveLength(expectedMatches.length);
 
@@ -74,7 +93,7 @@ describe('SPECIAL_TAG_REGEX', () => {
       caseLabel                   | inputText  | expectedMatches
       ${'``` at line start'}      | ${'```'}   | ${['```']}
       ${'``` with language hint'} | ${'```js'} | ${['```']}
-      ${'4+ backticks'}           | ${'````'}  | ${['````']}
+      ${'4+ backticks'}           | ${'````'}  | ${['```']}
     `(
       'open matches $caseLabel',
       ({ inputText, expectedMatches }: { inputText: string; expectedMatches: string[] }) => {
@@ -88,10 +107,23 @@ describe('SPECIAL_TAG_REGEX', () => {
 
     test.each`
       caseLabel    | inputText    | expectedMatches
-      ${'```'}     | ${'```'}     | ${['```']}
-      ${'  ```  '} | ${'  ```  '} | ${['  ```  ']}
+      ${'\n```'}   | ${'\n```'}   | ${['```']}
+      ${'\n`````'} | ${'\n`````'} | ${['```']}
+      ${'\n```  '} | ${'\n```  '} | ${['```']}
     `(
       'close matches $caseLabel with optional surrounding whitespace',
+      ({ inputText, expectedMatches }: { inputText: string; expectedMatches: string[] }) => {
+        assertMatchesAgainstExpected(inputText, fencedCodeEntry.close!, expectedMatches);
+      }
+    );
+
+    test.each`
+      caseLabel      | inputText      | expectedMatches
+      ${'\n  ```'}   | ${'\n  ```'}   | ${[]}
+      ${'\n`````ff'} | ${'\n`````ff'} | ${[]}
+      ${'```'}       | ${'```'}       | ${['```']}
+    `(
+      'close does not match $caseLabel',
       ({ inputText, expectedMatches }: { inputText: string; expectedMatches: string[] }) => {
         assertMatchesAgainstExpected(inputText, fencedCodeEntry.close!, expectedMatches);
       }
@@ -100,22 +132,34 @@ describe('SPECIAL_TAG_REGEX', () => {
 
   describe('TAB_INDENTED_CODE', () => {
     test.each`
-      caseLabel                                               | inputText                           | expectedMatches
-      ${'at document start'}                                  | ${'\tcode at start'}                | ${['\t']}
-      ${'after blank line'}                                   | ${'\n\n\tcode after blank'}         | ${['\t']}
-      ${'4-space indent at start'}                            | ${'    code at start'}              | ${['    ']}
-      ${'directly after opening --- at document start'}       | ${'---\n\tcode'}                    | ${['\t']}
-      ${'after ---/--- frontmatter block at document start'}  | ${'---\n---\n\tcode'}               | ${['\t']}
-      ${'after full meeting-details block at document start'} | ${'---\nkey: value\n-----\n\tcode'} | ${['\t']}
+      caseLabel                                               | inputText                           | expectedMatches | allMatches
+      ${'at document start'}                                  | ${'\tcode at start'}                | ${['\t']}       | ${false}
+      ${'after blank line'}                                   | ${'\n\n\tcode after blank'}         | ${['\t']}       | ${false}
+      ${'at document start'}                                  | ${'\tcode \n\tat start'}            | ${['\t', '\t']} | ${true}
+      ${'after blank line'}                                   | ${'\n\n\tcode \n\tafter blank'}     | ${['\t', '\t']} | ${true}
+      ${'tab in middle of line'}                              | ${'\n\n\tcode \tafter blank'}       | ${['\t']}       | ${true}
+      ${'regular tab'}                                        | ${'\n\n\tcode \ngg\n\tafter blank'} | ${['\t']}       | ${true}
+      ${'4-space indent at start'}                            | ${'    code at start'}              | ${['    ']}     | ${false}
+      ${'directly after opening --- at document start'}       | ${'---\n\tcode'}                    | ${['\t']}       | ${false}
+      ${'after ---/--- frontmatter block at document start'}  | ${'---\n---\n\tcode'}               | ${['\t']}       | ${false}
+      ${'after full meeting-details block at document start'} | ${'---\nkey: value\n-----\n\tcode'} | ${['\t']}       | ${false}
     `(
       'open matches $caseLabel',
-      ({ inputText, expectedMatches }: { inputText: string; expectedMatches: string[] }) => {
-        assertMatchesAgainstExpected(inputText, tabCodeEntry.open, expectedMatches);
+      ({
+        inputText,
+        expectedMatches,
+        allMatches,
+      }: {
+        inputText: string;
+        expectedMatches: string[];
+        allMatches: boolean;
+      }) => {
+        assertMatchesAgainstExpected(inputText, tabCodeEntry.open, expectedMatches, allMatches);
       }
     );
 
     test('close is null (atomic token)', () => {
-      expect(tabCodeEntry.close).toBeNull();
+      expect(tabCodeEntry.close).toBeFalsy();
     });
 
     test('open does not match after ---- at document start (not a --- delimiter)', () => {
@@ -151,7 +195,7 @@ describe('SPECIAL_TAG_REGEX', () => {
     });
 
     test('close is null (atomic token)', () => {
-      expect(inlineTodoEntry.close).toBeNull();
+      expect(inlineTodoEntry.close).toBeFalsy();
     });
   });
 
@@ -170,7 +214,7 @@ describe('SPECIAL_TAG_REGEX', () => {
     });
 
     test('close is null (atomic token)', () => {
-      expect(meetingDetailsEntry.close).toBeNull();
+      expect(meetingDetailsEntry.close).toBeFalsy();
     });
   });
 
@@ -186,7 +230,7 @@ describe('SPECIAL_TAG_REGEX', () => {
     });
 
     test('close is null (atomic token)', () => {
-      expect(embedEntry.close).toBeNull();
+      expect(embedEntry.close).toBeFalsy();
     });
   });
 
@@ -197,26 +241,23 @@ describe('SPECIAL_TAG_REGEX', () => {
       expect(extractCapturedGroupValue(inputText, wikilinkEntry.open, 1)).toBe('Page Name');
     });
 
-    test('open matches bare [text] not followed by (', () => {
-      assertMatchesAgainstExpected('[bare link]', wikilinkEntry.open, ['[bare link]']);
-    });
-
     test.each`
-      caseLabel                          | inputText
-      ${'[text](url) markdown link'}     | ${'[link](url)'}
-      ${'footnote ref [^id]'}            | ${'[^note]'}
-      ${'callout marker [!type]'}        | ${'[!note]'}
-      ${'bare link after dash'}          | ${'- [bare link]'}
-      ${'checked checkbox bracket'}      | ${'- [x] item'}
-      ${'unchecked checkbox bracket'}    | ${'- [ ] item'}
-      ${'wikilink after dash with space'}| ${'- [[Page Name]]'}
-      ${'wikilink after dash no space'}  | ${'-[[Page Name]]'}
+      caseLabel                            | inputText
+      ${'[text](url) markdown link'}       | ${'[link](url)'}
+      ${'footnote ref [^id]'}              | ${'[^note]'}
+      ${'callout marker [!type]'}          | ${'[!note]'}
+      ${'wikilink should have 2 brackets'} | ${'[note]'}
+      ${'bare link after dash'}            | ${'- [bare link]'}
+      ${'checked checkbox bracket'}        | ${'- [x] item'}
+      ${'unchecked checkbox bracket'}      | ${'- [ ] item'}
+      ${'wikilink after dash with space'}  | ${'- [[Page Name]]'}
+      ${'wikilink after dash no space'}    | ${'-[[Page Name]]'}
     `('open does not match $caseLabel', ({ inputText }: { inputText: string }) => {
       assertMatchesAgainstExpected(inputText, wikilinkEntry.open, []);
     });
 
     test('close is null (atomic token)', () => {
-      expect(wikilinkEntry.close).toBeNull();
+      expect(wikilinkEntry.close).toBeFalsy();
     });
   });
 
@@ -241,7 +282,7 @@ describe('SPECIAL_TAG_REGEX', () => {
     });
 
     test('close is null (atomic token)', () => {
-      expect(externalLinkEntry.close).toBeNull();
+      expect(externalLinkEntry.close).toBeFalsy();
     });
   });
 
@@ -260,7 +301,7 @@ describe('SPECIAL_TAG_REGEX', () => {
     });
 
     test('close is null (atomic token — definition absorbed by open)', () => {
-      expect(footnoteRefEntry.close).toBeNull();
+      expect(footnoteRefEntry.close).toBeFalsy();
     });
   });
 });

@@ -1,5 +1,5 @@
 import { HTML_EQUIV_MD_TAG_REGEX } from '../htmlEquivMd';
-import { EMdStyleTagType } from '../../../../interfaces';
+import { EMdStyleTagType } from '../../../../../interfaces';
 
 describe('HTML_EQUIV_MD_TAG_REGEX', () => {
   const boldEntry = HTML_EQUIV_MD_TAG_REGEX.find((entry) => entry.type === EMdStyleTagType.BOLD)!;

@@ -1,5 +1,5 @@
 import { HTML_TAG_REGEX } from '../html';
-import { EHtmlStyleTagType } from '../../../../interfaces';
+import { EHtmlStyleTagType } from '../../../../../interfaces';
 
 describe('HTML_TAG_REGEX', () => {
   const underlineEntry = HTML_TAG_REGEX.find(
