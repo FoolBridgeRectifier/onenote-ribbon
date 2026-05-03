@@ -88,6 +88,11 @@ describe('LINE_TAG_REGEX', () => {
       }
     );
 
+    test('cross-line opener does not match when > and [! are on different lines', () => {
+      // `\s*` (old) would consume `\n`, causing a false-positive; `[ \t]*` (fixed) does not.
+      assertMatchesAgainstExpected('> \n[!note] Title', calloutEntry.open, []);
+    });
+
     test.each`
       caseLabel                        | inputText                             | expectedMatches
       ${'basic quote'}                 | ${'> just a quote'}                   | ${[]}
@@ -114,6 +119,10 @@ describe('LINE_TAG_REGEX', () => {
         assertMatchesAgainstExpected(inputText, checkboxEntry.open, expectedMatches);
       }
     );
+
+    test('open matches checkbox on a non-first line (requires m flag)', () => {
+      assertMatchesAgainstExpected('text\n- [x] item ', checkboxEntry.open, ['- [x] '], true);
+    });
 
     test.each`
       caseLabel                    | inputText       | expectedMatches
@@ -173,6 +182,10 @@ describe('LINE_TAG_REGEX', () => {
       }
     );
 
+    test('open matches heading on a non-first line (requires m flag)', () => {
+      assertMatchesAgainstExpected('text\n## h2', headingEntry.open, ['## '], true);
+    });
+
     test.each`
       caseLabel                     | inputText                  | expectedMatches
       ${'7+ hashes'}                | ${'####### not a heading'} | ${[]}
@@ -188,11 +201,13 @@ describe('LINE_TAG_REGEX', () => {
   describe('QUOTE', () => {
     test.each`
       caseLabel                                        | inputText                       | expectedMatches  | allMatches
-      ${'plain blockquote'}                            | ${'>quote'}                     | ${['>']}         | ${false}
-      ${'nested blockquote'}                           | ${'>> nested quote'}            | ${['>>']}        | ${false}
-      ${'depth-2+ quote inside callout still matches'} | ${'> [!note]\n>> nested quote'} | ${['>>']}        | ${false}
-      ${'two consecutive plain quotes both match'}     | ${'> q1\n> q2'}                 | ${['>', '>']}    | ${true}
-      ${'depth-2+ and depth-3 quotes both match'}      | ${'>> q1\n>>> q2'}              | ${['>>', '>>>']} | ${true}
+      ${'plain blockquote'}                                       | ${'>quote'}                       | ${['>']}         | ${false}
+      ${'nested blockquote'}                                      | ${'>> nested quote'}              | ${['>>']}        | ${false}
+      ${'depth-2+ quote inside callout still matches'}            | ${'> [!note]\n>> nested quote'}   | ${['>>']}        | ${false}
+      ${'depth-2+ with callout marker still matches QUOTE'}       | ${'>> [!tip] Nested callout'}     | ${['>>']}        | ${false}
+      ${'depth-2+ with callout marker inside callout still match'} | ${'> [!note]\n>> [!tip] Nested'} | ${['>>']}        | ${false}
+      ${'two consecutive plain quotes both match'}                | ${'> q1\n> q2'}                  | ${['>', '>']}    | ${true}
+      ${'depth-2+ and depth-3 quotes both match'}                 | ${'>> q1\n>>> q2'}               | ${['>>', '>>>']} | ${true}
     `(
       'open matches $caseLabel',
       ({
@@ -210,7 +225,8 @@ describe('LINE_TAG_REGEX', () => {
 
     test.each`
       caseLabel    | inputText                      | expectedMatches
-      ${'callout'} | ${'> [!note]\n> nested quote'} | ${[]}
+      ${'callout'}                             | ${'> [!note]\n> nested quote'} | ${[]}
+      ${'callout with 2+ spaces before bracket'} | ${'>  [!note] two spaces'}      | ${[]}
     `(
       'open does not matches $caseLabel',
       ({ inputText, expectedMatches }: { inputText: string; expectedMatches: string[] }) => {
@@ -218,7 +234,7 @@ describe('LINE_TAG_REGEX', () => {
       }
     );
 
-    test('QUOTE does not match a callout string — `(?![ \\t]?\\[!)` correctly excludes `> [!type]`', () => {
+    test('QUOTE does not match a callout string — `(?![ \\t]*\\[!)` correctly excludes `> [!type]`', () => {
       assertMatchesAgainstExpected('> [!note]', quoteEntry.open, []);
     });
   });

@@ -14,25 +14,28 @@ export const LINE_TAG_REGEX = [
   // Standalone `>> [!type]` (no preceding line) does NOT match — only single-depth starts a callout.
   {
     type: ELineTagType.CALLOUT,
-    // `[ \t]` (not `\s`) for the title separator — prevents `\n` from being consumed into the match.
-    open: /^(?:>(?!>)\s*\[!([^\]]+)\](?=[ \t]|$)(?:[ \t][^\n]*)?|(?<=[^\n]+\n)>+(?:\s*\[!([^\]]+)\](?=[ \t]|$)(?:[ \t][^\n]*)?)?)/gm,
+    // `[ \t]` (not `\s`) prevents `\n` from being consumed — applies to both the opener
+    // prefix (between `>` and `[!`) and the optional nested callout prefix in arm 2.
+    open: /^(?:>(?!>)[ \t]*\[!([^\]]+)\](?=[ \t]|$)(?:[ \t][^\n]*)?|(?<=[^\n]+\n)>+(?:[ \t]*\[!([^\]]+)\](?=[ \t]|$)(?:[ \t][^\n]*)?)?)/gm,
   },
   // Checkbox: `- [x] ` or `- [ ] ` — exactly one non-`^`/non-`!` character inside brackets.
   // `[^!^]` excludes footnote-like `[^]` and callout-like `[!]`.
   // Does NOT match `- []` (empty brackets) or `-[]` (no space before bracket).
-  { type: ELineTagType.CHECKBOX, open: /^-\s+\[[^!^]\]\s/g },
+  { type: ELineTagType.CHECKBOX, open: /^-\s+\[[^!^]\]\s/gm },
   // Plain list item — excludes valid checkbox bracket patterns; allows `- [^]` and `- [!]` as lists.
   // Leading tabs/spaces are allowed for nested list items: lookbehind `(?<=\n[ \t]*)` skips over them
   // so that `match[0]` captures only the `- ` marker, not the indentation.
   { type: ELineTagType.LIST, open: /(?:^|(?<=\n[ \t]*))-[ \t]+(?!\[[^!^]\])/gm },
   // Heading: 1–6 `#` chars followed by a space.
-  { type: ELineTagType.HEADING, open: /^#{1,6}\s/g },
+  { type: ELineTagType.HEADING, open: /^#{1,6}\s/gm },
   // Blockquote: matches only the `>+` depth markers — trailing space is NOT captured.
-  // `(?![ \t]?\[!)` excludes callout lines (`> [!type]`) even when there is a space before `[!`.
-  // A depth-1 `>` that immediately follows a callout opener line is a callout continuation — excluded
-  // via `(?<!>[^\n]*\[![^\n]*\n)`. Depth-2+ `>>` is treated as a nested quote even inside a callout.
+  // The negative lookahead `(?![ \t]*\[!)` is scoped inside the depth-1 arm only — it excludes
+  //   callout openers (`> [!type]`, `>  [!type]`, etc.) for any number of leading spaces/tabs.
+  // Depth-2+ `>>` always matches QUOTE even when followed by `[!type]` (e.g. nested callout).
+  // A depth-1 `>` that immediately follows a callout opener line is excluded
+  //   via the lookbehind `(?<!>[^\n]*\[![^\n]*\n)`.
   // `gm` flags: `g` iterates all matches, `m` allows `^` to match each line start.
-  { type: ELineTagType.QUOTE, open: /^(?:>{2,}|(?<!>[^\n]*\[![^\n]*\n)>)(?![ \t]?\[!)/gm },
+  { type: ELineTagType.QUOTE, open: /^(?:>{2,}|(?<!>[^\n]*\[![^\n]*\n)>(?![ \t]*\[!))/gm },
   // Indent: must be preceded by a non-empty content line (`[^\n]\n`).
   // Never matches at document start or after a blank line (those cases are tab-code).
   // Also never matches when the document starts with `---\n` (frontmatter / meeting-details):

@@ -47,9 +47,11 @@ export const SPECIAL_TAG_REGEX = [
   },
   // Meeting details block: atomic — open matches the full block from opening `---` through closing `---`.
   // Body lines must be `\w+: value` pairs separated by newlines.
+  // Requires `m` flag so `$` anchors to end-of-line (not end-of-string), allowing the block
+  // to be detected inside a larger document that has content after the closing `---`.
   {
     type: ESpecialTagType.MEETING_DETAILS,
-    open: /^---\n(?:\w+:[^\n]*\n)+---$/g,
+    open: /^---\n(?:\w+:[^\n]*\n)+---$/gm,
     close: undefined,
   },
   // Embed `![[...]]` — atomic; open pattern captures full token.
@@ -59,10 +61,13 @@ export const SPECIAL_TAG_REGEX = [
     close: undefined,
   },
   // Wikilink `[[...]]` only — bare `[text]` is NOT matched (wikilinks require double brackets).
-  // `(?<!-[ \t]*)` blocks when preceded by a list/checkbox dash (e.g. `- [[link]]`).
+  // `(?<!^[ \t]*-[ \t]*)` blocks only when `[[` is preceded by a line-start list/checkbox
+  // dash (e.g. `- [[link]]`, `\t- [[link]]`). Word-embedded hyphens (e.g. `not-[[link]]`)
+  // are NOT excluded because `^[ \t]*` only matches spaces/tabs from line start, not word chars.
+  // Requires `m` flag so `^` anchors to the start of each line in multi-line content.
   {
     type: ESpecialTagType.WIKILINK,
-    open: /(?<!-[ \t]*)\[\[([^\]]+)\]\]/g,
+    open: /(?<!^[ \t]*-[ \t]*)\[\[([^\]]+)\]\]/gm,
     close: undefined,
   },
   // External URL: markdown link `[text](url)`, protocol URLs (https?://), www., or bare domains with common TLDs.

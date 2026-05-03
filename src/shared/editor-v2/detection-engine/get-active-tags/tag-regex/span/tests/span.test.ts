@@ -15,8 +15,8 @@ describe('SPAN_TAG_REGEX', () => {
   const extractFirstMatch = (inputText: string, regexPattern: RegExp): string | null =>
     inputText.match(regexPattern)?.[0] ?? null;
 
-  // `.match()` with a global regex returns all full-match strings, not capture groups.
-  // `matchAll` preserves capture groups — take the first match's group 1.
+  // `.match()` with a global regex returns full-match strings only — capture groups are dropped.
+  // `matchAll` preserves them; take group 1 from the first match.
   const extractCapturedStyleValue = (inputText: string, regexPattern: RegExp): string | null =>
     Array.from(inputText.matchAll(regexPattern))[0]?.[1] ?? null;
 
@@ -143,6 +143,11 @@ describe('SPAN_TAG_REGEX', () => {
       const expectedNonMatching: string[] = [];
 
       assertMatchesAgainstExpected(nonMatchingInput, colorEntry.open, expectedNonMatching);
+    });
+
+    test('open does not match background-color span (color must not be preceded by -)', () => {
+      // `background-color:` was a false positive before the `(?<!-)color` fix.
+      assertMatchesAgainstExpected('<span style="background-color: red;">', colorEntry.open, []);
     });
 
     test.each`

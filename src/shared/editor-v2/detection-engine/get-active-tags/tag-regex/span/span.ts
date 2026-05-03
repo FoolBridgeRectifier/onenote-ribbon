@@ -16,7 +16,9 @@ export const SPAN_TAG_REGEX = [
   {
     type: ESpanStyleTagType.COLOR,
     cssProperty: 'color',
-    open: /<\s*span\s+style\s*=\s*"([^"]*color\s*:[^"]*)"\s*>/g,
+    // `(?<!-)color` prevents `background-color:` (and any `*-color:` variant) from matching —
+    // the lookbehind ensures `color` is not immediately preceded by a hyphen.
+    open: /<\s*span\s+style\s*=\s*"([^"]*(?<!-)color\s*:[^"]*)"\s*>/g,
     close: /<\/\s*span\s*>/g,
   },
   {

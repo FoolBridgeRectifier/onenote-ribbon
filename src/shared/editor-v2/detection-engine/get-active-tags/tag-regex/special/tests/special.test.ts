@@ -46,8 +46,8 @@ describe('SPECIAL_TAG_REGEX', () => {
     return Array.from(inputText.matchAll(globalRegexPattern), (match) => match[0]);
   };
 
-  // `.match()` with a global regex returns all full-match strings, not capture groups.
-  // `matchAll` preserves capture groups — take the first match's group at `groupIndex`.
+  // `.match()` with a global regex returns full-match strings only — capture groups are dropped.
+  // `matchAll` preserves them; take the specified group from the first match.
   const extractCapturedGroupValue = (
     inputText: string,
     regexPattern: RegExp,
@@ -205,6 +205,18 @@ describe('SPECIAL_TAG_REGEX', () => {
       assertMatchesAgainstExpected(inputText, meetingDetailsEntry.open, [inputText]);
     });
 
+    test('open matches block with trailing newline (typical file ending)', () => {
+      // Without `m` flag, `$` only matches end-of-string, so a trailing `\n` would break detection.
+      const inputText = '---\ntitle: My Meeting\ndate: 2024-01-01\n---\n';
+      assertMatchesAgainstExpected(inputText, meetingDetailsEntry.open, ['---\ntitle: My Meeting\ndate: 2024-01-01\n---']);
+    });
+
+    test('open matches block embedded in a larger document', () => {
+      // Block must be detectable even when followed by additional note content.
+      const inputText = '---\ntitle: My Meeting\ndate: 2024-01-01\n---\n\n## Agenda\n- item 1';
+      assertMatchesAgainstExpected(inputText, meetingDetailsEntry.open, ['---\ntitle: My Meeting\ndate: 2024-01-01\n---']);
+    });
+
     test.each`
       caseLabel                          | inputText
       ${'block with no key-value pairs'} | ${'---\n---'}
@@ -239,6 +251,15 @@ describe('SPECIAL_TAG_REGEX', () => {
       const inputText = '[[Page Name]]';
       assertMatchesAgainstExpected(inputText, wikilinkEntry.open, [inputText]);
       expect(extractCapturedGroupValue(inputText, wikilinkEntry.open, 1)).toBe('Page Name');
+    });
+
+    test.each`
+      caseLabel                                  | inputText
+      ${'hyphenated word before [['}             | ${'not-[[link]]'}
+      ${'longer hyphenated word before [['}      | ${'word-[[Page Name]]'}
+    `('open matches $caseLabel — word-hyphen must not be excluded', ({ inputText }: { inputText: string }) => {
+      const firstMatch = extractFirstMatch(inputText, wikilinkEntry.open);
+      expect(firstMatch).not.toBeNull();
     });
 
     test.each`
