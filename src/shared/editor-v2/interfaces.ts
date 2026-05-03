@@ -28,6 +28,7 @@ export enum ELineTagType {
   INDENT = 'INDENT',
   CHECKBOX = 'CHECKBOX',
   CALLOUT = 'CALLOUT',
+  DIVIDER = 'DIVIDER',
 }
 
 export enum ESpecialTagType {

@@ -48,4 +48,6 @@ export const LINE_TAG_REGEX = [
     type: ELineTagType.INDENT,
     open: /(?<=[^\n]\n)(?<!^---\n)(?<!^---\n[\s\S]*-{3,}\n)(?:\t+(?:<span\s+style="[^"]*margin-left:[^"]*">)?|(?:[ ]{4})+(?:<span\s+style="[^"]*margin-left:[^"]*">)?)/g,
   },
+  // Horizontal rule: three or more dashes on their own line, surrounded by newlines.
+  { type: ELineTagType.DIVIDER, open: /\n---+\n/g },
 ];
