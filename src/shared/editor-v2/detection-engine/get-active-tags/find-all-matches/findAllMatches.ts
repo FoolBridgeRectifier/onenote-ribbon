@@ -7,7 +7,8 @@ import {
   LINE_TAG_REGEX,
   SPECIAL_TAG_REGEX,
 } from '../tag-regex/tagRegex';
-import { buildLineOffsets, toTagPosition, scanPattern, compareByPosition } from './helpers';
+import { rangeToTagPosition } from '../utils';
+import { scanPattern, compareByPosition } from './helpers';
 
 /**
  * Scans `content` for every known tag pattern and returns a flat list of open/close records
@@ -16,8 +17,6 @@ import { buildLineOffsets, toTagPosition, scanPattern, compareByPosition } from 
  * Close pattern hit → `{ type, close: TagPosition }`
  */
 export const findAllMatches = (content: string) => {
-  const lineOffsets = buildLineOffsets(content);
-
   return [
     ...MD_TAG_REGEX,
     ...HTML_EQUIV_MD_TAG_REGEX,
@@ -26,17 +25,19 @@ export const findAllMatches = (content: string) => {
     ...LINE_TAG_REGEX,
     ...SPECIAL_TAG_REGEX,
   ]
-    .flatMap(({ type, open, close }: { type: TTagType; open?: RegExp; close?: RegExp }) => [
+    .flatMap(({ type, isHTML, open, close }: { type: TTagType; isHTML: boolean; open?: RegExp; close?: RegExp }) => [
       ...(open
         ? scanPattern(content, open).map((match) => ({
             type,
-            open: toTagPosition(match.index, match.length, lineOffsets),
+            isHTML,
+            open: rangeToTagPosition(match.index, match.length, content),
           }))
         : []),
       ...(close
         ? scanPattern(content, close).map((match) => ({
             type,
-            close: toTagPosition(match.index, match.length, lineOffsets),
+            isHTML,
+            close: rangeToTagPosition(match.index, match.length, content),
           }))
         : []),
     ])

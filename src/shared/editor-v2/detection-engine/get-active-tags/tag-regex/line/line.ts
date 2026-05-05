@@ -14,6 +14,7 @@ export const LINE_TAG_REGEX = [
   // Standalone `>> [!type]` (no preceding line) does NOT match — only single-depth starts a callout.
   {
     type: ELineTagType.CALLOUT,
+    isHTML: false,
     // `[ \t]` (not `\s`) prevents `\n` from being consumed — applies to both the opener
     // prefix (between `>` and `[!`) and the optional nested callout prefix in arm 2.
     open: /^(?:>(?!>)[ \t]*\[!([^\]]+)\](?=[ \t]|$)(?:[ \t][^\n]*)?|(?<=[^\n]+\n)>+(?:[ \t]*\[!([^\]]+)\](?=[ \t]|$)(?:[ \t][^\n]*)?)?)/gm,
@@ -21,13 +22,13 @@ export const LINE_TAG_REGEX = [
   // Checkbox: `- [x] ` or `- [ ] ` — exactly one non-`^`/non-`!` character inside brackets.
   // `[^!^]` excludes footnote-like `[^]` and callout-like `[!]`.
   // Does NOT match `- []` (empty brackets) or `-[]` (no space before bracket).
-  { type: ELineTagType.CHECKBOX, open: /^-\s+\[[^!^]\]\s/gm },
+  { type: ELineTagType.CHECKBOX, isHTML: false, open: /^-\s+\[[^!^]\]\s/gm },
   // Plain list item — excludes valid checkbox bracket patterns; allows `- [^]` and `- [!]` as lists.
   // Leading tabs/spaces are allowed for nested list items: lookbehind `(?<=\n[ \t]*)` skips over them
   // so that `match[0]` captures only the `- ` marker, not the indentation.
-  { type: ELineTagType.LIST, open: /(?:^|(?<=\n[ \t]*))-[ \t]+(?!\[[^!^]\])/gm },
+  { type: ELineTagType.LIST, isHTML: false, open: /(?:^|(?<=\n[ \t]*))-[ \t]+(?!\[[^!^]\])/gm },
   // Heading: 1–6 `#` chars followed by a space.
-  { type: ELineTagType.HEADING, open: /^#{1,6}\s/gm },
+  { type: ELineTagType.HEADING, isHTML: false, open: /^#{1,6}\s/gm },
   // Blockquote: matches only the `>+` depth markers — trailing space is NOT captured.
   // The negative lookahead `(?![ \t]*\[!)` is scoped inside the depth-1 arm only — it excludes
   //   callout openers (`> [!type]`, `>  [!type]`, etc.) for any number of leading spaces/tabs.
@@ -35,7 +36,7 @@ export const LINE_TAG_REGEX = [
   // A depth-1 `>` that immediately follows a callout opener line is excluded
   //   via the lookbehind `(?<!>[^\n]*\[![^\n]*\n)`.
   // `gm` flags: `g` iterates all matches, `m` allows `^` to match each line start.
-  { type: ELineTagType.QUOTE, open: /^(?:>{2,}|(?<!>[^\n]*\[![^\n]*\n)>(?![ \t]*\[!))/gm },
+  { type: ELineTagType.QUOTE, isHTML: false, open: /^(?:>{2,}|(?<!>[^\n]*\[![^\n]*\n)>(?![ \t]*\[!))/gm },
   // Indent: must be preceded by a non-empty content line (`[^\n]\n`).
   // Never matches at document start or after a blank line (those cases are tab-code).
   // Also never matches when the document starts with `---\n` (frontmatter / meeting-details):
@@ -46,8 +47,11 @@ export const LINE_TAG_REGEX = [
   // The open delimiter ends at `>` when the span is present. Body text is not captured.
   {
     type: ELineTagType.INDENT,
+    isHTML: false,
     open: /(?<=[^\n]\n)(?<!^---\n)(?<!^---\n[\s\S]*-{3,}\n)(?:\t+(?:<span\s+style="[^"]*margin-left:[^"]*">)?|(?:[ ]{4})+(?:<span\s+style="[^"]*margin-left:[^"]*">)?)/g,
   },
   // Horizontal rule: three or more dashes on their own line, surrounded by newlines.
-  { type: ELineTagType.DIVIDER, open: /\n---+\n/g },
+  // The negative lookbehind `(?<!^---\n(?:\w+:[^\n]*\n)+)` prevents matching the closing `---`
+  // of a meeting-details / front-matter block, which is always preceded by `---\n` + YAML lines.
+  { type: ELineTagType.DIVIDER, isHTML: false, open: /(?<!^---\n(?:\w+:[^\n]*\n)*\w+:[^\n]*)\n---+\n/gm },
 ];

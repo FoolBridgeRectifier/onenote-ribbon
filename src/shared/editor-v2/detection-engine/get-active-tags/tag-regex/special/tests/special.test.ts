@@ -3,20 +3,15 @@ import { ESpecialTagType } from '../../../../../interfaces';
 
 describe('SPECIAL_TAG_REGEX', () => {
   const fencedCodeEntry = SPECIAL_TAG_REGEX.find(
-    (entry) => entry.type === ESpecialTagType.CODE && entry.open.source === '^`{3}'
+    (entry) => entry.type === ESpecialTagType.BLOCK_CODE
   )!;
 
-  // Tab-code is the CODE entry that is atomic (close === null) and not the fenced or inline entry.
   const tabCodeEntry = SPECIAL_TAG_REGEX.find(
-    (entry) =>
-      entry.type === ESpecialTagType.CODE &&
-      !entry.close &&
-      entry.open !== fencedCodeEntry?.open &&
-      entry.open.source !== '`'
+    (entry) => entry.type === ESpecialTagType.LINE_CODE
   )!;
 
   const inlineCodeEntry = SPECIAL_TAG_REGEX.find(
-    (entry) => entry.type === ESpecialTagType.CODE && entry.open.source === '`'
+    (entry) => entry.type === ESpecialTagType.INLINE_CODE
   )!;
   const inlineTodoEntry = SPECIAL_TAG_REGEX.find(
     (entry) => entry.type === ESpecialTagType.INLINE_TODO
@@ -135,8 +130,9 @@ describe('SPECIAL_TAG_REGEX', () => {
       caseLabel                                               | inputText                           | expectedMatches | allMatches
       ${'at document start'}                                  | ${'\tcode at start'}                | ${['\t']}       | ${false}
       ${'after blank line'}                                   | ${'\n\n\tcode after blank'}         | ${['\t']}       | ${false}
-      ${'at document start'}                                  | ${'\tcode \n\tat start'}            | ${['\t', '\t']} | ${true}
-      ${'after blank line'}                                   | ${'\n\n\tcode \n\tafter blank'}     | ${['\t', '\t']} | ${true}
+      // Continuation lines are not re-detected by this regex (only first-line anchors fire).
+      ${'at document start'}                                  | ${'\tcode \n\tat start'}            | ${['\t']}       | ${true}
+      ${'after blank line'}                                   | ${'\n\n\tcode \n\tafter blank'}     | ${['\t']}       | ${true}
       ${'tab in middle of line'}                              | ${'\n\n\tcode \tafter blank'}       | ${['\t']}       | ${true}
       ${'regular tab'}                                        | ${'\n\n\tcode \ngg\n\tafter blank'} | ${['\t']}       | ${true}
       ${'4-space indent at start'}                            | ${'    code at start'}              | ${['    ']}     | ${false}

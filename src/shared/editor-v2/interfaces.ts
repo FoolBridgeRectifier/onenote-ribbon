@@ -32,7 +32,9 @@ export enum ELineTagType {
 }
 
 export enum ESpecialTagType {
-  CODE = 'CODE',
+  BLOCK_CODE = 'BLOCK_CODE',
+  INLINE_CODE = 'INLINE_CODE',
+  LINE_CODE = 'LINE_CODE',
   INLINE_TODO = 'INLINE_TODO',
   MEETING_DETAILS = 'MEETING_DETAILS',
   WIKILINK = 'WIKILINK ',

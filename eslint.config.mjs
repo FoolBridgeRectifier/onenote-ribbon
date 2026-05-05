@@ -386,7 +386,7 @@ const strictStructurePlugin = {
         const parentFolderName = path.basename(path.dirname(currentFilePath));
 
         // Standard structural files are always allowed regardless of folder
-        const structuralFileNames = new Set(['helpers', 'constants', 'interfaces', 'index']);
+        const structuralFileNames = new Set(['helpers', 'constants', 'interfaces', 'index', 'utils']);
         if (structuralFileNames.has(baseNameWithoutExtension)) {
           return {};
         }
@@ -431,7 +431,7 @@ const strictStructurePlugin = {
             if (!isKebabCaseMatch && !isPascalCaseMatch && !isCamelCaseMatch) {
               context.report({
                 node: programNode,
-                message: `File name must match parent folder name (${parentFolderName}${extensionName}, ${camelCaseFolderName}${extensionName}, or ${pascalCaseFolderName}${extensionName}) or use helpers/constants/interfaces.`,
+                message: `File name must match parent folder name (${parentFolderName}${extensionName}, ${camelCaseFolderName}${extensionName}, or ${pascalCaseFolderName}${extensionName}) or use helpers/constants/interfaces/utils.`,
               });
             }
           },
@@ -506,7 +506,7 @@ export default [
       },
       'import/resolver': {
         typescript: true,
-        node: true,
+        node: { extensions: ['.ts', '.tsx', '.js', '.jsx'] },
       },
       react: {
         version: '18.3',

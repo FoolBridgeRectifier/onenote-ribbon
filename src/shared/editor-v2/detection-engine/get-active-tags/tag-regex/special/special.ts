@@ -13,35 +13,42 @@ export const SPECIAL_TAG_REGEX = [
   // Matches only the backtick delimiter — language hint and body text are not captured.
   // Must NOT open inside inline code or a tab-indented code block.
   {
-    type: ESpecialTagType.CODE,
+    type: ESpecialTagType.BLOCK_CODE,
+    isHTML: false,
     open: /^`{3}/gm,
     // Lookbehind/lookahead capture only the backtick run — surrounding whitespace is excluded.
     // Exactly 3 backticks matched (same as open) — 4+ backtick fences still close on 3.
     close: /^`{3}(?=`*\s*$)/gm,
   },
-  // Tab-indented code block: atomic — opens at document start (`^`), after a blank line (`(?<=\n\n)`),
-  // directly after a `---`-based frontmatter/meeting-details block at document start,
-  // OR anywhere within a line that has already started (`(?<=[^\n])`).
-  //   - `(?<=^---\n)` covers `---\n\t...` (indent immediately after opening delimiter).
-  //   - `(?<=^---\n[\s\S]*-{3,}\n)` covers full frontmatter/meeting-details closed by `-{3,}`.
-  // `(?<=[^\n])` allows mid-line tabs to also be detected within an already-open code context.
+  // Tab-indented / space-indented code block: atomic — fires only at valid block-entry anchors:
+  //   - Document start (`^`)
+  //   - After a blank line (`(?<=\n\n)`)
+  //   - Directly after an opening `---` (`(?<=^---\n)`)
+  //   - After a full frontmatter/meeting-details block (`(?<=^---\n[\s\S]*-{3,}\n)`)
+  // The continuation branch `(?<=(?:^|\n)\t[^\n]*\n)` is intentionally omitted: it cannot
+  // distinguish tab-indented lines inside a fenced code block from standalone code lines,
+  // causing false LINE_CODE detections inside BLOCK_CODE spans.
+  // Subsequent lines of a tab-indented block are identified by the block tracker, not here.
   // Matches only the leading tab/space prefix — body text is not captured.
   {
-    type: ESpecialTagType.CODE,
-    open: /(?:^|(?<=\n\n)|(?<=^---\n)|(?<=^---\n[\s\S]*-{3,}\n)|(?<=(?:^|\n)\t[^\n]*\n))(?:\t+|(?:[ ]{4})+)/g,
+    type: ESpecialTagType.LINE_CODE,
+    isHTML: false,
+    open: /(?:^|(?<=\n\n)|(?<=^---\n)|(?<=^---\n[\s\S]*-{3,}\n))(?:\t+|(?:[ ]{4})+)/g,
     close: undefined,
   },
   // Inline code: opens with `` ` `` and closes with matching `` ` ``.
   // Unclosed-backtick fallback is handled by the tag parser, not by a global `$` regex.
   // Must NOT open inside a fenced code block or a tab-indented code block.
   {
-    type: ESpecialTagType.CODE,
+    type: ESpecialTagType.INLINE_CODE,
+    isHTML: false,
     open: /`/g,
     close: /`/g,
   },
   // Inline #todo token — single occurrence, no close delimiter.
   {
     type: ESpecialTagType.INLINE_TODO,
+    isHTML: false,
     open: /(?:^|(?<=\s))#todo\b/g,
     close: undefined,
   },
@@ -51,12 +58,14 @@ export const SPECIAL_TAG_REGEX = [
   // to be detected inside a larger document that has content after the closing `---`.
   {
     type: ESpecialTagType.MEETING_DETAILS,
+    isHTML: false,
     open: /^---\n(?:\w+:[^\n]*\n)+---$/gm,
     close: undefined,
   },
   // Embed `![[...]]` — atomic; open pattern captures full token.
   {
     type: ESpecialTagType.EMBED,
+    isHTML: false,
     open: /!\[\[([^\]]+)\]\]/g,
     close: undefined,
   },
@@ -67,18 +76,21 @@ export const SPECIAL_TAG_REGEX = [
   // Requires `m` flag so `^` anchors to the start of each line in multi-line content.
   {
     type: ESpecialTagType.WIKILINK,
+    isHTML: false,
     open: /(?<!^[ \t]*-[ \t]*)\[\[([^\]]+)\]\]/gm,
     close: undefined,
   },
   // External URL: markdown link `[text](url)`, protocol URLs (https?://), www., or bare domains with common TLDs.
   {
     type: ESpecialTagType.EXTERNAL_LINK,
+    isHTML: false,
     open: /\[([^\]]+)\]\(([^)]+)\)|https?:\/\/[^\s<>"]+|www\.[^\s<>"]+|[a-zA-Z0-9][\w.-]+\.(?:com|org|net|io|dev|co|uk|gov|edu|info|biz|app|ai)(?:\/[^\s<>"]*)?/g,
     close: undefined,
   },
   // Footnote reference: `[^id]` inline reference or `[^id]: text` definition line — atomic, no close.
   {
     type: ESpecialTagType.FOOTNOTE_REF,
+    isHTML: false,
     open: /\[\^([^\]]+)\]:?/g,
     close: undefined,
   },
