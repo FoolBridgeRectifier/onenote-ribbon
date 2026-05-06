@@ -6,9 +6,7 @@ describe('SPECIAL_TAG_REGEX', () => {
     (entry) => entry.type === ESpecialTagType.BLOCK_CODE
   )!;
 
-  const tabCodeEntry = SPECIAL_TAG_REGEX.find(
-    (entry) => entry.type === ESpecialTagType.LINE_CODE
-  )!;
+  const tabCodeEntry = SPECIAL_TAG_REGEX.find((entry) => entry.type === ESpecialTagType.LINE_CODE)!;
 
   const inlineCodeEntry = SPECIAL_TAG_REGEX.find(
     (entry) => entry.type === ESpecialTagType.INLINE_CODE
@@ -130,7 +128,6 @@ describe('SPECIAL_TAG_REGEX', () => {
       caseLabel                                               | inputText                           | expectedMatches | allMatches
       ${'at document start'}                                  | ${'\tcode at start'}                | ${['\t']}       | ${false}
       ${'after blank line'}                                   | ${'\n\n\tcode after blank'}         | ${['\t']}       | ${false}
-      // Continuation lines are not re-detected by this regex (only first-line anchors fire).
       ${'at document start'}                                  | ${'\tcode \n\tat start'}            | ${['\t']}       | ${true}
       ${'after blank line'}                                   | ${'\n\n\tcode \n\tafter blank'}     | ${['\t']}       | ${true}
       ${'tab in middle of line'}                              | ${'\n\n\tcode \tafter blank'}       | ${['\t']}       | ${true}
@@ -166,7 +163,10 @@ describe('SPECIAL_TAG_REGEX', () => {
 
   describe('INLINE_CODE', () => {
     test('open matches single backtick', () => {
-      assertMatchesAgainstExpected('`code`', inlineCodeEntry.open, ['`']);
+      assertMatchesAgainstExpected('`code` ``', inlineCodeEntry.open, ['`', '`'], true);
+    });
+    test('close matches single backtick', () => {
+      assertMatchesAgainstExpected('`code` ``', inlineCodeEntry.close!, ['`', '`'], true);
     });
 
     test('close matches closing backtick', () => {
@@ -204,13 +204,17 @@ describe('SPECIAL_TAG_REGEX', () => {
     test('open matches block with trailing newline (typical file ending)', () => {
       // Without `m` flag, `$` only matches end-of-string, so a trailing `\n` would break detection.
       const inputText = '---\ntitle: My Meeting\ndate: 2024-01-01\n---\n';
-      assertMatchesAgainstExpected(inputText, meetingDetailsEntry.open, ['---\ntitle: My Meeting\ndate: 2024-01-01\n---']);
+      assertMatchesAgainstExpected(inputText, meetingDetailsEntry.open, [
+        '---\ntitle: My Meeting\ndate: 2024-01-01\n---',
+      ]);
     });
 
     test('open matches block embedded in a larger document', () => {
       // Block must be detectable even when followed by additional note content.
       const inputText = '---\ntitle: My Meeting\ndate: 2024-01-01\n---\n\n## Agenda\n- item 1';
-      assertMatchesAgainstExpected(inputText, meetingDetailsEntry.open, ['---\ntitle: My Meeting\ndate: 2024-01-01\n---']);
+      assertMatchesAgainstExpected(inputText, meetingDetailsEntry.open, [
+        '---\ntitle: My Meeting\ndate: 2024-01-01\n---',
+      ]);
     });
 
     test.each`
@@ -250,13 +254,16 @@ describe('SPECIAL_TAG_REGEX', () => {
     });
 
     test.each`
-      caseLabel                                  | inputText
-      ${'hyphenated word before [['}             | ${'not-[[link]]'}
-      ${'longer hyphenated word before [['}      | ${'word-[[Page Name]]'}
-    `('open matches $caseLabel — word-hyphen must not be excluded', ({ inputText }: { inputText: string }) => {
-      const firstMatch = extractFirstMatch(inputText, wikilinkEntry.open);
-      expect(firstMatch).not.toBeNull();
-    });
+      caseLabel                             | inputText
+      ${'hyphenated word before [['}        | ${'not-[[link]]'}
+      ${'longer hyphenated word before [['} | ${'word-[[Page Name]]'}
+    `(
+      'open matches $caseLabel — word-hyphen must not be excluded',
+      ({ inputText }: { inputText: string }) => {
+        const firstMatch = extractFirstMatch(inputText, wikilinkEntry.open);
+        expect(firstMatch).not.toBeNull();
+      }
+    );
 
     test.each`
       caseLabel                            | inputText

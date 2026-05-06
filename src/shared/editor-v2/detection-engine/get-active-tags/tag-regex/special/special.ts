@@ -42,8 +42,8 @@ export const SPECIAL_TAG_REGEX = [
   {
     type: ESpecialTagType.INLINE_CODE,
     isHTML: false,
-    open: /`/g,
-    close: /`/g,
+    open: /(?<!`)`(?!`)/g,
+    close: /(?<!`)`(?!`)/g,
   },
   // Inline #todo token — single occurrence, no close delimiter.
   {

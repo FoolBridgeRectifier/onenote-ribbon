@@ -2,8 +2,18 @@ import type { TagPosition } from '../../../interfaces';
 import type { TagType } from '../../interfaces';
 import type { TMatchRecord } from '../find-all-matches/interfaces';
 
+/** Returns a TagPosition representing the end of the given line in content. */
+export const calcLineEnd = (content: string, openTagLine: number) => {
+  const lineEndCh = content.split('\n')[openTagLine].length;
+
+  return {
+    start: { line: openTagLine, ch: lineEndCh },
+    end: { line: openTagLine, ch: lineEndCh },
+  };
+};
+
 /** Returns true if two TagPositions refer to the exact same character. */
-const isSamePosition = (positionA: TagPosition, positionB: TagPosition): boolean =>
+export const isSameTagPosition = (positionA: TagPosition, positionB: TagPosition): boolean =>
   positionA.start.line === positionB.start.line && positionA.start.ch === positionB.start.ch;
 
 /**
@@ -20,31 +30,36 @@ export const matchOpenClosePairs = (
 ) => {
   let openTag = null;
   const filteredMatches = [];
+
   for (let i = 0; i < allMatches.length; i++) {
-    if (
+    // True if this record belongs to the target type (and optional isHTML filter).
+    const isSameTag = !(
       allMatches[i].type !== tagType ||
       (isHTML !== undefined && allMatches[i].isHTML !== isHTML)
-    ) {
+    );
+
+    // A close is a duplicate if there is no open to pair with (orphaned),
+    // or if the close sits at the exact same position as the current open (invalid pair).
+    const isDuplicateClose =
+      allMatches[i].close && (!openTag || isSameTagPosition(openTag.open!, allMatches[i].close!));
+
+    // A second open while one is already tracked — same-type nesting is not supported.
+    const isDuplicateOpen = allMatches[i].open && openTag;
+
+    if (!isSameTag) {
+      // Not the target type — pass through unchanged.
       filteredMatches.push(allMatches[i]);
+    } else if (isDuplicateClose || isDuplicateOpen) {
+      // Discard invalid or redundant records.
       continue;
-    }
-
-    if (allMatches[i].close && (!openTag || isSamePosition(openTag.open!, allMatches[i].close!))) {
-      continue;
-    }
-
-    if (allMatches[i].open && openTag !== null) {
-      continue;
-    }
-
-    if (!openTag && allMatches[i].open) {
+    } else if (!openTag && allMatches[i].open) {
+      // Valid open with no existing open — start tracking the pair.
       openTag = allMatches[i];
       filteredMatches.push(allMatches[i]);
-      continue;
-    }
-
-    if (openTag && allMatches[i].close) {
-      openTag.close = allMatches[i].close;
+    } else {
+      // Valid close with an open already tracked — openTag is non-null here
+      // (isDuplicateOpen=false + !openTag&&open=false together guarantee it).
+      openTag!.close = allMatches[i].close;
       openTag = null;
     }
   }
