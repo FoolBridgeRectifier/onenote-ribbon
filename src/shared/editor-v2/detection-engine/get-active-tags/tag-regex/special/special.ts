@@ -87,11 +87,15 @@ export const SPECIAL_TAG_REGEX = [
     open: /\[([^\]]+)\]\(([^)]+)\)|https?:\/\/[^\s<>"]+|www\.[^\s<>"]+|[a-zA-Z0-9][\w.-]+\.(?:com|org|net|io|dev|co|uk|gov|edu|info|biz|app|ai)(?:\/[^\s<>"]*)?/g,
     close: undefined,
   },
-  // Footnote reference: `[^id]` inline reference or `[^id]: text` definition line — atomic, no close.
+  // Footnote reference.
+  // Open — two alternatives, id is in group 1 or group 2:
+  //   Alt 1: `[^id]` not followed by `:` — matches inline references anywhere.
+  //   Alt 2: `[^id]:` preceded by a non-newline char — matches inline definition refs (not at line start).
+  // Close — `[^id]:` only at line start — matches standalone definition lines.
   {
     type: ESpecialTagType.FOOTNOTE_REF,
     isHTML: false,
-    open: /\[\^([^\]]+)\]:?/g,
-    close: undefined,
+    open: /\[\^([^\]]+)\](?!:)|(?<=[^\n])\[\^([^\]]+)\]:/g,
+    close: /^\[\^([^\]]+)\]:/gm,
   },
 ];

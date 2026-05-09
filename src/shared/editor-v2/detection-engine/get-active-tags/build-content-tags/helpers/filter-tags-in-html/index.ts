@@ -1,0 +1,1 @@
+export { filterTagsInHtml } from './filterTagsInHtml';

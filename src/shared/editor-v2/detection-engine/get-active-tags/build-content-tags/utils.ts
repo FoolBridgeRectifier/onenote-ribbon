@@ -1,3 +1,5 @@
+import type { EditorPosition } from 'obsidian';
+import { EMdStyleTagType } from '../../../interfaces';
 import type { TagPosition } from '../../../interfaces';
 import type { TagType } from '../../interfaces';
 import type { TMatchRecord } from '../find-all-matches/interfaces';
@@ -66,6 +68,30 @@ export const matchOpenClosePairs = (
 
   return filteredMatches;
 };
+
+/** Returns true if position `a` comes strictly after position `b` in document order. */
+const isAfterPosition = (a: EditorPosition, b: EditorPosition): boolean =>
+  a.line > b.line || (a.line === b.line && a.ch > b.ch);
+
+/** Returns true if `position` falls within `range` (inclusive on both ends). */
+const isWithinRange = (position: EditorPosition, range: TagPosition): boolean =>
+  !isAfterPosition(range.start, position) && !isAfterPosition(position, range.end);
+
+/**
+ * Removes records whose start position falls within any of the given ranges.
+ * Only records whose type is in `tagTypes` are considered for removal.
+ * Defaults to all EMdStyleTagType values.
+ */
+export const filterTagsWithinRanges = (
+  allMatches: TMatchRecord[],
+  ranges: TagPosition[],
+  tagTypes: TagType[] = Object.values(EMdStyleTagType)
+): TMatchRecord[] =>
+  allMatches.filter((match) => {
+    if (!tagTypes.includes(match.type)) return true;
+    const position = (match.open ?? match.close)!.start;
+    return !ranges.some((range) => isWithinRange(position, range));
+  });
 
 // O(n) merge of two offset-sorted range arrays into one sorted array.
 export const mergeSortedRanges = (
