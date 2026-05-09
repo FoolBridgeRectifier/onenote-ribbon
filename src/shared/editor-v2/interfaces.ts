@@ -19,6 +19,9 @@ export enum ESpanStyleTagType {
   FONT_FAMILY = 'FONT_FAMILY',
   HIGHLIGHT = 'HIGHLIGHT',
   ALIGN = 'ALIGN',
+  // Catch-all for any <span> whose CSS is not tracked by a specific entry above.
+  // Used internally by matchSpanTags for stack-based untracked-span detection.
+  GENERIC = 'GENERIC_SPAN',
 }
 
 export enum ELineTagType {

@@ -44,4 +44,12 @@ export const SPAN_TAG_REGEX = [
     open: /<\s*span\s+style\s*=\s*"([^"]*background\s*:[^"]*)"\s*>/g,
     close: /<\/\s*span\s*>/g,
   },
+  // Generic — catch-all for any non-self-closing <span> not matched by a specific CSS entry above.
+  // Used by matchSpanTags to detect spans with untracked CSS so their closes can be dropped.
+  {
+    type: ESpanStyleTagType.GENERIC,
+    isHTML: true,
+    open: /<\s*span(?:\s[^>]*[^/])?>/g,
+    close: /<\/\s*span\s*>/g,
+  },
 ];

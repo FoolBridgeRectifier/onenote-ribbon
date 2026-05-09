@@ -12,10 +12,11 @@ describe('SPAN_TAG_REGEX', () => {
   const highlightEntry = SPAN_TAG_REGEX.find(
     (entry) => entry.type === ESpanStyleTagType.HIGHLIGHT
   )!;
+  const genericEntry = SPAN_TAG_REGEX.find((entry) => entry.type === ESpanStyleTagType.GENERIC)!;
 
   describe('shape', () => {
-    test('contains exactly 5 entries', () => {
-      expect(SPAN_TAG_REGEX).toHaveLength(5);
+    test('contains exactly 6 entries', () => {
+      expect(SPAN_TAG_REGEX).toHaveLength(6);
     });
   });
 
@@ -122,6 +123,39 @@ describe('SPAN_TAG_REGEX', () => {
       if (capturedStyle !== null) {
         expect(extractCapturedGroup(content, highlightEntry.open, 1)).toBe(capturedStyle);
       }
+    });
+  });
+
+  describe('GENERIC', () => {
+    test('GENERIC entry exists', () => {
+      expect(genericEntry).toBeDefined();
+    });
+
+    test.each`
+      content                                              | expectedMatches
+      ${'<span>'}                                          | ${['<span>']}
+      ${'<span style="margin-left: 1em;">'}               | ${['<span style="margin-left: 1em;">']}
+      ${'<span style="color: red;">'}                      | ${['<span style="color: red;">']}
+      ${'<span  >'}                                        | ${['<span  >']}
+      ${'<span/>'}                                         | ${[]}
+      ${'<span />'}                                        | ${[]}
+    `('open matches $content → $expectedMatches', ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
+      assertMatches(content, genericEntry.open, expectedMatches);
+    });
+
+    test.each`
+      content                                         | expectedMatches
+      ${'<span style="color: red;">hello</span>'}     | ${['</span>']}
+      ${'<span>hello</span>'}                         | ${['</span>']}
+    `('close matches $content', ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
+      assertMatches(content, genericEntry.close, expectedMatches);
+    });
+
+    test('GENERIC appears last in the array (after all specific entries)', () => {
+      const genericIndex = SPAN_TAG_REGEX.findIndex(
+        (entry) => entry.type === ESpanStyleTagType.GENERIC
+      );
+      expect(genericIndex).toBe(SPAN_TAG_REGEX.length - 1);
     });
   });
 });

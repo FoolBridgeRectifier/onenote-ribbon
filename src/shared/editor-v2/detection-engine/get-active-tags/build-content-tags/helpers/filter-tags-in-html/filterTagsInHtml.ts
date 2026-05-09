@@ -33,5 +33,5 @@ export const filterTagsInHtml = (
     }
   }
 
-  return filterTagsWithinRanges(allMatches, htmlRanges);
+  return filterTagsWithinRanges(allMatches, htmlRanges, undefined, false);
 };

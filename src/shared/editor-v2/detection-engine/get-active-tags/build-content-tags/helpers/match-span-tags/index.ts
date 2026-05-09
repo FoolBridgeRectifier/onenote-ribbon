@@ -1,0 +1,1 @@
+export { matchSpanTags } from './matchSpanTags';

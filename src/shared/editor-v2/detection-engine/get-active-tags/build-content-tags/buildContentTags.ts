@@ -7,6 +7,7 @@ import {
   filterTagsInCodeBlocks,
   filterTagsInMeetingNotes,
   filterTagsInHtml,
+  matchSpanTags,
 } from './helpers';
 
 /** Finds all tags in `content`, applies each filter in order, and returns the result. */
@@ -18,6 +19,7 @@ export const buildContentTags = (content: string) => {
     filterTagsInCodeBlocks,
     filterTagsInMeetingNotes,
     filterTagsInHtml,
+    matchSpanTags,
   ];
 
   const tags = filters.reduce<TMatchRecord[]>(

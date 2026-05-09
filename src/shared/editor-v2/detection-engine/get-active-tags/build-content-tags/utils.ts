@@ -85,9 +85,11 @@ const isWithinRange = (position: EditorPosition, range: TagPosition): boolean =>
 export const filterTagsWithinRanges = (
   allMatches: TMatchRecord[],
   ranges: TagPosition[],
-  tagTypes: TagType[] = Object.values(EMdStyleTagType)
+  tagTypes: TagType[] = Object.values(EMdStyleTagType),
+  isHTML?: boolean
 ): TMatchRecord[] =>
   allMatches.filter((match) => {
+    if (isHTML !== undefined && match.isHTML !== isHTML) return true;
     if (!tagTypes.includes(match.type)) return true;
     const position = (match.open ?? match.close)!.start;
     return !ranges.some((range) => isWithinRange(position, range));
