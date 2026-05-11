@@ -3,3 +3,6 @@ export { filterTagsInCodeBlocks } from './filter-tags-in-code-blocks';
 export { filterTagsInMeetingNotes } from './filter-tags-in-meeting-notes';
 export { filterTagsInHtml } from './filter-tags-in-html';
 export { matchSpanTags } from './match-span-tags';
+export { matchHtmlTags } from './match-html-tags';
+export { matchMdTags } from './match-md-tags';
+export { matchFootnotes } from './match-footnotes';

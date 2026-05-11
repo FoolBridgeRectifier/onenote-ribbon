@@ -1,6 +1,6 @@
 import { ESpanStyleTagType } from '../../../../../interfaces';
 import type { TMatchRecord } from '../../../find-all-matches/interfaces';
-import { isSameTagPosition } from '../../utils';
+import { invalidateTags, isSameTagPosition } from '../../utils';
 
 /**
  * Pairs span open records with their matching close records.
@@ -12,6 +12,8 @@ import { isSameTagPosition } from '../../utils';
 export const matchSpanTags = (_content: string, allMatches: TMatchRecord[]): TMatchRecord[] => {
   const filteredMatches: TMatchRecord[] = [];
   const activeSpans: Array<TMatchRecord[]> = [];
+  // Tracks the last processed close to deduplicate closes at the same position
+  // (a single </span> produces one close record per matching regex entry).
   let lastClose: TMatchRecord | null = null;
 
   for (const match of allMatches) {
@@ -45,6 +47,10 @@ export const matchSpanTags = (_content: string, allMatches: TMatchRecord[]): TMa
         lastClose = match;
       }
     }
+  }
+
+  if (activeSpans.length > 0) {
+    return invalidateTags(filteredMatches, activeSpans[0][0]);
   }
 
   return filteredMatches;

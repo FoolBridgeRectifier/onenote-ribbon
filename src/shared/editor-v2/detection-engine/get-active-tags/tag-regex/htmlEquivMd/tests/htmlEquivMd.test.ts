@@ -19,14 +19,17 @@ describe('HTML_EQUIV_MD_TAG_REGEX', () => {
 
   describe('BOLD', () => {
     test.each`
-      content         | expectedMatches
-      ${'<b>'}        | ${['<b>']}
-      ${'<b   >'}     | ${['<b   >']}
-      ${'<   b   >'}  | ${['<   b   >']}
-      ${'<strong>'}   | ${[]}
-    `('open matches $content', ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
-      assertMatches(content, boldEntry.open, expectedMatches);
-    });
+      content        | expectedMatches
+      ${'<b>'}       | ${['<b>']}
+      ${'<b   >'}    | ${['<b   >']}
+      ${'<   b   >'} | ${[]}
+      ${'<strong>'}  | ${[]}
+    `(
+      'open matches $content',
+      ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
+        assertMatches(content, boldEntry.open, expectedMatches);
+      }
+    );
 
     test.each`
       content            | expectedMatches
@@ -35,21 +38,27 @@ describe('HTML_EQUIV_MD_TAG_REGEX', () => {
       ${'</   b   >'}    | ${['</   b   >']}
       ${'</strong>'}     | ${[]}
       ${'<   /   b   >'} | ${[]}
-    `('close matches $content', ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
-      assertMatches(content, boldEntry.close, expectedMatches);
-    });
+    `(
+      'close matches $content',
+      ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
+        assertMatches(content, boldEntry.close, expectedMatches);
+      }
+    );
   });
 
   describe('ITALIC', () => {
     test.each`
-      content         | expectedMatches
-      ${'<i>'}        | ${['<i>']}
-      ${'<i   >'}     | ${['<i   >']}
-      ${'<   i   >'}  | ${['<   i   >']}
-      ${'<em>'}       | ${[]}
-    `('open matches $content', ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
-      assertMatches(content, italicEntry.open, expectedMatches);
-    });
+      content        | expectedMatches
+      ${'<i>'}       | ${['<i>']}
+      ${'<i   >'}    | ${['<i   >']}
+      ${'<   i   >'} | ${['<   i   >']}
+      ${'<em>'}      | ${[]}
+    `(
+      'open matches $content',
+      ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
+        assertMatches(content, italicEntry.open, expectedMatches);
+      }
+    );
 
     test.each`
       content            | expectedMatches
@@ -58,21 +67,27 @@ describe('HTML_EQUIV_MD_TAG_REGEX', () => {
       ${'</   i   >'}    | ${['</   i   >']}
       ${'</em>'}         | ${[]}
       ${'<   /   i   >'} | ${[]}
-    `('close matches $content', ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
-      assertMatches(content, italicEntry.close, expectedMatches);
-    });
+    `(
+      'close matches $content',
+      ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
+        assertMatches(content, italicEntry.close, expectedMatches);
+      }
+    );
   });
 
   describe('STRIKETHROUGH', () => {
     test.each`
-      content         | expectedMatches
-      ${'<s>'}        | ${['<s>']}
-      ${'<s   >'}     | ${['<s   >']}
-      ${'<   s   >'}  | ${['<   s   >']}
-      ${'<strike>'}   | ${[]}
-    `('open matches $content', ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
-      assertMatches(content, strikethroughEntry.open, expectedMatches);
-    });
+      content        | expectedMatches
+      ${'<s>'}       | ${['<s>']}
+      ${'<s   >'}    | ${['<s   >']}
+      ${'<   s   >'} | ${['<   s   >']}
+      ${'<strike>'}  | ${[]}
+    `(
+      'open matches $content',
+      ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
+        assertMatches(content, strikethroughEntry.open, expectedMatches);
+      }
+    );
 
     test.each`
       content            | expectedMatches
@@ -81,8 +96,11 @@ describe('HTML_EQUIV_MD_TAG_REGEX', () => {
       ${'</   s   >'}    | ${['</   s   >']}
       ${'</strike>'}     | ${[]}
       ${'<   /   s   >'} | ${[]}
-    `('close matches $content', ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
-      assertMatches(content, strikethroughEntry.close, expectedMatches);
-    });
+    `(
+      'close matches $content',
+      ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
+        assertMatches(content, strikethroughEntry.close, expectedMatches);
+      }
+    );
   });
 });

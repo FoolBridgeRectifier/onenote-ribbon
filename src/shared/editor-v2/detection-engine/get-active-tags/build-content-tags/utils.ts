@@ -18,57 +18,6 @@ export const calcLineEnd = (content: string, openTagLine: number) => {
 export const isSameTagPosition = (positionA: TagPosition, positionB: TagPosition): boolean =>
   positionA.start.line === positionB.start.line && positionA.start.ch === positionB.start.ch;
 
-/**
- * Pairs open and close records of each type into `TPairedMatch` objects.
- * Processes one type at a time in document order using a stack.
- * - Open and close records at the same position are invalid and both discarded.
- * - Orphaned closes (no preceding open) are discarded.
- * Only types that have both open and close records produce pairs.
- */
-export const matchOpenClosePairs = (
-  allMatches: TMatchRecord[],
-  tagType: TagType,
-  isHTML?: boolean
-) => {
-  let openTag = null;
-  const filteredMatches = [];
-
-  for (let i = 0; i < allMatches.length; i++) {
-    // True if this record belongs to the target type (and optional isHTML filter).
-    const isSameTag = !(
-      allMatches[i].type !== tagType ||
-      (isHTML !== undefined && allMatches[i].isHTML !== isHTML)
-    );
-
-    // A close is a duplicate if there is no open to pair with (orphaned),
-    // or if the close sits at the exact same position as the current open (invalid pair).
-    const isDuplicateClose =
-      allMatches[i].close && (!openTag || isSameTagPosition(openTag.open!, allMatches[i].close!));
-
-    // A second open while one is already tracked — same-type nesting is not supported.
-    const isDuplicateOpen = allMatches[i].open && openTag;
-
-    if (!isSameTag) {
-      // Not the target type — pass through unchanged.
-      filteredMatches.push(allMatches[i]);
-    } else if (isDuplicateClose || isDuplicateOpen) {
-      // Discard invalid or redundant records.
-      continue;
-    } else if (!openTag && allMatches[i].open) {
-      // Valid open with no existing open — start tracking the pair.
-      openTag = allMatches[i];
-      filteredMatches.push(allMatches[i]);
-    } else {
-      // Valid close with an open already tracked — openTag is non-null here
-      // (isDuplicateOpen=false + !openTag&&open=false together guarantee it).
-      openTag!.close = allMatches[i].close;
-      openTag = null;
-    }
-  }
-
-  return filteredMatches;
-};
-
 /** Returns true if position `a` comes strictly after position `b` in document order. */
 const isAfterPosition = (a: EditorPosition, b: EditorPosition): boolean =>
   a.line > b.line || (a.line === b.line && a.ch > b.ch);
@@ -94,6 +43,18 @@ export const filterTagsWithinRanges = (
     const position = (match.open ?? match.close)!.start;
     return !ranges.some((range) => isWithinRange(position, range));
   });
+
+/** Removes all matches whose position comes after the given tag's position. */
+export const invalidateTags = (allMatches: TMatchRecord[], tag: TMatchRecord): TMatchRecord[] => {
+  const tagPosition = (tag.open ?? tag.close)!.start;
+
+  return allMatches.filter((match) => {
+    const openIsAfter = match.open && isAfterPosition(match.open.start, tagPosition);
+    const closeIsAfter = match.close && isAfterPosition(match.close.start, tagPosition);
+
+    return !openIsAfter && !closeIsAfter;
+  });
+};
 
 // O(n) merge of two offset-sorted range arrays into one sorted array.
 export const mergeSortedRanges = (

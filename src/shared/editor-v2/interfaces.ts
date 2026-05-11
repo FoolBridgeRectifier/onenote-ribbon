@@ -79,6 +79,7 @@ export interface ISpanStyleTag {
 }
 
 export interface ILineStyleTag {
+  title?: string;
   type: ELineTagType;
   open: TagPosition;
   isHTML: false;
@@ -87,6 +88,7 @@ export interface ILineStyleTag {
 }
 
 export interface ISpecialTag {
+  title?: string;
   type: ESpecialTagType;
   open: TagPosition;
   close?: TagPosition;
