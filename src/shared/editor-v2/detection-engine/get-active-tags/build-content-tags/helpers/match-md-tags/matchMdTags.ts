@@ -53,5 +53,10 @@ export const matchMdTags = (content: string, allMatches: TMatchRecord[]): TMatch
     }
   }
 
+  // Flush any remaining unmatched opens that were never followed by a non-MD tag (end of document).
+  pendingCloses.forEach(
+    (openTag) => (openTag.close = calcLineEnd(content, openTag.open!.start.line))
+  );
+
   return result;
 };
