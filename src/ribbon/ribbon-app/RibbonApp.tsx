@@ -4,10 +4,7 @@ import { TabBar } from '../tab-bar/TabBar';
 import { HomeTabPanel } from '../../tabs/home/Home';
 import { InsertTabPanel } from '../../tabs/insert/Insert';
 import { useApp } from '../../shared/context/AppContext';
-import {
-  getActiveTags,
-  getTagsInSelection,
-} from '../../shared/editor-v2/detection-engine/DetectionEngine';
+import { getActiveTags } from '../../shared/editor-v2/detection-engine';
 
 import '../ribbon-app.css';
 
@@ -30,16 +27,10 @@ export function RibbonApp() {
       if (!editor) return;
 
       const sourceText = editor.getValue();
-      const tagContext = { tags: [], protectedRanges: [], content: sourceText };
-      const cursor = editor.getCursor();
-
-      getActiveTags(sourceText, cursor);
-
       const selectionFrom = editor.getCursor('from');
       const selectionTo = editor.getCursor('to');
-      if (selectionFrom.line === selectionTo.line) {
-        getTagsInSelection(tagContext, selectionFrom.ch, selectionTo.ch);
-      }
+
+      getActiveTags(sourceText, { start: selectionFrom, end: selectionTo });
     };
 
     const editorChangeRef = app.workspace.on('editor-change', handleChange);

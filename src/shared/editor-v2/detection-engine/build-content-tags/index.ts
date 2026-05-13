@@ -1,0 +1,1 @@
+export { buildContentTags } from './buildContentTags';
