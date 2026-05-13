@@ -40,7 +40,7 @@ export enum ESpecialTagType {
   LINE_CODE = 'LINE_CODE',
   HASHTAG = 'HASHTAG',
   MEETING_DETAILS = 'MEETING_DETAILS',
-  WIKILINK = 'WIKILINK ',
+  WIKILINK = 'WIKILINK',
   EMBED = 'EMBED',
   EXTERNAL_LINK = 'EXTERNAL_LINK',
   FOOTNOTE_REF = 'FOOTNOTE_REF',
@@ -84,7 +84,7 @@ export interface ILineStyleTag {
 }
 
 export interface ISpecialTag {
-  title?: string;
+  title?: string[];
   type: ESpecialTagType;
   open?: TagPosition;
   close?: TagPosition;
