@@ -27,7 +27,7 @@ describe('MD_TAG_REGEX', () => {
   describe('BOLD', () => {
     test.each`
       content       | expectedMatches
-      ${'**text**'} | ${['**']}
+      ${'**text**'} | ${['**', '**']}
       ${'*text*'}   | ${[]}
     `('open matches $content', ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
       assertMatches(content, boldEntry.open, expectedMatches);
@@ -37,8 +37,8 @@ describe('MD_TAG_REGEX', () => {
   describe('ITALIC', () => {
     test.each`
       content       | expectedMatches
-      ${'*text*'}   | ${['*']}
-      ${'**text**'} | ${['*']}
+      ${'*text*'}   | ${['*', '*']}
+      ${'**text**'} | ${['*', '*', '*', '*']}
     `('open matches $content', ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
       assertMatches(content, italicEntry.open, expectedMatches);
     });
@@ -47,7 +47,7 @@ describe('MD_TAG_REGEX', () => {
   describe('STRIKETHROUGH', () => {
     test.each`
       content       | expectedMatches
-      ${'~~text~~'} | ${['~~']}
+      ${'~~text~~'} | ${['~~', '~~']}
       ${'~text~'}   | ${[]}
     `('open matches $content', ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
       assertMatches(content, strikethroughEntry.open, expectedMatches);
@@ -57,7 +57,7 @@ describe('MD_TAG_REGEX', () => {
   describe('HIGHLIGHT', () => {
     test.each`
       content       | expectedMatches
-      ${'==text=='} | ${['==']}
+      ${'==text=='} | ${['==', '==']}
       ${'=text='}   | ${[]}
     `('open matches $content', ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
       assertMatches(content, highlightEntry.open, expectedMatches);

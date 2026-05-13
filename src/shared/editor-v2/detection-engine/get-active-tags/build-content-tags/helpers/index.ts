@@ -6,3 +6,5 @@ export { matchSpanTags } from './match-span-tags';
 export { matchHtmlTags } from './match-html-tags';
 export { matchMdTags } from './match-md-tags';
 export { matchFootnotes } from './match-footnotes';
+export { propagateCalloutTitles } from './propagate-callout-titles';
+export { convertMatchesToTags } from './convert-matches-to-tags';

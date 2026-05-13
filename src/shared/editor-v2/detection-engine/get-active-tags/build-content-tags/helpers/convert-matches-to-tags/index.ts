@@ -1,0 +1,1 @@
+export { convertMatchesToTags } from './convertMatchesToTags';

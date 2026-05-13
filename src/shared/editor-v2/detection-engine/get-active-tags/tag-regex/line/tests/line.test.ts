@@ -11,8 +11,8 @@ describe('LINE_TAG_REGEX', () => {
   const indentEntry = LINE_TAG_REGEX.find((entry) => entry.type === ELineTagType.INDENT)!;
 
   describe('shape', () => {
-    test('contains exactly 6 entries', () => {
-      expect(LINE_TAG_REGEX).toHaveLength(6);
+    test('contains exactly 7 entries', () => {
+      expect(LINE_TAG_REGEX).toHaveLength(7);
     });
   });
 
@@ -34,100 +34,193 @@ describe('LINE_TAG_REGEX', () => {
 
   describe('CALLOUT', () => {
     test.each`
-      content                                | expectedMatches                             | allMatches
-      ${'> [!note] Title'}                   | ${['> [!note] Title']}                      | ${false}
-      ${'>[!info] Title\n> continuation'}    | ${['>[!info] Title', '>']}                  | ${true}
-      ${'>[!info] Title\n>> [!warning]'}     | ${['>[!info] Title', '>> [!warning]']}      | ${true}
-      ${'>[!info] Title\n>> [!warning]\n>'}  | ${['>[!info] Title', '>> [!warning]', '>']} | ${true}
-      ${'> [!note] Title\n>> just a quote'}  | ${['> [!note] Title']}                      | ${false}
-      ${'> just a quote'}                    | ${[]}                                       | ${false}
-      ${'> [!note]Title'}                    | ${[]}                                       | ${false}
-      ${'>> [!warning]'}                     | ${[]}                                       | ${false}
-      ${'> \n[!note] Title'}                 | ${[]}                                       | ${false}
-    `('open matches $content', ({ content, expectedMatches, allMatches }: { content: string; expectedMatches: string[]; allMatches: boolean }) => {
-      assertMatches(content, calloutEntry.open, expectedMatches, allMatches);
+      content                                    | expectedMatches
+      ${'> [!note] Title'}                       | ${['> [!note]']}
+      ${'>[!info] Title\n> continuation'}        | ${['>[!info]', '>']}
+      ${'>[!info] Title\n>> [!warning]'}         | ${['>[!info]', '>> [!warning]']}
+      ${'>[!info] Title\n>> [!warning]\n>'}      | ${['>[!info]', '>> [!warning]', '>']}
+      ${'>[!info] Title\n> body\n>> [!warning]'} | ${['>[!info]', '>', '>> [!warning]']}
+      ${'> [!note] Title\n>> just a quote'}      | ${['> [!note]']}
+      ${'> just a quote'}                        | ${[]}
+      ${'> q1\n> q2'}                            | ${[]}
+      ${'> [!note]Title'}                        | ${[]}
+      ${'>> [!warning]'}                         | ${[]}
+      ${'> \n[!note] Title'}                     | ${[]}
+    `(
+      'open matches $content',
+      ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
+        assertMatches(content, calloutEntry.open, expectedMatches);
+      }
+    );
+
+    describe('titleRegex', () => {
+      test.each`
+        content                                   | expectedTitle
+        ${'> [!note] My Title'}                   | ${'My Title'}
+        ${'> [!note] <b>Title</b>'}               | ${'Title'}
+        ${'> [!note] <span>Title</span>'}         | ${'Title'}
+        ${'> [!note] ==Title=='}                  | ${'Title'}
+        ${'> [!note] **Title**'}                  | ${'Title'}
+        ${'> [!note] *Title*'}                    | ${'Title'}
+        ${'> [!note] ~~Title~~'}                  | ${'Title'}
+        ${'> [!note] My Title\n>'}                | ${'My Title'}
+        ${'>> [!tip] Nested'}                     | ${'Nested'}
+        ${'> [!note] My Title\n>> [!tip] Nested'} | ${'Nested'}
+        ${'>> [!tip] Nested\n>>\n>>'}             | ${'Nested'}
+        ${'> [!warning]'}                         | ${undefined}
+      `(
+        '$content → title=$expectedTitle',
+        ({ content, expectedTitle }: { content: string; expectedTitle: string | undefined }) => {
+          expect(content.match(calloutEntry.titleRegex!)?.[1]?.trim() || undefined).toBe(
+            expectedTitle
+          );
+        }
+      );
     });
   });
 
   describe('CHECKBOX', () => {
     test.each`
-      content               | expectedMatches  | allMatches
-      ${'- [ ] item'}       | ${['- [ ] ']}    | ${false}
-      ${'- [x] item'}       | ${['- [x] ']}    | ${false}
-      ${'- [X] item'}       | ${['- [X] ']}    | ${false}
-      ${'text\n- [x] item'} | ${['- [x] ']}    | ${true}
-      ${'- item'}           | ${[]}            | ${false}
-      ${'- [] item'}        | ${[]}            | ${false}
-      ${'-[x] item'}        | ${[]}            | ${false}
-      ${'- [^] item'}       | ${[]}            | ${false}
-    `('open matches $content', ({ content, expectedMatches, allMatches }: { content: string; expectedMatches: string[]; allMatches: boolean }) => {
-      assertMatches(content, checkboxEntry.open, expectedMatches, allMatches);
+      content               | expectedMatches
+      ${'- [ ] item'}       | ${['- [ ] ']}
+      ${'- [x] item'}       | ${['- [x] ']}
+      ${'- [X] item'}       | ${['- [X] ']}
+      ${'text\n- [x] item'} | ${['- [x] ']}
+      ${'- item'}           | ${[]}
+      ${'- [] item'}        | ${[]}
+      ${'-[x] item'}        | ${[]}
+      ${'- [^] item'}       | ${[]}
+    `(
+      'open matches $content',
+      ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
+        assertMatches(content, checkboxEntry.open, expectedMatches);
+      }
+    );
+
+    describe('titleRegex', () => {
+      test.each`
+        content                      | expectedTitle
+        ${'- [x] Task text'}         | ${'Task text'}
+        ${'- [ ] Buy milk'}          | ${'Buy milk'}
+        ${'- [ ] Buy milk:'}         | ${'Buy milk'}
+        ${'- [x] <b>Task text</b>'}  | ${'Task text'}
+        ${'- [x] <span>Task</span>'} | ${'Task'}
+        ${'- [x] ==Task text=='}     | ${'Task text'}
+        ${'- [x] **Task text**'}     | ${'Task text'}
+        ${'- [x] *Task text*'}       | ${'Task text'}
+        ${'- [x] ~~Task text~~'}     | ${'Task text'}
+        ${'- [ ] '}                  | ${undefined}
+      `(
+        '$content → title=$expectedTitle',
+        ({ content, expectedTitle }: { content: string; expectedTitle: string | undefined }) => {
+          expect(content.match(checkboxEntry.titleRegex!)?.[1]?.trim() || undefined).toBe(
+            expectedTitle
+          );
+        }
+      );
     });
   });
 
   describe('LIST', () => {
     test.each`
-      content          | expectedMatches       | allMatches
-      ${'- item'}      | ${['- ']}             | ${false}
-      ${'- '}          | ${['- ']}             | ${false}
-      ${'- \n- '}      | ${['- ', '- ']}       | ${true}
-      ${'- \n\t\t- '}  | ${['- ', '- ']}       | ${true}
-      ${'- [ ] item'}  | ${[]}                 | ${false}
-      ${'- [x] item'}  | ${[]}                 | ${false}
-    `('open matches $content', ({ content, expectedMatches, allMatches }: { content: string; expectedMatches: string[]; allMatches: boolean }) => {
-      assertMatches(content, listEntry.open, expectedMatches, allMatches);
-    });
+      content         | expectedMatches
+      ${'- item'}     | ${['- ']}
+      ${'- '}         | ${['- ']}
+      ${'- \n- '}     | ${['- ', '- ']}
+      ${'- \n\t\t- '} | ${['- ', '- ']}
+      ${'- [ ] item'} | ${[]}
+      ${'- [x] item'} | ${[]}
+    `(
+      'open matches $content',
+      ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
+        assertMatches(content, listEntry.open, expectedMatches);
+      }
+    );
   });
 
   describe('HEADING', () => {
     test.each`
-      content                    | expectedMatches  | allMatches
-      ${'# h1'}                  | ${['# ']}        | ${false}
-      ${'## h2'}                 | ${['## ']}       | ${false}
-      ${'###### h6'}             | ${['###### ']}   | ${false}
-      ${'text\n## h2'}           | ${['## ']}       | ${true}
-      ${'####### not a heading'} | ${[]}            | ${false}
-      ${'#nospace'}              | ${[]}            | ${false}
-    `('open matches $content', ({ content, expectedMatches, allMatches }: { content: string; expectedMatches: string[]; allMatches: boolean }) => {
-      assertMatches(content, headingEntry.open, expectedMatches, allMatches);
+      content                    | expectedMatches
+      ${'# h1'}                  | ${['# ']}
+      ${'## h2'}                 | ${['## ']}
+      ${'###### h6'}             | ${['###### ']}
+      ${'text\n## h2'}           | ${['## ']}
+      ${'####### not a heading'} | ${[]}
+      ${'#nospace'}              | ${[]}
+    `(
+      'open matches $content',
+      ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
+        assertMatches(content, headingEntry.open, expectedMatches);
+      }
+    );
+
+    describe('titleRegex', () => {
+      test.each`
+        content                     | expectedTitle
+        ${'# Heading One'}          | ${'Heading One'}
+        ${'## My Section'}          | ${'My Section'}
+        ${'###### Deep'}            | ${'Deep'}
+        ${'# <b>Heading</b>'}       | ${'Heading'}
+        ${'# <span>Heading</span>'} | ${'Heading'}
+        ${'# ==Heading=='}          | ${'Heading'}
+        ${'# **Heading**'}          | ${'Heading'}
+        ${'# *Heading*'}            | ${'Heading'}
+        ${'# ~~Heading~~'}          | ${'Heading'}
+        ${'# '}                     | ${undefined}
+      `(
+        '$content → title=$expectedTitle',
+        ({ content, expectedTitle }: { content: string; expectedTitle: string | undefined }) => {
+          expect(content.match(headingEntry.titleRegex!)?.[1]?.trim() || undefined).toBe(
+            expectedTitle
+          );
+        }
+      );
     });
   });
 
   describe('QUOTE', () => {
     test.each`
-      content                                  | expectedMatches    | allMatches
-      ${'>quote'}                              | ${['>']}           | ${false}
-      ${'>> nested quote'}                     | ${['>>']}          | ${false}
-      ${'> [!note]\n>> nested quote'}          | ${['>>']}          | ${false}
-      ${'>> [!tip] Nested callout'}            | ${['>>']}          | ${false}
-      ${'> [!note]\n>> [!tip] Nested'}         | ${['>>']}          | ${false}
-      ${'> q1\n> q2'}                          | ${['>', '>']}      | ${true}
-      ${'>> q1\n>>> q2'}                       | ${['>>', '>>>']}   | ${true}
-      ${'> [!note]\n> nested quote'}           | ${[]}              | ${false}
-      ${'>  [!note] two spaces'}               | ${[]}              | ${false}
-      ${'> [!note]'}                           | ${[]}              | ${false}
-    `('open matches $content', ({ content, expectedMatches, allMatches }: { content: string; expectedMatches: string[]; allMatches: boolean }) => {
-      assertMatches(content, quoteEntry.open, expectedMatches, allMatches);
-    });
+      content                                             | expectedMatches
+      ${'>quote'}                                         | ${['>']}
+      ${'>> nested quote'}                                | ${['>>']}
+      ${'> [!note]\n> nested quote >> wrong quote'}       | ${[]}
+      ${'> [!note]\n>> nested quote'}                     | ${['>>']}
+      ${'> [!note]\n>> [!warning]\n>>'}                   | ${[]}
+      ${'\nonly text / empty \n>> [!tip] Nested callout'} | ${['>>']}
+      ${'> [!note]\n>> [!tip] Nested'}                    | ${[]}
+      ${'> q1\n> q2'}                                     | ${['>', '>']}
+      ${'>> q1\n>>> q2'}                                  | ${['>>', '>>>']}
+      ${'> [!note]\n> nested quote'}                      | ${[]}
+      ${'>  [!note] two spaces'}                          | ${[]}
+      ${'> [!note]'}                                      | ${[]}
+    `(
+      'open matches $content',
+      ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
+        assertMatches(content, quoteEntry.open, expectedMatches);
+      }
+    );
   });
 
   describe('INDENT', () => {
     test.each`
-      content                                              | expectedMatches    | allMatches
-      ${'content\n\tindented'}                             | ${['\t']}          | ${false}
-      ${'content\n\tindented\t'}                           | ${['\t']}          | ${false}
-      ${'content\n\tindented\n\tgg'}                       | ${['\t', '\t']}    | ${true}
-      ${'content\n    indented'}                           | ${['    ']}        | ${false}
-      ${'----\n\tindented'}                                | ${['\t']}          | ${false}
-      ${'content\n---\n\tindented'}                        | ${['\t']}          | ${false}
-      ${'\tindented at start'}                             | ${[]}              | ${false}
-      ${'\n\n\tindented after blank'}                      | ${[]}              | ${false}
-      ${'---\n\tindented'}                                 | ${[]}              | ${false}
-      ${'---\n---\n\tindented'}                            | ${[]}              | ${false}
-      ${'---\n-----\n\tindented'}                          | ${[]}              | ${false}
-      ${'---\nkey: value\nkey: value\n-----\n\tindented'}  | ${[]}              | ${false}
-    `('open matches $content', ({ content, expectedMatches, allMatches }: { content: string; expectedMatches: string[]; allMatches: boolean }) => {
-      assertMatches(content, indentEntry.open, expectedMatches, allMatches);
-    });
+      content                                             | expectedMatches
+      ${'content\n\tindented'}                            | ${['\t']}
+      ${'content\n\tindented\t'}                          | ${['\t']}
+      ${'content\n\tindented\n\tgg'}                      | ${['\t', '\t']}
+      ${'content\n    indented'}                          | ${['    ']}
+      ${'----\n\tindented'}                               | ${['\t']}
+      ${'content\n---\n\tindented'}                       | ${['\t']}
+      ${'\tindented at start'}                            | ${[]}
+      ${'\n\n\tindented after blank'}                     | ${[]}
+      ${'---\n\tindented'}                                | ${[]}
+      ${'---\n---\n\tindented'}                           | ${[]}
+      ${'---\n-----\n\tindented'}                         | ${[]}
+      ${'---\nkey: value\nkey: value\n-----\n\tindented'} | ${[]}
+    `(
+      'open matches $content',
+      ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
+        assertMatches(content, indentEntry.open, expectedMatches);
+      }
+    );
   });
 });

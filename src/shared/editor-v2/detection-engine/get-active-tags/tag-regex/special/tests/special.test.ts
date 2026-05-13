@@ -10,9 +10,7 @@ describe('SPECIAL_TAG_REGEX', () => {
   const inlineCodeEntry = SPECIAL_TAG_REGEX.find(
     (entry) => entry.type === ESpecialTagType.INLINE_CODE
   )!;
-  const inlineTodoEntry = SPECIAL_TAG_REGEX.find(
-    (entry) => entry.type === ESpecialTagType.INLINE_TODO
-  )!;
+  const hashtagEntry = SPECIAL_TAG_REGEX.find((entry) => entry.type === ESpecialTagType.HASHTAG)!;
   const meetingDetailsEntry = SPECIAL_TAG_REGEX.find(
     (entry) => entry.type === ESpecialTagType.MEETING_DETAILS
   )!;
@@ -69,30 +67,27 @@ describe('SPECIAL_TAG_REGEX', () => {
 
   describe('TAB_INDENTED_CODE', () => {
     test.each`
-      content                             | expectedMatches | allMatches
-      ${'\tcode at start'}                | ${['\t']}       | ${false}
-      ${'\n\n\tcode after blank'}         | ${['\t']}       | ${false}
-      ${'\tcode \n\tat start'}            | ${['\t']}       | ${true}
-      ${'\n\n\tcode \n\tafter blank'}     | ${['\t']}       | ${true}
-      ${'\n\n\tcode \tafter blank'}       | ${['\t']}       | ${true}
-      ${'\n\n\tcode \ngg\n\tafter blank'} | ${['\t']}       | ${true}
-      ${'    code at start'}              | ${['    ']}     | ${false}
-      ${'---\n\tcode'}                    | ${['\t']}       | ${false}
-      ${'---\n---\n\tcode'}               | ${['\t']}       | ${false}
-      ${'---\nkey: value\n-----\n\tcode'} | ${['\t']}       | ${false}
-      ${'----\n\tcode'}                   | ${[]}           | ${false}
+      content                             | expectedMatches
+      ${'\tcode at start'}                | ${['\t']}
+      ${'\n\n\tcode after blank'}         | ${['\t']}
+      ${'\tcode \n\tat start'}            | ${['\t']}
+      ${'\n\n\tcode \n\tafter blank'}     | ${['\t']}
+      ${'\n\n\tcode \tafter blank'}       | ${['\t']}
+      ${'\n\n\tcode \ngg\n\tafter blank'} | ${['\t']}
+      ${'    code at start'}              | ${['    ']}
+      ${'---\n\tcode'}                    | ${['\t']}
+      ${'---\n---\n\tcode'}               | ${['\t']}
+      ${'---\nkey: value\n-----\n\tcode'} | ${['\t']}
+      ${'----\n\tcode'}                   | ${[]}
+      ${'\t- list item'}                  | ${[]}
+      ${'\n\n\t- list item'}              | ${[]}
+      ${'\t\t- double-indented list'}     | ${[]}
+      ${'\n\n\t\t- double-indented list'} | ${[]}
+      ${'    - list item'}                | ${[]}
     `(
       'open matches $content',
-      ({
-        content,
-        expectedMatches,
-        allMatches,
-      }: {
-        content: string;
-        expectedMatches: string[];
-        allMatches: boolean;
-      }) => {
-        assertMatches(content, tabCodeEntry.open, expectedMatches, allMatches);
+      ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
+        assertMatches(content, tabCodeEntry.open, expectedMatches);
       }
     );
 
@@ -109,7 +104,7 @@ describe('SPECIAL_TAG_REGEX', () => {
     `(
       'open matches $content',
       ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
-        assertMatches(content, inlineCodeEntry.open, expectedMatches, true);
+        assertMatches(content, inlineCodeEntry.open, expectedMatches);
       }
     );
 
@@ -120,26 +115,56 @@ describe('SPECIAL_TAG_REGEX', () => {
     `(
       'close matches $content',
       ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
-        assertMatches(content, inlineCodeEntry.close!, expectedMatches, true);
+        assertMatches(content, inlineCodeEntry.close!, expectedMatches);
       }
     );
   });
 
-  describe('INLINE_TODO', () => {
+  describe('HASHTAG', () => {
     test.each`
-      content              | expectedMatches
-      ${'#todo'}           | ${['#todo']}
-      ${'text #todo more'} | ${['#todo']}
-      ${'#todos'}          | ${[]}
+      content                  | expectedMatches
+      ${'#letters'}            | ${['#letters']}
+      ${'#123digits'}          | ${['#123digits']}
+      ${'#with-hyphen'}        | ${['#with-hyphen']}
+      ${'#with_underscore'}    | ${['#with_underscore']}
+      ${'#path/segment'}       | ${['#path/segment']}
+      ${'#ss-asd10214-_/path'} | ${['#ss-asd10214-_/path']}
+      ${'text #tag more'}      | ${['#tag']}
+      ${'#tag with space'}     | ${['#tag']}
+      ${'mid#word'}            | ${[]}
+      ${'#tag!stop'}           | ${['#tag']}
+      ${'#tag.stop'}           | ${['#tag']}
+      ${'#tag,stop'}           | ${['#tag']}
+      ${'#tag:stop'}           | ${['#tag']}
+      ${'#tag@stop'}           | ${['#tag']}
+      ${'#tag?stop'}           | ${['#tag']}
+      ${'#tag(stop'}           | ${['#tag']}
+      ${'#tag)stop'}           | ${['#tag']}
     `(
       'open matches $content',
       ({ content, expectedMatches }: { content: string; expectedMatches: string[] }) => {
-        assertMatches(content, inlineTodoEntry.open, expectedMatches);
+        assertMatches(content, hashtagEntry.open, expectedMatches);
       }
     );
 
     test('close is null (atomic token)', () => {
-      expect(inlineTodoEntry.close).toBeFalsy();
+      expect(hashtagEntry.close).toBeFalsy();
+    });
+
+    describe('titleRegex', () => {
+      test.each`
+        content                  | expectedTitle
+        ${'#todo'}               | ${'todo'}
+        ${'#ss-asd10214-_/path'} | ${'ss-asd10214-_/path'}
+        ${'#with-hyphen'}        | ${'with-hyphen'}
+        ${'#with_underscore'}    | ${'with_underscore'}
+        ${'#path/segment'}       | ${'path/segment'}
+      `(
+        '$content → title=$expectedTitle',
+        ({ content, expectedTitle }: { content: string; expectedTitle: string }) => {
+          expect(content.match(hashtagEntry.titleRegex!)?.[1]).toBe(expectedTitle);
+        }
+      );
     });
   });
 
@@ -206,6 +231,7 @@ describe('SPECIAL_TAG_REGEX', () => {
       ${'- [ ] item'}         | ${[]}                | ${null}
       ${'- [[Page Name]]'}    | ${[]}                | ${null}
       ${'-[[Page Name]]'}     | ${[]}                | ${null}
+      ${'![[embed.png]]'}     | ${[]}                | ${null}
     `(
       'open matches $content',
       ({
@@ -226,6 +252,20 @@ describe('SPECIAL_TAG_REGEX', () => {
 
     test('close is null (atomic token)', () => {
       expect(wikilinkEntry.close).toBeFalsy();
+    });
+
+    describe('titleRegex', () => {
+      test.each`
+        content                    | expectedTitle
+        ${'[[Page Name]]'}         | ${'Page Name'}
+        ${'[[folder/page]]'}       | ${'folder/page'}
+        ${'[[folder/page|alias]]'} | ${'folder/page'}
+      `(
+        '$content → title=$expectedTitle',
+        ({ content, expectedTitle }: { content: string; expectedTitle: string }) => {
+          expect(content.match(wikilinkEntry.titleRegex!)?.[1]).toBe(expectedTitle);
+        }
+      );
     });
   });
 
@@ -304,5 +344,20 @@ describe('SPECIAL_TAG_REGEX', () => {
         }
       }
     );
+
+    describe('titleRegex', () => {
+      test.each`
+        content            | expectedTitle
+        ${'[^footnote]'}   | ${'footnote'}
+        ${'[^multi-word]'} | ${'multi-word'}
+        ${'[^abc123]'}     | ${'abc123'}
+        ${'[^abc123]:'}    | ${'abc123'}
+      `(
+        '$content → title=$expectedTitle',
+        ({ content, expectedTitle }: { content: string; expectedTitle: string }) => {
+          expect(content.match(footnoteRefEntry.titleRegex!)?.[1]).toBe(expectedTitle);
+        }
+      );
+    });
   });
 });

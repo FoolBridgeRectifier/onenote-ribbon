@@ -1,22 +1,12 @@
-/** Extracts matches of `pattern` from `content`. Collects all when `allMatches` is true, otherwise only the first. */
-const extractMatches = (content: string, pattern: RegExp, allMatches: boolean): string[] => {
-  if (allMatches) {
-    const globalFlags = pattern.flags.includes('g') ? pattern.flags : `${pattern.flags}g`;
-    const globalPattern = new RegExp(pattern.source, globalFlags);
-    return Array.from(content.matchAll(globalPattern), (match) => match[0]);
-  }
-  const firstMatch = content.match(pattern)?.[0] ?? null;
-  return firstMatch === null ? [] : [firstMatch];
-};
-
-/** Asserts that applying `pattern` to `content` produces exactly `expectedMatches`. */
+/** Asserts that applying `pattern` to `content` produces exactly `expectedMatches` (all occurrences). */
 export const assertMatches = (
   content: string,
   pattern: RegExp,
-  expectedMatches: string[],
-  allMatches = false
+  expectedMatches: string[]
 ): void => {
-  const actualMatches = extractMatches(content, pattern, allMatches);
+  const globalFlags = pattern.flags.includes('g') ? pattern.flags : `${pattern.flags}g`;
+  const globalPattern = new RegExp(pattern.source, globalFlags);
+  const actualMatches = Array.from(content.matchAll(globalPattern), (match) => match[0]);
   expect(actualMatches).toEqual(expectedMatches);
 };
 

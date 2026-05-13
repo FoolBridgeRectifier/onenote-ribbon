@@ -27,6 +27,8 @@ export const matchFootnotes = (content: string, allMatches: TMatchRecord[]): TMa
       continue;
     }
 
+    match.title = [label];
+
     if (match.open) {
       // Only track the first open per label — duplicates are discarded.
       if (!footnoteOpens.has(label)) {

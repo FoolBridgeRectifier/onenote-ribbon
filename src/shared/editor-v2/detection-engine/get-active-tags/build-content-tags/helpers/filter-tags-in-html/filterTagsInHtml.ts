@@ -1,4 +1,5 @@
 import type { EditorPosition } from 'obsidian';
+import { EMdStyleTagType, ESpecialTagType } from '../../../../../interfaces';
 import type { TagPosition } from '../../../../../interfaces';
 import type { TMatchRecord } from '../../../find-all-matches/interfaces';
 import { filterTagsWithinRanges } from '../../utils';
@@ -7,10 +8,7 @@ import { filterTagsWithinRanges } from '../../utils';
  * Removes markdown style tag records that fall inside an HTML tag block.
  * HTML tags are tracked by depth so nested tags are handled correctly.
  */
-export const filterTagsInHtml = (
-  _content: string,
-  allMatches: TMatchRecord[]
-): TMatchRecord[] => {
+export const filterTagsInHtml = (_content: string, allMatches: TMatchRecord[]): TMatchRecord[] => {
   const htmlRanges: TagPosition[] = [];
   let htmlDepth = 0;
   let rangeStart: EditorPosition | null = null;
@@ -33,5 +31,11 @@ export const filterTagsInHtml = (
     }
   }
 
-  return filterTagsWithinRanges(allMatches, htmlRanges, undefined, false);
+  // Tag types that should be suppressed when they fall inside an HTML tag's attribute or body.
+  return filterTagsWithinRanges(
+    allMatches,
+    htmlRanges,
+    [...Object.values(EMdStyleTagType), ESpecialTagType.HASHTAG],
+    false
+  );
 };

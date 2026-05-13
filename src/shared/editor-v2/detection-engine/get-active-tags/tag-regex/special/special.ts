@@ -30,10 +30,15 @@ export const SPECIAL_TAG_REGEX = [
   // causing false LINE_CODE detections inside BLOCK_CODE spans.
   // Subsequent lines of a tab-indented block are identified by the block tracker, not here.
   // Matches only the leading tab/space prefix — body text is not captured.
+  // `(?![\t ]*-[ \t])` prevents LINE_CODE from firing when any tabs/spaces after the matched
+  // prefix are immediately followed by a list marker (`- `). The `[\t ]*` handles backtracking:
+  // for `\t\t- item`, greedy `\t+` tries `\t\t`, fails, backtracks to `\t`; without `[\t ]*`
+  // that single `\t` would pass since the next char is `\t` not `-`. With `[\t ]*` the lookahead
+  // skips over the remaining `\t` and still sees `-`, so the match correctly fails.
   {
     type: ESpecialTagType.LINE_CODE,
     isHTML: false,
-    open: /(?:^|(?<=\n\n)|(?<=^---\n)|(?<=^---\n[\s\S]*-{3,}\n))(?:\t+|(?:[ ]{4})+)/g,
+    open: /(?:^|(?<=\n\n)|(?<=^---\n)|(?<=^---\n[\s\S]*-{3,}\n))(?:\t+|(?:[ ]{4})+)(?![\t ]*-[ \t])/g,
     close: undefined,
   },
   // Inline code: opens with `` ` `` and closes with matching `` ` ``.
@@ -45,12 +50,14 @@ export const SPECIAL_TAG_REGEX = [
     open: /(?<!`)`(?!`)/g,
     close: /(?<!`)`(?!`)/g,
   },
-  // Inline #todo token — single occurrence, no close delimiter.
+  // Inline hashtag token (#word) — single occurrence, no close delimiter.
   {
-    type: ESpecialTagType.INLINE_TODO,
+    type: ESpecialTagType.HASHTAG,
     isHTML: false,
-    open: /(?:^|(?<=\s))#todo\b/g,
+    open: /(?:^|(?<=\s))#[\w\-/]+/g,
     close: undefined,
+    // Captures the tag name after `#`.
+    titleRegex: /^#([\w\-/]+)/,
   },
   // Meeting details block: atomic — open matches the full block from opening `---` through closing `---`.
   // Body lines must be `\w+: value` pairs separated by newlines.
@@ -73,12 +80,16 @@ export const SPECIAL_TAG_REGEX = [
   // `(?<!^[ \t]*-[ \t]*)` blocks only when `[[` is preceded by a line-start list/checkbox
   // dash (e.g. `- [[link]]`, `\t- [[link]]`). Word-embedded hyphens (e.g. `not-[[link]]`)
   // are NOT excluded because `^[ \t]*` only matches spaces/tabs from line start, not word chars.
+  // `(?<!!)` prevents matching the inner `[[...]]` of an embed `![[...]]` which is already
+  // captured by the EMBED entry above.
   // Requires `m` flag so `^` anchors to the start of each line in multi-line content.
   {
     type: ESpecialTagType.WIKILINK,
     isHTML: false,
-    open: /(?<!^[ \t]*-[ \t]*)\[\[([^\]]+)\]\]/gm,
+    open: /(?<!^[ \t]*-[ \t]*)(?<!!)\[\[([^\]]+)\]\]/gm,
     close: undefined,
+    // Captures the page path (stops before `|` alias separator).
+    titleRegex: /^\[\[([^\]|]+)/,
   },
   // External URL: markdown link `[text](url)`, protocol URLs (https?://), www., or bare domains with common TLDs.
   {
@@ -97,5 +108,7 @@ export const SPECIAL_TAG_REGEX = [
     isHTML: false,
     open: /\[\^([^\]]+)\](?!:)|(?<=[^\n])\[\^([^\]]+)\]:/g,
     close: /^\[\^([^\]]+)\]:/gm,
+    // Captures the footnote label from `[^label]`.
+    titleRegex: /^\[\^([^\]]+)\]/,
   },
 ];

@@ -17,7 +17,8 @@ export const TASK_PREFIX_PATTERN = /^\s*-\s+\[.\]\s+([^:\s][^:]*:)/;
  * Captures a callout header line. Group 1 = the `> ... [!type]` opening segment,
  * group 2 = the callout type (lowercased by caller), group 3 = optional title.
  */
-export const CALLOUT_HEADER_WITH_TITLE_PATTERN = /^((?:>\s*)+\[!([^\]]+)\])(?:\s+(.+))?$/;
+// Trailing `\s*` before `$` allows lines with no title but trailing whitespace (e.g. `> [!warning]\t`).
+export const CALLOUT_HEADER_WITH_TITLE_PATTERN = /^((?:>\s*)+\[!([^\]]+)\])(?:\s+(.+))?\s*$/;
 
 /** Matches the leading `> > >` blockquote segments at the start of a line. */
 export const LEADING_BLOCKQUOTE_SEGMENTS_PATTERN = /^(?:>\s*)+/;

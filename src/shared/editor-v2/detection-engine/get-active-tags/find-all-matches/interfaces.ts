@@ -1,3 +1,9 @@
 import type { TTagType, TagPosition } from '../../../interfaces';
 
-export type TMatchRecord = { type: TTagType; isHTML: boolean; open?: TagPosition; close?: TagPosition };
+export type TMatchRecord = {
+  title?: string[];
+  type: TTagType;
+  isHTML: boolean;
+  open?: TagPosition;
+  close?: TagPosition;
+};

@@ -38,7 +38,7 @@ export enum ESpecialTagType {
   BLOCK_CODE = 'BLOCK_CODE',
   INLINE_CODE = 'INLINE_CODE',
   LINE_CODE = 'LINE_CODE',
-  INLINE_TODO = 'INLINE_TODO',
+  HASHTAG = 'HASHTAG',
   MEETING_DETAILS = 'MEETING_DETAILS',
   WIKILINK = 'WIKILINK ',
   EMBED = 'EMBED',
@@ -56,7 +56,6 @@ export interface IMdStyleTag {
   open: TagPosition;
   close: TagPosition;
   isHTML?: boolean;
-  isSpan: false;
   isProtected: false;
 }
 
@@ -65,7 +64,6 @@ export interface IHtmlStyleTag {
   open: TagPosition;
   close: TagPosition;
   isHTML: true;
-  isSpan: false;
   isProtected: false;
 }
 
@@ -74,26 +72,23 @@ export interface ISpanStyleTag {
   open: TagPosition;
   close: TagPosition;
   isHTML: true;
-  isSpan: true;
   isProtected: false;
 }
 
 export interface ILineStyleTag {
-  title?: string;
+  title?: string[];
   type: ELineTagType;
   open: TagPosition;
   isHTML: false;
-  isSpan: false;
   isProtected: true;
 }
 
 export interface ISpecialTag {
   title?: string;
   type: ESpecialTagType;
-  open: TagPosition;
+  open?: TagPosition;
   close?: TagPosition;
   isHTML: false;
-  isSpan: false;
   isProtected: true;
 }
 

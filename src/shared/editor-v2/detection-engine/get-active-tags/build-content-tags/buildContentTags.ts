@@ -11,6 +11,8 @@ import {
   matchHtmlTags,
   matchMdTags,
   matchFootnotes,
+  propagateCalloutTitles,
+  convertMatchesToTags,
 } from './helpers';
 
 /** Finds all tags in `content`, applies each filter in order, and returns the result. */
@@ -26,6 +28,7 @@ export const buildContentTags = (content: string) => {
     matchHtmlTags,
     matchMdTags,
     matchFootnotes,
+    propagateCalloutTitles,
   ];
 
   const tags = filters.reduce<TMatchRecord[]>(
@@ -38,11 +41,20 @@ export const buildContentTags = (content: string) => {
     tags.map((tag) => ({
       type: tag.type,
       open: tag.open,
-      openText: tag.open && (({ offset, length }) => content.slice(offset, offset + length))(tagPositionToRange(tag.open, content)),
+      title: tag.title,
+      openText:
+        tag.open &&
+        (({ offset, length }) => content.slice(offset, offset + length))(
+          tagPositionToRange(tag.open, content)
+        ),
       close: tag.close,
-      closeText: tag.close && (({ offset, length }) => content.slice(offset, offset + length))(tagPositionToRange(tag.close, content)),
+      closeText:
+        tag.close &&
+        (({ offset, length }) => content.slice(offset, offset + length))(
+          tagPositionToRange(tag.close, content)
+        ),
     }))
   );
 
-  return tags;
+  return convertMatchesToTags(content, tags);
 };

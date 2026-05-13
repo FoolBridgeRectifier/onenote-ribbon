@@ -15,7 +15,6 @@ export function detectMeetingTag(lines: string[]): ISpecialTag | null {
           end: { line: closeLineNumber, ch: line.trim().length },
         },
         isHTML: false,
-        isSpan: false,
         isProtected: true,
       };
     }

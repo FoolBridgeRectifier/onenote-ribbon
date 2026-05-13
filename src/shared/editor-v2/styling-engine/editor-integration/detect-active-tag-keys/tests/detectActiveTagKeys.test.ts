@@ -191,6 +191,16 @@ describe('detectActiveTagKeys — title-based callout detection', () => {
     expect(result.has('note')).toBe(true);
   });
 
+  it('falls back to callout type when header has trailing whitespace but no title', () => {
+    const editor = new MockEditor();
+    editor.setValue('> [!warning]\t\n> Body');
+    editor.setCursor({ line: 1, ch: 0 });
+
+    const result = detectActiveTagKeys(editor as any);
+
+    expect(result.has('warning')).toBe(true);
+  });
+
   it('preserves the exact casing of the title text', () => {
     const editor = new MockEditor();
     editor.setValue('> [!warning] Password\n> Keep safe');
