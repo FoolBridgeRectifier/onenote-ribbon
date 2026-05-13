@@ -127,8 +127,8 @@ describe('SPAN_TAG_REGEX', () => {
   });
 
   describe('GENERIC', () => {
-    test('GENERIC entry exists', () => {
-      expect(genericEntry).toBeDefined();
+    test('GENERIC entry has correct type', () => {
+      expect(genericEntry.type).toBe(ESpanStyleTagType.GENERIC);
     });
 
     test.each`

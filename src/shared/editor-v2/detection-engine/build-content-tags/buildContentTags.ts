@@ -1,7 +1,7 @@
 import type { TMatchRecord } from './interfaces';
 import type { TMatchFilter } from './interfaces';
 import { findAllMatches } from './find-all-matches/findAllMatches';
-import { tagPositionToRange } from '../get-active-tags/utils';
+import { tagPositionToRange } from '../utils';
 import {
   filterInvalidCodeMatches,
   filterTagsInCodeBlocks,

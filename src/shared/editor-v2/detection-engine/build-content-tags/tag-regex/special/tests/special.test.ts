@@ -91,8 +91,8 @@ describe('SPECIAL_TAG_REGEX', () => {
       }
     );
 
-    test('close is null (atomic token)', () => {
-      expect(tabCodeEntry.close).toBeFalsy();
+    test('close is undefined (atomic token)', () => {
+      expect(tabCodeEntry.close).toBeUndefined();
     });
   });
 
@@ -147,8 +147,8 @@ describe('SPECIAL_TAG_REGEX', () => {
       }
     );
 
-    test('close is null (atomic token)', () => {
-      expect(hashtagEntry.close).toBeFalsy();
+    test('close is undefined (atomic token)', () => {
+      expect(hashtagEntry.close).toBeUndefined();
     });
 
     describe('titleRegex', () => {
@@ -183,8 +183,8 @@ describe('SPECIAL_TAG_REGEX', () => {
       }
     );
 
-    test('close is null (atomic token)', () => {
-      expect(meetingDetailsEntry.close).toBeFalsy();
+    test('close is undefined (atomic token)', () => {
+      expect(meetingDetailsEntry.close).toBeUndefined();
     });
   });
 
@@ -211,8 +211,8 @@ describe('SPECIAL_TAG_REGEX', () => {
       }
     );
 
-    test('close is null (atomic token)', () => {
-      expect(embedEntry.close).toBeFalsy();
+    test('close is undefined (atomic token)', () => {
+      expect(embedEntry.close).toBeUndefined();
     });
   });
 
@@ -284,8 +284,8 @@ describe('SPECIAL_TAG_REGEX', () => {
       assertMatches(content, externalLinkEntry.open, expectedMatches);
     });
 
-    test('close is null (atomic token)', () => {
-      expect(externalLinkEntry.close).toBeFalsy();
+    test('close is undefined (atomic token)', () => {
+      expect(externalLinkEntry.close).toBeUndefined();
     });
   });
 

@@ -1,5 +1,5 @@
 import type { EditorPosition } from 'obsidian';
-import type { TagPosition } from '../../interfaces';
+import type { TagPosition } from '../interfaces';
 
 /** Builds an array where index i holds the character offset of line i's first character. */
 const buildLineOffsets = (content: string) => [

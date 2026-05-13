@@ -1,7 +1,7 @@
 import { ESpecialTagType } from '../../../../interfaces';
 import type { TagPosition } from '../../../interfaces';
 import type { TMatchRecord } from '../../interfaces';
-import { tagPositionToRange } from '../../../get-active-tags/utils';
+import { tagPositionToRange } from '../../../utils';
 import { SQUARE_BRACKET_REGEX, STYLE_ATTRIBUTE_REGEX } from '../../constants';
 import { mergeSortedRanges } from '../../utils';
 

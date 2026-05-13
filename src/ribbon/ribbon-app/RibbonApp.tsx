@@ -4,7 +4,7 @@ import { TabBar } from '../tab-bar/TabBar';
 import { HomeTabPanel } from '../../tabs/home/Home';
 import { InsertTabPanel } from '../../tabs/insert/Insert';
 import { useApp } from '../../shared/context/AppContext';
-import { getActiveTags } from '../../shared/editor-v2/detection-engine';
+import { buildContentTags, getActiveTags } from '../../shared/editor-v2/detection-engine';
 
 import '../ribbon-app.css';
 
@@ -30,7 +30,8 @@ export function RibbonApp() {
       const selectionFrom = editor.getCursor('from');
       const selectionTo = editor.getCursor('to');
 
-      getActiveTags(sourceText, { start: selectionFrom, end: selectionTo });
+      const tags = buildContentTags(sourceText);
+      getActiveTags(tags, { start: selectionFrom, end: selectionTo });
     };
 
     const editorChangeRef = app.workspace.on('editor-change', handleChange);
